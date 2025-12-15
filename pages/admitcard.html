@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Admit Card</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.filter-section {
+			background: white;
+			border-radius: 16px;
+			padding: 20px 24px;
+			margin-bottom: 24px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			gap: 16px;
+			flex-wrap: wrap;
+			align-items: end;
+		}
+		.filter-group {
+			flex: 1;
+			min-width: 200px;
+		}
+		.filter-group label {
+			display: block;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			margin-bottom: 8px;
+		}
+		.filter-group input,
+		.filter-group select {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.filter-group input:focus,
+		.filter-group select:focus {
+			outline: none;
+			border-color: #6366f1;
+		}
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { 
+			background: linear-gradient(135deg, #6366f1, #4f46e5);
+			background-color: #6366f1;
+		}
+		.data-table th {
+			padding: 16px 12px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 12px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			background: linear-gradient(135deg, #6366f1, #4f46e5);
+		}
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 12px; font-size: 14px; color: #334155; vertical-align: middle; }
+
+		.content-wrapper {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 24px;
+			margin-top: 24px;
+		}
+		@media (max-width: 1200px) {
+			.content-wrapper {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.admit-card-preview {
+			background: white;
+			border-radius: 16px;
+			padding: 30px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			position: sticky;
+			top: 20px;
+		}
+		.admit-card-preview.hidden {
+			display: none;
+		}
+		.preview-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		.preview-header h3 {
+			font-size: 18px;
+			color: #1e293b;
+		}
+		.preview-actions {
+			display: flex;
+			gap: 10px;
+		}
+
+		#admitCard {
+			background: white;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			padding: 30px;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+		.school-header {
+			text-align: center;
+			border-bottom: 3px solid #6366f1;
+			padding-bottom: 20px;
+			margin-bottom: 30px;
+		}
+		.school-header h2 {
+			font-size: 28px;
+			color: #1e293b;
+			margin-bottom: 8px;
+		}
+		.school-header p {
+			font-size: 14px;
+			color: #64748b;
+		}
+		.admit-title {
+			text-align: center;
+			font-size: 24px;
+			font-weight: 700;
+			color: #6366f1;
+			margin-bottom: 30px;
+		}
+		.student-info-section {
+			display: grid;
+			grid-template-columns: 150px 1fr;
+			gap: 30px;
+			margin-bottom: 30px;
+		}
+		.student-photo {
+			width: 150px;
+			height: 180px;
+			border: 2px solid #e2e8f0;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #f8fafc;
+			overflow: hidden;
+		}
+		.student-photo img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.student-photo .placeholder {
+			font-size: 48px;
+			color: #cbd5e1;
+		}
+		.student-details {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+		}
+		.detail-item {
+			margin-bottom: 12px;
+		}
+		.detail-label {
+			font-size: 12px;
+			color: #64748b;
+			margin-bottom: 4px;
+			font-weight: 600;
+		}
+		.detail-value {
+			font-size: 14px;
+			color: #1e293b;
+			font-weight: 500;
+		}
+		.exam-info {
+			background: #f8fafc;
+			padding: 20px;
+			border-radius: 8px;
+			margin-bottom: 30px;
+		}
+		.exam-info h4 {
+			font-size: 16px;
+			color: #1e293b;
+			margin-bottom: 16px;
+		}
+		.subjects-table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 30px;
+		}
+		.subjects-table th,
+		.subjects-table td {
+			padding: 12px;
+			text-align: left;
+			border: 1px solid #e2e8f0;
+		}
+		.subjects-table th {
+			background: #6366f1;
+			color: white;
+			font-weight: 600;
+		}
+		.subjects-table tr:nth-child(even) {
+			background: #f8fafc;
+		}
+		.instructions {
+			background: #fffbeb;
+			border-left: 4px solid #f59e0b;
+			padding: 16px;
+			margin-bottom: 30px;
+			border-radius: 4px;
+		}
+		.instructions h4 {
+			font-size: 14px;
+			color: #92400e;
+			margin-bottom: 12px;
+		}
+		.instructions ul {
+			margin-left: 20px;
+			color: #78350f;
+			font-size: 13px;
+		}
+		.instructions li {
+			margin-bottom: 6px;
+		}
+		.signatures {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 40px;
+			margin-top: 40px;
+		}
+		.signature-box {
+			text-align: center;
+		}
+		.signature-line {
+			border-top: 2px solid #1e293b;
+			margin-top: 60px;
+			margin-bottom: 8px;
+		}
+		.signature-label {
+			font-size: 13px;
+			color: #64748b;
+			font-weight: 600;
+		}
+
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+		}
+		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
+		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
+		.empty-state p { color: #94a3b8; }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.page-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.page-btn:hover:not(:disabled) { border-color: #6366f1; color: #6366f1; }
+		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+
+		@media print {
+			body * {
+				visibility: hidden;
+			}
+			#admitCard, #admitCard * {
+				visibility: visible;
+			}
+			#admitCard {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				border: none;
+				padding: 20px;
+			}
+			.preview-actions {
+				display: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="page admitcard-page active">
+		<div class="page-header">
+			<div class="page-title-section">
+				<h1><i class="fas fa-id-card" style="color: #6366f1; margin-right: 10px;"></i>Admit Card</h1>
+				<p>Generate and print admit cards for students</p>
+			</div>
+		</div>
+
+		<div class="filter-section">
+			<div class="filter-group">
+				<label><i class="fas fa-search"></i> Search Student</label>
+				<input type="text" id="searchInput" placeholder="Student ID or Name">
+			</div>
+			<div class="filter-group">
+				<label><i class="fas fa-layer-group"></i> Class</label>
+				<select id="classFilter">
+					<option value="">All Classes</option>
+					<option value="1">Class 1</option>
+					<option value="2">Class 2</option>
+					<option value="3">Class 3</option>
+					<option value="4">Class 4</option>
+					<option value="5">Class 5</option>
+					<option value="6">Class 6</option>
+					<option value="7">Class 7</option>
+					<option value="8">Class 8</option>
+					<option value="9">Class 9</option>
+					<option value="10">Class 10</option>
+					<option value="11">Class 11</option>
+					<option value="12">Class 12</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label><i class="fas fa-columns"></i> Section</label>
+				<select id="sectionFilter">
+					<option value="">All Sections</option>
+					<option value="A">Section A</option>
+					<option value="B">Section B</option>
+					<option value="C">Section C</option>
+					<option value="Science">Science</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="content-wrapper">
+			<div class="table-card">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>Student ID</th>
+							<th>Name</th>
+							<th>Class</th>
+							<th>Section</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody"></tbody>
+				</table>
+				<div class="table-footer">
+					<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 students</div>
+					<div class="pagination-btns">
+						<button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+						<span id="pageNum" style="padding: 0 12px; font-weight: 600;">1</span>
+						<button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+						<select class="page-select" id="pageSizeSelect">
+							<option value="10">10 / page</option>
+							<option value="20">20 / page</option>
+							<option value="50">50 / page</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div class="admit-card-preview hidden" id="admitCardPreview">
+				<div class="preview-header">
+					<h3>Admit Card Preview</h3>
+					<div class="preview-actions">
+						<button class="btn btn-primary btn-sm" id="printBtn"><i class="fas fa-print"></i> Print</button>
+						<button class="btn btn-success btn-sm" id="downloadPdfBtn"><i class="fas fa-download"></i> Download PDF</button>
+					</div>
+				</div>
+				<div id="admitCard">
+					<div class="school-header">
+						<h2>EduManage Pro School</h2>
+						<p>123 Education Street, Learning City - 123456 | Phone: +91 9876543210 | Email: info@edumanage.edu</p>
+					</div>
+					<div class="admit-title">EXAMINATION ADMIT CARD</div>
+					
+					<div class="student-info-section">
+						<div class="student-photo" id="studentPhoto">
+							<div class="placeholder"><i class="fas fa-user"></i></div>
+						</div>
+						<div class="student-details" id="studentDetails"></div>
+					</div>
+
+					<div class="exam-info">
+						<h4><i class="fas fa-calendar-alt"></i> Examination Information</h4>
+						<div id="examInfo"></div>
+					</div>
+
+					<table class="subjects-table">
+						<thead>
+							<tr>
+								<th>Subject Code</th>
+								<th>Subject Name</th>
+								<th>Date</th>
+								<th>Time</th>
+								<th>Venue</th>
+							</tr>
+						</thead>
+						<tbody id="subjectsTableBody"></tbody>
+					</table>
+
+					<div class="instructions">
+						<h4><i class="fas fa-exclamation-circle"></i> Important Instructions</h4>
+						<ul>
+							<li>Report to the examination hall 30 minutes before the scheduled time.</li>
+							<li>Carry this admit card and valid ID proof to the examination center.</li>
+							<li>No electronic devices, calculators, or study materials are allowed.</li>
+							<li>Follow all instructions given by the invigilator.</li>
+							<li>Maintain discipline and silence during the examination.</li>
+						</ul>
+					</div>
+
+					<div class="signatures">
+						<div class="signature-box">
+							<div class="signature-line"></div>
+							<div class="signature-label">Student Signature</div>
+						</div>
+						<div class="signature-box">
+							<div class="signature-line"></div>
+							<div class="signature-label">Principal Signature</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function() {
+			const STORAGE_KEY = 'edu_students';
+			let students = [];
+			let page = 1;
+			let pageSize = 10;
+			let selectedStudent = null;
+
+			// Get current user role and info
+			function getCurrentUserInfo() {
+				try {
+					const role = localStorage.getItem('edu_role') || 'student';
+					const username = localStorage.getItem('edu_username') || '';
+					const displayName = localStorage.getItem('edu_user_display') || username;
+					return { role, username, displayName };
+				} catch(e) {
+					return { role: 'student', username: '', displayName: '' };
+				}
+			}
+
+			function loadStudents() {
+				try {
+					const data = localStorage.getItem(STORAGE_KEY);
+					if (data) {
+						students = JSON.parse(data);
+					} else {
+						students = [];
+					}
+				} catch (e) {
+					students = [];
+				}
+			}
+
+			function renderTable() {
+				const userInfo = getCurrentUserInfo();
+				const isStudent = userInfo.role === 'student';
+				const search = $('#searchInput').val().toLowerCase();
+				const classFilter = $('#classFilter').val();
+				const sectionFilter = $('#sectionFilter').val();
+
+				// For students, filter to show only their own record
+				let baseFilter = students;
+				if (isStudent && userInfo.displayName) {
+					// Try to find student by name (since students don't have login username matching student ID)
+					baseFilter = students.filter(s => 
+						s.name.toLowerCase().includes(userInfo.displayName.toLowerCase()) ||
+						s.id.toLowerCase().includes(userInfo.displayName.toLowerCase())
+					);
+					// Hide filters for students since they can only see their own card
+					if (baseFilter.length > 0) {
+						$('.filter-section').hide();
+					}
+				} else {
+					$('.filter-section').show();
+				}
+
+				let filtered = baseFilter.filter(s => {
+					const matchSearch = !search || [s.id, s.name].join(' ').toLowerCase().includes(search);
+					const matchClass = !classFilter || s.class === classFilter;
+					const matchSection = !sectionFilter || s.section === sectionFilter;
+					return matchSearch && matchClass && matchSection;
+				});
+
+				const total = filtered.length;
+				const totalPages = Math.max(1, Math.ceil(total / pageSize));
+				if (page > totalPages) page = totalPages;
+				const start = (page - 1) * pageSize;
+				const pageData = filtered.slice(start, start + pageSize);
+
+				if (pageData.length === 0) {
+					const emptyMsg = isStudent ? 'Your admit card information is not available. Please contact the administration.' : 'No Students Found';
+					const emptySubMsg = isStudent ? '' : 'Adjust your search or filters';
+					$('#tableBody').html(`<tr><td colspan="5"><div class="empty-state"><i class="fas fa-user-graduate"></i><h3>${emptyMsg}</h3><p>${emptySubMsg}</p></div></td></tr>`);
+				} else {
+					// Auto-generate for students if only one record
+					if (isStudent && pageData.length === 1) {
+						setTimeout(() => {
+							generateAdmitCard(pageData[0].id);
+						}, 100);
+					}
+					
+					$('#tableBody').html(pageData.map(s => `
+						<tr>
+							<td><strong>${s.id}</strong></td>
+							<td>${s.name}</td>
+							<td>Class ${s.class}</td>
+							<td>${s.section}</td>
+							<td>
+								<button class="btn btn-primary btn-sm generate-btn" data-id="${s.id}">
+									<i class="fas fa-file-alt"></i> ${isStudent ? 'View' : 'Generate'}
+								</button>
+							</td>
+						</tr>
+					`).join(''));
+				}
+
+				$('#pageInfo').text(`Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} students`);
+				$('#pageNum').text(page);
+				$('#prevBtn').prop('disabled', page <= 1);
+				$('#nextBtn').prop('disabled', page >= totalPages);
+			}
+
+			function generateAdmitCard(studentId) {
+				const student = students.find(s => s.id === studentId);
+				if (!student) {
+					notify('Student not found!', 'error');
+					return;
+				}
+
+				selectedStudent = student;
+
+				// Student Photo
+				if (student.photo) {
+					$('#studentPhoto').html(`<img src="${student.photo}" alt="${student.name}">`);
+				} else {
+					const initials = student.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+					$('#studentPhoto').html(`<div style="font-size: 48px; color: #6366f1; font-weight: 700;">${initials}</div>`);
+				}
+
+				// Student Details
+				$('#studentDetails').html(`
+					<div class="detail-item">
+						<div class="detail-label">Student ID</div>
+						<div class="detail-value">${student.id}</div>
+					</div>
+					<div class="detail-item">
+						<div class="detail-label">Full Name</div>
+						<div class="detail-value">${student.name}</div>
+					</div>
+					<div class="detail-item">
+						<div class="detail-label">Class</div>
+						<div class="detail-value">Class ${student.class}</div>
+					</div>
+					<div class="detail-item">
+						<div class="detail-label">Section</div>
+						<div class="detail-value">${student.section}</div>
+					</div>
+					<div class="detail-item">
+						<div class="detail-label">Date of Birth</div>
+						<div class="detail-value">${student.dob || 'N/A'}</div>
+					</div>
+					<div class="detail-item">
+						<div class="detail-label">Parent/Guardian</div>
+						<div class="detail-value">${student.parent || 'N/A'}</div>
+					</div>
+				`);
+
+				// Exam Info
+				const examDate = new Date();
+				examDate.setDate(examDate.getDate() + 30);
+				$('#examInfo').html(`
+					<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+						<div class="detail-item">
+							<div class="detail-label">Examination Name</div>
+							<div class="detail-value">Annual Examination 2025</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Examination Date</div>
+							<div class="detail-value">${examDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Academic Year</div>
+							<div class="detail-value">2024-2025</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Center Code</div>
+							<div class="detail-value">CEN-${student.class}${student.section}</div>
+						</div>
+					</div>
+				`);
+
+				// Subjects Table
+				const subjects = [
+					{ code: 'ENG', name: 'English', date: examDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), time: '9:00 AM - 12:00 PM', venue: 'Hall A' },
+					{ code: 'MATH', name: 'Mathematics', date: new Date(examDate.getTime() + 86400000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), time: '9:00 AM - 12:00 PM', venue: 'Hall B' },
+					{ code: 'SCI', name: 'Science', date: new Date(examDate.getTime() + 172800000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), time: '9:00 AM - 12:00 PM', venue: 'Hall A' },
+					{ code: 'SOC', name: 'Social Studies', date: new Date(examDate.getTime() + 259200000).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), time: '9:00 AM - 12:00 PM', venue: 'Hall C' }
+				];
+
+				$('#subjectsTableBody').html(subjects.map(sub => `
+					<tr>
+						<td>${sub.code}</td>
+						<td>${sub.name}</td>
+						<td>${sub.date}</td>
+						<td>${sub.time}</td>
+						<td>${sub.venue}</td>
+					</tr>
+				`).join(''));
+
+				$('#admitCardPreview').removeClass('hidden');
+			}
+
+			function notify(msg, type = 'success') {
+				$('.toast').remove();
+				const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#6366f1';
+				const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+				const toast = $('<div>').addClass('toast').css({
+					position: 'fixed',
+					bottom: '30px',
+					right: '30px',
+					padding: '14px 20px',
+					background: bg,
+					color: 'white',
+					borderRadius: '10px',
+					fontWeight: '600',
+					zIndex: '10000',
+					display: 'flex',
+					alignItems: 'center',
+					gap: '8px',
+					animation: 'slideIn 0.3s ease',
+					fontFamily: "'Segoe UI', sans-serif",
+					fontSize: '14px'
+				}).html(`<i class="fas fa-${icon}"></i> ${msg}`);
+				
+				$('body').append(toast);
+				
+				setTimeout(() => {
+					toast.css('opacity', '0');
+					setTimeout(() => toast.remove(), 300);
+				}, 2500);
+			}
+
+			function printAdmitCard() {
+				if (!selectedStudent) {
+					notify('Please generate an admit card first!', 'error');
+					return;
+				}
+				window.print();
+			}
+
+			async function downloadPDF() {
+				if (!selectedStudent) {
+					notify('Please generate an admit card first!', 'error');
+					return;
+				}
+
+				try {
+					const { jsPDF } = window.jspdf;
+					const element = document.getElementById('admitCard');
+					
+					const canvas = await html2canvas(element, {
+						scale: 2,
+						useCORS: true,
+						backgroundColor: '#ffffff'
+					});
+
+					const imgData = canvas.toDataURL('image/png');
+					const pdf = new jsPDF('p', 'mm', 'a4');
+					const imgWidth = 210;
+					const pageHeight = 297;
+					const imgHeight = (canvas.height * imgWidth) / canvas.width;
+					let heightLeft = imgHeight;
+					let position = 0;
+
+					pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+					heightLeft -= pageHeight;
+
+					while (heightLeft > 0) {
+						position = heightLeft - imgHeight;
+						pdf.addPage();
+						pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+						heightLeft -= pageHeight;
+					}
+
+					pdf.save(`AdmitCard_${selectedStudent.id}_${selectedStudent.name.replace(/\s+/g, '_')}.pdf`);
+					notify('PDF downloaded successfully!', 'success');
+				} catch (error) {
+					console.error('PDF generation error:', error);
+					notify('Error generating PDF. Please try printing instead.', 'error');
+				}
+			}
+
+			// Event Listeners
+			$(document).on('click', '.generate-btn', function() {
+				const studentId = $(this).data('id');
+				generateAdmitCard(studentId);
+				notify('Admit card generated!', 'success');
+			});
+
+			$('#searchInput').on('input', () => { page = 1; renderTable(); });
+			$('#classFilter').on('change', () => { page = 1; renderTable(); });
+			$('#sectionFilter').on('change', () => { page = 1; renderTable(); });
+			$('#prevBtn').on('click', () => { if (page > 1) { page--; renderTable(); } });
+			$('#nextBtn').on('click', () => { page++; renderTable(); });
+			$('#pageSizeSelect').on('change', function() { pageSize = parseInt($(this).val()); page = 1; renderTable(); });
+			$('#printBtn').on('click', printAdmitCard);
+			$('#downloadPdfBtn').on('click', downloadPDF);
+
+			// Initialize
+			loadStudents();
+			renderTable();
+		});
+	</script>
+</body>
+</html>
+

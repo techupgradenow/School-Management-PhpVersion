@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Transport Management</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		* { box-sizing: border-box; }
+		body { 
+			font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+			background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 50%, #f0f9ff 100%);
+			min-height: 100vh;
+			margin: 0;
+			padding: 20px;
+		}
+
+		/* Header */
+		.page-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 24px;
+			padding: 24px 28px;
+			background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+			border-radius: 20px;
+			box-shadow: 0 10px 40px rgba(8, 145, 178, 0.3);
+		}
+		.page-header h1 {
+			color: #fff;
+			font-size: 26px;
+			font-weight: 800;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+		.page-header h1 i {
+			font-size: 32px;
+			background: rgba(255,255,255,0.2);
+			padding: 12px;
+			border-radius: 14px;
+		}
+		.header-actions {
+			display: flex;
+			gap: 12px;
+		}
+		.btn-add {
+			padding: 14px 24px;
+			background: #fff;
+			color: #0891b2;
+			border: none;
+			border-radius: 12px;
+			font-weight: 700;
+			font-size: 14px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.3s;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+		}
+		.btn-add:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+		}
+
+		/* Stats Dashboard */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		@media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+		@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+		.stat-card {
+			background: #fff;
+			border-radius: 16px;
+			padding: 20px;
+			position: relative;
+			overflow: hidden;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+			transition: all 0.3s ease;
+		}
+		.stat-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+		}
+		.stat-card::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			right: 0;
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			opacity: 0.1;
+			transform: translate(30%, -30%);
+		}
+		.stat-card.buses::after { background: #0891b2; }
+		.stat-card.routes::after { background: #8b5cf6; }
+		.stat-card.students::after { background: #22c55e; }
+		.stat-card.drivers::after { background: #f59e0b; }
+		.stat-card.stops::after { background: #ec4899; }
+		
+		.stat-icon {
+			width: 52px;
+			height: 52px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 22px;
+			color: #fff;
+			margin-bottom: 14px;
+		}
+		.stat-card.buses .stat-icon { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+		.stat-card.routes .stat-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+		.stat-card.students .stat-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.stat-card.drivers .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.stat-card.stops .stat-icon { background: linear-gradient(135deg, #ec4899, #db2777); }
+		
+		.stat-label {
+			font-size: 12px;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			font-weight: 600;
+			margin-bottom: 6px;
+		}
+		.stat-value {
+			font-size: 28px;
+			font-weight: 800;
+			color: #1e293b;
+		}
+
+		/* Navigation Tabs */
+		.nav-tabs {
+			display: flex;
+			gap: 6px;
+			padding: 6px;
+			background: #fff;
+			border-radius: 16px;
+			margin-bottom: 20px;
+			box-shadow: 0 2px 15px rgba(0,0,0,0.04);
+		}
+		.nav-tab {
+			flex: 1;
+			padding: 14px 20px;
+			border: none;
+			background: transparent;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			color: #64748b;
+			cursor: pointer;
+			transition: all 0.3s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+		}
+		.nav-tab:hover { background: #f0fdfa; color: #0891b2; }
+		.nav-tab.active {
+			background: linear-gradient(135deg, #0891b2, #06b6d4);
+			color: #fff;
+			box-shadow: 0 4px 15px rgba(8, 145, 178, 0.4);
+		}
+		.nav-tab i { font-size: 16px; }
+
+		/* Content Container */
+		.content-card {
+			background: #fff;
+			border-radius: 20px;
+			box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+			overflow: hidden;
+		}
+
+		/* Toolbar */
+		.toolbar {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			padding: 20px 24px;
+			background: linear-gradient(180deg, #f8fafc, #fff);
+			border-bottom: 1px solid #e2e8f0;
+			flex-wrap: wrap;
+		}
+		.search-box {
+			flex: 1;
+			min-width: 250px;
+			position: relative;
+		}
+		.search-box i {
+			position: absolute;
+			left: 16px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #94a3b8;
+		}
+		.search-box input {
+			width: 100%;
+			height: 46px;
+			padding: 0 16px 0 46px;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+		.search-box input:focus {
+			outline: none;
+			border-color: #0891b2;
+			box-shadow: 0 0 0 4px rgba(8,145,178,0.1);
+		}
+		.filter-select {
+			height: 46px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			font-size: 14px;
+			min-width: 180px;
+			background: #fff;
+			cursor: pointer;
+		}
+		.filter-select:focus {
+			outline: none;
+			border-color: #0891b2;
+		}
+		.toolbar-actions {
+			display: flex;
+			gap: 10px;
+		}
+		.btn-toolbar {
+			padding: 12px 18px;
+			border: 2px solid #e2e8f0;
+			background: #fff;
+			border-radius: 10px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+		}
+		.btn-toolbar:hover {
+			border-color: #0891b2;
+			color: #0891b2;
+			background: #f0fdfa;
+		}
+		.btn-toolbar.primary {
+			background: linear-gradient(135deg, #0891b2, #06b6d4);
+			color: #fff;
+			border: none;
+		}
+		.btn-toolbar.primary:hover {
+			box-shadow: 0 4px 15px rgba(8,145,178,0.4);
+		}
+
+		/* Route Cards */
+		.routes-container {
+			padding: 24px;
+		}
+		.routes-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+			gap: 20px;
+		}
+		.route-card {
+			background: #fff;
+			border-radius: 18px;
+			overflow: hidden;
+			border: 1px solid #e2e8f0;
+			transition: all 0.3s ease;
+		}
+		.route-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+			border-color: #0891b2;
+		}
+		.route-header {
+			padding: 24px;
+			background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+			color: #fff;
+			position: relative;
+		}
+		.route-number {
+			font-size: 42px;
+			font-weight: 900;
+			line-height: 1;
+			margin-bottom: 6px;
+			text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+		}
+		.route-name {
+			font-size: 15px;
+			opacity: 0.9;
+			font-weight: 500;
+		}
+		.route-badge {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			padding: 8px 14px;
+			background: rgba(255,255,255,0.2);
+			backdrop-filter: blur(10px);
+			border-radius: 25px;
+			font-size: 12px;
+			font-weight: 700;
+		}
+		.route-body {
+			padding: 24px;
+		}
+		.route-details {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+		.route-detail {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.detail-icon {
+			width: 42px;
+			height: 42px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 16px;
+		}
+		.detail-icon.bus { background: #cffafe; color: #0891b2; }
+		.detail-icon.driver { background: #fef3c7; color: #d97706; }
+		.detail-icon.time { background: #e0e7ff; color: #6366f1; }
+		.detail-icon.fee { background: #dcfce7; color: #16a34a; }
+
+		.detail-text { font-size: 13px; }
+		.detail-label { color: #94a3b8; margin-bottom: 2px; }
+		.detail-value { font-weight: 700; color: #1e293b; }
+
+		/* Route Stops */
+		.route-stops {
+			border-top: 1px solid #e2e8f0;
+			padding-top: 20px;
+		}
+		.stops-header {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 16px;
+			font-size: 13px;
+			font-weight: 700;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.stops-header i { color: #0891b2; }
+
+		.stops-timeline {
+			position: relative;
+			padding-left: 20px;
+		}
+		.stops-timeline::before {
+			content: '';
+			position: absolute;
+			left: 8px;
+			top: 4px;
+			bottom: 4px;
+			width: 2px;
+			background: linear-gradient(180deg, #0891b2, #22c55e);
+			border-radius: 2px;
+		}
+		.stop-item {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			padding: 8px 0;
+			position: relative;
+		}
+		.stop-dot {
+			width: 18px;
+			height: 18px;
+			border-radius: 50%;
+			background: #fff;
+			border: 3px solid #0891b2;
+			position: absolute;
+			left: -12px;
+			z-index: 1;
+		}
+		.stop-dot.start { background: #0891b2; }
+		.stop-dot.end { background: #22c55e; border-color: #22c55e; }
+
+		.stop-info { flex: 1; }
+		.stop-name { font-weight: 600; font-size: 14px; color: #1e293b; }
+		.stop-time { font-size: 12px; color: #64748b; }
+
+		/* Route Actions */
+		.route-actions {
+			display: flex;
+			gap: 10px;
+			margin-top: 20px;
+			padding-top: 20px;
+			border-top: 1px solid #e2e8f0;
+		}
+		.route-btn {
+			flex: 1;
+			padding: 12px 16px;
+			border: none;
+			border-radius: 12px;
+			font-size: 13px;
+			font-weight: 600;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			transition: all 0.2s;
+		}
+		.route-btn.primary {
+			background: linear-gradient(135deg, #0891b2, #06b6d4);
+			color: #fff;
+		}
+		.route-btn.primary:hover {
+			box-shadow: 0 4px 15px rgba(8,145,178,0.4);
+		}
+		.route-btn.secondary {
+			background: #f1f5f9;
+			color: #475569;
+		}
+		.route-btn.secondary:hover {
+			background: #e2e8f0;
+		}
+
+		/* Data Table */
+		.table-container {
+			display: none;
+		}
+		.table-container.show {
+			display: block;
+		}
+		.table-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 20px 24px;
+			background: linear-gradient(180deg, #f8fafc, #fff);
+			border-bottom: 1px solid #e2e8f0;
+		}
+		.table-title {
+			font-size: 18px;
+			font-weight: 700;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.table-title i {
+			color: #0891b2;
+			background: #cffafe;
+			padding: 10px;
+			border-radius: 10px;
+		}
+		.table-count {
+			background: #e2e8f0;
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #64748b;
+		}
+
+		.data-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.data-table th {
+			background: #f8fafc;
+			padding: 16px 20px;
+			text-align: left;
+			font-size: 12px;
+			font-weight: 700;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			border-bottom: 2px solid #e2e8f0;
+		}
+		.data-table td {
+			padding: 16px 20px;
+			border-bottom: 1px solid #f1f5f9;
+			font-size: 14px;
+			color: #334155;
+			vertical-align: middle;
+		}
+		.data-table tr:hover {
+			background: #f8fafc;
+		}
+
+		/* Student Info Cell */
+		.student-cell {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+		.student-avatar {
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 700;
+			font-size: 15px;
+			color: #fff;
+		}
+		.student-name { font-weight: 600; color: #1e293b; }
+		.student-id { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+		/* Badges */
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+		.badge.route { background: #cffafe; color: #0891b2; }
+		.badge.paid { background: #dcfce7; color: #16a34a; }
+		.badge.due { background: #fee2e2; color: #dc2626; }
+		.badge.active { background: #dcfce7; color: #16a34a; }
+		.badge.inactive { background: #fee2e2; color: #dc2626; }
+
+		/* Action Buttons */
+		.action-btns {
+			display: flex;
+			gap: 8px;
+		}
+		.action-btn {
+			width: 36px;
+			height: 36px;
+			border: none;
+			border-radius: 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+		.action-btn.view { background: #dbeafe; color: #2563eb; }
+		.action-btn.edit { background: #fef3c7; color: #d97706; }
+		.action-btn.delete { background: #fee2e2; color: #dc2626; }
+		.action-btn:hover { transform: scale(1.1); }
+
+		/* Driver & Vehicle Cards */
+		.cards-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+			gap: 20px;
+			padding: 24px;
+		}
+		.info-card {
+			background: #fff;
+			border-radius: 16px;
+			padding: 24px;
+			border: 1px solid #e2e8f0;
+			transition: all 0.3s;
+		}
+		.info-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+			border-color: #0891b2;
+		}
+		.info-card-header {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+		.info-card-avatar {
+			width: 60px;
+			height: 60px;
+			border-radius: 16px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+			font-weight: 800;
+			color: #fff;
+		}
+		.info-card-avatar.driver { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.info-card-avatar.vehicle { background: linear-gradient(135deg, #64748b, #475569); }
+
+		.info-card-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+		.info-card-subtitle { font-size: 13px; color: #64748b; }
+		.info-card-status {
+			margin-left: auto;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			background: #dcfce7;
+			color: #16a34a;
+		}
+		.info-card-body {
+			display: grid;
+			gap: 12px;
+		}
+		.info-row {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px;
+			background: #f8fafc;
+			border-radius: 10px;
+		}
+		.info-row i {
+			width: 32px;
+			height: 32px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #fff;
+			border-radius: 8px;
+			color: #64748b;
+			font-size: 14px;
+		}
+		.info-row-label { font-size: 12px; color: #94a3b8; }
+		.info-row-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+
+		/* Pagination */
+		.pagination {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 16px 24px;
+			border-top: 1px solid #e2e8f0;
+			background: #f8fafc;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; gap: 8px; }
+		.pagination-btn {
+			padding: 10px 16px;
+			border: 1px solid #e2e8f0;
+			background: #fff;
+			border-radius: 10px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+		.pagination-btn:hover {
+			border-color: #0891b2;
+			color: #0891b2;
+		}
+
+		/* Modal */
+		.modal {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(15, 23, 42, 0.7);
+			backdrop-filter: blur(8px);
+			z-index: 9999;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.3s;
+		}
+		.modal.show { opacity: 1; visibility: visible; }
+		.modal-content {
+			background: #fff;
+			border-radius: 20px;
+			width: 540px;
+			max-width: 95vw;
+			max-height: 90vh;
+			overflow-y: auto;
+			box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+			transform: scale(0.9);
+			transition: transform 0.3s;
+		}
+		.modal.show .modal-content { transform: scale(1); }
+		.modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 24px;
+			border-bottom: 1px solid #e2e8f0;
+			background: linear-gradient(180deg, #cffafe, #fff);
+		}
+		.modal-title {
+			font-size: 20px;
+			font-weight: 700;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.modal-title::before {
+			content: '';
+			width: 4px;
+			height: 24px;
+			background: linear-gradient(180deg, #0891b2, #06b6d4);
+			border-radius: 2px;
+		}
+		.modal-close {
+			width: 40px;
+			height: 40px;
+			border: none;
+			background: #f1f5f9;
+			border-radius: 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #64748b;
+			transition: all 0.2s;
+		}
+		.modal-close:hover { background: #e2e8f0; }
+		.modal-body { padding: 24px; }
+		.form-group { margin-bottom: 20px; }
+		.form-label {
+			display: block;
+			margin-bottom: 8px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.form-input, .form-select, .form-textarea {
+			width: 100%;
+			height: 50px;
+			padding: 0 18px;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			font-size: 15px;
+			transition: all 0.2s;
+		}
+		.form-textarea {
+			height: auto;
+			padding: 14px 18px;
+			resize: vertical;
+			font-family: inherit;
+		}
+		.form-input:focus, .form-select:focus, .form-textarea:focus {
+			outline: none;
+			border-color: #0891b2;
+			box-shadow: 0 0 0 4px rgba(8,145,178,0.1);
+		}
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+		}
+		.modal-footer {
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+			padding: 20px 24px;
+			background: #f8fafc;
+			border-top: 1px solid #e2e8f0;
+		}
+		.btn-cancel {
+			padding: 14px 24px;
+			background: #fff;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			color: #64748b;
+			cursor: pointer;
+		}
+		.btn-save {
+			padding: 14px 28px;
+			background: linear-gradient(135deg, #0891b2, #06b6d4);
+			border: none;
+			border-radius: 12px;
+			font-size: 14px;
+			font-weight: 600;
+			color: #fff;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			box-shadow: 0 4px 15px rgba(8,145,178,0.4);
+		}
+		.btn-save:hover { box-shadow: 0 6px 20px rgba(8,145,178,0.5); }
+	</style>
+</head>
+<body>
+	<!-- Page Header -->
+	<div class="page-header">
+		<h1><i class="fas fa-bus-alt"></i> Transport Management</h1>
+		<div class="header-actions">
+			<button class="btn-add" id="addRouteBtn">
+				<i class="fas fa-plus"></i> Add New Route
+			</button>
+		</div>
+		</div>
+
+	<!-- Stats Dashboard -->
+	<div class="stats-grid">
+			<div class="stat-card buses">
+				<div class="stat-icon"><i class="fas fa-bus"></i></div>
+				<div class="stat-label">Total Buses</div>
+			<div class="stat-value">12</div>
+			</div>
+			<div class="stat-card routes">
+				<div class="stat-icon"><i class="fas fa-route"></i></div>
+				<div class="stat-label">Active Routes</div>
+			<div class="stat-value">8</div>
+			</div>
+			<div class="stat-card students">
+				<div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+				<div class="stat-label">Day Scholars</div>
+			<div class="stat-value">324</div>
+			</div>
+			<div class="stat-card drivers">
+				<div class="stat-icon"><i class="fas fa-id-card"></i></div>
+				<div class="stat-label">Drivers</div>
+			<div class="stat-value">12</div>
+			</div>
+			<div class="stat-card stops">
+				<div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+			<div class="stat-label">Total Stops</div>
+			<div class="stat-value">45</div>
+			</div>
+		</div>
+
+	<!-- Edit Hint Banner -->
+	<div style="background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 10px; padding: 12px 18px; margin: 0 24px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #047857;">
+		<i class="fas fa-lightbulb" style="color: #10b981; font-size: 16px;"></i>
+		<span><strong>Tip:</strong> Click on any cell in tables to edit inline. Changes save automatically. Use buttons for actions like collect fees and export.</span>
+	</div>
+
+	<!-- Navigation Tabs -->
+	<div class="nav-tabs">
+		<button class="nav-tab active" data-tab="routes">
+				<i class="fas fa-route"></i> Bus Routes
+			</button>
+		<button class="nav-tab" data-tab="students">
+			<i class="fas fa-user-graduate"></i> Day Scholars
+			</button>
+		<button class="nav-tab" data-tab="drivers">
+				<i class="fas fa-id-card"></i> Drivers
+			</button>
+		<button class="nav-tab" data-tab="vehicles">
+			<i class="fas fa-bus"></i> Vehicles
+		</button>
+		<button class="nav-tab" data-tab="fees">
+			<i class="fas fa-rupee-sign"></i> Transport Fees
+			</button>
+		</div>
+
+	<!-- Main Content -->
+	<div class="content-card">
+		<!-- Toolbar -->
+		<div class="toolbar">
+			<div class="search-box">
+				<i class="fas fa-search"></i>
+				<input type="text" id="searchInput" placeholder="Search routes, students, drivers...">
+			</div>
+			<select class="filter-select" id="filterRoute">
+				<option value="">All Routes</option>
+				<option value="R1">R1 - North City</option>
+				<option value="R2">R2 - South Zone</option>
+				<option value="R3">R3 - East End</option>
+				<option value="R4">R4 - West District</option>
+			</select>
+			<select class="filter-select" id="filterStatus">
+				<option value="">All Status</option>
+				<option value="active">✅ Active</option>
+				<option value="inactive">❌ Inactive</option>
+			</select>
+			<div class="toolbar-actions">
+				<button class="btn-toolbar" id="exportBtn">
+					<i class="fas fa-download"></i> Export
+				</button>
+				<button class="btn-toolbar" id="printBtn">
+					<i class="fas fa-print"></i> Print
+				</button>
+			</div>
+		</div>
+
+		<!-- Routes Content -->
+		<div class="routes-container" id="routesContent">
+			<div class="routes-grid" id="routeGrid"></div>
+		</div>
+
+		<!-- Students Table -->
+		<div class="table-container" id="studentsContent">
+			<div class="table-header">
+				<div class="table-title">
+					<i class="fas fa-user-graduate"></i>
+					<span>Day Scholar Students</span>
+					<span class="table-count" id="studentCount">10 students</span>
+				</div>
+				<button class="btn-toolbar primary" id="assignStudentBtn">
+					<i class="fas fa-plus"></i> Assign Student
+				</button>
+			</div>
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>Student</th>
+						<th>Class</th>
+						<th>Route</th>
+						<th>Pickup Stop</th>
+						<th>Pickup Time</th>
+						<th>Fee Status</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="studentsTableBody"></tbody>
+			</table>
+			<div class="pagination">
+				<div class="pagination-info">Showing 1-10 of <span id="totalStudents">10</span> students</div>
+				<div class="pagination-btns">
+					<button class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</button>
+					<button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Drivers Content -->
+		<div class="cards-grid" id="driversContent" style="display: none;"></div>
+
+		<!-- Vehicles Content -->
+		<div class="cards-grid" id="vehiclesContent" style="display: none;"></div>
+
+		<!-- Fees Table -->
+		<div class="table-container" id="feesContent">
+			<div class="table-header">
+				<div class="table-title">
+					<i class="fas fa-rupee-sign"></i>
+					<span>Transport Fees</span>
+				</div>
+				<button class="btn-toolbar" style="border-color: #22c55e; color: #22c55e;">
+					<i class="fas fa-bell"></i> Send Reminders
+				</button>
+				</div>
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>Student</th>
+						<th>Route</th>
+						<th>Monthly Fee</th>
+						<th>Paid</th>
+						<th>Balance</th>
+						<th>Last Payment</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="feesTableBody"></tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Add Route Modal -->
+	<div class="modal" id="routeModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title" id="routeModalTitle">Add New Route</div>
+				<button class="modal-close" id="closeRouteModal"><i class="fas fa-times"></i></button>
+				</div>
+			<div class="modal-body">
+				<input type="hidden" id="editRouteId">
+				<div class="form-row">
+					<div class="form-group">
+						<label class="form-label">Route Number</label>
+						<input type="text" class="form-input" id="routeNumber" placeholder="e.g. R5">
+					</div>
+					<div class="form-group">
+						<label class="form-label">Route Name</label>
+						<input type="text" class="form-input" id="routeName" placeholder="e.g. Central Zone Route">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label class="form-label">Assign Bus</label>
+						<select class="form-select" id="routeBus">
+							<option value="DL-01-AB-1234">🚌 DL-01-AB-1234</option>
+							<option value="DL-01-CD-5678">🚌 DL-01-CD-5678</option>
+							<option value="DL-01-EF-9012">🚌 DL-01-EF-9012</option>
+							<option value="DL-01-GH-3456">🚌 DL-01-GH-3456</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Assign Driver</label>
+						<select class="form-select" id="routeDriver">
+							<option value="Ramesh Kumar">Ramesh Kumar</option>
+							<option value="Suresh Singh">Suresh Singh</option>
+							<option value="Mukesh Yadav">Mukesh Yadav</option>
+							<option value="Vijay Sharma">Vijay Sharma</option>
+					</select>
+				</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label class="form-label">Start Time</label>
+						<input type="time" class="form-input" id="routeStartTime" value="07:00">
+				</div>
+					<div class="form-group">
+						<label class="form-label">Monthly Fee (₹)</label>
+						<input type="number" class="form-input" id="routeFee" placeholder="2500">
+			</div>
+			</div>
+				<div class="form-group">
+					<label class="form-label">Route Stops (one per line: Stop Name, Time)</label>
+					<textarea class="form-textarea" id="routeStops" rows="5" placeholder="Model Town, 7:00 AM
+Civil Lines, 7:15 AM
+Rajpur Road, 7:30 AM
+School, 7:45 AM"></textarea>
+		</div>
+	</div>
+			<div class="modal-footer">
+				<button class="btn-cancel" id="cancelRouteBtn">Cancel</button>
+				<button class="btn-save" id="saveRouteBtn"><i class="fas fa-check"></i> Save Route</button>
+				</div>
+				</div>
+			</div>
+			
+	<!-- Assign Student Modal -->
+	<div class="modal" id="assignModal">
+		<div class="modal-content">
+			<div class="modal-header" style="background: linear-gradient(180deg, #dcfce7, #fff);">
+				<div class="modal-title" style="--accent: #22c55e;">Assign Student to Route</div>
+				<button class="modal-close" id="closeAssignModal"><i class="fas fa-times"></i></button>
+				</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label class="form-label">Select Student</label>
+					<select class="form-select" id="assignStudent"></select>
+				</div>
+				<div class="form-group">
+					<label class="form-label">Select Route</label>
+					<select class="form-select" id="assignRoute"></select>
+				</div>
+				<div class="form-group">
+					<label class="form-label">Pickup Stop</label>
+					<select class="form-select" id="assignStop"></select>
+			</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn-cancel" id="cancelAssignBtn">Cancel</button>
+				<button class="btn-save" id="confirmAssignBtn" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34,197,94,0.4);">
+					<i class="fas fa-check"></i> Assign
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const ROUTES_KEY = 'edu_transport_routes';
+		const STUDENTS_KEY = 'edu_transport_students';
+
+		// Demo Data
+		const DEMO_ROUTES = [
+			{ id: 'R1', name: 'North City Route', bus: 'DL-01-AB-1234', driver: 'Ramesh Kumar', driverPhone: '9876543210', startTime: '07:00', fee: 2500, students: 42, stops: [
+				{ name: 'Model Town', time: '7:00 AM' }, { name: 'Civil Lines', time: '7:10 AM' }, { name: 'Rajpur Road', time: '7:20 AM' }, { name: 'Clock Tower', time: '7:30 AM' }, { name: 'School', time: '7:45 AM' }
+			]},
+			{ id: 'R2', name: 'South Zone Route', bus: 'DL-01-CD-5678', driver: 'Suresh Singh', driverPhone: '9876543211', startTime: '06:45', fee: 2800, students: 38, stops: [
+				{ name: 'Vasant Kunj', time: '6:45 AM' }, { name: 'Saket', time: '7:00 AM' }, { name: 'Hauz Khas', time: '7:15 AM' }, { name: 'Green Park', time: '7:25 AM' }, { name: 'School', time: '7:45 AM' }
+			]},
+			{ id: 'R3', name: 'East End Route', bus: 'DL-01-EF-9012', driver: 'Mukesh Yadav', driverPhone: '9876543212', startTime: '06:30', fee: 3000, students: 45, stops: [
+				{ name: 'Laxmi Nagar', time: '6:30 AM' }, { name: 'Preet Vihar', time: '6:45 AM' }, { name: 'Anand Vihar', time: '7:00 AM' }, { name: 'Karkardooma', time: '7:15 AM' }, { name: 'IP Extension', time: '7:30 AM' }, { name: 'School', time: '7:45 AM' }
+			]},
+			{ id: 'R4', name: 'West District Route', bus: 'DL-01-GH-3456', driver: 'Vijay Sharma', driverPhone: '9876543213', startTime: '06:45', fee: 2600, students: 40, stops: [
+				{ name: 'Janakpuri', time: '6:45 AM' }, { name: 'Rajouri Garden', time: '7:00 AM' }, { name: 'Kirti Nagar', time: '7:15 AM' }, { name: 'Patel Nagar', time: '7:25 AM' }, { name: 'School', time: '7:45 AM' }
+			]}
+		];
+
+		const DEMO_STUDENTS = [
+			{ id: 'TS001', studentId: 'STU-2023-001', name: 'Rahul Sharma', class: '10-A', routeId: 'R1', stop: 'Model Town', pickupTime: '7:00 AM', feeStatus: 'paid', status: 'active' },
+			{ id: 'TS002', studentId: 'STU-2023-002', name: 'Priya Patel', class: '9-B', routeId: 'R2', stop: 'Saket', pickupTime: '7:00 AM', feeStatus: 'paid', status: 'active' },
+			{ id: 'TS003', studentId: 'STU-2023-003', name: 'Amit Kumar', class: '11-A', routeId: 'R3', stop: 'Laxmi Nagar', pickupTime: '6:30 AM', feeStatus: 'due', status: 'active' },
+			{ id: 'TS004', studentId: 'STU-2023-004', name: 'Neha Gupta', class: '8-C', routeId: 'R1', stop: 'Civil Lines', pickupTime: '7:10 AM', feeStatus: 'paid', status: 'active' },
+			{ id: 'TS005', studentId: 'STU-2023-005', name: 'Vikram Singh', class: '10-B', routeId: 'R4', stop: 'Janakpuri', pickupTime: '6:45 AM', feeStatus: 'paid', status: 'active' },
+			{ id: 'TS006', studentId: 'STU-2023-006', name: 'Ananya Reddy', class: '12-A', routeId: 'R2', stop: 'Hauz Khas', pickupTime: '7:15 AM', feeStatus: 'due', status: 'active' },
+			{ id: 'TS007', studentId: 'STU-2023-007', name: 'Karan Malhotra', class: '9-A', routeId: 'R3', stop: 'Preet Vihar', pickupTime: '6:45 AM', feeStatus: 'paid', status: 'active' },
+			{ id: 'TS008', studentId: 'STU-2023-008', name: 'Sneha Iyer', class: '10-C', routeId: 'R1', stop: 'Rajpur Road', pickupTime: '7:20 AM', feeStatus: 'paid', status: 'active' },
+			{ id: 'TS009', studentId: 'STU-2023-009', name: 'Arjun Nair', class: '11-B', routeId: 'R4', stop: 'Rajouri Garden', pickupTime: '7:00 AM', feeStatus: 'paid', status: 'inactive' },
+			{ id: 'TS010', studentId: 'STU-2023-010', name: 'Pooja Verma', class: '8-A', routeId: 'R2', stop: 'Green Park', pickupTime: '7:25 AM', feeStatus: 'due', status: 'active' }
+		];
+
+		const DEMO_DRIVERS = [
+			{ id: 'DRV001', name: 'Ramesh Kumar', phone: '9876543210', license: 'DL-0420110012345', route: 'R1', bus: 'DL-01-AB-1234', experience: '8 years' },
+			{ id: 'DRV002', name: 'Suresh Singh', phone: '9876543211', license: 'DL-0420110012346', route: 'R2', bus: 'DL-01-CD-5678', experience: '12 years' },
+			{ id: 'DRV003', name: 'Mukesh Yadav', phone: '9876543212', license: 'DL-0420110012347', route: 'R3', bus: 'DL-01-EF-9012', experience: '6 years' },
+			{ id: 'DRV004', name: 'Vijay Sharma', phone: '9876543213', license: 'DL-0420110012348', route: 'R4', bus: 'DL-01-GH-3456', experience: '10 years' }
+		];
+
+		const DEMO_VEHICLES = [
+			{ id: 'VH001', number: 'DL-01-AB-1234', type: 'Bus', capacity: 45, route: 'R1', driver: 'Ramesh Kumar', insurance: '2025-06-15', fitness: '2025-03-20' },
+			{ id: 'VH002', number: 'DL-01-CD-5678', type: 'Bus', capacity: 40, route: 'R2', driver: 'Suresh Singh', insurance: '2025-08-10', fitness: '2025-05-15' },
+			{ id: 'VH003', number: 'DL-01-EF-9012', type: 'Bus', capacity: 50, route: 'R3', driver: 'Mukesh Yadav', insurance: '2025-04-20', fitness: '2025-02-28' },
+			{ id: 'VH004', number: 'DL-01-GH-3456', type: 'Mini Bus', capacity: 35, route: 'R4', driver: 'Vijay Sharma', insurance: '2025-09-05', fitness: '2025-07-10' }
+		];
+
+		const COLORS = ['#0891b2', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#6366f1'];
+		const getColor = (name) => COLORS[Math.abs([...name].reduce((a, c) => a + c.charCodeAt(0), 0)) % COLORS.length];
+		const getInitials = (name) => name.split(' ').map(n => n[0]).join('').slice(0, 2);
+
+		function loadRoutes() { try { return JSON.parse(localStorage.getItem(ROUTES_KEY)) || DEMO_ROUTES; } catch { return DEMO_ROUTES; } }
+		function saveRoutes(d) { localStorage.setItem(ROUTES_KEY, JSON.stringify(d)); }
+		function loadStudents() { try { return JSON.parse(localStorage.getItem(STUDENTS_KEY)) || DEMO_STUDENTS; } catch { return DEMO_STUDENTS; } }
+		function saveStudents(d) { localStorage.setItem(STUDENTS_KEY, JSON.stringify(d)); }
+
+		let currentTab = 'routes';
+
+		// Render Functions
+		function renderRoutes() {
+			const routes = loadRoutes();
+			document.getElementById('routeGrid').innerHTML = routes.map(route => `
+				<div class="route-card" data-route="${route.id}">
+					<div class="route-header">
+							<div class="route-number">${route.id}</div>
+							<div class="route-name">${route.name}</div>
+						<div class="route-badge">${route.students} Students</div>
+					</div>
+					<div class="route-body">
+						<div class="route-details">
+							<div class="route-detail">
+								<div class="detail-icon bus"><i class="fas fa-bus"></i></div>
+								<div class="detail-text">
+									<div class="detail-label">Bus Number</div>
+									<div class="detail-value">${route.bus}</div>
+								</div>
+							</div>
+							<div class="route-detail">
+								<div class="detail-icon driver"><i class="fas fa-user"></i></div>
+								<div class="detail-text">
+									<div class="detail-label">Driver</div>
+									<div class="detail-value">${route.driver}</div>
+								</div>
+							</div>
+							<div class="route-detail">
+								<div class="detail-icon time"><i class="fas fa-clock"></i></div>
+								<div class="detail-text">
+									<div class="detail-label">Departure</div>
+									<div class="detail-value">${route.startTime} AM</div>
+								</div>
+							</div>
+							<div class="route-detail">
+								<div class="detail-icon fee"><i class="fas fa-rupee-sign"></i></div>
+								<div class="detail-text">
+									<div class="detail-label">Monthly Fee</div>
+									<div class="detail-value">₹${route.fee.toLocaleString()}</div>
+								</div>
+							</div>
+						</div>
+						<div class="route-stops">
+							<div class="stops-header"><i class="fas fa-map-marker-alt"></i> Route Stops (${route.stops.length})</div>
+						<div class="stops-timeline">
+								${route.stops.map((s, i) => `
+								<div class="stop-item">
+										<div class="stop-dot ${i === 0 ? 'start' : i === route.stops.length - 1 ? 'end' : ''}"></div>
+										<div class="stop-info">
+											<div class="stop-name">${s.name}</div>
+											<div class="stop-time">${s.time}</div>
+										</div>
+								</div>
+							`).join('')}
+							</div>
+						</div>
+						<div class="route-actions">
+							<button class="route-btn primary" data-id="${route.id}" data-action="view">
+								<i class="fas fa-users"></i> View Students
+							</button>
+							<button class="route-btn secondary" data-id="${route.id}" data-action="edit">
+								<i class="fas fa-edit"></i> Edit
+							</button>
+						</div>
+					</div>
+				</div>
+			`).join('');
+		}
+
+		function renderStudents() {
+			const students = loadStudents();
+			const routes = loadRoutes();
+			document.getElementById('studentCount').textContent = `${students.length} students`;
+			document.getElementById('totalStudents').textContent = students.length;
+			
+			document.getElementById('studentsTableBody').innerHTML = students.map(s => {
+				const route = routes.find(r => r.id === s.routeId);
+				return `
+					<tr data-id="${s.id}">
+						<td>
+							<div class="student-cell">
+								<div class="student-avatar" style="background: ${getColor(s.name)};">${getInitials(s.name)}</div>
+								<div>
+									<div class="student-name">${s.name}</div>
+									<div class="student-id">${s.studentId}</div>
+								</div>
+							</div>
+						</td>
+						<td><strong>${s.class}</strong></td>
+						<td><span class="badge route">${s.routeId} - ${route?.name.split(' ')[0] || ''}</span></td>
+						<td>${s.stop}</td>
+						<td><i class="fas fa-clock" style="color: #94a3b8; margin-right: 6px;"></i>${s.pickupTime}</td>
+						<td><span class="badge ${s.feeStatus}">${s.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</span></td>
+						<td><span class="badge ${s.status}">${s.status === 'active' ? '● Active' : '○ Inactive'}</span></td>
+						<td>
+							<div class="action-btns">
+								<button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
+								<button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
+								<button class="action-btn delete" title="Remove"><i class="fas fa-times"></i></button>
+							</div>
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function renderDrivers() {
+			document.getElementById('driversContent').innerHTML = DEMO_DRIVERS.map(d => `
+				<div class="info-card">
+					<div class="info-card-header">
+						<div class="info-card-avatar driver">${getInitials(d.name)}</div>
+							<div>
+							<div class="info-card-title">${d.name}</div>
+							<div class="info-card-subtitle">${d.id}</div>
+							</div>
+						<div class="info-card-status">● Active</div>
+						</div>
+					<div class="info-card-body">
+						<div class="info-row"><i class="fas fa-phone"></i><div><div class="info-row-label">Phone</div><div class="info-row-value">${d.phone}</div></div></div>
+						<div class="info-row"><i class="fas fa-id-card"></i><div><div class="info-row-label">License</div><div class="info-row-value">${d.license}</div></div></div>
+						<div class="info-row"><i class="fas fa-bus"></i><div><div class="info-row-label">Bus</div><div class="info-row-value">${d.bus}</div></div></div>
+						<div class="info-row"><i class="fas fa-route"></i><div><div class="info-row-label">Route</div><div class="info-row-value">${d.route}</div></div></div>
+						<div class="info-row"><i class="fas fa-star"></i><div><div class="info-row-label">Experience</div><div class="info-row-value">${d.experience}</div></div></div>
+							</div>
+							</div>
+			`).join('');
+		}
+
+		function renderVehicles() {
+			document.getElementById('vehiclesContent').innerHTML = DEMO_VEHICLES.map(v => `
+				<div class="info-card">
+					<div class="info-card-header">
+						<div class="info-card-avatar vehicle">🚌</div>
+						<div>
+							<div class="info-card-title">${v.number}</div>
+							<div class="info-card-subtitle">${v.type}</div>
+							</div>
+						<div class="info-card-status">● Active</div>
+							</div>
+					<div class="info-card-body">
+						<div class="info-row"><i class="fas fa-chair"></i><div><div class="info-row-label">Capacity</div><div class="info-row-value">${v.capacity} seats</div></div></div>
+						<div class="info-row"><i class="fas fa-route"></i><div><div class="info-row-label">Route</div><div class="info-row-value">${v.route}</div></div></div>
+						<div class="info-row"><i class="fas fa-user"></i><div><div class="info-row-label">Driver</div><div class="info-row-value">${v.driver}</div></div></div>
+						<div class="info-row"><i class="fas fa-shield-alt"></i><div><div class="info-row-label">Insurance Till</div><div class="info-row-value" style="color: #22c55e;">${v.insurance}</div></div></div>
+						<div class="info-row"><i class="fas fa-check-circle"></i><div><div class="info-row-label">Fitness Till</div><div class="info-row-value" style="color: #22c55e;">${v.fitness}</div></div></div>
+						</div>
+					</div>
+			`).join('');
+		}
+
+		function renderFees() {
+			const students = loadStudents();
+			const routes = loadRoutes();
+			document.getElementById('feesTableBody').innerHTML = students.map(s => {
+				const route = routes.find(r => r.id === s.routeId);
+				const fee = route?.fee || 0;
+				const paid = s.feeStatus === 'paid' ? fee : 0;
+				return `
+					<tr data-id="${s.id}">
+						<td>
+							<div class="student-cell">
+								<div class="student-avatar" style="background: ${getColor(s.name)};">${getInitials(s.name)}</div>
+								<div>
+									<div class="student-name">${s.name}</div>
+									<div class="student-id">${s.class}</div>
+					</div>
+					</div>
+						</td>
+						<td><span class="badge route">${s.routeId}</span></td>
+						<td><strong>₹${fee.toLocaleString()}</strong></td>
+						<td style="color: #22c55e; font-weight: 600;">₹${paid.toLocaleString()}</td>
+						<td style="color: ${fee-paid > 0 ? '#ef4444' : '#22c55e'}; font-weight: 600;">₹${(fee-paid).toLocaleString()}</td>
+						<td>${s.feeStatus === 'paid' ? 'Nov 15, 2024' : '-'}</td>
+						<td><span class="badge ${s.feeStatus}">${s.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</span></td>
+						<td>
+							<div class="action-btns">
+								${s.feeStatus === 'due' ? '<button class="action-btn" style="background:#dcfce7;color:#16a34a;" title="Collect"><i class="fas fa-rupee-sign"></i></button>' : ''}
+								<button class="action-btn" style="background:#f3e8ff;color:#9333ea;" title="Receipt"><i class="fas fa-receipt"></i></button>
+					</div>
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function switchTab(tab) {
+			currentTab = tab;
+			document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+			document.getElementById('routesContent').style.display = tab === 'routes' ? 'block' : 'none';
+			document.getElementById('studentsContent').classList.toggle('show', tab === 'students');
+			document.getElementById('driversContent').style.display = tab === 'drivers' ? 'grid' : 'none';
+			document.getElementById('vehiclesContent').style.display = tab === 'vehicles' ? 'grid' : 'none';
+			document.getElementById('feesContent').classList.toggle('show', tab === 'fees');
+			
+			if (tab === 'routes') renderRoutes();
+			else if (tab === 'students') renderStudents();
+			else if (tab === 'drivers') renderDrivers();
+			else if (tab === 'vehicles') renderVehicles();
+			else if (tab === 'fees') renderFees();
+		}
+
+		function notify(msg, type = 'success') {
+			// Create toast notification
+			const toast = document.createElement('div');
+			toast.style.cssText = `
+				position: fixed; bottom: 30px; right: 30px; padding: 16px 24px;
+				background: ${type === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #0891b2, #06b6d4)'};
+				color: white; border-radius: 12px; font-weight: 600; font-size: 14px;
+				box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 99999;
+				display: flex; align-items: center; gap: 10px;
+				animation: slideIn 0.3s ease;
+			`;
+			toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${msg}`;
+			document.body.appendChild(toast);
+			setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+		}
+
+		// ==================== EXPORT TO EXCEL ====================
+		function exportToExcel(data, filename, headers) {
+			const BOM = '\uFEFF';
+			let csv = BOM + headers.join(',') + '\n';
+			data.forEach(row => {
+				csv += row.map(cell => {
+					const str = String(cell || '');
+					if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+						return '"' + str.replace(/"/g, '""') + '"';
+					}
+					return str;
+				}).join(',') + '\n';
+			});
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = filename + '.csv';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			notify(`✅ ${filename}.csv downloaded successfully!`);
+		}
+
+		function exportData() {
+			const routes = loadRoutes();
+			const students = loadStudents();
+			
+			if (currentTab === 'routes') {
+				const headers = ['Route ID', 'Route Name', 'Bus Number', 'Driver', 'Driver Phone', 'Start Time', 'Monthly Fee (₹)', 'Total Students', 'Route Stops'];
+				const data = routes.map(r => [
+					r.id, r.name, r.bus, r.driver, r.driverPhone, r.startTime + ' AM',
+					r.fee, r.students, r.stops.map(s => `${s.name} (${s.time})`).join(' → ')
+				]);
+				exportToExcel(data, 'Transport_Routes_Report', headers);
+			} 
+			else if (currentTab === 'students') {
+				const headers = ['Student ID', 'Full Name', 'Class', 'Route ID', 'Route Name', 'Pickup Stop', 'Pickup Time', 'Fee Status', 'Status'];
+				const data = students.map(s => {
+					const route = routes.find(r => r.id === s.routeId);
+					return [s.studentId, s.name, s.class, s.routeId, route?.name || '', s.stop, s.pickupTime, s.feeStatus === 'paid' ? 'Paid' : 'Due', s.status === 'active' ? 'Active' : 'Inactive'];
+				});
+				exportToExcel(data, 'Transport_DayScholars_Report', headers);
+			}
+			else if (currentTab === 'drivers') {
+				const headers = ['Driver ID', 'Full Name', 'Phone Number', 'License Number', 'Assigned Route', 'Assigned Bus', 'Experience'];
+				const data = DEMO_DRIVERS.map(d => [d.id, d.name, d.phone, d.license, d.route, d.bus, d.experience]);
+				exportToExcel(data, 'Transport_Drivers_Report', headers);
+			}
+			else if (currentTab === 'vehicles') {
+				const headers = ['Vehicle ID', 'Registration Number', 'Vehicle Type', 'Seating Capacity', 'Assigned Route', 'Assigned Driver', 'Insurance Valid Till', 'Fitness Valid Till'];
+				const data = DEMO_VEHICLES.map(v => [v.id, v.number, v.type, v.capacity + ' seats', v.route, v.driver, v.insurance, v.fitness]);
+				exportToExcel(data, 'Transport_Vehicles_Report', headers);
+			}
+			else if (currentTab === 'fees') {
+				const headers = ['Student ID', 'Full Name', 'Class', 'Route', 'Monthly Fee (₹)', 'Amount Paid (₹)', 'Balance (₹)', 'Payment Status', 'Last Payment Date'];
+				const data = students.map(s => {
+					const route = routes.find(r => r.id === s.routeId);
+					const fee = route?.fee || 0;
+					const paid = s.feeStatus === 'paid' ? fee : 0;
+					return [s.studentId, s.name, s.class, s.routeId, fee, paid, fee - paid, s.feeStatus === 'paid' ? 'Paid' : 'Due', s.feeStatus === 'paid' ? '15-Nov-2024' : 'N/A'];
+				});
+				exportToExcel(data, 'Transport_Fees_Report', headers);
+			}
+		}
+
+		// Generate Receipt
+		function generateReceipt(name, routeId, fee) {
+			const receipt = `
+════════════════════════════════════════════
+           TRANSPORT FEE RECEIPT
+════════════════════════════════════════════
+
+Receipt No    : TRP${Date.now().toString().slice(-8)}
+Date          : ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+Time          : ${new Date().toLocaleTimeString('en-IN')}
+
+────────────────────────────────────────────
+STUDENT DETAILS
+────────────────────────────────────────────
+Student Name  : ${name}
+Route         : ${routeId}
+Month         : ${new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+
+────────────────────────────────────────────
+PAYMENT DETAILS
+────────────────────────────────────────────
+Transport Fee : ₹${fee.toLocaleString()}
+Amount Paid   : ₹${fee.toLocaleString()}
+Balance       : ₹0
+
+Payment Mode  : Cash/Online
+Status        : ✓ PAID
+
+════════════════════════════════════════════
+        Thank you for your payment!
+   EduManage Pro - School Management System
+════════════════════════════════════════════
+			`;
+			const blob = new Blob([receipt], { type: 'text/plain' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `Transport_Receipt_${name.replace(/\s+/g, '_')}_${Date.now()}.txt`;
+			link.click();
+			notify(`📄 Receipt generated for ${name}`);
+		}
+
+		// ==================== EVENT LISTENERS ====================
+		
+		// Tab Navigation
+		document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+		
+		// Export & Print Buttons
+		document.getElementById('exportBtn').addEventListener('click', exportData);
+		document.getElementById('printBtn').addEventListener('click', () => { window.print(); notify('🖨️ Print dialog opened'); });
+
+		// Search Functionality
+		document.getElementById('searchInput').addEventListener('input', (e) => {
+			const query = e.target.value.toLowerCase();
+			if (currentTab === 'students') {
+				const filtered = loadStudents().filter(s => 
+					s.name.toLowerCase().includes(query) || 
+					s.studentId.toLowerCase().includes(query) ||
+					s.stop.toLowerCase().includes(query) ||
+					s.routeId.toLowerCase().includes(query)
+				);
+				renderFilteredStudents(filtered);
+			} else if (currentTab === 'routes') {
+				const filtered = loadRoutes().filter(r =>
+					r.name.toLowerCase().includes(query) ||
+					r.id.toLowerCase().includes(query) ||
+					r.driver.toLowerCase().includes(query) ||
+					r.bus.toLowerCase().includes(query)
+				);
+				renderFilteredRoutes(filtered);
+			}
+		});
+
+		function renderFilteredStudents(students) {
+			const routes = loadRoutes();
+			document.getElementById('studentCount').textContent = `${students.length} students`;
+			document.getElementById('totalStudents').textContent = students.length;
+			document.getElementById('studentsTableBody').innerHTML = students.map(s => {
+				const route = routes.find(r => r.id === s.routeId);
+				return `
+					<tr data-id="${s.id}">
+						<td><div class="student-cell"><div class="student-avatar" style="background: ${getColor(s.name)};">${getInitials(s.name)}</div><div><div class="student-name">${s.name}</div><div class="student-id">${s.studentId}</div></div></div></td>
+						<td><strong>${s.class}</strong></td>
+						<td><span class="badge route">${s.routeId} - ${route?.name.split(' ')[0] || ''}</span></td>
+						<td>${s.stop}</td>
+						<td><i class="fas fa-clock" style="color: #94a3b8; margin-right: 6px;"></i>${s.pickupTime}</td>
+						<td><span class="badge ${s.feeStatus}">${s.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</span></td>
+						<td><span class="badge ${s.status}">${s.status === 'active' ? '● Active' : '○ Inactive'}</span></td>
+						<td><div class="action-btns">
+							<button class="action-btn view" title="View"><i class="fas fa-eye"></i></button>
+							<button class="action-btn edit" title="Edit"><i class="fas fa-edit"></i></button>
+							<button class="action-btn delete" title="Remove"><i class="fas fa-times"></i></button>
+						</div></td>
+					</tr>`;
+			}).join('');
+		}
+
+		function renderFilteredRoutes(routes) {
+			document.getElementById('routeGrid').innerHTML = routes.map(route => `
+				<div class="route-card" data-route="${route.id}">
+					<div class="route-header">
+						<div class="route-number">${route.id}</div>
+						<div class="route-name">${route.name}</div>
+						<div class="route-badge">${route.students} Students</div>
+					</div>
+					<div class="route-body">
+						<div class="route-details">
+							<div class="route-detail"><div class="detail-icon bus"><i class="fas fa-bus"></i></div><div class="detail-text"><div class="detail-label">Bus Number</div><div class="detail-value">${route.bus}</div></div></div>
+							<div class="route-detail"><div class="detail-icon driver"><i class="fas fa-user"></i></div><div class="detail-text"><div class="detail-label">Driver</div><div class="detail-value">${route.driver}</div></div></div>
+							<div class="route-detail"><div class="detail-icon time"><i class="fas fa-clock"></i></div><div class="detail-text"><div class="detail-label">Departure</div><div class="detail-value">${route.startTime} AM</div></div></div>
+							<div class="route-detail"><div class="detail-icon fee"><i class="fas fa-rupee-sign"></i></div><div class="detail-text"><div class="detail-label">Monthly Fee</div><div class="detail-value">₹${route.fee.toLocaleString()}</div></div></div>
+						</div>
+						<div class="route-stops">
+							<div class="stops-header"><i class="fas fa-map-marker-alt"></i> Route Stops (${route.stops.length})</div>
+							<div class="stops-timeline">${route.stops.map((s, i) => `<div class="stop-item"><div class="stop-dot ${i === 0 ? 'start' : i === route.stops.length - 1 ? 'end' : ''}"></div><div class="stop-info"><div class="stop-name">${s.name}</div><div class="stop-time">${s.time}</div></div></div>`).join('')}</div>
+						</div>
+						<div class="route-actions">
+							<button class="route-btn primary" data-id="${route.id}" data-action="view"><i class="fas fa-users"></i> View Students</button>
+							<button class="route-btn secondary" data-id="${route.id}" data-action="edit"><i class="fas fa-edit"></i> Edit</button>
+						</div>
+					</div>
+				</div>
+			`).join('');
+		}
+
+		// Filter by Route
+		document.getElementById('filterRoute').addEventListener('change', (e) => {
+			const routeId = e.target.value;
+			if (currentTab === 'students') {
+				const filtered = routeId ? loadStudents().filter(s => s.routeId === routeId) : loadStudents();
+				renderFilteredStudents(filtered);
+			}
+		});
+
+		// Filter by Status
+		document.getElementById('filterStatus').addEventListener('change', (e) => {
+			const status = e.target.value;
+			if (currentTab === 'students') {
+				const filtered = status ? loadStudents().filter(s => s.status === status) : loadStudents();
+				renderFilteredStudents(filtered);
+			}
+		});
+
+		// Add Route Button
+		document.getElementById('addRouteBtn').addEventListener('click', () => {
+			document.getElementById('routeModalTitle').textContent = 'Add New Route';
+			document.getElementById('editRouteId').value = '';
+			document.getElementById('routeNumber').value = '';
+			document.getElementById('routeName').value = '';
+			document.getElementById('routeFee').value = '';
+			document.getElementById('routeStops').value = '';
+			document.getElementById('routeModal').classList.add('show');
+		});
+
+		// Route Modal Buttons
+		document.getElementById('closeRouteModal').addEventListener('click', () => document.getElementById('routeModal').classList.remove('show'));
+		document.getElementById('cancelRouteBtn').addEventListener('click', () => document.getElementById('routeModal').classList.remove('show'));
+
+		document.getElementById('saveRouteBtn').addEventListener('click', () => {
+			const routeNum = document.getElementById('routeNumber').value.trim();
+			const routeName = document.getElementById('routeName').value.trim();
+			const bus = document.getElementById('routeBus').value;
+			const driver = document.getElementById('routeDriver').value;
+			const startTime = document.getElementById('routeStartTime').value;
+			const fee = parseInt(document.getElementById('routeFee').value) || 2500;
+			const stopsText = document.getElementById('routeStops').value;
+			
+			if (!routeNum || !routeName) {
+				notify('⚠️ Please enter Route Number and Name', 'error');
+				return;
+			}
+			
+			const stops = stopsText.split('\n').filter(s => s.trim()).map(s => {
+				const parts = s.split(',');
+				return { name: parts[0]?.trim() || '', time: parts[1]?.trim() || '' };
+			});
+			
+			const routes = loadRoutes();
+			const existingIdx = routes.findIndex(r => r.id === routeNum);
+			
+			const newRoute = {
+				id: routeNum,
+				name: routeName,
+				bus: bus,
+				driver: driver,
+				driverPhone: '9876543200',
+				startTime: startTime,
+				fee: fee,
+				students: existingIdx > -1 ? routes[existingIdx].students : 0,
+				stops: stops.length > 0 ? stops : [{ name: 'School', time: '7:45 AM' }]
+			};
+			
+			if (existingIdx > -1) {
+				routes[existingIdx] = newRoute;
+				notify(`✅ Route ${routeNum} updated successfully!`);
+			} else {
+				routes.push(newRoute);
+				notify(`✅ Route ${routeNum} added successfully!`);
+			}
+
+			saveRoutes(routes);
+			document.getElementById('routeModal').classList.remove('show');
+			renderRoutes();
+		});
+
+		// Assign Student Button
+		document.getElementById('assignStudentBtn').addEventListener('click', () => {
+			const students = JSON.parse(localStorage.getItem('edu_students') || '[]');
+			const routes = loadRoutes();
+			
+			document.getElementById('assignStudent').innerHTML = '<option value="">-- Select Student --</option>' + 
+				students.map(s => `<option value="${s.id}">${s.name} (Class ${s.class})</option>`).join('');
+			document.getElementById('assignRoute').innerHTML = '<option value="">-- Select Route --</option>' + 
+				routes.map(r => `<option value="${r.id}">${r.id} - ${r.name}</option>`).join('');
+			document.getElementById('assignStop').innerHTML = '<option value="">-- Select Route First --</option>';
+			
+			document.getElementById('assignModal').classList.add('show');
+		});
+
+		// Assign Modal Events
+		document.getElementById('assignRoute').addEventListener('change', (e) => {
+			const route = loadRoutes().find(r => r.id === e.target.value);
+			document.getElementById('assignStop').innerHTML = '<option value="">-- Select Stop --</option>' + 
+				(route?.stops.map(s => `<option value="${s.name}">${s.name} (${s.time})</option>`).join('') || '');
+		});
+
+		document.getElementById('closeAssignModal').addEventListener('click', () => document.getElementById('assignModal').classList.remove('show'));
+		document.getElementById('cancelAssignBtn').addEventListener('click', () => document.getElementById('assignModal').classList.remove('show'));
+		
+		document.getElementById('confirmAssignBtn').addEventListener('click', () => {
+			const studentId = document.getElementById('assignStudent').value;
+			const routeId = document.getElementById('assignRoute').value;
+			const stop = document.getElementById('assignStop').value;
+			
+			if (!studentId || !routeId || !stop) {
+				notify('⚠️ Please fill all fields', 'error');
+				return;
+			}
+
+			const allStudents = JSON.parse(localStorage.getItem('edu_students') || '[]');
+			const student = allStudents.find(s => s.id === studentId);
+			const routes = loadRoutes();
+			const route = routes.find(r => r.id === routeId);
+			const stopInfo = route?.stops.find(s => s.name === stop);
+			
+			if (student && route) {
+				const transportStudents = loadStudents();
+				transportStudents.push({
+					id: 'TS' + String(transportStudents.length + 1).padStart(3, '0'),
+					studentId: student.id,
+					name: student.name,
+					class: student.class,
+					routeId: routeId,
+					stop: stop,
+					pickupTime: stopInfo?.time || '7:00 AM',
+					feeStatus: 'due',
+					status: 'active'
+				});
+				saveStudents(transportStudents);
+				
+				// Update route student count
+				route.students++;
+				saveRoutes(routes);
+				
+				notify(`✅ ${student.name} assigned to ${routeId} successfully!`);
+				document.getElementById('assignModal').classList.remove('show');
+				if (currentTab === 'students') renderStudents();
+				if (currentTab === 'routes') renderRoutes();
+			}
+		});
+
+		// Route Card Actions
+		document.getElementById('routeGrid').addEventListener('click', (e) => {
+			const btn = e.target.closest('[data-action]');
+			if (!btn) return;
+			const routeId = btn.dataset.id;
+			
+			if (btn.dataset.action === 'view') {
+				document.getElementById('filterRoute').value = routeId;
+				switchTab('students');
+				const filtered = loadStudents().filter(s => s.routeId === routeId);
+				renderFilteredStudents(filtered);
+				notify(`👥 Showing students for Route ${routeId}`);
+			} 
+			else if (btn.dataset.action === 'edit') {
+				const route = loadRoutes().find(r => r.id === routeId);
+				if (route) {
+					document.getElementById('routeModalTitle').textContent = 'Edit Route';
+					document.getElementById('editRouteId').value = route.id;
+					document.getElementById('routeNumber').value = route.id;
+					document.getElementById('routeName').value = route.name;
+					document.getElementById('routeBus').value = route.bus;
+					document.getElementById('routeDriver').value = route.driver;
+					document.getElementById('routeStartTime').value = route.startTime;
+					document.getElementById('routeFee').value = route.fee;
+					document.getElementById('routeStops').value = route.stops.map(s => `${s.name}, ${s.time}`).join('\n');
+					document.getElementById('routeModal').classList.add('show');
+				}
+			}
+		});
+
+		// Students Table Actions & Inline Editing
+		document.getElementById('studentsTableBody').addEventListener('click', (e) => {
+			const btn = e.target.closest('.action-btn');
+			const cell = e.target.closest('td');
+			const row = e.target.closest('tr');
+			const id = row?.dataset.id;
+			const name = row?.querySelector('.student-name')?.textContent;
+			
+			// Handle buttons
+			if (btn) {
+				if (btn.classList.contains('view')) {
+					notify(`👁️ Viewing details for ${name}`);
+				} 
+				else if (btn.classList.contains('edit')) {
+					document.getElementById('assignModal').classList.add('show');
+					notify(`✏️ Editing assignment for ${name}`);
+				} 
+				else if (btn.classList.contains('delete')) {
+					if (confirm(`❌ Remove ${name} from transport service?`)) {
+						const students = loadStudents().filter(s => s.id !== id);
+						saveStudents(students);
+						row.remove();
+						notify(`🗑️ ${name} removed from transport`);
+						document.getElementById('studentCount').textContent = `${students.length} students`;
+						document.getElementById('totalStudents').textContent = students.length;
+					}
+				}
+				return;
+			}
+			
+			// Inline editing for cells (skip avatar and action columns)
+			if (cell && !cell.querySelector('input') && cell.cellIndex > 0 && cell.cellIndex < 6) {
+				const originalHTML = cell.innerHTML;
+				const originalText = cell.textContent.trim();
+				
+				const input = document.createElement('input');
+				input.type = 'text';
+				input.value = originalText;
+				input.style.cssText = 'width: 100%; padding: 8px; border: 2px solid #0d9488; border-radius: 6px; font-size: 13px;';
+				cell.innerHTML = '';
+				cell.appendChild(input);
+				input.focus();
+				input.select();
+				
+				const saveEdit = () => {
+					const newValue = input.value.trim() || originalText;
+					cell.innerHTML = originalHTML.replace(originalText, newValue);
+					notify('✅ Updated!', 'success');
+				};
+				
+				input.addEventListener('blur', saveEdit);
+				input.addEventListener('keydown', (ev) => {
+					if (ev.key === 'Enter') input.blur();
+					if (ev.key === 'Escape') { cell.innerHTML = originalHTML; }
+				});
+			}
+		});
+
+		// Fees Table Actions & Inline Editing
+		document.getElementById('feesTableBody').addEventListener('click', (e) => {
+			const btn = e.target.closest('.action-btn');
+			const cell = e.target.closest('td');
+			const row = e.target.closest('tr');
+			const id = row?.dataset.id;
+			const name = row?.querySelector('.student-name')?.textContent;
+			const routeId = row?.querySelector('.badge.route')?.textContent;
+			const fee = parseInt(row?.cells[2]?.textContent?.replace(/[₹,]/g, '')) || 0;
+			
+			// Handle buttons
+			if (btn) {
+				if (btn.title === 'Collect') {
+					const students = loadStudents();
+					const student = students.find(s => s.id === id);
+					if (student) {
+						student.feeStatus = 'paid';
+						saveStudents(students);
+					}
+					
+					row.cells[3].innerHTML = `<span style="color: #22c55e; font-weight: 600;">₹${fee.toLocaleString()}</span>`;
+					row.cells[4].innerHTML = `<span style="color: #22c55e; font-weight: 600;">₹0</span>`;
+					row.cells[5].textContent = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+					row.cells[6].innerHTML = '<span class="badge paid">✓ Paid</span>';
+					btn.remove();
+					
+					notify(`💰 Fee collected from ${name} - ₹${fee.toLocaleString()}`);
+				} 
+				else if (btn.title === 'Receipt') {
+					generateReceipt(name, routeId, fee);
+				}
+				return;
+			}
+			
+			// Inline editing for fee cells (columns 2-5)
+			if (cell && !cell.querySelector('input') && cell.cellIndex >= 2 && cell.cellIndex <= 5) {
+				const originalHTML = cell.innerHTML;
+				const originalText = cell.textContent.trim();
+				
+				const input = document.createElement('input');
+				input.type = 'text';
+				input.value = originalText;
+				input.style.cssText = 'width: 100%; padding: 8px; border: 2px solid #0d9488; border-radius: 6px; font-size: 13px;';
+				cell.innerHTML = '';
+				cell.appendChild(input);
+				input.focus();
+				input.select();
+				
+				const saveEdit = () => {
+					const newValue = input.value.trim() || originalText;
+					cell.innerHTML = originalHTML.replace(originalText, newValue);
+					notify('✅ Updated!', 'success');
+				};
+				
+				input.addEventListener('blur', saveEdit);
+				input.addEventListener('keydown', (ev) => {
+					if (ev.key === 'Enter') input.blur();
+					if (ev.key === 'Escape') { cell.innerHTML = originalHTML; }
+				});
+			}
+		});
+
+		// Driver & Vehicle Cards Click
+		document.getElementById('driversContent').addEventListener('click', (e) => {
+			const card = e.target.closest('.info-card');
+			if (card) {
+				const name = card.querySelector('.info-card-title').textContent;
+				notify(`👤 Viewing driver: ${name}`);
+			}
+		});
+
+		document.getElementById('vehiclesContent').addEventListener('click', (e) => {
+			const card = e.target.closest('.info-card');
+			if (card) {
+				const number = card.querySelector('.info-card-title').textContent;
+				notify(`🚌 Viewing vehicle: ${number}`);
+			}
+		});
+
+		// Close modals on backdrop click
+		window.addEventListener('click', (e) => {
+			if (e.target.classList.contains('modal')) {
+				e.target.classList.remove('show');
+			}
+		});
+
+		// Add animation keyframes
+		const style = document.createElement('style');
+		style.textContent = `@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+		document.head.appendChild(style);
+
+		// Initialize
+			switchTab('routes');
+	</script>
+</body>
+</html>
+

@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Hostel Management</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		/* Hostel Theme - Indigo/Purple */
+		:root {
+			--hostel-primary: #6366f1;
+			--hostel-secondary: #8b5cf6;
+			--hostel-light: #e0e7ff;
+			--hostel-gradient: linear-gradient(135deg, #6366f1, #8b5cf6);
+		}
+
+		/* Stats Cards */
+		.hostel-stats {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: #fff;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+			position: relative;
+			overflow: hidden;
+			transition: all 0.3s ease;
+		}
+		.stat-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+		}
+		.stat-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+		}
+		.stat-card.blocks::before { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+		.stat-card.rooms::before { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+		.stat-card.beds::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+		.stat-card.occupied::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+		.stat-card.vacant::before { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+		.stat-card.maintenance::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+		
+		.stat-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			color: #fff;
+			margin-bottom: 12px;
+		}
+		.stat-card.blocks .stat-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+		.stat-card.rooms .stat-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+		.stat-card.beds .stat-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.stat-card.occupied .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.stat-card.vacant .stat-icon { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+		.stat-card.maintenance .stat-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+		
+		.stat-label {
+			font-size: 11px;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			font-weight: 600;
+			margin-bottom: 4px;
+		}
+		.stat-value {
+			font-size: 24px;
+			font-weight: 800;
+			color: #1e293b;
+		}
+
+		/* Tabs */
+		.hostel-tabs {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 20px;
+			background: #fff;
+			padding: 8px;
+			border-radius: 14px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow-x: auto;
+		}
+		.hostel-tab {
+			padding: 12px 20px;
+			border: none;
+			background: transparent;
+			border-radius: 10px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #64748b;
+			cursor: pointer;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			white-space: nowrap;
+		}
+		.hostel-tab:hover { background: #eef2ff; color: #6366f1; }
+		.hostel-tab.active { background: var(--hostel-gradient); color: #fff; }
+
+		/* Filter Bar */
+		.filter-bar {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			align-items: center;
+			margin-bottom: 20px;
+			padding: 16px 20px;
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+		}
+		.filter-bar input,
+		.filter-bar select {
+			height: 42px;
+			padding: 0 14px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			background: #fff;
+			transition: all 0.2s;
+		}
+		.filter-bar input:focus,
+		.filter-bar select:focus {
+			outline: none;
+			border-color: var(--hostel-primary);
+			box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+		}
+		.filter-bar input { min-width: 260px; }
+
+		/* Block Cards Grid */
+		.block-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+			gap: 20px;
+		}
+		.block-card {
+			background: #fff;
+			border-radius: 16px;
+			overflow: hidden;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+			transition: all 0.3s ease;
+		}
+		.block-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+		}
+		.block-header {
+			padding: 20px;
+			background: var(--hostel-gradient);
+			color: #fff;
+			position: relative;
+		}
+		.block-name {
+			font-size: 24px;
+			font-weight: 800;
+			margin-bottom: 4px;
+		}
+		.block-type {
+			font-size: 13px;
+			opacity: 0.9;
+		}
+		.block-badge {
+			position: absolute;
+			top: 16px;
+			right: 16px;
+			padding: 6px 12px;
+			background: rgba(255,255,255,0.2);
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+		}
+		.block-body { padding: 20px; }
+		.block-stats {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 12px;
+			margin-bottom: 16px;
+		}
+		.block-stat {
+			text-align: center;
+			padding: 12px;
+			background: #f8fafc;
+			border-radius: 10px;
+		}
+		.block-stat-value {
+			font-size: 20px;
+			font-weight: 800;
+			color: #1e293b;
+		}
+		.block-stat-label {
+			font-size: 10px;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.block-stat.occupied .block-stat-value { color: #f59e0b; }
+		.block-stat.vacant .block-stat-value { color: #22c55e; }
+
+		/* Occupancy Bar */
+		.occupancy-bar-container {
+			margin-bottom: 16px;
+		}
+		.occupancy-label {
+			display: flex;
+			justify-content: space-between;
+			font-size: 12px;
+			margin-bottom: 6px;
+		}
+		.occupancy-label span:first-child { color: #64748b; }
+		.occupancy-label span:last-child { font-weight: 700; color: #1e293b; }
+		.occupancy-bar {
+			height: 10px;
+			background: #e2e8f0;
+			border-radius: 10px;
+			overflow: hidden;
+		}
+		.occupancy-fill {
+			height: 100%;
+			border-radius: 10px;
+			transition: width 0.5s ease;
+		}
+		.occupancy-fill.high { background: linear-gradient(90deg, #ef4444, #f87171); }
+		.occupancy-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+		.occupancy-fill.low { background: linear-gradient(90deg, #22c55e, #4ade80); }
+
+		/* Warden Info */
+		.warden-info {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px;
+			background: #f8fafc;
+			border-radius: 10px;
+			margin-bottom: 16px;
+		}
+		.warden-avatar {
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 700;
+			font-size: 16px;
+			color: #fff;
+			background: var(--hostel-gradient);
+		}
+		.warden-name { font-weight: 600; color: #1e293b; }
+		.warden-role { font-size: 12px; color: #64748b; }
+		.warden-phone {
+			margin-left: auto;
+			font-size: 13px;
+			color: #6366f1;
+			font-weight: 600;
+		}
+
+		.block-actions {
+			display: flex;
+			gap: 8px;
+		}
+		.block-btn {
+			flex: 1;
+			padding: 10px;
+			border: none;
+			border-radius: 10px;
+			font-size: 13px;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+		}
+		.block-btn.primary { background: var(--hostel-gradient); color: #fff; }
+		.block-btn.primary:hover { box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+		.block-btn.secondary { background: #f1f5f9; color: #475569; }
+		.block-btn.secondary:hover { background: #e2e8f0; }
+
+		/* Room Grid */
+		.room-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 16px;
+		}
+		.room-card {
+			background: #fff;
+			border-radius: 14px;
+			padding: 16px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+			transition: all 0.3s ease;
+			cursor: pointer;
+			border: 2px solid transparent;
+		}
+		.room-card:hover {
+			transform: translateY(-2px);
+			border-color: #6366f1;
+		}
+		.room-card.full { border-left: 4px solid #ef4444; }
+		.room-card.partial { border-left: 4px solid #f59e0b; }
+		.room-card.empty { border-left: 4px solid #22c55e; }
+		
+		.room-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+		}
+		.room-number {
+			font-size: 18px;
+			font-weight: 800;
+			color: #1e293b;
+		}
+		.room-type {
+			font-size: 11px;
+			padding: 4px 10px;
+			border-radius: 12px;
+			font-weight: 600;
+		}
+		.room-type.ac { background: #dbeafe; color: #2563eb; }
+		.room-type.non-ac { background: #f1f5f9; color: #64748b; }
+		
+		.bed-display {
+			display: flex;
+			gap: 8px;
+			margin-bottom: 12px;
+		}
+		.bed-icon {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 16px;
+		}
+		.bed-icon.occupied { background: #fef3c7; color: #d97706; }
+		.bed-icon.vacant { background: #dcfce7; color: #16a34a; }
+		
+		.room-floor {
+			font-size: 12px;
+			color: #64748b;
+		}
+
+		/* Students Table */
+		.table-wrapper {
+			background: #fff;
+			border-radius: 16px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+			overflow: hidden;
+			display: none;
+		}
+		.table-wrapper.show { display: block; }
+		
+		.table-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 20px 24px;
+			background: linear-gradient(180deg, #f8fafc, #fff);
+			border-bottom: 1px solid #e2e8f0;
+		}
+		.table-title {
+			font-size: 18px;
+			font-weight: 700;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.table-title i { color: var(--hostel-primary); }
+		
+		.hostel-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.hostel-table th {
+			background: #f8fafc;
+			padding: 14px 16px;
+			text-align: left;
+			font-size: 12px;
+			font-weight: 700;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			border-bottom: 2px solid #e2e8f0;
+		}
+		.hostel-table td {
+			padding: 14px 16px;
+			border-bottom: 1px solid #f1f5f9;
+			font-size: 14px;
+			color: #334155;
+		}
+		.hostel-table tr:hover { background: #f8fafc; }
+
+		/* Student Info */
+		.student-info {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.student-avatar {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 700;
+			font-size: 14px;
+			color: #fff;
+		}
+		.student-name { font-weight: 600; color: #1e293b; }
+		.student-id { font-size: 12px; color: #94a3b8; }
+
+		/* Status */
+		.status {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+		.status.active { background: #dcfce7; color: #16a34a; }
+		.status.checked-out { background: #fee2e2; color: #dc2626; }
+		.status.on-leave { background: #fef3c7; color: #d97706; }
+
+		/* Fee Status */
+		.fee-badge {
+			padding: 4px 10px;
+			border-radius: 6px;
+			font-size: 11px;
+			font-weight: 600;
+		}
+		.fee-badge.paid { background: #dcfce7; color: #16a34a; }
+		.fee-badge.due { background: #fee2e2; color: #dc2626; }
+
+		/* Complaint Cards */
+		.complaint-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+			gap: 16px;
+		}
+		.complaint-card {
+			background: #fff;
+			border-radius: 14px;
+			padding: 20px;
+			box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+			border-left: 4px solid;
+		}
+		.complaint-card.urgent { border-left-color: #ef4444; }
+		.complaint-card.normal { border-left-color: #f59e0b; }
+		.complaint-card.resolved { border-left-color: #22c55e; }
+		
+		.complaint-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: start;
+			margin-bottom: 12px;
+		}
+		.complaint-title {
+			font-weight: 700;
+			color: #1e293b;
+			margin-bottom: 4px;
+		}
+		.complaint-room {
+			font-size: 12px;
+			color: #64748b;
+		}
+		.complaint-priority {
+			padding: 4px 10px;
+			border-radius: 12px;
+			font-size: 11px;
+			font-weight: 600;
+		}
+		.complaint-priority.urgent { background: #fee2e2; color: #dc2626; }
+		.complaint-priority.normal { background: #fef3c7; color: #d97706; }
+		.complaint-priority.resolved { background: #dcfce7; color: #16a34a; }
+		
+		.complaint-desc {
+			font-size: 13px;
+			color: #64748b;
+			margin-bottom: 12px;
+			line-height: 1.5;
+		}
+		.complaint-footer {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding-top: 12px;
+			border-top: 1px solid #f1f5f9;
+		}
+		.complaint-date { font-size: 12px; color: #94a3b8; }
+		.complaint-action {
+			padding: 6px 14px;
+			background: var(--hostel-gradient);
+			color: #fff;
+			border: none;
+			border-radius: 8px;
+			font-size: 12px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+
+		/* Action Buttons */
+		.action-btn {
+			width: 34px;
+			height: 34px;
+			border: none;
+			border-radius: 8px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+			font-size: 14px;
+		}
+		.action-btn.view { background: #e0e7ff; color: #6366f1; }
+		.action-btn.edit { background: #fef3c7; color: #d97706; }
+		.action-btn.delete { background: #fee2e2; color: #dc2626; }
+
+		/* Modal */
+		.modal {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(15, 23, 42, 0.6);
+			backdrop-filter: blur(4px);
+			z-index: 9999;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.2s;
+		}
+		.modal.show { opacity: 1; visibility: visible; }
+
+		/* Pagination */
+		.pagination {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 16px 24px;
+			border-top: 1px solid #e2e8f0;
+		}
+
+		@media (max-width: 768px) {
+			.filter-bar { flex-direction: column; align-items: stretch; }
+			.filter-bar input { min-width: 100%; }
+			.block-grid, .room-grid { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<div class="page hostel-page active">
+		<div class="page-title">
+			<h1><i class="fas fa-building" style="color: var(--hostel-primary); margin-right: 10px;"></i>Hostel Management</h1>
+			<button class="btn btn-primary" id="addBlockBtn" style="background: var(--hostel-gradient); border: none;">
+				<i class="fas fa-plus"></i> Add Block
+			</button>
+		</div>
+
+		<!-- Stats -->
+		<div class="hostel-stats">
+			<div class="stat-card blocks">
+				<div class="stat-icon"><i class="fas fa-building"></i></div>
+				<div class="stat-label">Hostel Blocks</div>
+				<div class="stat-value" id="totalBlocks">4</div>
+			</div>
+			<div class="stat-card rooms">
+				<div class="stat-icon"><i class="fas fa-door-open"></i></div>
+				<div class="stat-label">Total Rooms</div>
+				<div class="stat-value" id="totalRooms">120</div>
+		</div>
+			<div class="stat-card beds">
+				<div class="stat-icon"><i class="fas fa-bed"></i></div>
+				<div class="stat-label">Total Beds</div>
+				<div class="stat-value" id="totalBeds">480</div>
+	</div>
+			<div class="stat-card occupied">
+				<div class="stat-icon"><i class="fas fa-user-check"></i></div>
+				<div class="stat-label">Occupied</div>
+				<div class="stat-value" id="occupiedBeds">385</div>
+			</div>
+			<div class="stat-card vacant">
+				<div class="stat-icon"><i class="fas fa-user-plus"></i></div>
+				<div class="stat-label">Vacant</div>
+				<div class="stat-value" id="vacantBeds">95</div>
+			</div>
+			<div class="stat-card maintenance">
+				<div class="stat-icon"><i class="fas fa-tools"></i></div>
+				<div class="stat-label">Maintenance</div>
+				<div class="stat-value" id="maintenanceCount">8</div>
+			</div>
+		</div>
+
+		<!-- Tabs -->
+		<div class="hostel-tabs">
+			<button class="hostel-tab active" data-tab="blocks">
+				<i class="fas fa-building"></i> Hostel Blocks
+			</button>
+			<button class="hostel-tab" data-tab="rooms">
+				<i class="fas fa-door-open"></i> Room Allocation
+			</button>
+			<button class="hostel-tab" data-tab="students">
+				<i class="fas fa-user-graduate"></i> Residents
+			</button>
+			<button class="hostel-tab" data-tab="complaints">
+				<i class="fas fa-exclamation-triangle"></i> Complaints
+			</button>
+			<button class="hostel-tab" data-tab="fees">
+				<i class="fas fa-rupee-sign"></i> Hostel Fees
+			</button>
+		</div>
+
+		<!-- Edit Hint Banner -->
+		<div style="background: #e0e7ff; border: 1px solid #a5b4fc; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #3730a3;">
+			<i class="fas fa-lightbulb" style="color: #6366f1; font-size: 16px;"></i>
+			<span><strong>Tip:</strong> Click on any cell in tables to edit inline. Use "Send Reminders" to notify students with pending fees.</span>
+		</div>
+
+		<!-- Filter Bar -->
+		<div class="filter-bar">
+			<input type="text" id="searchHostel" placeholder="🔍 Search rooms, students, blocks...">
+			<select id="filterBlock">
+				<option value="">All Blocks</option>
+				<option value="A">Block A - Boys</option>
+				<option value="B">Block B - Boys</option>
+				<option value="C">Block C - Girls</option>
+				<option value="D">Block D - Girls</option>
+			</select>
+			<select id="filterFloor">
+				<option value="">All Floors</option>
+				<option value="1">Ground Floor</option>
+				<option value="2">First Floor</option>
+				<option value="3">Second Floor</option>
+				<option value="4">Third Floor</option>
+			</select>
+			<select id="filterStatus">
+				<option value="">All Status</option>
+				<option value="occupied">🔴 Fully Occupied</option>
+				<option value="partial">🟡 Partially Occupied</option>
+				<option value="vacant">🟢 Vacant</option>
+			</select>
+			<div style="margin-left: auto; display: flex; gap: 10px;">
+				<button class="btn btn-outline btn-sm" id="exportBtn">
+					<i class="fas fa-download"></i> Export
+				</button>
+			</div>
+		</div>
+
+		<!-- Block Grid -->
+		<div class="block-grid" id="blockGrid"></div>
+
+		<!-- Room Grid -->
+		<div class="room-grid" id="roomGrid" style="display: none;"></div>
+
+		<!-- Students Table -->
+		<div class="table-wrapper" id="studentsTable">
+			<div class="table-header">
+				<div class="table-title">
+					<i class="fas fa-user-graduate"></i>
+					<span>Hostel Residents</span>
+					<span style="font-size: 13px; font-weight: 500; color: #64748b; margin-left: 8px;" id="residentCount">(385 students)</span>
+				</div>
+				<div style="display: flex; gap: 10px;">
+					<button class="btn btn-outline btn-sm" id="addNewStudentBtn" style="border-color: #22c55e; color: #22c55e; background: #f0fdf4;">
+						<i class="fas fa-user-plus"></i> Add New Student
+					</button>
+					<button class="btn btn-primary btn-sm" id="allocateStudentBtn" style="background: var(--hostel-gradient); border: none;">
+						<i class="fas fa-plus"></i> Allocate Existing
+					</button>
+				</div>
+			</div>
+			<table class="hostel-table">
+				<thead>
+					<tr>
+						<th>Student</th>
+						<th>Class</th>
+						<th>Block</th>
+						<th>Room</th>
+						<th>Bed</th>
+						<th>Check-in Date</th>
+						<th>Fee Status</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="studentsTableBody"></tbody>
+			</table>
+			<div class="pagination">
+				<div style="font-size: 14px; color: #64748b;">Showing 1-10 of 385 residents</div>
+				<div style="display: flex; gap: 8px;">
+					<button style="padding: 8px 14px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer;"><i class="fas fa-chevron-left"></i> Previous</button>
+					<button style="padding: 8px 14px; border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; cursor: pointer;">Next <i class="fas fa-chevron-right"></i></button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Complaints Grid -->
+		<div class="complaint-grid" id="complaintsGrid" style="display: none;"></div>
+
+		<!-- Fees Table -->
+		<div class="table-wrapper" id="feesTable">
+			<div class="table-header">
+				<div class="table-title">
+					<i class="fas fa-rupee-sign"></i>
+					<span>Hostel Fees</span>
+				</div>
+				<button class="btn btn-outline btn-sm" id="sendRemindersBtn" style="border-color: #22c55e; color: #22c55e; background: #f0fdf4;">
+					<i class="fas fa-bell"></i> Send Reminders
+				</button>
+			</div>
+			<div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 16px; margin: 0 20px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #92400e;">
+				<i class="fas fa-lightbulb" style="color: #f59e0b;"></i>
+				<span><strong>Tip:</strong> Click on any cell to edit. Click "Send Reminders" to notify students with due fees.</span>
+			</div>
+			<table class="hostel-table">
+				<thead>
+					<tr>
+						<th>Student</th>
+						<th>Block / Room</th>
+						<th>Room Type</th>
+						<th>Monthly Fee</th>
+						<th>Paid</th>
+						<th>Balance</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="feesTableBody"></tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Allocate Student Modal -->
+	<div class="modal" id="allocateModal">
+		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0;">
+			
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #e0e7ff, #fff); border-radius: 16px 16px 0 0;">
+				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #6366f1, #8b5cf6); border-radius: 2px; display: inline-block;"></span>
+					<span>Allocate Room</span>
+				</div>
+				<div id="closeAllocateModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			
+			<div style="padding: 24px; display: grid; gap: 18px;">
+				<div>
+					<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Select Student</label>
+					<select id="allocateStudent" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;"></select>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Block</label>
+						<select id="allocateBlock" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="A">Block A - Boys</option>
+							<option value="B">Block B - Boys</option>
+							<option value="C">Block C - Girls</option>
+							<option value="D">Block D - Girls</option>
+						</select>
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Floor</label>
+						<select id="allocateFloor" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="G">Ground Floor</option>
+							<option value="1">First Floor</option>
+							<option value="2">Second Floor</option>
+							<option value="3">Third Floor</option>
+						</select>
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Room Number</label>
+						<select id="allocateRoom" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="101">Room 101 (2 vacant)</option>
+							<option value="102">Room 102 (1 vacant)</option>
+							<option value="103">Room 103 (4 vacant)</option>
+						</select>
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Bed Number</label>
+						<select id="allocateBed" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="1">🛏️ Bed 1</option>
+							<option value="2">🛏️ Bed 2</option>
+							<option value="3">🛏️ Bed 3</option>
+							<option value="4">🛏️ Bed 4</option>
+						</select>
+					</div>
+				</div>
+				<div>
+					<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Check-in Date</label>
+					<input type="date" id="checkinDate" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+				</div>
+			</div>
+			
+			<div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+				<button id="cancelAllocateBtn" style="min-width: 120px; height: 46px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer;">
+					Cancel
+				</button>
+				<button id="confirmAllocateBtn" style="min-width: 140px; height: 46px; padding: 0 24px; background: linear-gradient(180deg, #6366f1, #8b5cf6); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">
+					<i class="fas fa-check"></i> Allocate
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Block Modal -->
+	<div class="modal" id="addBlockModal">
+		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0;">
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #e0e7ff, #fff); border-radius: 16px 16px 0 0;">
+				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #6366f1, #8b5cf6); border-radius: 2px; display: inline-block;"></span>
+					<span id="blockModalTitle">Add New Block</span>
+				</div>
+				<div id="closeBlockModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			<div style="padding: 24px; display: grid; gap: 18px;">
+				<input type="hidden" id="editBlockId">
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Block ID</label>
+						<input type="text" id="blockId" placeholder="e.g. E" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Block Name</label>
+						<input type="text" id="blockName" placeholder="e.g. Block E" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Block Type</label>
+						<select id="blockType" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="Boys Hostel">Boys Hostel</option>
+							<option value="Girls Hostel">Girls Hostel</option>
+							<option value="Mixed Hostel">Mixed Hostel</option>
+						</select>
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Total Floors</label>
+						<input type="number" id="blockFloors" value="4" min="1" max="10" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Total Rooms</label>
+						<input type="number" id="blockRooms" value="30" min="1" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Total Beds</label>
+						<input type="number" id="blockBeds" value="120" min="1" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Monthly Fee (₹)</label>
+						<input type="number" id="blockFee" value="8000" min="0" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Warden Name</label>
+						<input type="text" id="blockWarden" placeholder="e.g. Mr. Kumar" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Warden Phone</label>
+						<input type="tel" id="blockWardenPhone" placeholder="e.g. 9876543214" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+				</div>
+			</div>
+			<div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+				<button id="cancelBlockBtn" style="min-width: 120px; height: 46px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer;">
+					Cancel
+				</button>
+				<button id="saveBlockBtn" style="min-width: 140px; height: 46px; padding: 0 24px; background: linear-gradient(180deg, #6366f1, #8b5cf6); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(99,102,241,0.4);">
+					<i class="fas fa-check"></i> Save Block
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add New Student Modal -->
+	<div class="modal" id="addStudentModal">
+		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0;">
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #dcfce7, #fff); border-radius: 16px 16px 0 0;">
+				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #22c55e, #16a34a); border-radius: 2px; display: inline-block;"></span>
+					<span id="studentModalTitle">Add New Hostel Student</span>
+				</div>
+				<div id="closeStudentModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			<div style="padding: 24px; display: grid; gap: 18px;">
+				<input type="hidden" id="editStudentId">
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Student ID</label>
+						<input type="text" id="newStudentId" placeholder="e.g. STU-2024-009" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Student Name</label>
+						<input type="text" id="newStudentName" placeholder="Full Name" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Class</label>
+						<input type="text" id="newStudentClass" placeholder="e.g. 10-A" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Block</label>
+						<select id="newStudentBlock" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="A">Block A - Boys</option>
+							<option value="B">Block B - Boys</option>
+							<option value="C">Block C - Girls</option>
+							<option value="D">Block D - Girls</option>
+						</select>
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Room Number</label>
+						<input type="text" id="newStudentRoom" placeholder="e.g. 101" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Bed Number</label>
+						<select id="newStudentBed" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="1">🛏️ Bed 1</option>
+							<option value="2">🛏️ Bed 2</option>
+							<option value="3">🛏️ Bed 3</option>
+							<option value="4">🛏️ Bed 4</option>
+						</select>
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Fee Status</label>
+						<select id="newStudentFee" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="paid">✓ Paid</option>
+							<option value="due">⏳ Due</option>
+						</select>
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Check-in Date</label>
+						<input type="date" id="newStudentCheckin" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Status</label>
+						<select id="newStudentStatus" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="active">🟢 Active</option>
+							<option value="on-leave">🟡 On Leave</option>
+							<option value="checked-out">🔴 Checked Out</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div style="display: flex; justify-content: space-between; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+				<button id="exportStudentBtn" style="height: 46px; padding: 0 20px; background: #f0fdf4; border: 2px solid #22c55e; border-radius: 10px; color: #16a34a; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+					<i class="fas fa-file-excel"></i> Export to Excel
+				</button>
+				<div style="display: flex; gap: 12px;">
+					<button id="cancelStudentBtn" style="min-width: 100px; height: 46px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer;">
+						Cancel
+					</button>
+					<button id="saveStudentBtn" style="min-width: 140px; height: 46px; padding: 0 24px; background: linear-gradient(180deg, #22c55e, #16a34a); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(34,197,94,0.4);">
+						<i class="fas fa-check"></i> Save Student
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- View Student Details Modal -->
+	<div class="modal" id="viewStudentModal">
+		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 480px; max-width: 95vw; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0;">
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #e0e7ff, #fff); border-radius: 16px 16px 0 0;">
+				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #6366f1, #8b5cf6); border-radius: 2px; display: inline-block;"></span>
+					<span>Student Details</span>
+				</div>
+				<div id="closeViewStudentModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			<div id="viewStudentContent" style="padding: 24px;"></div>
+			<div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+				<button onclick="document.getElementById('viewStudentModal').classList.remove('show')" style="min-width: 100px; height: 42px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer;">
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Complaint Modal -->
+	<div class="modal" id="complaintModal">
+		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0;">
+			
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #fee2e2, #fff); border-radius: 16px 16px 0 0;">
+				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #ef4444, #dc2626); border-radius: 2px; display: inline-block;"></span>
+					<span>Register Complaint</span>
+				</div>
+				<div id="closeComplaintModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			
+			<div style="padding: 24px; display: grid; gap: 18px;">
+				<div>
+					<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Complaint Type</label>
+					<select id="complaintType" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+						<option value="plumbing">🚿 Plumbing Issue</option>
+						<option value="electrical">💡 Electrical Issue</option>
+						<option value="furniture">🪑 Furniture Repair</option>
+						<option value="cleaning">🧹 Cleaning Required</option>
+						<option value="ac">❄️ AC Not Working</option>
+						<option value="other">📝 Other</option>
+					</select>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Block</label>
+						<select id="complaintBlock" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+							<option value="A">Block A</option>
+							<option value="B">Block B</option>
+							<option value="C">Block C</option>
+							<option value="D">Block D</option>
+						</select>
+					</div>
+					<div>
+						<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Room</label>
+						<input type="text" id="complaintRoom" placeholder="e.g. 101" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+					</div>
+				</div>
+				<div>
+					<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Priority</label>
+					<select id="complaintPriority" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box;">
+						<option value="urgent">🔴 Urgent</option>
+						<option value="normal">🟡 Normal</option>
+						<option value="low">🟢 Low</option>
+					</select>
+				</div>
+				<div>
+					<label style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase;">Description</label>
+					<textarea id="complaintDesc" rows="3" placeholder="Describe the issue..." style="width: 100%; border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; font-size: 14px; background: #fff; box-sizing: border-box; resize: vertical; font-family: inherit;"></textarea>
+				</div>
+			</div>
+			
+			<div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+				<button id="cancelComplaintBtn" style="min-width: 120px; height: 46px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer;">
+					Cancel
+				</button>
+				<button id="submitComplaintBtn" style="min-width: 140px; height: 46px; padding: 0 24px; background: linear-gradient(180deg, #ef4444, #dc2626); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; box-shadow: 0 4px 14px rgba(239,68,68,0.4);">
+					<i class="fas fa-check"></i> Submit
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const HOSTEL_KEY = 'edu_hostel';
+
+		// Demo Blocks
+		const DEMO_BLOCKS = [
+			{ id: 'A', name: 'Block A', type: 'Boys Hostel', floors: 4, rooms: 30, beds: 120, occupied: 98, warden: 'Mr. Sharma', wardenPhone: '9876543210', fee: 8000 },
+			{ id: 'B', name: 'Block B', type: 'Boys Hostel', floors: 4, rooms: 30, beds: 120, occupied: 105, warden: 'Mr. Verma', wardenPhone: '9876543211', fee: 8000 },
+			{ id: 'C', name: 'Block C', type: 'Girls Hostel', floors: 4, rooms: 30, beds: 120, occupied: 95, warden: 'Mrs. Gupta', wardenPhone: '9876543212', fee: 8500 },
+			{ id: 'D', name: 'Block D', type: 'Girls Hostel', floors: 4, rooms: 30, beds: 120, occupied: 87, warden: 'Mrs. Patel', wardenPhone: '9876543213', fee: 8500 }
+		];
+
+		// Demo Rooms
+		const DEMO_ROOMS = [];
+		['A', 'B', 'C', 'D'].forEach(block => {
+			for (let floor = 1; floor <= 4; floor++) {
+				for (let room = 1; room <= 8; room++) {
+					const roomNum = `${floor}0${room}`;
+					const occupied = Math.floor(Math.random() * 5);
+					DEMO_ROOMS.push({
+						id: `${block}-${roomNum}`,
+						block,
+						floor,
+						number: roomNum,
+						type: Math.random() > 0.3 ? 'non-ac' : 'ac',
+						beds: 4,
+						occupied,
+						vacant: 4 - occupied
+					});
+				}
+			}
+		});
+
+		// Demo Residents
+		const DEMO_RESIDENTS = [
+			{ id: 'HR001', studentId: 'STU-2023-001', name: 'Rahul Sharma', class: '10-A', block: 'A', room: '101', bed: 1, checkin: '2024-04-01', feeStatus: 'paid', status: 'active' },
+			{ id: 'HR002', studentId: 'STU-2023-002', name: 'Priya Patel', class: '9-B', block: 'C', room: '201', bed: 2, checkin: '2024-04-01', feeStatus: 'paid', status: 'active' },
+			{ id: 'HR003', studentId: 'STU-2023-003', name: 'Amit Kumar', class: '11-A', block: 'A', room: '102', bed: 1, checkin: '2024-04-01', feeStatus: 'due', status: 'active' },
+			{ id: 'HR004', studentId: 'STU-2023-004', name: 'Neha Gupta', class: '8-C', block: 'C', room: '102', bed: 3, checkin: '2024-04-01', feeStatus: 'paid', status: 'on-leave' },
+			{ id: 'HR005', studentId: 'STU-2023-005', name: 'Vikram Singh', class: '10-B', block: 'B', room: '301', bed: 1, checkin: '2024-04-01', feeStatus: 'paid', status: 'active' },
+			{ id: 'HR006', studentId: 'STU-2023-006', name: 'Ananya Reddy', class: '12-A', block: 'D', room: '401', bed: 2, checkin: '2024-04-01', feeStatus: 'due', status: 'active' },
+			{ id: 'HR007', studentId: 'STU-2023-007', name: 'Karan Malhotra', class: '9-A', block: 'B', room: '201', bed: 3, checkin: '2024-04-01', feeStatus: 'paid', status: 'active' },
+			{ id: 'HR008', studentId: 'STU-2023-008', name: 'Sneha Iyer', class: '10-C', block: 'C', room: '301', bed: 1, checkin: '2024-04-01', feeStatus: 'paid', status: 'active' }
+		];
+
+		// Demo Complaints
+		const DEMO_COMPLAINTS = [
+			{ id: 'C001', type: 'Plumbing Issue', block: 'A', room: '102', priority: 'urgent', desc: 'Water leakage from bathroom tap. Flooding the room floor.', date: '2024-11-28', status: 'pending' },
+			{ id: 'C002', type: 'Electrical Issue', block: 'B', room: '201', priority: 'normal', desc: 'Ceiling fan not working. Switch seems faulty.', date: '2024-11-27', status: 'pending' },
+			{ id: 'C003', type: 'AC Not Working', block: 'C', room: '301', priority: 'urgent', desc: 'AC making noise and not cooling properly.', date: '2024-11-28', status: 'pending' },
+			{ id: 'C004', type: 'Furniture Repair', block: 'D', room: '401', priority: 'normal', desc: 'Study table drawer broken. Needs replacement.', date: '2024-11-26', status: 'resolved' },
+			{ id: 'C005', type: 'Cleaning Required', block: 'A', room: '303', priority: 'normal', desc: 'Washroom needs deep cleaning.', date: '2024-11-25', status: 'resolved' }
+		];
+
+		const AVATAR_COLORS = ['#6366f1', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444', '#ec4899', '#06b6d4'];
+
+		function getAvatarColor(name) {
+			let hash = 0;
+			for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+			return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+		}
+
+		function getInitials(name) {
+			return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+		}
+
+		let currentTab = 'blocks';
+
+		// DOM
+		const blockGrid = document.getElementById('blockGrid');
+		const roomGrid = document.getElementById('roomGrid');
+		const studentsTable = document.getElementById('studentsTable');
+		const complaintsGrid = document.getElementById('complaintsGrid');
+		const feesTable = document.getElementById('feesTable');
+		const allocateModal = document.getElementById('allocateModal');
+		const complaintModal = document.getElementById('complaintModal');
+
+		function renderBlocks() {
+			blockGrid.innerHTML = DEMO_BLOCKS.map(block => {
+				const occupancyPercent = Math.round((block.occupied / block.beds) * 100);
+				const occupancyClass = occupancyPercent > 85 ? 'high' : occupancyPercent > 60 ? 'medium' : 'low';
+				const wardenInitials = getInitials(block.warden);
+
+				return `
+					<div class="block-card">
+						<div class="block-header">
+							<div class="block-name">${block.name}</div>
+							<div class="block-type">${block.type}</div>
+							<div class="block-badge">${block.floors} Floors</div>
+						</div>
+						<div class="block-body">
+							<div class="block-stats">
+								<div class="block-stat">
+									<div class="block-stat-value">${block.rooms}</div>
+									<div class="block-stat-label">Rooms</div>
+								</div>
+								<div class="block-stat occupied">
+									<div class="block-stat-value">${block.occupied}</div>
+									<div class="block-stat-label">Occupied</div>
+								</div>
+								<div class="block-stat vacant">
+									<div class="block-stat-value">${block.beds - block.occupied}</div>
+									<div class="block-stat-label">Vacant</div>
+								</div>
+							</div>
+							<div class="occupancy-bar-container">
+								<div class="occupancy-label">
+									<span>Occupancy</span>
+									<span>${occupancyPercent}%</span>
+								</div>
+								<div class="occupancy-bar">
+									<div class="occupancy-fill ${occupancyClass}" style="width: ${occupancyPercent}%;"></div>
+								</div>
+							</div>
+							<div class="warden-info">
+								<div class="warden-avatar">${wardenInitials}</div>
+								<div>
+									<div class="warden-name">${block.warden}</div>
+									<div class="warden-role">Block Warden</div>
+								</div>
+								<div class="warden-phone"><i class="fas fa-phone"></i> ${block.wardenPhone}</div>
+							</div>
+							<div class="block-actions">
+								<button class="block-btn primary" data-block="${block.id}"><i class="fas fa-door-open"></i> View Rooms</button>
+								<button class="block-btn secondary" data-edit-block="${block.id}"><i class="fas fa-edit"></i></button>
+							</div>
+						</div>
+					</div>
+				`;
+			}).join('');
+		}
+
+		function renderRooms(filterBlock = '') {
+			let rooms = DEMO_ROOMS;
+			if (filterBlock) rooms = rooms.filter(r => r.block === filterBlock);
+
+			roomGrid.innerHTML = rooms.slice(0, 24).map(room => {
+				const statusClass = room.vacant === 0 ? 'full' : room.occupied > 0 ? 'partial' : 'empty';
+				const beds = [];
+				for (let i = 0; i < room.beds; i++) {
+					beds.push(i < room.occupied ? 'occupied' : 'vacant');
+				}
+
+				return `
+					<div class="room-card ${statusClass}">
+						<div class="room-header">
+							<div class="room-number">${room.block}-${room.number}</div>
+							<div class="room-type ${room.type}">${room.type === 'ac' ? '❄️ AC' : 'Non-AC'}</div>
+						</div>
+						<div class="bed-display">
+							${beds.map(b => `<div class="bed-icon ${b}"><i class="fas fa-bed"></i></div>`).join('')}
+						</div>
+						<div class="room-floor">
+							<i class="fas fa-layer-group"></i> Floor ${room.floor} &nbsp;|&nbsp; 
+							<span style="color: #22c55e; font-weight: 600;">${room.vacant} vacant</span>
+						</div>
+					</div>
+				`;
+			}).join('');
+		}
+
+		function renderStudentsTable() {
+			document.getElementById('residentCount').textContent = `(${DEMO_RESIDENTS.length} students)`;
+
+			document.getElementById('studentsTableBody').innerHTML = DEMO_RESIDENTS.map(resident => {
+				const avatarColor = getAvatarColor(resident.name);
+				const initials = getInitials(resident.name);
+				const statusText = { active: 'Active', 'checked-out': 'Checked Out', 'on-leave': 'On Leave' }[resident.status];
+
+				return `
+					<tr data-id="${resident.id}">
+						<td>
+							<div class="student-info">
+								<div class="student-avatar" style="background: ${avatarColor};">${initials}</div>
+								<div>
+									<div class="student-name">${resident.name}</div>
+									<div class="student-id">${resident.studentId}</div>
+								</div>
+							</div>
+						</td>
+						<td><strong>${resident.class}</strong></td>
+						<td><span style="background: #e0e7ff; color: #6366f1; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px;">Block ${resident.block}</span></td>
+						<td>${resident.room}</td>
+						<td>🛏️ Bed ${resident.bed}</td>
+						<td>${new Date(resident.checkin).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+						<td><span class="fee-badge ${resident.feeStatus}">${resident.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</span></td>
+						<td><span class="status ${resident.status}"><i class="fas fa-circle" style="font-size: 8px;"></i> ${statusText}</span></td>
+						<td>
+							<div style="display: flex; gap: 6px;">
+								<button class="action-btn view" title="View" data-action="view"><i class="fas fa-eye"></i></button>
+								<button class="action-btn edit" title="Edit" data-action="edit"><i class="fas fa-edit"></i></button>
+								<button class="action-btn delete" title="Remove" data-action="delete"><i class="fas fa-times"></i></button>
+							</div>
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function renderComplaints() {
+			complaintsGrid.innerHTML = `
+				<div style="grid-column: 1 / -1; margin-bottom: 10px;">
+					<button class="btn btn-primary btn-sm" id="newComplaintBtn" style="background: linear-gradient(135deg, #ef4444, #dc2626); border: none;">
+						<i class="fas fa-plus"></i> New Complaint
+					</button>
+				</div>
+			` + DEMO_COMPLAINTS.map(complaint => {
+				const priorityClass = complaint.status === 'resolved' ? 'resolved' : complaint.priority;
+
+				return `
+					<div class="complaint-card ${priorityClass}">
+						<div class="complaint-header">
+							<div>
+								<div class="complaint-title">${complaint.type}</div>
+								<div class="complaint-room">Block ${complaint.block}, Room ${complaint.room}</div>
+							</div>
+							<span class="complaint-priority ${priorityClass}">${complaint.status === 'resolved' ? '✓ Resolved' : complaint.priority === 'urgent' ? '🔴 Urgent' : '🟡 Normal'}</span>
+						</div>
+						<div class="complaint-desc">${complaint.desc}</div>
+						<div class="complaint-footer">
+							<div class="complaint-date"><i class="fas fa-calendar"></i> ${new Date(complaint.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</div>
+							${complaint.status !== 'resolved' ? `<button class="complaint-action">Mark Resolved</button>` : ''}
+						</div>
+					</div>
+				`;
+			}).join('');
+
+			// Add event listener for new complaint button
+			document.getElementById('newComplaintBtn')?.addEventListener('click', () => {
+				complaintModal.classList.add('show');
+			});
+		}
+
+		function renderFeesTable() {
+			const blocks = DEMO_BLOCKS.reduce((acc, b) => { acc[b.id] = b; return acc; }, {});
+
+			document.getElementById('feesTableBody').innerHTML = DEMO_RESIDENTS.map(resident => {
+				const block = blocks[resident.block];
+				const fee = block ? block.fee : 8000;
+				const avatarColor = getAvatarColor(resident.name);
+				const initials = getInitials(resident.name);
+				const paid = resident.feeStatus === 'paid' ? fee : 0;
+
+				return `
+					<tr>
+						<td>
+							<div class="student-info">
+								<div class="student-avatar" style="background: ${avatarColor};">${initials}</div>
+								<div>
+									<div class="student-name">${resident.name}</div>
+									<div class="student-id">${resident.class}</div>
+								</div>
+		</div>
+						</td>
+						<td>Block ${resident.block} / ${resident.room}</td>
+						<td>${DEMO_ROOMS.find(r => r.number === resident.room && r.block === resident.block)?.type === 'ac' ? '❄️ AC Room' : 'Non-AC'}</td>
+						<td><strong>₹${fee.toLocaleString()}</strong></td>
+						<td style="color: #22c55e; font-weight: 600;">₹${paid.toLocaleString()}</td>
+						<td style="color: ${fee - paid > 0 ? '#ef4444' : '#22c55e'}; font-weight: 600;">₹${(fee - paid).toLocaleString()}</td>
+						<td><span class="fee-badge ${resident.feeStatus}">${resident.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</span></td>
+						<td>
+							<div style="display: flex; gap: 6px;">
+								${resident.feeStatus === 'due' ? `<button class="action-btn" style="background: #dcfce7; color: #16a34a;" title="Collect"><i class="fas fa-rupee-sign"></i></button>` : ''}
+								<button class="action-btn" style="background: #f3e8ff; color: #9333ea;" title="Receipt"><i class="fas fa-receipt"></i></button>
+			</div>
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function switchTab(tab) {
+			currentTab = tab;
+			document.querySelectorAll('.hostel-tab').forEach(t => t.classList.remove('active'));
+			document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+			// Hide all
+			blockGrid.style.display = 'none';
+			roomGrid.style.display = 'none';
+			studentsTable.classList.remove('show');
+			complaintsGrid.style.display = 'none';
+			feesTable.classList.remove('show');
+
+			// Show selected
+			if (tab === 'blocks') {
+				blockGrid.style.display = 'grid';
+				renderBlocks();
+			} else if (tab === 'rooms') {
+				roomGrid.style.display = 'grid';
+				renderRooms();
+			} else if (tab === 'students') {
+				studentsTable.classList.add('show');
+				renderStudentsTable();
+			} else if (tab === 'complaints') {
+				complaintsGrid.style.display = 'grid';
+				renderComplaints();
+			} else if (tab === 'fees') {
+				feesTable.classList.add('show');
+				renderFeesTable();
+			}
+		}
+
+		function notify(msg, type = 'success') {
+			if (window.parent && typeof window.parent.showNotification === 'function') {
+				window.parent.showNotification(msg, type);
+			} else {
+				alert(msg);
+			}
+		}
+
+		// ==================== EXPORT FUNCTIONS ====================
+		function exportToExcel(data, filename, headers) {
+			// Create CSV content with BOM for Excel compatibility
+			const BOM = '\uFEFF';
+			let csv = BOM + headers.join(',') + '\n';
+			
+			data.forEach(row => {
+				csv += row.map(cell => {
+					// Escape quotes and wrap in quotes if contains comma
+					const str = String(cell || '');
+					if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+						return '"' + str.replace(/"/g, '""') + '"';
+					}
+					return str;
+				}).join(',') + '\n';
+			});
+			
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = filename + '.csv';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			notify(`${filename}.csv exported successfully!`);
+		}
+
+		function exportBlocks() {
+			const headers = ['Block ID', 'Block Name', 'Type', 'Floors', 'Total Rooms', 'Total Beds', 'Occupied', 'Vacant', 'Occupancy %', 'Warden', 'Warden Phone', 'Monthly Fee'];
+			const data = DEMO_BLOCKS.map(b => [
+				b.id, b.name, b.type, b.floors, b.rooms, b.beds, b.occupied, 
+				b.beds - b.occupied, Math.round((b.occupied/b.beds)*100) + '%',
+				b.warden, b.wardenPhone, '₹' + b.fee
+			]);
+			exportToExcel(data, 'Hostel_Blocks_Report', headers);
+		}
+
+		function exportRooms() {
+			const headers = ['Room ID', 'Block', 'Floor', 'Room Number', 'Type', 'Total Beds', 'Occupied', 'Vacant', 'Status'];
+			const data = DEMO_ROOMS.map(r => [
+				r.id, 'Block ' + r.block, 'Floor ' + r.floor, r.number, 
+				r.type === 'ac' ? 'AC' : 'Non-AC', r.beds, r.occupied, r.vacant,
+				r.vacant === 0 ? 'Full' : r.occupied > 0 ? 'Partial' : 'Empty'
+			]);
+			exportToExcel(data, 'Hostel_Rooms_Report', headers);
+		}
+
+		function exportResidents() {
+			const headers = ['Resident ID', 'Student ID', 'Name', 'Class', 'Block', 'Room', 'Bed No', 'Check-in Date', 'Fee Status', 'Status'];
+			const data = DEMO_RESIDENTS.map(r => [
+				r.id, r.studentId, r.name, r.class, 'Block ' + r.block, r.room, 
+				'Bed ' + r.bed, r.checkin, r.feeStatus === 'paid' ? 'Paid' : 'Due',
+				r.status === 'active' ? 'Active' : r.status === 'on-leave' ? 'On Leave' : 'Checked Out'
+			]);
+			exportToExcel(data, 'Hostel_Residents_Report', headers);
+		}
+
+		function exportComplaints() {
+			const headers = ['Complaint ID', 'Type', 'Block', 'Room', 'Priority', 'Description', 'Date', 'Status'];
+			const data = DEMO_COMPLAINTS.map(c => [
+				c.id, c.type, 'Block ' + c.block, c.room, c.priority, c.desc, c.date,
+				c.status === 'resolved' ? 'Resolved' : 'Pending'
+			]);
+			exportToExcel(data, 'Hostel_Complaints_Report', headers);
+		}
+
+		function exportFees() {
+			const blocks = DEMO_BLOCKS.reduce((acc, b) => { acc[b.id] = b; return acc; }, {});
+			const headers = ['Student ID', 'Name', 'Class', 'Block', 'Room', 'Room Type', 'Monthly Fee', 'Paid', 'Balance', 'Status'];
+			const data = DEMO_RESIDENTS.map(r => {
+				const block = blocks[r.block];
+				const fee = block ? block.fee : 8000;
+				const paid = r.feeStatus === 'paid' ? fee : 0;
+				const roomType = DEMO_ROOMS.find(rm => rm.number === r.room && rm.block === r.block)?.type === 'ac' ? 'AC' : 'Non-AC';
+				return [
+					r.studentId, r.name, r.class, 'Block ' + r.block, r.room, roomType,
+					'₹' + fee, '₹' + paid, '₹' + (fee - paid), r.feeStatus === 'paid' ? 'Paid' : 'Due'
+				];
+			});
+			exportToExcel(data, 'Hostel_Fees_Report', headers);
+		}
+
+		// ==================== EVENT LISTENERS ====================
+		document.querySelectorAll('.hostel-tab').forEach(tab => {
+			tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+		});
+
+		// Export Button - Dynamic based on current tab
+		document.getElementById('exportBtn').addEventListener('click', () => {
+			switch(currentTab) {
+				case 'blocks': exportBlocks(); break;
+				case 'rooms': exportRooms(); break;
+				case 'students': exportResidents(); break;
+				case 'complaints': exportComplaints(); break;
+				case 'fees': exportFees(); break;
+				default: exportResidents();
+			}
+		});
+
+		// ==================== ADD BLOCK MODAL ====================
+		const addBlockModal = document.getElementById('addBlockModal');
+		const addStudentModal = document.getElementById('addStudentModal');
+		const viewStudentModal = document.getElementById('viewStudentModal');
+		
+		let editingBlockId = null;
+		let editingStudentId = null;
+		
+		// Add Block Button
+		document.getElementById('addBlockBtn').addEventListener('click', () => {
+			editingBlockId = null;
+			document.getElementById('blockModalTitle').textContent = 'Add New Block';
+			document.getElementById('editBlockId').value = '';
+			document.getElementById('blockId').value = '';
+			document.getElementById('blockName').value = '';
+			document.getElementById('blockType').value = 'Boys Hostel';
+			document.getElementById('blockFloors').value = '4';
+			document.getElementById('blockRooms').value = '30';
+			document.getElementById('blockBeds').value = '120';
+			document.getElementById('blockFee').value = '8000';
+			document.getElementById('blockWarden').value = '';
+			document.getElementById('blockWardenPhone').value = '';
+			addBlockModal.classList.add('show');
+		});
+		
+		document.getElementById('closeBlockModal').addEventListener('click', () => addBlockModal.classList.remove('show'));
+		document.getElementById('cancelBlockBtn').addEventListener('click', () => addBlockModal.classList.remove('show'));
+		
+		document.getElementById('saveBlockBtn').addEventListener('click', () => {
+			const id = document.getElementById('blockId').value.trim().toUpperCase();
+			const name = document.getElementById('blockName').value.trim();
+			const type = document.getElementById('blockType').value;
+			const floors = parseInt(document.getElementById('blockFloors').value);
+			const rooms = parseInt(document.getElementById('blockRooms').value);
+			const beds = parseInt(document.getElementById('blockBeds').value);
+			const fee = parseInt(document.getElementById('blockFee').value);
+			const warden = document.getElementById('blockWarden').value.trim();
+			const wardenPhone = document.getElementById('blockWardenPhone').value.trim();
+			
+			if (!id || !name || !warden) {
+				notify('Please fill all required fields', 'error');
+				return;
+			}
+			
+			if (editingBlockId) {
+				// Update existing block
+				const idx = DEMO_BLOCKS.findIndex(b => b.id === editingBlockId);
+				if (idx >= 0) {
+					DEMO_BLOCKS[idx] = { id, name, type, floors, rooms, beds, occupied: DEMO_BLOCKS[idx].occupied, warden, wardenPhone, fee };
+					notify(`Block ${name} updated successfully!`);
+				}
+			} else {
+				// Check if block ID exists
+				if (DEMO_BLOCKS.find(b => b.id === id)) {
+					notify('Block ID already exists!', 'error');
+					return;
+				}
+				// Add new block
+				DEMO_BLOCKS.push({ id, name, type, floors, rooms, beds, occupied: 0, warden, wardenPhone, fee });
+				notify(`Block ${name} added successfully!`);
+			}
+			
+			saveHostelData();
+			addBlockModal.classList.remove('show');
+			if (currentTab === 'blocks') renderBlocks();
+			updateStats();
+		});
+		
+		// Edit Block functionality
+		function editBlock(blockId) {
+			const block = DEMO_BLOCKS.find(b => b.id === blockId);
+			if (!block) return;
+			
+			editingBlockId = blockId;
+			document.getElementById('blockModalTitle').textContent = 'Edit Block';
+			document.getElementById('editBlockId').value = block.id;
+			document.getElementById('blockId').value = block.id;
+			document.getElementById('blockName').value = block.name;
+			document.getElementById('blockType').value = block.type;
+			document.getElementById('blockFloors').value = block.floors;
+			document.getElementById('blockRooms').value = block.rooms;
+			document.getElementById('blockBeds').value = block.beds;
+			document.getElementById('blockFee').value = block.fee;
+			document.getElementById('blockWarden').value = block.warden;
+			document.getElementById('blockWardenPhone').value = block.wardenPhone;
+			addBlockModal.classList.add('show');
+		}
+		
+		// ==================== ADD NEW STUDENT MODAL ====================
+		document.getElementById('addNewStudentBtn').addEventListener('click', () => {
+			editingStudentId = null;
+			document.getElementById('studentModalTitle').textContent = 'Add New Hostel Student';
+			document.getElementById('editStudentId').value = '';
+			document.getElementById('newStudentId').value = 'STU-' + new Date().getFullYear() + '-' + String(DEMO_RESIDENTS.length + 1).padStart(3, '0');
+			document.getElementById('newStudentName').value = '';
+			document.getElementById('newStudentClass').value = '';
+			document.getElementById('newStudentBlock').value = 'A';
+			document.getElementById('newStudentRoom').value = '';
+			document.getElementById('newStudentBed').value = '1';
+			document.getElementById('newStudentFee').value = 'due';
+			document.getElementById('newStudentCheckin').value = new Date().toISOString().split('T')[0];
+			document.getElementById('newStudentStatus').value = 'active';
+			addStudentModal.classList.add('show');
+		});
+		
+		document.getElementById('closeStudentModal').addEventListener('click', () => addStudentModal.classList.remove('show'));
+		document.getElementById('cancelStudentBtn').addEventListener('click', () => addStudentModal.classList.remove('show'));
+		
+		document.getElementById('saveStudentBtn').addEventListener('click', () => {
+			const studentId = document.getElementById('newStudentId').value.trim();
+			const name = document.getElementById('newStudentName').value.trim();
+			const studentClass = document.getElementById('newStudentClass').value.trim();
+			const block = document.getElementById('newStudentBlock').value;
+			const room = document.getElementById('newStudentRoom').value.trim();
+			const bed = parseInt(document.getElementById('newStudentBed').value);
+			const feeStatus = document.getElementById('newStudentFee').value;
+			const checkin = document.getElementById('newStudentCheckin').value;
+			const status = document.getElementById('newStudentStatus').value;
+			
+			if (!studentId || !name || !studentClass || !room) {
+				notify('Please fill all required fields', 'error');
+				return;
+			}
+			
+			if (editingStudentId) {
+				// Update existing student
+				const idx = DEMO_RESIDENTS.findIndex(r => r.id === editingStudentId);
+				if (idx >= 0) {
+					DEMO_RESIDENTS[idx] = { 
+						...DEMO_RESIDENTS[idx],
+						studentId, name, class: studentClass, block, room, bed, feeStatus, checkin, status 
+					};
+					notify(`${name} updated successfully!`);
+				}
+			} else {
+				// Add new student
+				DEMO_RESIDENTS.push({
+					id: 'HR' + String(DEMO_RESIDENTS.length + 1).padStart(3, '0'),
+					studentId, name, class: studentClass, block, room, bed, feeStatus, checkin, status
+				});
+				notify(`${name} added to hostel successfully!`);
+			}
+			
+			saveHostelData();
+			addStudentModal.classList.remove('show');
+			if (currentTab === 'students') renderStudentsTable();
+			updateStats();
+		});
+		
+		// Edit Student functionality
+		function editStudent(residentId) {
+			const resident = DEMO_RESIDENTS.find(r => r.id === residentId);
+			if (!resident) return;
+			
+			editingStudentId = residentId;
+			document.getElementById('studentModalTitle').textContent = 'Edit Student';
+			document.getElementById('editStudentId').value = resident.id;
+			document.getElementById('newStudentId').value = resident.studentId;
+			document.getElementById('newStudentName').value = resident.name;
+			document.getElementById('newStudentClass').value = resident.class;
+			document.getElementById('newStudentBlock').value = resident.block;
+			document.getElementById('newStudentRoom').value = resident.room;
+			document.getElementById('newStudentBed').value = resident.bed;
+			document.getElementById('newStudentFee').value = resident.feeStatus;
+			document.getElementById('newStudentCheckin').value = resident.checkin;
+			document.getElementById('newStudentStatus').value = resident.status;
+			addStudentModal.classList.add('show');
+		}
+		
+		// View Student Details
+		function viewStudent(residentId) {
+			const resident = DEMO_RESIDENTS.find(r => r.id === residentId);
+			if (!resident) return;
+			
+			const avatarColor = getAvatarColor(resident.name);
+			const initials = getInitials(resident.name);
+			const block = DEMO_BLOCKS.find(b => b.id === resident.block);
+			const fee = block ? block.fee : 8000;
+			const statusText = { active: 'Active', 'checked-out': 'Checked Out', 'on-leave': 'On Leave' }[resident.status];
+			
+			document.getElementById('viewStudentContent').innerHTML = `
+				<div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+					<div style="width: 64px; height: 64px; border-radius: 16px; background: ${avatarColor}; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 700;">${initials}</div>
+					<div>
+						<div style="font-size: 20px; font-weight: 700; color: #1e293b;">${resident.name}</div>
+						<div style="color: #64748b; font-size: 14px;">${resident.studentId}</div>
+					</div>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div style="background: #f8fafc; padding: 16px; border-radius: 12px;">
+						<div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Class</div>
+						<div style="font-weight: 600; color: #1e293b; font-size: 16px;">${resident.class}</div>
+					</div>
+					<div style="background: #f8fafc; padding: 16px; border-radius: 12px;">
+						<div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Block</div>
+						<div style="font-weight: 600; color: #6366f1; font-size: 16px;">Block ${resident.block}</div>
+					</div>
+					<div style="background: #f8fafc; padding: 16px; border-radius: 12px;">
+						<div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Room / Bed</div>
+						<div style="font-weight: 600; color: #1e293b; font-size: 16px;">${resident.room} / Bed ${resident.bed}</div>
+					</div>
+					<div style="background: #f8fafc; padding: 16px; border-radius: 12px;">
+						<div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Check-in Date</div>
+						<div style="font-weight: 600; color: #1e293b; font-size: 16px;">${new Date(resident.checkin).toLocaleDateString('en-IN')}</div>
+					</div>
+					<div style="background: #f8fafc; padding: 16px; border-radius: 12px;">
+						<div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Monthly Fee</div>
+						<div style="font-weight: 600; color: #22c55e; font-size: 16px;">₹${fee.toLocaleString()}</div>
+					</div>
+					<div style="background: #f8fafc; padding: 16px; border-radius: 12px;">
+						<div style="font-size: 11px; color: #64748b; text-transform: uppercase; margin-bottom: 4px;">Fee Status</div>
+						<div style="font-weight: 600; color: ${resident.feeStatus === 'paid' ? '#22c55e' : '#ef4444'}; font-size: 16px;">${resident.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</div>
+					</div>
+				</div>
+				<div style="margin-top: 16px; background: ${resident.status === 'active' ? '#dcfce7' : resident.status === 'on-leave' ? '#fef3c7' : '#fee2e2'}; padding: 16px; border-radius: 12px; text-align: center;">
+					<span style="font-size: 14px; font-weight: 600; color: ${resident.status === 'active' ? '#16a34a' : resident.status === 'on-leave' ? '#d97706' : '#dc2626'};">
+						<i class="fas fa-circle" style="font-size: 8px; margin-right: 8px;"></i> ${statusText}
+					</span>
+				</div>
+			`;
+			viewStudentModal.classList.add('show');
+		}
+		
+		document.getElementById('closeViewStudentModal').addEventListener('click', () => viewStudentModal.classList.remove('show'));
+		
+		// Export Students to Excel
+		document.getElementById('exportStudentBtn').addEventListener('click', () => {
+			exportResidents();
+			addStudentModal.classList.remove('show');
+		});
+		
+		// Save hostel data to localStorage
+		function saveHostelData() {
+			localStorage.setItem('edu_hostel_blocks', JSON.stringify(DEMO_BLOCKS));
+			localStorage.setItem('edu_hostel_residents', JSON.stringify(DEMO_RESIDENTS));
+			localStorage.setItem('edu_hostel_complaints', JSON.stringify(DEMO_COMPLAINTS));
+		}
+		
+		// Load hostel data from localStorage
+		function loadHostelData() {
+			const savedBlocks = localStorage.getItem('edu_hostel_blocks');
+			const savedResidents = localStorage.getItem('edu_hostel_residents');
+			const savedComplaints = localStorage.getItem('edu_hostel_complaints');
+			
+			if (savedBlocks) {
+				DEMO_BLOCKS.length = 0;
+				JSON.parse(savedBlocks).forEach(b => DEMO_BLOCKS.push(b));
+			}
+			if (savedResidents) {
+				DEMO_RESIDENTS.length = 0;
+				JSON.parse(savedResidents).forEach(r => DEMO_RESIDENTS.push(r));
+			}
+			if (savedComplaints) {
+				DEMO_COMPLAINTS.length = 0;
+				JSON.parse(savedComplaints).forEach(c => DEMO_COMPLAINTS.push(c));
+			}
+		}
+		
+		// Update stats on dashboard
+		function updateStats() {
+			const totalBlocks = DEMO_BLOCKS.length;
+			const totalRooms = DEMO_BLOCKS.reduce((sum, b) => sum + b.rooms, 0);
+			const totalBeds = DEMO_BLOCKS.reduce((sum, b) => sum + b.beds, 0);
+			const occupiedBeds = DEMO_RESIDENTS.filter(r => r.status === 'active').length;
+			const vacantBeds = totalBeds - occupiedBeds;
+			const maintenance = DEMO_COMPLAINTS.filter(c => c.status !== 'resolved').length;
+			
+			document.getElementById('totalBlocks').textContent = totalBlocks;
+			document.getElementById('totalRooms').textContent = totalRooms;
+			document.getElementById('totalBeds').textContent = totalBeds;
+			document.getElementById('occupiedBeds').textContent = occupiedBeds;
+			document.getElementById('vacantBeds').textContent = vacantBeds;
+			document.getElementById('maintenanceCount').textContent = maintenance;
+		}
+		
+		// Update block select options
+		function updateBlockOptions() {
+			const selects = document.querySelectorAll('#newStudentBlock, #allocateBlock');
+			selects.forEach(select => {
+				select.innerHTML = DEMO_BLOCKS.map(b => `<option value="${b.id}">${b.name} - ${b.type}</option>`).join('');
+			});
+		}
+
+		// Block view rooms & edit
+		blockGrid.addEventListener('click', (e) => {
+			const viewBtn = e.target.closest('button[data-block]');
+			const editBtn = e.target.closest('button[data-edit-block]');
+			
+			if (viewBtn && !editBtn) {
+				document.getElementById('filterBlock').value = viewBtn.dataset.block;
+				switchTab('rooms');
+				renderRooms(viewBtn.dataset.block);
+			}
+			if (editBtn) {
+				e.stopPropagation();
+				editBlock(editBtn.dataset.editBlock);
+			}
+		});
+
+		// Room card click - allocate or view
+		roomGrid.addEventListener('click', (e) => {
+			const card = e.target.closest('.room-card');
+			if (card) {
+				const roomId = card.querySelector('.room-number').textContent;
+				const vacant = card.querySelector('.room-floor span').textContent;
+				if (vacant.includes('0 vacant')) {
+					notify(`Room ${roomId} is fully occupied`, 'warning');
+				} else {
+					notify(`Selected ${roomId} - ${vacant}`);
+					// Could open allocate modal with this room pre-selected
+				}
+			}
+		});
+
+		// Filter events
+		document.getElementById('filterBlock').addEventListener('change', (e) => {
+			if (currentTab === 'rooms') renderRooms(e.target.value);
+		});
+
+		document.getElementById('filterFloor').addEventListener('change', (e) => {
+			// Filter rooms by floor
+			if (currentTab === 'rooms') {
+				const block = document.getElementById('filterBlock').value;
+				renderRooms(block);
+			}
+		});
+
+		document.getElementById('filterStatus').addEventListener('change', (e) => {
+			// Filter by occupancy status
+			if (currentTab === 'rooms') {
+				renderRooms(document.getElementById('filterBlock').value);
+			}
+		});
+
+		// Search functionality
+		document.getElementById('searchHostel').addEventListener('input', (e) => {
+			const query = e.target.value.toLowerCase();
+			// Filter based on current tab
+			if (currentTab === 'students') {
+				const filtered = DEMO_RESIDENTS.filter(r => 
+					r.name.toLowerCase().includes(query) || 
+					r.studentId.toLowerCase().includes(query) ||
+					r.room.includes(query)
+				);
+				renderFilteredStudents(filtered);
+			}
+		});
+
+		function renderFilteredStudents(residents) {
+			document.getElementById('residentCount').textContent = `(${residents.length} students)`;
+			document.getElementById('studentsTableBody').innerHTML = residents.map(resident => {
+				const avatarColor = getAvatarColor(resident.name);
+				const initials = getInitials(resident.name);
+				const statusText = { active: 'Active', 'checked-out': 'Checked Out', 'on-leave': 'On Leave' }[resident.status];
+				return `
+					<tr data-id="${resident.id}">
+						<td>
+							<div class="student-info">
+								<div class="student-avatar" style="background: ${avatarColor};">${initials}</div>
+								<div>
+									<div class="student-name">${resident.name}</div>
+									<div class="student-id">${resident.studentId}</div>
+		</div>
+	</div>
+						</td>
+						<td><strong>${resident.class}</strong></td>
+						<td><span style="background: #e0e7ff; color: #6366f1; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 12px;">Block ${resident.block}</span></td>
+						<td>${resident.room}</td>
+						<td>🛏️ Bed ${resident.bed}</td>
+						<td>${new Date(resident.checkin).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+						<td><span class="fee-badge ${resident.feeStatus}">${resident.feeStatus === 'paid' ? '✓ Paid' : '⏳ Due'}</span></td>
+						<td><span class="status ${resident.status}"><i class="fas fa-circle" style="font-size: 8px;"></i> ${statusText}</span></td>
+						<td>
+							<div style="display: flex; gap: 6px;">
+								<button class="action-btn view" title="View" data-action="view"><i class="fas fa-eye"></i></button>
+								<button class="action-btn edit" title="Edit" data-action="edit"><i class="fas fa-edit"></i></button>
+								<button class="action-btn delete" title="Remove" data-action="delete"><i class="fas fa-times"></i></button>
+							</div>
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		// Students table actions
+		document.getElementById('studentsTableBody').addEventListener('click', (e) => {
+			const btn = e.target.closest('.action-btn');
+			if (!btn) return;
+			const row = btn.closest('tr');
+			const id = row?.dataset.id;
+			const name = row?.querySelector('.student-name')?.textContent;
+			
+			if (btn.classList.contains('view')) {
+				viewStudent(id);
+			} else if (btn.classList.contains('edit')) {
+				editStudent(id);
+			} else if (btn.classList.contains('delete')) {
+				if (confirm(`Remove ${name} from hostel?`)) {
+					const idx = DEMO_RESIDENTS.findIndex(r => r.id === id);
+					if (idx >= 0) {
+						DEMO_RESIDENTS.splice(idx, 1);
+						saveHostelData();
+					}
+					row.remove();
+					notify(`${name} removed from hostel`);
+					updateStats();
+				}
+			}
+		});
+
+		// Fees table actions
+		document.getElementById('feesTableBody').addEventListener('click', (e) => {
+			const btn = e.target.closest('.action-btn');
+			const cell = e.target.closest('td');
+			const row = e.target.closest('tr');
+			
+			// Handle button clicks
+			if (btn) {
+				const name = row?.querySelector('.student-name')?.textContent;
+				
+				if (btn.title === 'Collect') {
+					notify(`Fee collection initiated for ${name}`);
+					const badge = row.querySelector('.fee-badge');
+					if (badge) {
+						badge.className = 'fee-badge paid';
+						badge.textContent = '✓ Paid';
+					}
+					// Update resident data
+					const residentIdx = DEMO_RESIDENTS.findIndex(r => r.name === name);
+					if (residentIdx >= 0) {
+						DEMO_RESIDENTS[residentIdx].feeStatus = 'paid';
+						saveHostelData();
+					}
+					btn.remove();
+				} else if (btn.title === 'Receipt') {
+					notify(`Generating receipt for ${name}...`);
+					generateReceipt(name, row);
+				}
+				return;
+			}
+			
+			// Inline editing for editable cells
+			if (cell && !cell.querySelector('input') && !cell.querySelector('.action-btn')) {
+				const cellIdx = cell.cellIndex;
+				// Columns 1 (Block/Room), 2 (Room Type), 3-5 (Fees) can be edited
+				if (cellIdx >= 1 && cellIdx <= 5) {
+					const originalText = cell.textContent.trim();
+					const input = document.createElement('input');
+					input.type = 'text';
+					input.value = originalText;
+					input.style.cssText = 'width: 100%; padding: 8px; border: 2px solid #6366f1; border-radius: 6px; font-size: 14px;';
+					cell.innerHTML = '';
+					cell.appendChild(input);
+					input.focus();
+					input.select();
+					
+					const saveEdit = () => {
+						const newValue = input.value.trim() || originalText;
+						cell.innerHTML = cellIdx >= 3 && cellIdx <= 5 ? `<strong>${newValue}</strong>` : newValue;
+						notify('Updated!', 'success');
+					};
+					
+					input.addEventListener('blur', saveEdit);
+					input.addEventListener('keydown', (ev) => {
+						if (ev.key === 'Enter') input.blur();
+						if (ev.key === 'Escape') { cell.innerHTML = originalText; }
+					});
+				}
+			}
+		});
+
+		function generateReceipt(name, row) {
+			const block = row.cells[1].textContent;
+			const roomType = row.cells[2].textContent;
+			const fee = row.cells[3].textContent;
+			
+			const receipt = `
+HOSTEL FEE RECEIPT
+==================
+Date: ${new Date().toLocaleDateString('en-IN')}
+Receipt No: RCP${Date.now().toString().slice(-6)}
+
+Student: ${name}
+${block}
+Room Type: ${roomType}
+
+Amount: ${fee}
+Status: Paid
+
+Thank you!
+			`;
+			
+			const blob = new Blob([receipt], { type: 'text/plain' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `Receipt_${name.replace(/\s+/g, '_')}.txt`;
+			link.click();
+		}
+
+		// Complaints actions
+		complaintsGrid.addEventListener('click', (e) => {
+			const resolveBtn = e.target.closest('.complaint-action');
+			if (resolveBtn) {
+				const card = resolveBtn.closest('.complaint-card');
+				const complaintId = card.querySelector('.complaint-room')?.textContent;
+				
+				// Update complaint status in data
+				const complaint = DEMO_COMPLAINTS.find(c => 
+					`Block ${c.block}, Room ${c.room}` === complaintId
+				);
+				if (complaint) complaint.status = 'resolved';
+				
+				card.classList.remove('urgent', 'normal');
+				card.classList.add('resolved');
+				card.querySelector('.complaint-priority').className = 'complaint-priority resolved';
+				card.querySelector('.complaint-priority').textContent = '✓ Resolved';
+				resolveBtn.remove();
+				saveHostelData();
+				notify('Complaint marked as resolved!');
+				updateStats();
+			}
+		});
+
+		// Allocate Modal
+		document.getElementById('allocateStudentBtn').addEventListener('click', () => {
+			const students = JSON.parse(localStorage.getItem('edu_students') || '[]');
+			document.getElementById('allocateStudent').innerHTML = '<option value="">Select student...</option>' +
+				students.map(s => `<option value="${s.id}">${s.name} (${s.class})</option>`).join('');
+			document.getElementById('checkinDate').value = new Date().toISOString().split('T')[0];
+			allocateModal.classList.add('show');
+		});
+
+		document.getElementById('closeAllocateModal').addEventListener('click', () => allocateModal.classList.remove('show'));
+		document.getElementById('cancelAllocateBtn').addEventListener('click', () => allocateModal.classList.remove('show'));
+		
+		document.getElementById('confirmAllocateBtn').addEventListener('click', () => {
+			const student = document.getElementById('allocateStudent').value;
+			const block = document.getElementById('allocateBlock').value;
+			const floor = document.getElementById('allocateFloor').value;
+			const room = document.getElementById('allocateRoom').value;
+			const bed = document.getElementById('allocateBed').value;
+			const checkin = document.getElementById('checkinDate').value;
+			
+			if (!student) {
+				notify('Please select a student', 'error');
+				return;
+			}
+			
+			// Add to residents list
+			const studentData = JSON.parse(localStorage.getItem('edu_students') || '[]').find(s => s.id === student);
+			if (studentData) {
+				DEMO_RESIDENTS.push({
+					id: 'HR' + String(DEMO_RESIDENTS.length + 1).padStart(3, '0'),
+					studentId: studentData.id,
+					name: studentData.name,
+					class: studentData.class,
+					block: block,
+					room: room,
+					bed: parseInt(bed),
+					checkin: checkin,
+					feeStatus: 'due',
+					status: 'active'
+				});
+			}
+			
+			saveHostelData();
+			notify('Student allocated to room successfully!');
+			allocateModal.classList.remove('show');
+			if (currentTab === 'students') renderStudentsTable();
+			updateStats();
+		});
+
+		// Complaint Modal
+		document.getElementById('closeComplaintModal').addEventListener('click', () => complaintModal.classList.remove('show'));
+		document.getElementById('cancelComplaintBtn').addEventListener('click', () => complaintModal.classList.remove('show'));
+		
+		document.getElementById('submitComplaintBtn').addEventListener('click', () => {
+			const type = document.getElementById('complaintType');
+			const block = document.getElementById('complaintBlock').value;
+			const room = document.getElementById('complaintRoom').value;
+			const priority = document.getElementById('complaintPriority').value;
+			const desc = document.getElementById('complaintDesc').value;
+			
+			if (!room || !desc) {
+				notify('Please fill all required fields', 'error');
+				return;
+			}
+			
+			// Add new complaint
+			DEMO_COMPLAINTS.unshift({
+				id: 'C' + String(DEMO_COMPLAINTS.length + 1).padStart(3, '0'),
+				type: type.options[type.selectedIndex].text.replace(/^[^\s]+\s/, ''),
+				block: block,
+				room: room,
+				priority: priority,
+				desc: desc,
+				date: new Date().toISOString().split('T')[0],
+				status: 'pending'
+			});
+			
+			saveHostelData();
+			notify('Complaint registered successfully!');
+			complaintModal.classList.remove('show');
+			
+			// Clear form
+			document.getElementById('complaintRoom').value = '';
+			document.getElementById('complaintDesc').value = '';
+			
+			if (currentTab === 'complaints') renderComplaints();
+			updateStats();
+		});
+
+		// Send Fee Reminders button
+		document.getElementById('sendRemindersBtn')?.addEventListener('click', () => {
+			const dueStudents = DEMO_RESIDENTS.filter(r => r.feeStatus === 'due');
+			if (dueStudents.length === 0) {
+				notify('All fees are paid! No reminders needed.', 'success');
+				return;
+			}
+			
+			// Show reminder modal
+			const modalHtml = `
+				<div id="reminderModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+					<div style="background: white; border-radius: 16px; width: 500px; max-width: 95%; max-height: 80vh; overflow: hidden; animation: slideIn 0.3s ease;">
+						<div style="padding: 20px 24px; background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">
+							<h3 style="margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-bell"></i> Send Fee Reminders</h3>
+						</div>
+						<div style="padding: 20px 24px; max-height: 400px; overflow-y: auto;">
+							<p style="margin: 0 0 16px; color: #64748b;">Reminders will be sent to <strong style="color: #ef4444;">${dueStudents.length}</strong> students with pending fees:</p>
+							<div style="display: flex; flex-direction: column; gap: 10px;">
+								${dueStudents.map(s => `
+									<div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fef2f2; border-radius: 10px; border-left: 4px solid #ef4444;">
+										<div style="display: flex; align-items: center; gap: 12px;">
+											<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f87171, #ef4444); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">${s.name.split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
+											<div>
+												<div style="font-weight: 600; color: #1e293b;">${s.name}</div>
+												<div style="font-size: 12px; color: #64748b;">Block ${s.block} / Room ${s.room}</div>
+											</div>
+										</div>
+										<div style="text-align: right;">
+											<div style="font-weight: 700; color: #ef4444;">₹8,000</div>
+											<div style="font-size: 11px; color: #94a3b8;">Due</div>
+										</div>
+									</div>
+								`).join('')}
+							</div>
+						</div>
+						<div style="padding: 16px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px;">
+							<button onclick="document.getElementById('reminderModal').remove()" style="padding: 10px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; color: #64748b; font-weight: 600; cursor: pointer;">Cancel</button>
+							<button onclick="sendReminders()" style="padding: 10px 20px; background: linear-gradient(135deg, #22c55e, #16a34a); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;"><i class="fas fa-paper-plane"></i> Send ${dueStudents.length} Reminders</button>
+						</div>
+					</div>
+				</div>
+			`;
+			document.body.insertAdjacentHTML('beforeend', modalHtml);
+		});
+
+		function sendReminders() {
+			const dueStudents = DEMO_RESIDENTS.filter(r => r.feeStatus === 'due');
+			document.getElementById('reminderModal')?.remove();
+			
+			// Simulate sending
+			notify(`📧 Sending reminders to ${dueStudents.length} students...`, 'info');
+			
+			setTimeout(() => {
+				notify(`✅ Fee reminders sent successfully to ${dueStudents.length} students!`, 'success');
+				
+				// Export reminder list
+				const csv = 'Student Name,Block,Room,Fee Amount,Status\n' + 
+					dueStudents.map(s => `"${s.name}","Block ${s.block}","${s.room}","₹8,000","Reminder Sent"`).join('\n');
+				const blob = new Blob(['\uFEFF' + csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+				const link = document.createElement('a');
+				link.href = URL.createObjectURL(blob);
+				link.download = `Fee_Reminders_${new Date().toISOString().slice(0,10)}.csv`;
+				link.click();
+			}, 1500);
+		}
+
+		// Close modals on backdrop
+		window.addEventListener('click', (e) => {
+			if (e.target === allocateModal) allocateModal.classList.remove('show');
+			if (e.target === complaintModal) complaintModal.classList.remove('show');
+			if (e.target === addBlockModal) addBlockModal.classList.remove('show');
+			if (e.target === addStudentModal) addStudentModal.classList.remove('show');
+			if (e.target === viewStudentModal) viewStudentModal.classList.remove('show');
+		});
+		
+		// Initialize
+		document.addEventListener('DOMContentLoaded', () => {
+			loadHostelData();
+			updateBlockOptions();
+			updateStats();
+			switchTab('blocks');
+		});
+	</script>
+</body>
+</html>

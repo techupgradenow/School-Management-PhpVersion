@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Reports & Analytics</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+		
+		/* Header */
+		.header-banner {
+			background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+			padding: 28px 32px;
+			border-radius: 20px;
+			margin-bottom: 24px;
+			color: white;
+			position: relative;
+			overflow: hidden;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.header-banner::before {
+			content: '';
+			position: absolute;
+			top: -100px;
+			right: -100px;
+			width: 300px;
+			height: 300px;
+			background: rgba(255,255,255,0.05);
+			border-radius: 50%;
+		}
+		.header-banner::after {
+			content: '';
+			position: absolute;
+			bottom: -80px;
+			left: 30%;
+			width: 200px;
+			height: 200px;
+			background: rgba(255,255,255,0.03);
+			border-radius: 50%;
+		}
+		.header-left h1 {
+			font-size: 26px;
+			font-weight: 700;
+			margin-bottom: 6px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.header-left p { opacity: 0.85; font-size: 14px; }
+		.header-actions { display: flex; gap: 12px; z-index: 1; }
+		.header-btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.header-btn.primary { background: #22c55e; color: white; }
+		.header-btn.secondary { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); }
+		.header-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+		/* Navigation Tabs */
+		.nav-tabs {
+			display: flex;
+			gap: 8px;
+			background: white;
+			padding: 8px;
+			border-radius: 14px;
+			margin-bottom: 24px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+			overflow-x: auto;
+		}
+		.nav-tab {
+			padding: 14px 24px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			transition: all 0.2s;
+			background: transparent;
+			color: #64748b;
+			border: none;
+			white-space: nowrap;
+		}
+		.nav-tab:hover { background: #f1f5f9; color: #334155; }
+		.nav-tab.active {
+			background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+			color: white;
+			box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+		}
+		.nav-tab i { font-size: 16px; }
+
+		/* Stats Row */
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(6, 1fr);
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		.stat-box {
+			background: white;
+			border-radius: 14px;
+			padding: 20px;
+			text-align: center;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+			border-left: 4px solid;
+			transition: all 0.3s;
+		}
+		.stat-box:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+		.stat-box.blue { border-color: #3b82f6; }
+		.stat-box.purple { border-color: #8b5cf6; }
+		.stat-box.green { border-color: #22c55e; }
+		.stat-box.orange { border-color: #f59e0b; }
+		.stat-box.red { border-color: #ef4444; }
+		.stat-box.cyan { border-color: #06b6d4; }
+		.stat-number { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 12px; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+		/* Content Sections */
+		.content-section { display: none; }
+		.content-section.active { display: block; animation: fadeIn 0.3s ease; }
+		@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+		/* Cards Grid */
+		.cards-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.report-card {
+			background: white;
+			border-radius: 16px;
+			overflow: hidden;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+			transition: all 0.3s;
+		}
+		.report-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+		.card-header {
+			padding: 20px;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			border-bottom: 1px solid #f1f5f9;
+		}
+		.card-icon {
+			width: 50px;
+			height: 50px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 22px;
+		}
+		.card-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.card-icon.purple { background: #f3e8ff; color: #8b5cf6; }
+		.card-icon.green { background: #f0fdf4; color: #22c55e; }
+		.card-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.card-icon.red { background: #fef2f2; color: #ef4444; }
+		.card-icon.cyan { background: #ecfeff; color: #06b6d4; }
+		.card-title { font-size: 16px; font-weight: 700; color: #1e293b; }
+		.card-subtitle { font-size: 12px; color: #64748b; }
+		.card-body { padding: 16px 20px; }
+		.card-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 12px 14px;
+			background: #f8fafc;
+			border-radius: 10px;
+			margin-bottom: 10px;
+			transition: all 0.2s;
+		}
+		.card-item:last-child { margin-bottom: 0; }
+		.card-item:hover { background: #f1f5f9; }
+		.item-info { display: flex; align-items: center; gap: 12px; }
+		.item-icon {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 14px;
+		}
+		.item-name { font-weight: 600; font-size: 14px; color: #334155; }
+		.item-desc { font-size: 11px; color: #94a3b8; }
+		.export-btn {
+			padding: 8px 14px;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			border: none;
+			transition: all 0.2s;
+			color: white;
+		}
+		.export-btn.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.export-btn.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+		.export-btn.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+		.export-btn.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.export-btn.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+		.export-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+		/* Charts Section */
+		.charts-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.chart-card {
+			background: white;
+			border-radius: 16px;
+			padding: 24px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+		}
+		.chart-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		.chart-title { font-size: 16px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+		.chart-container { height: 280px; position: relative; }
+
+		/* Data Preview Table */
+		.preview-section {
+			background: white;
+			border-radius: 16px;
+			padding: 24px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+			margin-bottom: 24px;
+		}
+		.preview-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.preview-title { font-size: 18px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+		.preview-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+		.preview-filters { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+		.filter-input {
+			padding: 10px 14px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			min-width: 150px;
+		}
+		.filter-input:focus { outline: none; border-color: #1e3a5f; }
+		.data-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 14px;
+		}
+		.data-table th {
+			background: #f8fafc;
+			padding: 14px 16px;
+			text-align: left;
+			font-weight: 600;
+			color: #475569;
+			border-bottom: 2px solid #e2e8f0;
+			white-space: nowrap;
+		}
+		.data-table td {
+			padding: 14px 16px;
+			border-bottom: 1px solid #f1f5f9;
+			color: #334155;
+		}
+		.data-table tr:hover td { background: #f8fafc; }
+		.badge {
+			padding: 4px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+		}
+		.badge.active { background: #dcfce7; color: #16a34a; }
+		.badge.inactive { background: #fef2f2; color: #dc2626; }
+		.badge.paid { background: #dcfce7; color: #16a34a; }
+		.badge.pending { background: #fef3c7; color: #d97706; }
+		.badge.due { background: #fef2f2; color: #dc2626; }
+
+		/* Quick Actions */
+		.quick-actions {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		.quick-btn {
+			padding: 24px 20px;
+			background: white;
+			border: 2px solid #e2e8f0;
+			border-radius: 14px;
+			cursor: pointer;
+			transition: all 0.3s;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 12px;
+			text-align: center;
+			position: relative;
+			overflow: hidden;
+		}
+		.quick-btn::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+			transition: 0.5s;
+		}
+		.quick-btn:hover::before { left: 100%; }
+		.quick-btn:hover { border-color: #1e3a5f; background: #f8fafc; transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+		.quick-btn:active { transform: translateY(-2px) scale(0.98); }
+		.quick-btn.exporting { pointer-events: none; opacity: 0.7; }
+		.quick-btn.exporting i { animation: bounce 0.6s infinite; }
+		.quick-btn.success { border-color: #22c55e; background: #f0fdf4; }
+		.quick-btn.success i { color: #22c55e !important; }
+		@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+		.quick-btn i { font-size: 32px; transition: all 0.3s; }
+		.quick-btn:hover i { transform: scale(1.1); }
+		.quick-btn.students i { color: #3b82f6; }
+		.quick-btn.students:hover { border-color: #3b82f6; background: #eff6ff; }
+		.quick-btn.teachers i { color: #8b5cf6; }
+		.quick-btn.teachers:hover { border-color: #8b5cf6; background: #f3e8ff; }
+		.quick-btn.attendance i { color: #22c55e; }
+		.quick-btn.attendance:hover { border-color: #22c55e; background: #f0fdf4; }
+		.quick-btn.fees i { color: #f59e0b; }
+		.quick-btn.fees:hover { border-color: #f59e0b; background: #fffbeb; }
+		.quick-btn.exams i { color: #ef4444; }
+		.quick-btn.exams:hover { border-color: #ef4444; background: #fef2f2; }
+		.quick-btn.transport i { color: #06b6d4; }
+		.quick-btn.transport:hover { border-color: #06b6d4; background: #ecfeff; }
+		.quick-btn.hostel i { color: #ec4899; }
+		.quick-btn.hostel:hover { border-color: #ec4899; background: #fdf2f8; }
+		.quick-btn.all i { color: #1e3a5f; }
+		.quick-btn.all:hover { border-color: #1e3a5f; background: #f1f5f9; }
+		.quick-btn span { font-weight: 600; color: #334155; font-size: 14px; }
+		.quick-btn small { font-size: 11px; color: #94a3b8; }
+		.quick-btn .export-badge {
+			position: absolute;
+			top: 8px;
+			right: 8px;
+			background: linear-gradient(135deg, #22c55e, #16a34a);
+			color: white;
+			font-size: 10px;
+			padding: 3px 8px;
+			border-radius: 12px;
+			font-weight: 600;
+			opacity: 0;
+			transform: scale(0.8);
+			transition: all 0.3s;
+		}
+		.quick-btn:hover .export-badge { opacity: 1; transform: scale(1); }
+
+		/* Insights Cards */
+		.insights-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		.insight-box {
+			background: white;
+			border-radius: 14px;
+			padding: 18px;
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+		}
+		.insight-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+		}
+		.insight-icon.success { background: #f0fdf4; color: #22c55e; }
+		.insight-icon.warning { background: #fffbeb; color: #f59e0b; }
+		.insight-icon.danger { background: #fef2f2; color: #ef4444; }
+		.insight-icon.info { background: #eff6ff; color: #3b82f6; }
+		.insight-title { font-weight: 600; color: #1e293b; font-size: 14px; }
+		.insight-value { font-size: 12px; color: #64748b; }
+
+		/* Print Button Styles */
+		@media print {
+			.header-banner, .nav-tabs, .header-actions, .export-btn, .quick-actions, .preview-actions { display: none !important; }
+			.content-section { display: block !important; }
+			body { background: white; }
+		}
+
+		/* Responsive */
+		@media (max-width: 1200px) {
+			.stats-row { grid-template-columns: repeat(3, 1fr); }
+			.charts-grid { grid-template-columns: 1fr; }
+			.insights-row { grid-template-columns: repeat(2, 1fr); }
+		}
+		@media (max-width: 768px) {
+			.stats-row { grid-template-columns: repeat(2, 1fr); }
+			.header-banner { flex-direction: column; text-align: center; gap: 16px; }
+			.insights-row { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<div class="page reports-page active">
+		<!-- Header Banner -->
+		<div class="header-banner">
+			<div class="header-left">
+				<h1><i class="fas fa-chart-pie"></i> Reports & Analytics</h1>
+				<p>Generate comprehensive reports, view insights, and export data to Excel</p>
+			</div>
+			<div class="header-actions">
+				<button class="header-btn secondary" id="printReportBtn">
+					<i class="fas fa-print"></i> Print
+				</button>
+				<button class="header-btn primary" id="exportAllBtn">
+					<i class="fas fa-download"></i> Export All Data
+				</button>
+			</div>
+		</div>
+
+		<!-- Stats Row -->
+		<div class="stats-row" id="statsRow"></div>
+
+		<!-- Navigation Tabs -->
+		<div class="nav-tabs">
+			<button class="nav-tab active" data-tab="overview"><i class="fas fa-th-large"></i> Overview</button>
+			<button class="nav-tab" data-tab="students"><i class="fas fa-user-graduate"></i> Students</button>
+			<button class="nav-tab" data-tab="teachers"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
+			<button class="nav-tab" data-tab="attendance"><i class="fas fa-calendar-check"></i> Attendance</button>
+			<button class="nav-tab" data-tab="fees"><i class="fas fa-rupee-sign"></i> Fees</button>
+			<button class="nav-tab" data-tab="exams"><i class="fas fa-file-alt"></i> Exams</button>
+			<button class="nav-tab" data-tab="analytics"><i class="fas fa-chart-line"></i> Analytics</button>
+		</div>
+
+		<!-- OVERVIEW TAB -->
+		<div class="content-section active" id="overviewSection">
+			<!-- Insights Row -->
+			<div class="insights-row" id="insightsRow"></div>
+
+			<!-- Quick Export Actions -->
+			<div class="preview-section">
+				<div class="preview-header">
+					<div class="preview-title"><i class="fas fa-bolt" style="color: #f59e0b;"></i> Quick Export to Excel</div>
+				</div>
+				<div class="quick-actions">
+					<button class="quick-btn students" data-quick="students">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-user-graduate"></i>
+						<span>Students</span>
+						<small>All student records</small>
+					</button>
+					<button class="quick-btn teachers" data-quick="teachers">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-chalkboard-teacher"></i>
+						<span>Teachers</span>
+						<small>All staff records</small>
+					</button>
+					<button class="quick-btn attendance" data-quick="attendance">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-calendar-check"></i>
+						<span>Attendance</span>
+						<small>All attendance data</small>
+					</button>
+					<button class="quick-btn fees" data-quick="fees">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-rupee-sign"></i>
+						<span>Fee Reports</span>
+						<small>Payment records</small>
+					</button>
+					<button class="quick-btn exams" data-quick="exams">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-file-alt"></i>
+						<span>Exam Reports</span>
+						<small>Exam schedules</small>
+					</button>
+					<button class="quick-btn transport" data-quick="transport">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-bus"></i>
+						<span>Transport</span>
+						<small>Route & students</small>
+					</button>
+					<button class="quick-btn hostel" data-quick="hostel">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-building"></i>
+						<span>Hostel</span>
+						<small>Residents data</small>
+					</button>
+					<button class="quick-btn all" data-quick="complete">
+						<span class="export-badge"><i class="fas fa-download"></i> CSV</span>
+						<i class="fas fa-file-archive"></i>
+						<span>Complete Report</span>
+						<small>All modules</small>
+					</button>
+				</div>
+			</div>
+
+			<!-- Charts -->
+			<div class="charts-grid">
+				<div class="chart-card">
+					<div class="chart-header">
+						<div class="chart-title"><i class="fas fa-users" style="color: #3b82f6;"></i> Student Distribution</div>
+						<button class="export-btn blue" data-export-chart="students"><i class="fas fa-download"></i> Export</button>
+					</div>
+					<div class="chart-container"><canvas id="studentChart"></canvas></div>
+				</div>
+				<div class="chart-card">
+					<div class="chart-header">
+						<div class="chart-title"><i class="fas fa-calendar-check" style="color: #22c55e;"></i> Attendance Overview</div>
+						<button class="export-btn green" data-export-chart="attendance"><i class="fas fa-download"></i> Export</button>
+					</div>
+					<div class="chart-container"><canvas id="attendanceChart"></canvas></div>
+				</div>
+				<div class="chart-card">
+					<div class="chart-header">
+						<div class="chart-title"><i class="fas fa-rupee-sign" style="color: #f59e0b;"></i> Fee Collection</div>
+						<button class="export-btn orange" data-export-chart="fees"><i class="fas fa-download"></i> Export</button>
+					</div>
+					<div class="chart-container"><canvas id="feeChart"></canvas></div>
+				</div>
+				<div class="chart-card">
+					<div class="chart-header">
+						<div class="chart-title"><i class="fas fa-chart-line" style="color: #8b5cf6;"></i> Monthly Trends</div>
+						<button class="export-btn purple" data-export-chart="trends"><i class="fas fa-download"></i> Export</button>
+					</div>
+					<div class="chart-container"><canvas id="trendChart"></canvas></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- STUDENTS TAB -->
+		<div class="content-section" id="studentsSection">
+			<div class="preview-section">
+				<div class="preview-header">
+					<div class="preview-title"><i class="fas fa-user-graduate" style="color: #3b82f6;"></i> Student Reports</div>
+					<div class="preview-actions">
+						<button class="export-btn blue" id="exportStudentsAll"><i class="fas fa-file-excel"></i> Export All</button>
+						<button class="export-btn green" id="exportStudentsActive"><i class="fas fa-file-excel"></i> Export Active</button>
+					</div>
+				</div>
+				<div class="preview-filters">
+					<input type="text" class="filter-input" id="studentSearchFilter" placeholder="🔍 Search students...">
+					<select class="filter-input" id="studentClassFilter">
+						<option value="">All Classes</option>
+						<option value="9">Class 9</option>
+						<option value="10">Class 10</option>
+						<option value="11">Class 11</option>
+						<option value="12">Class 12</option>
+					</select>
+					<select class="filter-input" id="studentStatusFilter">
+						<option value="">All Status</option>
+						<option value="Active">Active</option>
+						<option value="Inactive">Inactive</option>
+					</select>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table" id="studentsTable">
+						<thead>
+							<tr>
+								<th>S.No</th>
+								<th>Student ID</th>
+								<th>Name</th>
+								<th>Class</th>
+								<th>Section</th>
+								<th>Parent</th>
+								<th>Contact</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody id="studentsTableBody"></tbody>
+					</table>
+				</div>
+				<div id="studentsPagination" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;"></div>
+			</div>
+		</div>
+
+		<!-- TEACHERS TAB -->
+		<div class="content-section" id="teachersSection">
+			<div class="preview-section">
+				<div class="preview-header">
+					<div class="preview-title"><i class="fas fa-chalkboard-teacher" style="color: #8b5cf6;"></i> Teacher Reports</div>
+					<div class="preview-actions">
+						<button class="export-btn purple" id="exportTeachersAll"><i class="fas fa-file-excel"></i> Export All</button>
+					</div>
+				</div>
+				<div class="preview-filters">
+					<input type="text" class="filter-input" id="teacherSearchFilter" placeholder="🔍 Search teachers...">
+					<select class="filter-input" id="teacherSubjectFilter">
+						<option value="">All Subjects</option>
+						<option value="Mathematics">Mathematics</option>
+						<option value="Science">Science</option>
+						<option value="English">English</option>
+						<option value="Physics">Physics</option>
+						<option value="Chemistry">Chemistry</option>
+					</select>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table" id="teachersTable">
+						<thead>
+							<tr>
+								<th>S.No</th>
+								<th>Teacher ID</th>
+								<th>Name</th>
+								<th>Subject</th>
+								<th>Email</th>
+								<th>Phone</th>
+								<th>Experience</th>
+							</tr>
+						</thead>
+						<tbody id="teachersTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- ATTENDANCE TAB -->
+		<div class="content-section" id="attendanceSection">
+			<div class="preview-section">
+				<div class="preview-header">
+					<div class="preview-title"><i class="fas fa-calendar-check" style="color: #22c55e;"></i> Attendance Reports</div>
+					<div class="preview-actions">
+						<button class="export-btn green" id="exportAttendanceAll"><i class="fas fa-file-excel"></i> Export All</button>
+						<button class="export-btn red" id="exportAttendanceAbsent"><i class="fas fa-file-excel"></i> Absentees Only</button>
+					</div>
+				</div>
+				<div class="preview-filters">
+					<input type="date" class="filter-input" id="attendanceDateFrom">
+					<input type="date" class="filter-input" id="attendanceDateTo">
+					<select class="filter-input" id="attendanceClassFilter">
+						<option value="">All Classes</option>
+						<option value="9">Class 9</option>
+						<option value="10">Class 10</option>
+						<option value="11">Class 11</option>
+						<option value="12">Class 12</option>
+					</select>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table" id="attendanceTable">
+						<thead>
+							<tr>
+								<th>S.No</th>
+								<th>Date</th>
+								<th>Class</th>
+								<th>Section</th>
+								<th>Student ID</th>
+								<th>Name</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody id="attendanceTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- FEES TAB -->
+		<div class="content-section" id="feesSection">
+			<div class="cards-grid" style="margin-bottom: 24px;">
+				<div class="stat-box green" style="border-left-width: 4px;">
+					<div class="stat-number" id="feesPaidCount">0</div>
+					<div class="stat-label">Fees Paid</div>
+				</div>
+				<div class="stat-box orange" style="border-left-width: 4px;">
+					<div class="stat-number" id="feesPartialCount">0</div>
+					<div class="stat-label">Partial Payment</div>
+				</div>
+				<div class="stat-box red" style="border-left-width: 4px;">
+					<div class="stat-number" id="feesPendingCount">0</div>
+					<div class="stat-label">Fees Pending</div>
+				</div>
+			</div>
+			<div class="preview-section">
+				<div class="preview-header">
+					<div class="preview-title"><i class="fas fa-rupee-sign" style="color: #f59e0b;"></i> Fee Collection Reports</div>
+					<div class="preview-actions">
+						<button class="export-btn green" id="exportFeesPaid"><i class="fas fa-file-excel"></i> Paid Only</button>
+						<button class="export-btn red" id="exportFeesPending"><i class="fas fa-file-excel"></i> Pending Only</button>
+						<button class="export-btn orange" id="exportFeesAll"><i class="fas fa-file-excel"></i> Export All</button>
+					</div>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table" id="feesTable">
+						<thead>
+							<tr>
+								<th>S.No</th>
+								<th>Student ID</th>
+								<th>Name</th>
+								<th>Class</th>
+								<th>Total Fee</th>
+								<th>Paid</th>
+								<th>Balance</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody id="feesTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- EXAMS TAB -->
+		<div class="content-section" id="examsSection">
+			<div class="preview-section">
+				<div class="preview-header">
+					<div class="preview-title"><i class="fas fa-file-alt" style="color: #ef4444;"></i> Exam Reports</div>
+					<div class="preview-actions">
+						<button class="export-btn red" id="exportExamsAll"><i class="fas fa-file-excel"></i> Export All</button>
+					</div>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table" id="examsTable">
+						<thead>
+							<tr>
+								<th>S.No</th>
+								<th>Exam ID</th>
+								<th>Exam Name</th>
+								<th>Class</th>
+								<th>Subject</th>
+								<th>Date</th>
+								<th>Max Marks</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody id="examsTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- ANALYTICS TAB -->
+		<div class="content-section" id="analyticsSection">
+			<div class="charts-grid">
+				<div class="chart-card" style="grid-column: span 2;">
+					<div class="chart-header">
+						<div class="chart-title"><i class="fas fa-chart-area" style="color: #8b5cf6;"></i> Performance Trends (6 Months)</div>
+						<button class="export-btn purple" data-export-chart="performance"><i class="fas fa-download"></i> Export</button>
+					</div>
+					<div class="chart-container" style="height: 350px;"><canvas id="performanceChart"></canvas></div>
+				</div>
+			</div>
+			<div class="cards-grid">
+				<div class="report-card">
+					<div class="card-header">
+						<div class="card-icon blue"><i class="fas fa-trophy"></i></div>
+						<div>
+							<div class="card-title">Top Performers</div>
+							<div class="card-subtitle">Students with highest attendance</div>
+						</div>
+					</div>
+					<div class="card-body" id="topPerformers"></div>
+		</div>
+				<div class="report-card">
+			<div class="card-header">
+						<div class="card-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+						<div>
+							<div class="card-title">Needs Attention</div>
+							<div class="card-subtitle">Students with low attendance</div>
+						</div>
+					</div>
+					<div class="card-body" id="needsAttention"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// ==================== TOAST NOTIFICATION ====================
+		function notify(msg, type = 'success') {
+			document.querySelectorAll('.toast-notification').forEach(t => t.remove());
+			const toast = document.createElement('div');
+			const bgColor = type === 'success' ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 
+							type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 
+							'linear-gradient(135deg, #1e3a5f, #2d5a87)';
+			const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+			toast.style.cssText = `position: fixed; bottom: 30px; right: 30px; padding: 16px 24px; background: ${bgColor}; color: white; border-radius: 12px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); z-index: 999999; display: flex; align-items: center; gap: 10px; animation: toastSlideIn 0.4s ease; font-family: 'Segoe UI', sans-serif;`;
+			toast.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+			document.body.appendChild(toast);
+			if (!document.getElementById('toastStyle')) {
+				const s = document.createElement('style');
+				s.id = 'toastStyle';
+				s.textContent = `@keyframes toastSlideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+				document.head.appendChild(s);
+			}
+			setTimeout(() => { toast.style.transition = 'all 0.3s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+		}
+
+		// ==================== DATA LOADERS (with sample data fallback) ====================
+		const load = key => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; } };
+		
+		// Sample data generators for demo purposes
+		const sampleStudents = [
+			{ id: 'STU-2024-001', name: 'Rahul Sharma', class: '10', section: 'A', parent: 'Mr. Amit Sharma', contact: '+91 9876543210', status: 'Active' },
+			{ id: 'STU-2024-002', name: 'Priya Patel', class: '10', section: 'B', parent: 'Mrs. Sunita Patel', contact: '+91 9876543211', status: 'Active' },
+			{ id: 'STU-2024-003', name: 'Amit Kumar', class: '11', section: 'A', parent: 'Mr. Rajesh Kumar', contact: '+91 9876543212', status: 'Active' },
+			{ id: 'STU-2024-004', name: 'Neha Gupta', class: '9', section: 'A', parent: 'Mr. Sanjay Gupta', contact: '+91 9876543213', status: 'Active' },
+			{ id: 'STU-2024-005', name: 'Vikram Singh', class: '12', section: 'A', parent: 'Mr. Harpreet Singh', contact: '+91 9876543214', status: 'Active' },
+			{ id: 'STU-2024-006', name: 'Anjali Verma', class: '10', section: 'C', parent: 'Mr. Rakesh Verma', contact: '+91 9876543215', status: 'Active' },
+			{ id: 'STU-2024-007', name: 'Karan Mehta', class: '11', section: 'B', parent: 'Mrs. Kavita Mehta', contact: '+91 9876543216', status: 'Active' },
+			{ id: 'STU-2024-008', name: 'Sanya Kapoor', class: '9', section: 'B', parent: 'Mr. Anil Kapoor', contact: '+91 9876543217', status: 'Inactive' }
+		];
+		
+		const sampleTeachers = [
+			{ id: 'TCH-001', name: 'Dr. Ramesh Kumar', subject: 'Mathematics', email: 'ramesh@school.edu', phone: '+91 9811111111', experience: '15' },
+			{ id: 'TCH-002', name: 'Mrs. Sunita Sharma', subject: 'English', email: 'sunita@school.edu', phone: '+91 9811111112', experience: '12' },
+			{ id: 'TCH-003', name: 'Mr. Anil Verma', subject: 'Physics', email: 'anil@school.edu', phone: '+91 9811111113', experience: '10' },
+			{ id: 'TCH-004', name: 'Ms. Priya Singh', subject: 'Chemistry', email: 'priya@school.edu', phone: '+91 9811111114', experience: '8' },
+			{ id: 'TCH-005', name: 'Mr. Rajiv Khanna', subject: 'Science', email: 'rajiv@school.edu', phone: '+91 9811111115', experience: '20' }
+		];
+		
+		const sampleExams = [
+			{ id: 'EXM-001', name: 'Mid-Term Examination', class: '10', subject: 'Mathematics', date: '2024-12-15', max: '100', status: 'Scheduled' },
+			{ id: 'EXM-002', name: 'Mid-Term Examination', class: '10', subject: 'Science', date: '2024-12-16', max: '100', status: 'Scheduled' },
+			{ id: 'EXM-003', name: 'Unit Test 3', class: '9', subject: 'English', date: '2024-12-10', max: '50', status: 'Completed' },
+			{ id: 'EXM-004', name: 'Final Examination', class: '12', subject: 'Physics', date: '2025-03-01', max: '100', status: 'Scheduled' }
+		];
+		
+		const sampleTransport = [
+			{ studentId: 'STU-2024-001', name: 'Rahul Sharma', class: '10-A', routeId: 'R-001', stop: 'City Center', pickupTime: '7:30 AM', feeStatus: 'paid' },
+			{ studentId: 'STU-2024-002', name: 'Priya Patel', class: '10-B', routeId: 'R-002', stop: 'Green Park', pickupTime: '7:45 AM', feeStatus: 'paid' },
+			{ studentId: 'STU-2024-003', name: 'Amit Kumar', class: '11-A', routeId: 'R-001', stop: 'Mall Road', pickupTime: '7:15 AM', feeStatus: 'due' }
+		];
+		
+		const sampleHostel = [
+			{ id: 'RES-001', name: 'Vikram Singh', class: '12-A', block: 'A', room: '101', bed: '1', feeStatus: 'paid' },
+			{ id: 'RES-002', name: 'Karan Mehta', class: '11-B', block: 'A', room: '102', bed: '2', feeStatus: 'paid' },
+			{ id: 'RES-003', name: 'Rajat Gupta', class: '10-A', block: 'B', room: '201', bed: '1', feeStatus: 'due' }
+		];
+		
+		const loadStudents = () => { const d = load('edu_students'); return d.length ? d : sampleStudents; };
+		const loadTeachers = () => { const d = load('edu_teachers'); return d.length ? d : sampleTeachers; };
+		const loadAttendance = () => load('edu_attendance');
+		const loadExams = () => { const d = load('edu_exams'); return d.length ? d : sampleExams; };
+		const loadTransport = () => { const d = load('edu_transport_students'); return d.length ? d : sampleTransport; };
+		const loadHostel = () => { const d = load('edu_hostel_residents'); return d.length ? d : sampleHostel; };
+
+		// ==================== EXPORT TO EXCEL ====================
+		function exportExcel(data, filename, headers) {
+			if (!data || !data.length) { notify('⚠️ No data to export', 'warning'); return; }
+			const BOM = '\uFEFF';
+			let csv = BOM + headers.join(',') + '\n';
+			data.forEach(row => {
+				csv += row.map(cell => {
+					const s = String(cell || '');
+					return s.includes(',') || s.includes('"') ? '"' + s.replace(/"/g, '""') + '"' : s;
+				}).join(',') + '\n';
+			});
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `${filename}_${new Date().toISOString().slice(0,10)}.csv`;
+			link.click();
+			notify(`📊 ${filename}.csv exported!`, 'success');
+		}
+
+		// ==================== RENDER STATS ====================
+		function renderStats() {
+			const students = loadStudents(), teachers = loadTeachers(), exams = loadExams();
+			const attendance = loadAttendance(), transport = loadTransport(), hostel = loadHostel();
+			let present = 0, total = 0;
+			attendance.forEach(a => { if (a.records) Object.values(a.records).forEach(s => { total++; if (s !== 'A') present++; }); });
+			const rate = total > 0 ? Math.round(present/total*100) : 95;
+			const fees = students.length * 25000;
+			
+			document.getElementById('statsRow').innerHTML = `
+				<div class="stat-box blue"><div class="stat-number">${students.length}</div><div class="stat-label">Students</div></div>
+				<div class="stat-box purple"><div class="stat-number">${teachers.length}</div><div class="stat-label">Teachers</div></div>
+				<div class="stat-box green"><div class="stat-number">${rate}%</div><div class="stat-label">Attendance</div></div>
+				<div class="stat-box orange"><div class="stat-number">₹${(fees*0.78/100000).toFixed(1)}L</div><div class="stat-label">Collected</div></div>
+				<div class="stat-box red"><div class="stat-number">${exams.length}</div><div class="stat-label">Exams</div></div>
+				<div class="stat-box cyan"><div class="stat-number">${transport.length + hostel.length}</div><div class="stat-label">Hostel+Bus</div></div>
+			`;
+		}
+
+		// ==================== RENDER INSIGHTS ====================
+		function renderInsights() {
+			const students = loadStudents(), teachers = loadTeachers(), exams = loadExams();
+			const active = students.filter(s => s.status === 'Active').length;
+			const scheduled = exams.filter(e => e.status === 'Scheduled').length;
+			const ratio = teachers.length ? Math.round(students.length / teachers.length) : 0;
+			
+			document.getElementById('insightsRow').innerHTML = `
+				<div class="insight-box"><div class="insight-icon success"><i class="fas fa-user-check"></i></div><div><div class="insight-title">${active} Active Students</div><div class="insight-value">${Math.round(active/Math.max(students.length,1)*100)}% enrollment</div></div></div>
+				<div class="insight-box"><div class="insight-icon warning"><i class="fas fa-clock"></i></div><div><div class="insight-title">${scheduled} Upcoming Exams</div><div class="insight-value">Scheduled this term</div></div></div>
+				<div class="insight-box"><div class="insight-icon info"><i class="fas fa-balance-scale"></i></div><div><div class="insight-title">1:${ratio} Ratio</div><div class="insight-value">Student-Teacher</div></div></div>
+				<div class="insight-box"><div class="insight-icon ${students.length - active > 0 ? 'danger' : 'success'}"><i class="fas fa-user-minus"></i></div><div><div class="insight-title">${students.length - active} Inactive</div><div class="insight-value">${students.length - active > 0 ? 'Needs attention' : 'All active!'}</div></div></div>
+			`;
+		}
+
+		// ==================== RENDER TABLES ====================
+		function renderStudentsTable(filter = {}) {
+			let data = loadStudents();
+			if (filter.search) data = data.filter(s => (s.name || '').toLowerCase().includes(filter.search.toLowerCase()) || (s.id || '').toLowerCase().includes(filter.search.toLowerCase()));
+			if (filter.class) data = data.filter(s => s.class === filter.class);
+			if (filter.status) data = data.filter(s => s.status === filter.status);
+			
+			document.getElementById('studentsTableBody').innerHTML = data.map((s, i) => `
+				<tr>
+					<td>${i+1}</td>
+					<td><strong>${s.id}</strong></td>
+					<td>${s.name}</td>
+					<td>Class ${s.class}</td>
+					<td>${s.section}</td>
+					<td>${s.parent || '-'}</td>
+					<td>${s.contact || '-'}</td>
+					<td><span class="badge ${s.status === 'Active' ? 'active' : 'inactive'}">${s.status || 'Active'}</span></td>
+				</tr>
+			`).join('') || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:40px;">No students found</td></tr>';
+		}
+
+		function renderTeachersTable(filter = {}) {
+			let data = loadTeachers();
+			if (filter.search) data = data.filter(t => (t.name || '').toLowerCase().includes(filter.search.toLowerCase()));
+			if (filter.subject) data = data.filter(t => t.subject === filter.subject);
+			
+			document.getElementById('teachersTableBody').innerHTML = data.map((t, i) => `
+				<tr>
+					<td>${i+1}</td>
+					<td><strong>${t.id}</strong></td>
+					<td>${t.name}</td>
+					<td>${t.subject}</td>
+					<td>${t.email || '-'}</td>
+					<td>${t.phone || '-'}</td>
+					<td>${t.experience || 0} years</td>
+				</tr>
+			`).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No teachers found</td></tr>';
+		}
+
+		function renderAttendanceTable() {
+			const attendance = loadAttendance(), students = loadStudents();
+			const rows = [];
+			attendance.forEach(a => {
+				if (a.records) {
+					Object.entries(a.records).forEach(([id, status]) => {
+						const s = students.find(x => x.id === id);
+						rows.push({ date: a.date, class: a.class, section: a.section, id, name: s?.name || 'Unknown', status });
+					});
+				}
+			});
+			document.getElementById('attendanceTableBody').innerHTML = rows.map((r, i) => `
+				<tr>
+					<td>${i+1}</td>
+					<td>${r.date}</td>
+					<td>Class ${r.class}</td>
+					<td>${r.section}</td>
+					<td>${r.id}</td>
+					<td>${r.name}</td>
+					<td><span class="badge ${r.status === 'A' ? 'due' : 'active'}">${r.status === 'A' ? 'Absent' : 'Present'}</span></td>
+				</tr>
+			`).join('') || '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:40px;">No attendance records</td></tr>';
+		}
+
+		function renderFeesTable() {
+			const students = loadStudents();
+			// Use seeded distribution for consistent display (65% paid, 20% partial, 15% pending)
+			const statusPattern = ['Paid', 'Paid', 'Paid', 'Paid', 'Paid', 'Paid', 'Paid', 'Partial', 'Partial', 'Pending'];
+			let paid = 0, partial = 0, pending = 0;
+			
+			const rows = students.map((s, i) => {
+				const total = 25000;
+				const status = statusPattern[i % statusPattern.length];
+				let p = total;
+				if (status === 'Partial') p = Math.round(total * (0.4 + (i % 5) * 0.1)); // 40-80%
+				else if (status === 'Pending') p = 0;
+				const balance = total - p;
+				
+				if (status === 'Paid') paid++; 
+				else if (status === 'Partial') partial++; 
+				else pending++;
+				
+				return { ...s, total, paid: p, balance, feeStatus: status };
+			});
+			
+			document.getElementById('feesPaidCount').textContent = paid;
+			document.getElementById('feesPartialCount').textContent = partial;
+			document.getElementById('feesPendingCount').textContent = pending;
+			
+			document.getElementById('feesTableBody').innerHTML = rows.map((r, i) => `
+				<tr>
+					<td>${i+1}</td>
+					<td><strong>${r.id}</strong></td>
+					<td>${r.name}</td>
+					<td>Class ${r.class}</td>
+					<td>₹${r.total.toLocaleString()}</td>
+					<td style="color:#22c55e;font-weight:600;">₹${r.paid.toLocaleString()}</td>
+					<td style="color:${r.balance > 0 ? '#ef4444' : '#22c55e'};font-weight:600;">₹${r.balance.toLocaleString()}</td>
+					<td><span class="badge ${r.feeStatus.toLowerCase()}">${r.feeStatus}</span></td>
+				</tr>
+			`).join('') || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:40px;">No fee records found</td></tr>';
+			
+			window.feesData = rows;
+		}
+
+		function renderExamsTable() {
+			const exams = loadExams();
+			document.getElementById('examsTableBody').innerHTML = exams.map((e, i) => `
+				<tr>
+					<td>${i+1}</td>
+					<td><strong>${e.id}</strong></td>
+					<td>${e.name}</td>
+					<td>Class ${e.class}</td>
+					<td>${e.subject}</td>
+					<td>${e.date}</td>
+					<td>${e.max || 100}</td>
+					<td><span class="badge ${e.status === 'Completed' ? 'active' : e.status === 'Cancelled' ? 'due' : 'pending'}">${e.status}</span></td>
+				</tr>
+			`).join('') || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:40px;">No exams found</td></tr>';
+		}
+
+		// ==================== RENDER CHARTS ====================
+		function renderCharts() {
+			const students = loadStudents();
+			const classCounts = {};
+			students.forEach(s => { classCounts[s.class] = (classCounts[s.class] || 0) + 1; });
+			const classes = Object.keys(classCounts).sort((a,b) => parseInt(a) - parseInt(b));
+
+			new Chart(document.getElementById('studentChart'), {
+				type: 'bar',
+				data: { labels: classes.map(c => 'Class ' + c), datasets: [{ label: 'Students', data: classes.map(c => classCounts[c]), backgroundColor: ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4'], borderRadius: 8 }] },
+				options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+			});
+
+			new Chart(document.getElementById('attendanceChart'), {
+				type: 'doughnut',
+				data: { labels: ['Present', 'Absent', 'Leave'], datasets: [{ data: [85, 10, 5], backgroundColor: ['#22c55e', '#ef4444', '#f59e0b'], borderWidth: 0 }] },
+				options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+			});
+
+			new Chart(document.getElementById('feeChart'), {
+				type: 'pie',
+				data: { labels: ['Paid', 'Partial', 'Pending'], datasets: [{ data: [65, 20, 15], backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'], borderWidth: 0 }] },
+				options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+			});
+
+			new Chart(document.getElementById('trendChart'), {
+				type: 'line',
+				data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], datasets: [
+					{ label: 'Attendance %', data: [92, 88, 95, 91, 89, 94], borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.4 },
+					{ label: 'Fee Collection %', data: [78, 82, 85, 80, 88, 92], borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.4 }
+				] },
+				options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { min: 50, max: 100 } } }
+			});
+
+			new Chart(document.getElementById('performanceChart'), {
+				type: 'line',
+				data: { labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [
+					{ label: 'Attendance', data: [91, 93, 89, 94, 92, 95], borderColor: '#22c55e', tension: 0.4 },
+					{ label: 'Fee Collection', data: [75, 80, 85, 82, 90, 95], borderColor: '#f59e0b', tension: 0.4 },
+					{ label: 'Exam Pass %', data: [88, 85, 90, 87, 92, 94], borderColor: '#8b5cf6', tension: 0.4 }
+				] },
+				options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { min: 50, max: 100 } } }
+			});
+		}
+
+		function renderAnalyticsCards() {
+			const students = loadStudents();
+			document.getElementById('topPerformers').innerHTML = students.slice(0, 3).map((s, i) => `
+				<div class="card-item">
+					<div class="item-info"><div class="item-icon" style="background:#dcfce7;color:#22c55e;">${i+1}</div><div><div class="item-name">${s.name}</div><div class="item-desc">Class ${s.class} - ${s.section}</div></div></div>
+					<span class="badge active">98%</span>
+				</div>
+			`).join('');
+			
+			document.getElementById('needsAttention').innerHTML = students.slice(-3).map((s, i) => `
+				<div class="card-item">
+					<div class="item-info"><div class="item-icon" style="background:#fef2f2;color:#ef4444;">${i+1}</div><div><div class="item-name">${s.name}</div><div class="item-desc">Class ${s.class} - ${s.section}</div></div></div>
+					<span class="badge due">65%</span>
+				</div>
+			`).join('');
+		}
+
+		// ==================== EVENT LISTENERS ====================
+		
+		// Tab Navigation
+		document.querySelectorAll('.nav-tab').forEach(tab => {
+			tab.addEventListener('click', () => {
+				document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+				document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+				tab.classList.add('active');
+				document.getElementById(tab.dataset.tab + 'Section').classList.add('active');
+				
+				// Render data for the selected tab
+				if (tab.dataset.tab === 'students') renderStudentsTable();
+				if (tab.dataset.tab === 'teachers') renderTeachersTable();
+				if (tab.dataset.tab === 'attendance') renderAttendanceTable();
+				if (tab.dataset.tab === 'fees') renderFeesTable();
+				if (tab.dataset.tab === 'exams') renderExamsTable();
+				if (tab.dataset.tab === 'analytics') renderAnalyticsCards();
+			});
+		});
+
+		// Quick Export Buttons with visual feedback
+		document.querySelectorAll('.quick-btn').forEach(btn => {
+			btn.addEventListener('click', async () => {
+				const type = btn.dataset.quick;
+				
+				// Add exporting animation
+				btn.classList.add('exporting');
+				
+				// Simulate small delay for visual feedback
+				await new Promise(r => setTimeout(r, 300));
+				
+				try {
+					if (type === 'students') exportStudents('all');
+					else if (type === 'teachers') exportTeachers();
+					else if (type === 'attendance') exportAttendance('all');
+					else if (type === 'fees') exportFees('all');
+					else if (type === 'exams') exportExams();
+					else if (type === 'transport') exportTransport();
+					else if (type === 'hostel') exportHostel();
+					else if (type === 'complete') exportComplete();
+					
+					// Show success state
+					btn.classList.remove('exporting');
+					btn.classList.add('success');
+					setTimeout(() => btn.classList.remove('success'), 2000);
+				} catch(e) {
+					btn.classList.remove('exporting');
+					notify('Export failed: ' + e.message, 'error');
+				}
+			});
+		});
+
+		// Export Functions
+		function exportStudents(filter) {
+			let data = loadStudents();
+			if (filter === 'active') data = data.filter(s => s.status === 'Active');
+			const headers = ['S.No', 'Student ID', 'Name', 'Class', 'Section', 'Parent', 'Contact', 'Status'];
+			const rows = data.map((s, i) => [i+1, s.id, s.name, 'Class ' + s.class, s.section, s.parent || '-', s.contact || '-', s.status || 'Active']);
+			exportExcel(rows, `Students_${filter}_Report`, headers);
+		}
+
+		function exportTeachers() {
+			const data = loadTeachers();
+			const headers = ['S.No', 'Teacher ID', 'Name', 'Subject', 'Email', 'Phone', 'Experience'];
+			const rows = data.map((t, i) => [i+1, t.id, t.name, t.subject, t.email || '-', t.phone || '-', t.experience || 0]);
+			exportExcel(rows, 'Teachers_Report', headers);
+		}
+
+		function exportAttendance(filter) {
+			const attendance = loadAttendance(), students = loadStudents();
+			const headers = ['S.No', 'Date', 'Class', 'Section', 'Student ID', 'Name', 'Status'];
+			const rows = [];
+			let idx = 1;
+			
+			// If there's attendance data from localStorage
+			if (attendance.length > 0) {
+				attendance.forEach(a => {
+					if (a.records) {
+						Object.entries(a.records).forEach(([id, status]) => {
+							if (filter === 'absent' && status !== 'A') return;
+							const s = students.find(x => x.id === id);
+							rows.push([idx++, a.date, 'Class ' + a.class, a.section, id, s?.name || 'Unknown', status === 'A' ? 'Absent' : 'Present']);
+						});
+					}
+				});
+			} else {
+				// Generate sample attendance data
+				const today = new Date();
+				const statuses = ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'A', 'P', 'P']; // 90% present
+				students.forEach((s, i) => {
+					const status = statuses[i % statuses.length];
+					if (filter === 'absent' && status !== 'A') return;
+					const date = new Date(today);
+					date.setDate(date.getDate() - Math.floor(i / 2));
+					rows.push([idx++, date.toISOString().slice(0,10), 'Class ' + s.class, s.section, s.id, s.name, status === 'A' ? 'Absent' : 'Present']);
+				});
+			}
+			exportExcel(rows, `Attendance_${filter}_Report`, headers);
+		}
+
+		function exportFees(filter) {
+			const data = window.feesData || [];
+			let filtered = data;
+			if (filter === 'paid') filtered = data.filter(r => r.feeStatus === 'Paid');
+			else if (filter === 'pending') filtered = data.filter(r => r.feeStatus !== 'Paid');
+			const headers = ['S.No', 'Student ID', 'Name', 'Class', 'Total Fee', 'Paid', 'Balance', 'Status'];
+			const rows = filtered.map((r, i) => [i+1, r.id, r.name, 'Class ' + r.class, '₹' + r.total, '₹' + r.paid, '₹' + r.balance, r.feeStatus]);
+			exportExcel(rows, `Fees_${filter}_Report`, headers);
+		}
+
+		function exportExams() {
+			const data = loadExams();
+			const headers = ['S.No', 'Exam ID', 'Name', 'Class', 'Subject', 'Date', 'Max Marks', 'Status'];
+			const rows = data.map((e, i) => [i+1, e.id, e.name, 'Class ' + e.class, e.subject, e.date, e.max || 100, e.status]);
+			exportExcel(rows, 'Exams_Report', headers);
+		}
+
+		function exportTransport() {
+			const data = loadTransport();
+			const headers = ['S.No', 'Student ID', 'Name', 'Class', 'Route', 'Stop', 'Pickup Time', 'Fee Status'];
+			const rows = data.map((s, i) => [i+1, s.studentId, s.name, s.class, s.routeId, s.stop, s.pickupTime, s.feeStatus === 'paid' ? 'Paid' : 'Due']);
+			exportExcel(rows, 'Transport_Report', headers);
+		}
+
+		function exportHostel() {
+			const data = loadHostel();
+			const headers = ['S.No', 'Resident ID', 'Name', 'Class', 'Block', 'Room', 'Bed', 'Fee Status'];
+			const rows = data.map((r, i) => [i+1, r.id, r.name, r.class, r.block, r.room, r.bed || 'A', r.feeStatus === 'paid' ? 'Paid' : 'Due']);
+			exportExcel(rows, 'Hostel_Report', headers);
+		}
+
+		function exportComplete() {
+			const students = loadStudents(), teachers = loadTeachers(), exams = loadExams();
+			const transport = loadTransport(), hostel = loadHostel();
+			const headers = ['Category', 'Metric', 'Value', 'Details', 'Last Updated'];
+			const today = new Date().toISOString().slice(0, 10);
+			const rows = [
+				['SUMMARY', '=== SCHOOL MANAGEMENT REPORT ===', '', '', today],
+				['', '', '', '', ''],
+				['STUDENTS', 'Total Enrolled', students.length, 'All students in system', today],
+				['STUDENTS', 'Active Students', students.filter(s => s.status === 'Active').length, 'Currently enrolled', today],
+				['STUDENTS', 'Inactive Students', students.filter(s => s.status !== 'Active').length, 'On leave/transferred', today],
+				['', '', '', '', ''],
+				['TEACHERS', 'Total Staff', teachers.length, 'All teaching staff', today],
+				['TEACHERS', 'Avg Experience', Math.round(teachers.reduce((a,t) => a + parseInt(t.experience || 0), 0) / Math.max(teachers.length, 1)) + ' years', 'Average years', today],
+				['', '', '', '', ''],
+				['EXAMS', 'Total Exams', exams.length, 'All scheduled exams', today],
+				['EXAMS', 'Scheduled', exams.filter(e => e.status === 'Scheduled').length, 'Upcoming exams', today],
+				['EXAMS', 'Completed', exams.filter(e => e.status === 'Completed').length, 'Past exams', today],
+				['', '', '', '', ''],
+				['FEES', 'Expected (Annual)', '₹' + (students.length * 25000).toLocaleString(), 'Total expected', today],
+				['FEES', 'Collected (Est.)', '₹' + Math.round(students.length * 25000 * 0.78).toLocaleString(), '~78% collected', today],
+				['FEES', 'Pending (Est.)', '₹' + Math.round(students.length * 25000 * 0.22).toLocaleString(), '~22% pending', today],
+				['', '', '', '', ''],
+				['TRANSPORT', 'Students Using', transport.length, 'Bus transport', today],
+				['HOSTEL', 'Residents', hostel.length, 'Hostel occupants', today],
+				['', '', '', '', ''],
+				['ATTENDANCE', 'Avg Rate', '92%', 'Current month average', today],
+				['RATIOS', 'Student:Teacher', students.length + ':' + teachers.length, '1:' + Math.round(students.length / Math.max(teachers.length, 1)), today]
+			];
+			exportExcel(rows, 'Complete_Summary_Report', headers);
+		}
+
+		// Button Event Listeners
+		document.getElementById('exportStudentsAll').addEventListener('click', () => exportStudents('all'));
+		document.getElementById('exportStudentsActive').addEventListener('click', () => exportStudents('active'));
+		document.getElementById('exportTeachersAll').addEventListener('click', () => exportTeachers());
+		document.getElementById('exportAttendanceAll').addEventListener('click', () => exportAttendance('all'));
+		document.getElementById('exportAttendanceAbsent').addEventListener('click', () => exportAttendance('absent'));
+		document.getElementById('exportFeesPaid').addEventListener('click', () => exportFees('paid'));
+		document.getElementById('exportFeesPending').addEventListener('click', () => exportFees('pending'));
+		document.getElementById('exportFeesAll').addEventListener('click', () => exportFees('all'));
+		document.getElementById('exportExamsAll').addEventListener('click', () => exportExams());
+		document.getElementById('exportAllBtn').addEventListener('click', () => exportComplete());
+		document.getElementById('printReportBtn').addEventListener('click', () => { window.print(); notify('🖨️ Print dialog opened', 'info'); });
+
+		// Chart Export Buttons
+		document.querySelectorAll('[data-export-chart]').forEach(btn => {
+			btn.addEventListener('click', () => {
+				const chart = btn.dataset.exportChart;
+				if (chart === 'students') exportStudents('classwise');
+				else if (chart === 'attendance') exportAttendance('all');
+				else if (chart === 'fees') exportFees('all');
+				else if (chart === 'trends' || chart === 'performance') exportComplete();
+			});
+		});
+
+		// Filters
+		document.getElementById('studentSearchFilter').addEventListener('input', e => renderStudentsTable({ search: e.target.value }));
+		document.getElementById('studentClassFilter').addEventListener('change', e => renderStudentsTable({ class: e.target.value }));
+		document.getElementById('studentStatusFilter').addEventListener('change', e => renderStudentsTable({ status: e.target.value }));
+		document.getElementById('teacherSearchFilter').addEventListener('input', e => renderTeachersTable({ search: e.target.value }));
+		document.getElementById('teacherSubjectFilter').addEventListener('change', e => renderTeachersTable({ subject: e.target.value }));
+
+		// ==================== INITIALIZE ====================
+		document.addEventListener('DOMContentLoaded', () => {
+			renderStats();
+			renderInsights();
+			setTimeout(renderCharts, 100);
+			console.log('Reports & Analytics - End-to-End UI loaded');
+		});
+		
+		renderStats();
+		renderInsights();
+	</script>
+</body>
+</html>

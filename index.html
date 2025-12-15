@@ -1,0 +1,2220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManage Pro - School Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+		<link rel="stylesheet" href="style.css">
+    <style>
+        /* Notification & Profile Dropdown Styles */
+        .header-right {
+            position: relative;
+        }
+        .notification-icon {
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .notification-icon:hover {
+            transform: scale(1.1);
+        }
+        .notification-icon:hover i {
+            color: #3b82f6;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 60px;
+            width: 380px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            animation: dropdownSlide 0.3s ease;
+        }
+        .notification-dropdown.show {
+            display: block;
+        }
+        @keyframes dropdownSlide {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-header {
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .dropdown-header i {
+            margin-right: 8px;
+        }
+        .mark-all-read {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mark-all-read:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .notification-list {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+        .notification-item.unread {
+            background: #eff6ff;
+        }
+        .notification-item.unread:hover {
+            background: #dbeafe;
+        }
+        .notification-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .notification-icon-box.info { background: #dbeafe; color: #3b82f6; }
+        .notification-icon-box.success { background: #dcfce7; color: #22c55e; }
+        .notification-icon-box.warning { background: #fef3c7; color: #f59e0b; }
+        .notification-icon-box.danger { background: #fef2f2; color: #ef4444; }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .notification-text {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .notification-time {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+        .dropdown-footer {
+            padding: 12px 20px;
+            background: #f8fafc;
+            text-align: center;
+        }
+        .dropdown-footer .view-all-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .dropdown-footer .view-all-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* Profile Dropdown */
+        .user-profile {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .user-profile:hover {
+            opacity: 0.9;
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 280px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+            animation: dropdownSlide 0.3s ease;
+        }
+        .profile-dropdown.show {
+            display: block;
+        }
+        .profile-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .profile-info .profile-name {
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .profile-info .profile-email {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+        .profile-menu {
+            padding: 8px 0;
+        }
+        .profile-menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            color: #475569;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .profile-menu-item:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        .profile-menu-item i {
+            width: 18px;
+            text-align: center;
+            color: #64748b;
+        }
+        .profile-menu-item:hover i {
+            color: #3b82f6;
+        }
+        .profile-menu-item.logout {
+            color: #ef4444;
+        }
+        .profile-menu-item.logout:hover {
+            background: #fef2f2;
+        }
+        .profile-menu-item.logout i {
+            color: #ef4444;
+        }
+        .profile-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 8px 0;
+        }
+
+        /* Password Change Modal */
+        .password-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .password-modal.show {
+            display: flex;
+        }
+        .password-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 400px;
+            max-width: 95%;
+            animation: dropdownSlide 0.3s ease;
+        }
+        .password-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .password-modal-header h3 {
+            font-size: 18px;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .password-modal-header h3 i {
+            color: #3b82f6;
+        }
+        .password-modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: #f1f5f9;
+            cursor: pointer;
+        }
+        .password-modal-close:hover {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        .password-modal-body {
+            padding: 24px;
+        }
+        .password-modal-body .form-group {
+            margin-bottom: 16px;
+        }
+        .password-modal-body label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        .password-modal-body input {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .password-modal-body input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .password-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+    </style>
+    </head>
+<body>
+    <!-- Login Page (Initially Visible) -->
+    <div class="login-container" id="loginPage">
+        <div class="login-box">
+            <div class="login-header">
+                <div style="margin-bottom: 16px;">
+                    <i class="fas fa-robot" style="font-size: 48px; background: linear-gradient(135deg, #a5b4fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); animation: pulse 2s ease-in-out infinite;"></i>
+                </div>
+                <h2>EduManage Pro</h2>
+                <p>AI-Powered School Management System</p>
+            </div>
+            
+            
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+				<div class="input-with-icon">
+                <input type="password" id="password" placeholder="Enter your password">
+					<i class="fas fa-eye toggle-password" id="togglePassword" title="Show/Hide password"></i>
+				</div>
+            </div>
+            
+			<div class="remember-row">
+				<label style="display:flex; align-items:center; gap:8px; font-size: 14px;">
+					<input type="checkbox" id="rememberMe"> Remember me
+				</label>
+				<span></span>
+            </div>
+            
+            <div class="form-group">
+				<button class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px; position: relative; z-index: 1;">
+				<a href="#" id="forgotPasswordLink">
+                    <i class="fas fa-key"></i> Forgot Password?
+                </a>
+            </div>
+			
+			<div class="login-footer">
+				Powered by <strong>UpgradeNow Technologies</strong>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Application (Initially Hidden) -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>EduManage Pro</h3>
+            </div>
+            
+            <div class="sidebar-menu">
+                <ul>
+                    <li class="active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li data-page="students">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Students</span>
+                    </li>
+                    <li data-page="teachers">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Teachers</span>
+                    </li>
+                    <li data-page="attendance">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Attendance</span>
+                    </li>
+                    <li data-page="exams">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Exams & Grades</span>
+                    </li>
+                    <li data-page="admitcard">
+                        <i class="fas fa-id-card"></i>
+                        <span>Admit Card</span>
+                    </li>
+                    <li data-page="timetable">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Timetable</span>
+                    </li>
+                    <li data-page="fees">
+                        <i class="fas fa-money-check-alt"></i>
+                        <span>Fee Management</span>
+                    </li>
+                    <li data-page="library">
+                        <i class="fas fa-book"></i>
+                        <span>Library</span>
+                    </li>
+                    <li data-page="transport">
+                        <i class="fas fa-bus"></i>
+                        <span>Transport</span>
+                    </li>
+                    <li data-page="hostel">
+                        <i class="fas fa-bed"></i>
+                        <span>Hostel</span>
+                    </li>
+                    <li data-page="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports & Analytics</span>
+                    </li>
+                    <li data-page="users" style="display: none !important;">
+                        <i class="fas fa-users-cog"></i>
+                        <span>User Management</span>
+                    </li>
+                    <li data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </li>
+					<li id="logoutBtn">
+						<i class="fas fa-sign-out-alt"></i>
+						<span>Logout</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <div class="toggle-sidebar" id="toggleSidebar">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <!-- Notification Bell -->
+                    <div class="notification-icon" id="notificationBell" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge" id="notificationBadge">5</span>
+                    </div>
+                    <!-- Notification Dropdown -->
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="dropdown-header">
+                            <span><i class="fas fa-bell"></i> Notifications</span>
+                            <button class="mark-all-read" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                        <div class="dropdown-footer">
+                            <button class="view-all-btn" id="viewAllNotifications">View All Notifications</button>
+                        </div>
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="user-profile" id="userProfile" title="Profile Menu">
+                        <div class="user-avatar">AD</div>
+                        <div class="user-info">
+                            <div class="user-name">admin</div>
+                            <div class="user-role">Admin</div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px; color: #64748b;"></i>
+                    </div>
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-header">
+                            <div class="profile-avatar" id="dropdownAvatar">AD</div>
+                            <div class="profile-info">
+                                <div class="profile-name" id="dropdownName">admin</div>
+                                <div class="profile-email" id="dropdownEmail">admin@edumanage.pro</div>
+                            </div>
+                        </div>
+                        <div class="profile-menu">
+                            <div class="profile-menu-item" data-action="myProfile">
+                                <i class="fas fa-user"></i> My Profile
+                            </div>
+                            <div class="profile-menu-item" data-action="accountSettings">
+                                <i class="fas fa-cog"></i> Account Settings
+                            </div>
+                            <div class="profile-menu-item" data-action="changePassword">
+                                <i class="fas fa-key"></i> Change Password
+                            </div>
+                            <div class="profile-menu-item" data-action="activityLog">
+                                <i class="fas fa-history"></i> Activity Log
+                            </div>
+                            <div class="profile-divider"></div>
+                            <div class="profile-menu-item" data-action="help">
+                                <i class="fas fa-question-circle"></i> Help & Support
+                            </div>
+                            <div class="profile-menu-item logout" data-action="logout">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="content" id="contentArea">
+				<!-- New iframe router for separate HTML pages -->
+				<iframe id="contentFrame" src="pages/dashboard.html" style="width:100%; height: calc(100vh - 120px); border: none; border-radius: 8px; background: transparent;"></iframe>
+                <!-- Dashboard Page -->
+                <div class="page dashboard-page active" id="dashboardPage">
+                    <div class="page-title">
+                        <h1>Dashboard Overview</h1>
+                        <div class="date-selector">
+                            <select id="dateRange">
+                                <option>Today</option>
+                                <option>This Week</option>
+                                <option selected>This Month</option>
+                                <option>This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="dashboard">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Total Students</div>
+                                <div class="card-icon students">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">1,245</div>
+                            <div class="card-footer positive">
+                                <i class="fas fa-arrow-up"></i> 5% from last month
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Total Teachers</div>
+                                <div class="card-icon teachers">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">68</div>
+                            <div class="card-footer positive">
+                                <i class="fas fa-arrow-up"></i> 2 new teachers
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Fee Collection</div>
+                                <div class="card-icon fees">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">₹845,600</div>
+                            <div class="card-footer positive">
+                                <i class="fas fa-arrow-up"></i> 85% of monthly target
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Attendance Today</div>
+                                <div class="card-icon attendance">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">94%</div>
+                            <div class="card-footer negative">
+                                <i class="fas fa-arrow-down"></i> 2% lower than yesterday
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Monthly Income</div>
+                                <div class="card-icon income">
+                                    <i class="fas fa-rupee-sign"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">₹1.2M</div>
+                            <div class="card-footer positive">
+                                <i class="fas fa-arrow-up"></i> 12% from last month
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Library Books</div>
+                                <div class="card-icon library">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">5,248</div>
+                            <div class="card-footer positive">
+                                <i class="fas fa-arrow-up"></i> 124 new books
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Transport</div>
+                                <div class="card-icon transport">
+                                    <i class="fas fa-bus"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">12 Buses</div>
+                            <div class="card-footer">
+                                458 students using transport
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Hostel Occupancy</div>
+                                <div class="card-icon hostel">
+                                    <i class="fas fa-bed"></i>
+                                </div>
+                            </div>
+                            <div class="card-value">78%</div>
+                            <div class="card-footer">
+                                156 of 200 beds occupied
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="action-card" data-action="addStudent">
+                            <div class="action-icon" style="background: var(--primary);">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="action-title">Add Student</div>
+                        </div>
+                        <div class="action-card" data-action="takeAttendance">
+                            <div class="action-icon" style="background: var(--success);">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="action-title">Take Attendance</div>
+                        </div>
+                        <div class="action-card" data-action="scheduleExam">
+                            <div class="action-icon" style="background: var(--warning);">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="action-title">Schedule Exam</div>
+                        </div>
+                        <div class="action-card" data-action="collectFees">
+                            <div class="action-icon" style="background: var(--info);">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="action-title">Collect Fees</div>
+                        </div>
+                        <div class="action-card" data-action="sendNotification">
+                            <div class="action-icon" style="background: #9b59b6;">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div class="action-title">Send Notification</div>
+                        </div>
+                        <div class="action-card" data-action="generateReport">
+                            <div class="action-icon" style="background: var(--danger);">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="action-title">Generate Report</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Section -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">Student Performance Analytics</div>
+                            <div class="chart-actions">
+                                <select id="performanceMetric">
+                                    <option>Overall Performance</option>
+                                    <option>Subject-wise</option>
+                                    <option>Class-wise</option>
+                                </select>
+                                <select id="performancePeriod">
+                                    <option>Last 7 Days</option>
+                                    <option>Last Month</option>
+                                    <option selected>Last 3 Months</option>
+                                    <option>Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart">
+							<canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <div class="chart-title">Fee Collection Trends</div>
+                            <div class="chart-actions">
+                                <select id="feeMetric">
+                                    <option>Collection Rate</option>
+                                    <option>Amount Collected</option>
+                                    <option>Outstanding</option>
+                                </select>
+                                <select id="feePeriod">
+                                    <option>Last 7 Days</option>
+                                    <option>Last Month</option>
+                                    <option selected>Last 3 Months</option>
+                                    <option>Last Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart">
+							<canvas id="feeChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activities & Notifications -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Recent Activities</div>
+                            <div class="table-actions">
+                                <button class="btn btn-outline btn-sm">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i> Add New
+                                </button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Activity</th>
+                                    <th>User</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>15 Oct 2023, 10:30 AM</td>
+                                    <td>New student admission - Rahul Sharma</td>
+                                    <td>Admin User</td>
+                                    <td><span class="status active">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>14 Oct 2023, 02:15 PM</td>
+                                    <td>Monthly test results published for Class 10</td>
+                                    <td>Teacher User</td>
+                                    <td><span class="status active">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>13 Oct 2023, 09:45 AM</td>
+                                    <td>Fee due reminder sent to 45 students</td>
+                                    <td>System</td>
+                                    <td><span class="status pending">In Progress</span></td>
+                                </tr>
+                                <tr>
+                                    <td>12 Oct 2023, 04:20 PM</td>
+                                    <td>Sports day event registration opened</td>
+                                    <td>Admin User</td>
+                                    <td><span class="status active">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>11 Oct 2023, 11:10 AM</td>
+                                    <td>Parent-Teacher meeting scheduled</td>
+                                    <td>Admin User</td>
+                                    <td><span class="status pending">Scheduled</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">Upcoming Events</div>
+                            <div class="table-actions">
+                                <button class="btn btn-outline btn-sm">
+                                    <i class="fas fa-calendar-plus"></i> Add Event
+                                </button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Event</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>18 Oct 2023</td>
+                                    <td>Annual Sports Day</td>
+                                    <td>School Ground</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>25 Oct 2023</td>
+                                    <td>Parent-Teacher Meeting</td>
+                                    <td>Main Auditorium</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>02 Nov 2023</td>
+                                    <td>Science Exhibition</td>
+                                    <td>Science Lab</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>15 Nov 2023</td>
+                                    <td>Mid-Term Examinations</td>
+                                    <td>All Classrooms</td>
+                                    <td>
+                                        <button class="btn btn-outline btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Students Page -->
+                <div class="page students-page" id="studentsPage">
+                    <div class="page-title">
+                        <h1>Student Management</h1>
+                        <button class="btn btn-primary" id="addStudentBtn">
+                            <i class="fas fa-plus"></i> Add New Student
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="table-title">All Students</div>
+                            <div class="table-actions">
+                                <button class="btn btn-outline btn-sm">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <button class="btn btn-outline btn-sm">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th>Parent</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>STU-2023-001</td>
+                                    <td>Rahul Sharma</td>
+                                    <td>10</td>
+                                    <td>A</td>
+                                    <td>Mr. Amit Sharma</td>
+                                    <td>+91 9876543210</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>STU-2023-002</td>
+                                    <td>Priya Patel</td>
+                                    <td>9</td>
+                                    <td>B</td>
+                                    <td>Mrs. Sunita Patel</td>
+                                    <td>+91 9876543211</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>STU-2023-003</td>
+                                    <td>Amit Kumar</td>
+                                    <td>11</td>
+                                    <td>Science</td>
+                                    <td>Mr. Rajesh Kumar</td>
+                                    <td>+91 9876543212</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>STU-2023-004</td>
+                                    <td>Neha Gupta</td>
+                                    <td>8</td>
+                                    <td>C</td>
+                                    <td>Mr. Sanjay Gupta</td>
+                                    <td>+91 9876543213</td>
+                                    <td><span class="status active">Active</span></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+				<!-- Teachers Page -->
+				<div class="page teachers-page" id="teachersPage">
+					<div class="page-title">
+						<h1>Teachers</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Teachers Module</div>
+						</div>
+						<p>Manage teacher profiles, subjects, and schedules.</p>
+					</div>
+				</div>
+				
+				<!-- Attendance Page -->
+				<div class="page attendance-page" id="attendancePage">
+					<div class="page-title">
+						<h1>Attendance</h1>
+            </div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Attendance Module</div>
+						</div>
+						<p>Take and review attendance by class and date.</p>
+					</div>
+				</div>
+				
+				<!-- Exams & Grades Page -->
+				<div class="page exams-page" id="examsPage">
+					<div class="page-title">
+						<h1>Exams & Grades</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Exams Module</div>
+						</div>
+						<p>Schedule exams and manage results.</p>
+					</div>
+				</div>
+				
+				<!-- Timetable Page -->
+				<div class="page timetable-page" id="timetablePage">
+					<div class="page-title">
+						<h1>Timetable</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Timetable Module</div>
+						</div>
+						<p>Create and view class timetables.</p>
+					</div>
+				</div>
+				
+				<!-- Fees Page -->
+				<div class="page fees-page" id="feesPage">
+					<div class="page-title">
+						<h1>Fee Management</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Fees Module</div>
+						</div>
+						<p>Track collections, dues, and receipts.</p>
+					</div>
+				</div>
+				
+				<!-- Library Page -->
+				<div class="page library-page" id="libraryPage">
+					<div class="page-title">
+						<h1>Library</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Library Module</div>
+						</div>
+						<p>Manage books, issues, and returns.</p>
+					</div>
+				</div>
+				
+				<!-- Transport Page -->
+				<div class="page transport-page" id="transportPage">
+					<div class="page-title">
+						<h1>Transport</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Transport Module</div>
+						</div>
+						<p>Bus routes, stops, and allocations.</p>
+					</div>
+				</div>
+				
+				<!-- Hostel Page -->
+				<div class="page hostel-page" id="hostelPage">
+					<div class="page-title">
+						<h1>Hostel</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Hostel Module</div>
+						</div>
+						<p>Rooms, occupancy, and maintenance.</p>
+					</div>
+				</div>
+				
+				<!-- Reports Page -->
+				<div class="page reports-page" id="reportsPage">
+					<div class="page-title">
+						<h1>Reports & Analytics</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Reports Module</div>
+						</div>
+						<p>Generate insights and export data.</p>
+					</div>
+				</div>
+				
+				<!-- Settings Page -->
+				<div class="page settings-page" id="settingsPage">
+					<div class="page-title">
+						<h1>Settings</h1>
+					</div>
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Settings</div>
+						</div>
+						<p>Configure system preferences and roles.</p>
+					</div>
+				</div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification success" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <div class="notification-message">Operation completed successfully!</div>
+    </div>
+
+    <!-- Password Change Modal -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-modal-content">
+            <div class="password-modal-header">
+                <h3><i class="fas fa-key"></i> Change Password</h3>
+                <button class="password-modal-close" id="closePasswordModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="password-modal-body">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" placeholder="Enter current password">
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+            </div>
+            <div class="password-modal-footer">
+                <button class="btn btn-outline" id="cancelPasswordChange">Cancel</button>
+                <button class="btn btn-primary" id="savePasswordChange"><i class="fas fa-save"></i> Save Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="password-modal" id="profileModal">
+        <div class="password-modal-content" style="width: 500px;">
+            <div class="password-modal-header">
+                <h3><i class="fas fa-user"></i> My Profile</h3>
+                <button class="password-modal-close" id="closeProfileModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="password-modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin: 0 auto;" id="profileModalAvatar">AD</div>
+                </div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="profileName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="profileEmail" placeholder="Your email">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" id="profilePhone" placeholder="Your phone number">
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="text" id="profileRole" disabled placeholder="Your role">
+                </div>
+            </div>
+            <div class="password-modal-footer">
+                <button class="btn btn-outline" id="cancelProfile">Cancel</button>
+                <button class="btn btn-primary" id="saveProfile"><i class="fas fa-save"></i> Save Profile</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Adding Student -->
+    <div class="modal" id="addStudentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Add New Student</div>
+                <div class="close-modal" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="studentName">Full Name</label>
+                    <input type="text" id="studentName" placeholder="Enter student's full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentClass">Class</label>
+                    <select id="studentClass">
+                        <option value="">Select Class</option>
+                        <option value="1">Class 1</option>
+                        <option value="2">Class 2</option>
+                        <option value="3">Class 3</option>
+                        <option value="4">Class 4</option>
+                        <option value="5">Class 5</option>
+                        <option value="6">Class 6</option>
+                        <option value="7">Class 7</option>
+                        <option value="8">Class 8</option>
+                        <option value="9">Class 9</option>
+                        <option value="10">Class 10</option>
+                        <option value="11">Class 11</option>
+                        <option value="12">Class 12</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentSection">Section</label>
+                    <select id="studentSection">
+                        <option value="">Select Section</option>
+                        <option value="A">Section A</option>
+                        <option value="B">Section B</option>
+                        <option value="C">Section C</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="parentName">Parent/Guardian Name</label>
+                    <input type="text" id="parentName" placeholder="Enter parent/guardian name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="parentContact">Contact Number</label>
+                    <input type="text" id="parentContact" placeholder="Enter contact number">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" style="width: 100%;" id="saveStudentBtn">
+                        <i class="fas fa-save"></i> Save Student
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== NOTIFICATION & PROFILE DROPDOWNS ====================
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationList = document.getElementById('notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const markAllRead = document.getElementById('markAllRead');
+        const viewAllNotifications = document.getElementById('viewAllNotifications');
+        const profileDropdown = document.getElementById('profileDropdown');
+        const passwordModal = document.getElementById('passwordModal');
+        const profileModal = document.getElementById('profileModal');
+
+        // Demo Notifications
+        let notifications = [
+            { id: 1, type: 'info', icon: 'fa-user-plus', title: 'New Student Enrolled', text: 'Rahul Kumar has been enrolled in Class 10A', time: '2 mins ago', unread: true },
+            { id: 2, type: 'success', icon: 'fa-check-circle', title: 'Fee Payment Received', text: '₹25,000 received from Priya Sharma', time: '15 mins ago', unread: true },
+            { id: 3, type: 'warning', icon: 'fa-exclamation-triangle', title: 'Low Attendance Alert', text: 'Class 9B attendance below 85% this week', time: '1 hour ago', unread: true },
+            { id: 4, type: 'danger', icon: 'fa-calendar-times', title: 'Exam Postponed', text: 'Mathematics exam rescheduled to Dec 15', time: '2 hours ago', unread: true },
+            { id: 5, type: 'info', icon: 'fa-book', title: 'Library Update', text: '50 new books added to the library', time: '3 hours ago', unread: true }
+        ];
+
+        function renderNotifications() {
+            const unreadCount = notifications.filter(n => n.unread).length;
+            notificationBadge.textContent = unreadCount;
+            notificationBadge.style.display = unreadCount > 0 ? 'flex' : 'none';
+
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<div style="text-align: center; padding: 40px 20px; color: #94a3b8;"><i class="fas fa-bell-slash" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>No notifications</div>';
+                return;
+            }
+
+            notificationList.innerHTML = notifications.map(n => `
+                <div class="notification-item ${n.unread ? 'unread' : ''}" data-id="${n.id}">
+                    <div class="notification-icon-box ${n.type}">
+                        <i class="fas ${n.icon}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${n.title}</div>
+                        <div class="notification-text">${n.text}</div>
+                        <div class="notification-time"><i class="fas fa-clock"></i> ${n.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle Notification Dropdown
+        notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.classList.remove('show');
+            notificationDropdown.classList.toggle('show');
+            renderNotifications();
+        });
+
+        // Mark all as read
+        markAllRead.addEventListener('click', function() {
+            notifications.forEach(n => n.unread = false);
+            renderNotifications();
+            showNotification('All notifications marked as read', 'success');
+        });
+
+        // View all notifications
+        viewAllNotifications.addEventListener('click', function() {
+            notificationDropdown.classList.remove('show');
+            // Navigate to a notifications page or show more
+            showNotification('Opening all notifications...', 'success');
+        });
+
+        // Click on notification item
+        notificationList.addEventListener('click', function(e) {
+            const item = e.target.closest('.notification-item');
+            if (item) {
+                const id = parseInt(item.dataset.id);
+                const notif = notifications.find(n => n.id === id);
+                if (notif) {
+                    notif.unread = false;
+                    renderNotifications();
+                }
+            }
+        });
+
+        // Toggle Profile Dropdown
+        document.getElementById('userProfile').addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.remove('show');
+            profileDropdown.classList.toggle('show');
+        });
+
+        // Profile Menu Actions
+        document.querySelectorAll('.profile-menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const action = this.dataset.action;
+                profileDropdown.classList.remove('show');
+
+                switch(action) {
+                    case 'myProfile':
+                        openProfileModal();
+                        break;
+                    case 'accountSettings':
+                        // Navigate to settings
+                        const contentFrame = document.getElementById('contentFrame');
+                        if (contentFrame) contentFrame.src = 'pages/settings.html';
+                        document.querySelectorAll('.sidebar-menu li').forEach(li => {
+                            li.classList.toggle('active', li.dataset.page === 'settings');
+                        });
+                        showNotification('Opening Account Settings...', 'success');
+                        break;
+                    case 'changePassword':
+                        openPasswordModal();
+                        break;
+                    case 'activityLog':
+                        showNotification('Activity Log: Last login 2 hours ago', 'success');
+                        break;
+                    case 'help':
+                        showNotification('Help & Support: Contact admin@edumanage.pro', 'success');
+                        break;
+                    case 'logout':
+                        performLogout();
+                        break;
+                }
+            });
+        });
+
+        // Password Modal Functions
+        function openPasswordModal() {
+            passwordModal.classList.add('show');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function closePasswordModal() {
+            passwordModal.classList.remove('show');
+        }
+
+        document.getElementById('closePasswordModal').addEventListener('click', closePasswordModal);
+        document.getElementById('cancelPasswordChange').addEventListener('click', closePasswordModal);
+
+        document.getElementById('savePasswordChange').addEventListener('click', function() {
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (!current || !newPass || !confirm) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+            if (newPass !== confirm) {
+                showNotification('New passwords do not match', 'error');
+                return;
+            }
+            if (newPass.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            closePasswordModal();
+            showNotification('Password changed successfully!', 'success');
+        });
+
+        // Profile Modal Functions
+        function openProfileModal() {
+            profileModal.classList.add('show');
+            const userName = document.querySelector('.user-name').textContent || 'Admin';
+            const userRole = document.querySelector('.user-role').textContent || 'Administrator';
+            document.getElementById('profileModalAvatar').textContent = (userName || 'A').slice(0,2).toUpperCase();
+            document.getElementById('profileName').value = userName;
+            document.getElementById('profileEmail').value = userName.toLowerCase().replace(/\s/g, '.') + '@edumanage.pro';
+            document.getElementById('profilePhone').value = '+91 9876543210';
+            document.getElementById('profileRole').value = userRole;
+        }
+
+        function closeProfileModal() {
+            profileModal.classList.remove('show');
+        }
+
+        document.getElementById('closeProfileModal').addEventListener('click', closeProfileModal);
+        document.getElementById('cancelProfile').addEventListener('click', closeProfileModal);
+
+        document.getElementById('saveProfile').addEventListener('click', function() {
+            const name = document.getElementById('profileName').value.trim();
+            const email = document.getElementById('profileEmail').value.trim();
+
+            if (!name) {
+                showNotification('Please enter your name', 'error');
+                return;
+            }
+
+            // Update header with new name
+            const userProfile = document.getElementById('userProfile');
+            const nameEl = userProfile.querySelector('.user-name');
+            const avatarEl = userProfile.querySelector('.user-avatar');
+            if (nameEl) nameEl.textContent = name;
+            if (avatarEl) avatarEl.textContent = name.slice(0,2).toUpperCase();
+
+            // Update dropdowns
+            document.getElementById('dropdownName').textContent = name;
+            document.getElementById('dropdownEmail').textContent = email;
+            document.getElementById('dropdownAvatar').textContent = name.slice(0,2).toUpperCase();
+
+            // Save to localStorage
+            try {
+                localStorage.setItem('edu_user_display', name);
+            } catch(e) {}
+
+            closeProfileModal();
+            showNotification('Profile updated successfully!', 'success');
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.notification-dropdown') && !e.target.closest('#notificationBell')) {
+                notificationDropdown.classList.remove('show');
+            }
+            if (!e.target.closest('.profile-dropdown') && !e.target.closest('#userProfile')) {
+                profileDropdown.classList.remove('show');
+            }
+        });
+
+        // Close modals when clicking outside
+        passwordModal.addEventListener('click', function(e) {
+            if (e.target === passwordModal) closePasswordModal();
+        });
+        profileModal.addEventListener('click', function(e) {
+            if (e.target === profileModal) closeProfileModal();
+        });
+
+        // Initialize notifications
+        renderNotifications();
+
+        // ==================== ORIGINAL CODE ====================
+        // DOM Elements
+        const loginPage = document.getElementById('loginPage');
+        const appContainer = document.getElementById('appContainer');
+        const loginBtn = document.getElementById('loginBtn');
+		const usernameInput = document.getElementById('username');
+		const passwordInput = document.getElementById('password');
+		const togglePasswordBtn = document.getElementById('togglePassword');
+		const rememberMe = document.getElementById('rememberMe');
+        const toggleSidebar = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const sidebarMenuItems = document.querySelectorAll('.sidebar-menu li');
+        const pages = document.querySelectorAll('.page');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        const addStudentModal = document.getElementById('addStudentModal');
+        const closeModal = document.getElementById('closeModal');
+        const saveStudentBtn = document.getElementById('saveStudentBtn');
+        const notification = document.getElementById('notification');
+        const quickActionCards = document.querySelectorAll('.action-card');
+		const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+		const logoutBtn = document.getElementById('logoutBtn');
+		const performanceMetricSelect = document.getElementById('performanceMetric');
+		const performancePeriodSelect = document.getElementById('performancePeriod');
+		const feeMetricSelect = document.getElementById('feeMetric');
+		const feePeriodSelect = document.getElementById('feePeriod');
+		
+		let performanceChartInstance = null;
+		let feeChartInstance = null;
+		
+		// Utilities for charts
+		function getCssVar(name) {
+			return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+		}
+		
+		function hexToRgba(hex, alpha) {
+			const sanitized = hex.replace('#','');
+			const bigint = parseInt(sanitized, 16);
+			const r = (bigint >> 16) & 255;
+			const g = (bigint >> 8) & 255;
+			const b = bigint & 255;
+			return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+		}
+		
+		function currencyINR(value) {
+			try {
+				return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
+			} catch (e) {
+				return `₹${formatNumber(value)}`;
+			}
+		}
+        
+		// Login Functionality (Enter-to-submit)
+		function getInitials(name) {
+			const parts = name.trim().split(/\s+/);
+			if (parts.length === 1) {
+				return parts[0].slice(0, 2).toUpperCase();
+			}
+			return (parts[0][0] + parts[1][0]).toUpperCase();
+		}
+		
+		// ======== SIMPLE LOCAL STORAGE USER MANAGEMENT (SHARED WITH SETTINGS) ========
+		function loadUsersAuth() {
+			try {
+				return JSON.parse(localStorage.getItem('edu_users') || '[]');
+			} catch(e) {
+				return [];
+			}
+		}
+
+		function saveUsersAuth(users) {
+			try {
+				localStorage.setItem('edu_users', JSON.stringify(users));
+			} catch(e) {}
+		}
+
+		function ensureSuperAdminUser() {
+			let users = loadUsersAuth();
+			// Ensure it's an array
+			if (!Array.isArray(users)) {
+				users = [];
+			}
+			const hasSuper = users.some(u => (u.role === 'SuperAdmin') || (u.username && u.username.toLowerCase() === 'superadmin'));
+			if (!hasSuper) {
+				const superUser = {
+					id: 'USR000',
+					name: 'Super Admin',
+					username: 'superadmin',
+					email: 'superadmin@edumanage.edu',
+					role: 'SuperAdmin',
+					status: 'Active',
+					password: 'super@123',
+					lastLogin: '–'
+				};
+				users.unshift(superUser);
+				saveUsersAuth(users);
+			}
+			// Also ensure admin user exists for convenience
+			const hasAdmin = users.some(u => u.username && u.username.toLowerCase() === 'admin');
+			if (!hasAdmin) {
+				const adminUser = {
+					id: 'USR001',
+					name: 'School Admin',
+					username: 'admin',
+					email: 'admin@edumanage.edu',
+					role: 'Admin',
+					status: 'Active',
+					password: 'admin123',
+					lastLogin: '–'
+				};
+				users.push(adminUser);
+				saveUsersAuth(users);
+			}
+		}
+		
+		// Initialize users immediately when script loads
+		ensureSuperAdminUser();
+
+		// ======== ROLE CONFIG FOR RBAC ========
+		const ROLE_CONFIG = {
+			superadmin: {
+				label: 'Super Admin',
+				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','library','transport','hostel','reports','settings'],
+				quickActions: ['addStudent','takeAttendance','scheduleExam','collectFees','sendNotification','generateReport']
+			},
+			admin: {
+				label: 'Admin',
+				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','library','reports','settings'],
+				quickActions: ['addStudent','takeAttendance','scheduleExam','collectFees','sendNotification','generateReport']
+			},
+			teacher: {
+				label: 'Teacher',
+				allowedPages: ['dashboard','attendance','exams','admitcard','timetable','students','reports'],
+				quickActions: ['takeAttendance','scheduleExam','sendNotification']
+			},
+			student: {
+				label: 'Student',
+				allowedPages: ['dashboard','timetable','attendance','fees','library','transport','hostel','admitcard'],
+				quickActions: []
+			},
+			parent: {
+				label: 'Parent',
+				allowedPages: ['dashboard','timetable','attendance','fees','reports'],
+				quickActions: []
+			}
+		};
+
+		function normalizeRole(role) {
+			if (!role) return 'superadmin';
+			const r = role.toString().toLowerCase();
+			if (r === 'superadmin' || r === 'super_admin') return 'superadmin';
+			if (r === 'admin') return 'admin';
+			if (r === 'teacher') return 'teacher';
+			if (r === 'student') return 'student';
+			if (r === 'parent') return 'parent';
+			return 'admin';
+		}
+
+		function applyRoleUI(roleKey, modulesFromUser) {
+			const key = normalizeRole(roleKey);
+			const cfg = ROLE_CONFIG[key] || ROLE_CONFIG.superadmin;
+			// Always merge with role config to ensure new pages are included
+			const rolePages = cfg.allowedPages || [];
+			const allowed = Array.isArray(modulesFromUser) && modulesFromUser.length
+				? [...new Set([...rolePages, ...modulesFromUser])]
+				: rolePages;
+
+			// Sidebar visibility
+			sidebarMenuItems.forEach(li => {
+				const page = li.dataset.page;
+				if (!page) {
+					// Logout should always be visible
+					return;
+				}
+				// Always hide User Management menu for all users
+				if (page === 'users') {
+					li.style.display = 'none';
+					li.classList.remove('active');
+					return;
+				}
+				if (allowed.includes(page)) {
+					li.style.display = '';
+				} else {
+					li.style.display = 'none';
+					li.classList.remove('active');
+				}
+			});
+
+			// Ensure an allowed page is active
+			const firstAllowed = allowed[0] || 'dashboard';
+			const activeLi = Array.from(sidebarMenuItems).find(li => li.dataset && li.dataset.page === firstAllowed);
+			if (activeLi) {
+				sidebarMenuItems.forEach(i => i.classList.remove('active'));
+				activeLi.classList.add('active');
+				if (contentFrame && activeLi.dataset.page) {
+					contentFrame.src = `pages/${activeLi.dataset.page}.html`;
+				}
+			}
+
+			// Quick actions visibility (role based, not per-user)
+			quickActionCards.forEach(card => {
+				const action = card.dataset.action;
+				if (!action) return;
+				if (cfg.quickActions.includes(action)) {
+					card.style.display = '';
+				} else {
+					card.style.display = 'none';
+				}
+			});
+		}
+
+		function attemptLogin() {
+			const user = usernameInput.value.trim();
+			const pass = passwordInput.value;
+			
+			if (!user || !pass) {
+				showNotification('Please enter both username and password.', 'error');
+				return;
+			}
+			
+			// Ensure at least one Super Admin exists
+			ensureSuperAdminUser();
+			const users = loadUsersAuth();
+			const found = users.find(u =>
+				u.username &&
+				u.username.toLowerCase() === user.toLowerCase() &&
+				u.password === pass
+			);
+
+			if (!found) {
+				showNotification('Invalid username or password.', 'error');
+				return;
+			}
+			if (found.status && found.status.toLowerCase() === 'inactive') {
+				showNotification('Your account is inactive. Please contact the school administrator.', 'error');
+				return;
+			}
+
+			const roleKey = normalizeRole(found.role || 'SuperAdmin');
+			
+			// Remember me
+			try {
+				if (rememberMe && rememberMe.checked) {
+					localStorage.setItem('edu_username', found.username);
+					localStorage.setItem('edu_role', roleKey);
+				} else {
+					localStorage.removeItem('edu_username');
+					localStorage.removeItem('edu_role');
+				}
+			} catch(e) {}
+			
+            loginPage.style.display = 'none';
+            appContainer.style.display = 'flex';
+			// Persist session across refresh until explicit logout
+			try {
+				localStorage.setItem('edu_logged_in', '1');
+				localStorage.setItem('edu_user_display', found.name || found.username || user);
+				localStorage.setItem('edu_role', roleKey);
+				if (found.permissions) {
+					localStorage.setItem('edu_permissions', JSON.stringify(found.permissions));
+				}
+				const roleCfg = ROLE_CONFIG[roleKey] || ROLE_CONFIG.superadmin;
+				const modulesFromPerms = found.permissions
+					? Object.keys(found.permissions).filter(k => {
+						const p = found.permissions[k];
+						return p && (p.view || p.edit || p.delete);
+					})
+					: [];
+				const effectiveModules = modulesFromPerms.length
+					? modulesFromPerms
+					: (roleCfg.allowedPages || []);
+				localStorage.setItem('edu_modules', JSON.stringify(effectiveModules));
+			} catch(e) {}
+			// Personalize header with entered username
+			const userProfile = document.getElementById('userProfile');
+			if (userProfile) {
+				const nameEl = userProfile.querySelector('.user-name');
+				const roleEl = userProfile.querySelector('.user-role');
+				const avatarEl = userProfile.querySelector('.user-avatar');
+				const displayName = found.name || found.username || user;
+				if (nameEl) nameEl.textContent = displayName;
+				if (roleEl) roleEl.textContent = (ROLE_CONFIG[roleKey]?.label) || 'User';
+				if (avatarEl) avatarEl.textContent = getInitials(displayName);
+			}
+			// Apply role-based UI visibility
+			const roleCfg = ROLE_CONFIG[roleKey] || ROLE_CONFIG.superadmin;
+			const modulesFromPerms = found.permissions
+				? Object.keys(found.permissions).filter(k => {
+					const p = found.permissions[k];
+					return p && (p.view || p.edit || p.delete);
+				})
+				: [];
+			// Merge role config with permissions to ensure all allowed pages are included
+			const effectiveModules = modulesFromPerms.length
+				? [...new Set([...roleCfg.allowedPages, ...modulesFromPerms])]
+				: (roleCfg.allowedPages || []);
+			applyRoleUI(roleKey, effectiveModules);
+            showNotification('Login successful! Welcome to EduManage Pro.', 'success');
+			renderDashboardCharts();
+		}
+		
+		loginBtn.addEventListener('click', attemptLogin);
+		[usernameInput, passwordInput].forEach(el => {
+			if (el) {
+				el.addEventListener('keydown', function(e) {
+					if (e.key === 'Enter') attemptLogin();
+				});
+			}
+		});
+		
+		// Toggle password visibility
+		if (togglePasswordBtn) {
+			togglePasswordBtn.addEventListener('click', function() {
+				const isHidden = passwordInput.type === 'password';
+				passwordInput.type = isHidden ? 'text' : 'password';
+				this.classList.toggle('fa-eye');
+				this.classList.toggle('fa-eye-slash');
+			});
+		}
+        
+		// Forgot Password
+		forgotPasswordLink.addEventListener('click', function(e) {
+			e.preventDefault();
+			showNotification('Password reset link sent to your email.', 'success');
+		});
+		
+		// Logout only when user clicks Logout
+		function performLogout() {
+			try {
+				localStorage.removeItem('edu_logged_in');
+				localStorage.removeItem('edu_user_display');
+				// Keep remembered username/role if present so fields can prefill
+			} catch(e) {}
+			appContainer.style.display = 'none';
+			loginPage.style.display = 'grid';
+			showNotification('You have been logged out.', 'success');
+		}
+		if (logoutBtn) {
+			logoutBtn.addEventListener('click', performLogout);
+		}
+		
+		// Render Charts
+		function renderDashboardCharts() {
+			// Performance Chart
+			const perfCtx = document.getElementById('performanceChart');
+			if (perfCtx) {
+				const metric = performanceMetricSelect ? performanceMetricSelect.value : 'Overall Performance';
+				const period = performancePeriodSelect ? performancePeriodSelect.value : 'Last 3 Months';
+				const { labels, data } = getPerformanceData(metric, period);
+				
+				// Destroy previous instance
+				if (performanceChartInstance) {
+					performanceChartInstance.destroy();
+				}
+				
+				performanceChartInstance = new Chart(perfCtx, {
+					type: 'line',
+					data: {
+						labels,
+						datasets: [{
+							label: metric,
+							data,
+							borderColor: getCssVar('--primary') || 'rgba(52, 152, 219, 1)',
+							backgroundColor: (ctx) => {
+								const color = getCssVar('--primary') || '#3498db';
+								const chart = ctx.chart;
+								const {ctx: c, chartArea} = chart;
+								if (!chartArea) return hexToRgba(color, 0.15);
+								const gradient = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+								gradient.addColorStop(0, hexToRgba(color, 0.25));
+								gradient.addColorStop(1, hexToRgba(color, 0.05));
+								return gradient;
+							},
+							fill: true,
+							tension: 0.35,
+							pointRadius: 3,
+							pointHoverRadius: 5,
+							borderWidth: 2.5,
+							pointBackgroundColor: getCssVar('--primary-dark') || 'rgba(41, 128, 185, 1)'
+						}]
+					},
+					options: {
+						maintainAspectRatio: false,
+						responsive: true,
+						scales: {
+							y: {
+								beginAtZero: true,
+								max: 100,
+								title: { display: true, text: 'Score (%)' },
+								grid: { color: 'rgba(0,0,0,0.06)', borderDash: [4,4] }
+							},
+							x: {
+								grid: { display: false }
+							}
+						},
+						plugins: {
+							legend: { display: false },
+							tooltip: { mode: 'index', intersect: false }
+						}
+					}
+				});
+			}
+			
+			// Fee Chart
+			const feeCtx = document.getElementById('feeChart');
+			if (feeCtx) {
+				const metric = feeMetricSelect ? feeMetricSelect.value : 'Collection Rate';
+				const period = feePeriodSelect ? feePeriodSelect.value : 'Last 3 Months';
+				const { labels, data, maxY, suffix } = getFeeData(metric, period);
+				
+				// Destroy previous instance
+				if (feeChartInstance) {
+					feeChartInstance.destroy();
+				}
+				
+				feeChartInstance = new Chart(feeCtx, {
+					type: 'bar',
+					data: {
+						labels,
+						datasets: [{
+							label: metric,
+							data,
+							borderRadius: 8,
+							backgroundColor: hexToRgba(getCssVar('--info') || '#1abc9c', 0.65),
+							borderColor: getCssVar('--info') || '#1abc9c',
+							borderWidth: 1
+						}]
+					},
+					options: {
+						maintainAspectRatio: false,
+						responsive: true,
+						animation: {
+							duration: 900,
+							easing: 'easeOutQuart',
+							delay: (ctx) => ctx.dataIndex * 70
+						},
+						scales: {
+							y: {
+								beginAtZero: true,
+								max: maxY,
+								title: { display: true, text: metric },
+								grid: { color: 'rgba(0,0,0,0.06)', borderDash: [4,4] },
+								ticks: {
+									callback: (v) => {
+										if (suffix === '%') return `${v}%`;
+										return currencyINR(v);
+									}
+								}
+							},
+							x: {
+								grid: { display: false }
+							}
+						},
+						plugins: {
+							legend: { display: false },
+							tooltip: {
+								callbacks: {
+									label: (ctx) => {
+										const val = ctx.parsed.y;
+										if (suffix === '%') return `${val}%`;
+										return currencyINR(val);
+									}
+								}
+							},
+							annotation: metric === 'Collection Rate' ? {
+								annotations: {
+									targetLine: {
+										type: 'line',
+										yMin: 90,
+										yMax: 90,
+										borderColor: getCssVar('--warning') || '#f39c12',
+										borderWidth: 2,
+										borderDash: [6, 6],
+										label: {
+											enabled: true,
+											content: 'Target 90%',
+											backgroundColor: 'rgba(0,0,0,0.7)',
+											color: '#fff',
+											position: 'start',
+											yAdjust: -6
+										}
+									}
+								}
+							} : undefined
+						}
+					}
+				});
+			}
+		}
+		
+		// Helpers to generate chart data
+		function getPerformanceData(metric, period) {
+			const labels = generateLabels(period);
+			// Create readable demo data 55..95 with slight waves
+			const data = labels.map((_, i) => 70 + Math.round(15 * Math.sin(i / 2) + (i % 3) * 3));
+			return { labels, data };
+		}
+		
+		function getFeeData(metric, period) {
+			const labels = generateLabels(period);
+			let data = [];
+			let maxY = 100;
+			let suffix = '';
+			
+			if (metric === 'Collection Rate') {
+				data = labels.map((_, i) => 60 + Math.round(25 * Math.cos(i / 3) + (i % 2) * 5));
+				maxY = 100;
+				suffix = '%';
+			} else if (metric === 'Amount Collected') {
+				data = labels.map((_, i) => 50000 + (i + 1) * 15000 + Math.round(8000 * Math.sin(i)));
+				maxY = roundUpToNice(Math.max(...data));
+				suffix = '';
+			} else {
+				// Outstanding
+				data = labels.map((_, i) => 80000 - (i + 1) * 10000 + Math.round(6000 * Math.cos(i)));
+				data = data.map(v => Math.max(5000, v));
+				maxY = roundUpToNice(Math.max(...data));
+				suffix = '';
+			}
+			
+			return { labels, data, maxY, suffix };
+		}
+		
+		function generateLabels(period) {
+			const now = new Date();
+			if (period === 'Last 7 Days') {
+				return Array.from({ length: 7 }, (_, i) => {
+					const d = new Date(now);
+					d.setDate(now.getDate() - (6 - i));
+					return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+				});
+			}
+			if (period === 'Last Month') {
+				return ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+			}
+			if (period === 'Last 3 Months') {
+				return Array.from({ length: 3 }, (_, i) => {
+					const d = new Date(now.getFullYear(), now.getMonth() - (2 - i), 1);
+					return d.toLocaleDateString(undefined, { month: 'short' });
+				});
+			}
+			// Last Year
+			return Array.from({ length: 12 }, (_, i) => {
+				const d = new Date(now.getFullYear(), i, 1);
+				return d.toLocaleDateString(undefined, { month: 'short' });
+			});
+		}
+		
+		function roundUpToNice(n) {
+			const pow = Math.pow(10, Math.floor(Math.log10(n)));
+			return Math.ceil(n / pow) * pow;
+		}
+		
+		function formatNumber(n) {
+			return new Intl.NumberFormat().format(Math.round(n));
+		}
+		
+		// Update charts on selects change
+		[performanceMetricSelect, performancePeriodSelect, feeMetricSelect, feePeriodSelect].forEach(sel => {
+			if (sel) {
+				sel.addEventListener('change', renderDashboardCharts);
+			}
+		});
+		
+		// If the app is already visible (e.g., dev reload after login), render charts
+		if (appContainer && appContainer.style.display === 'flex') {
+			renderDashboardCharts();
+		}
+        // Role Selection
+        
+        // Toggle Sidebar
+        toggleSidebar.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+        });
+        
+        // Navigation (iframe routing)
+		const contentFrame = document.getElementById('contentFrame');
+        sidebarMenuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                sidebarMenuItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+				if (contentFrame) {
+					if (this.dataset.page) {
+						contentFrame.src = `pages/${this.dataset.page}.html`;
+					}
+				}
+            });
+        });
+        
+        // Quick Actions
+        quickActionCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const action = this.dataset.action;
+                let message = '';
+                
+                switch(action) {
+                    case 'addStudent':
+                        addStudentModal.classList.add('show');
+                        break;
+                    case 'takeAttendance':
+                        message = 'Attendance module opened';
+                        break;
+                    case 'scheduleExam':
+                        message = 'Exam scheduling module opened';
+                        break;
+                    case 'collectFees':
+                        message = 'Fee collection module opened';
+                        break;
+                    case 'sendNotification':
+                        message = 'Notification composer opened';
+                        break;
+                    case 'generateReport':
+                        message = 'Report generator opened';
+                        break;
+                }
+                
+                if (message) {
+                    showNotification(message, 'success');
+                }
+            });
+        });
+        
+        // Modal Functions
+        addStudentBtn.addEventListener('click', function() {
+            addStudentModal.classList.add('show');
+        });
+        
+        closeModal.addEventListener('click', function() {
+            addStudentModal.classList.remove('show');
+        });
+        
+        // Save Student
+        saveStudentBtn.addEventListener('click', function() {
+            // In a real application, you would save the data to a database
+            const studentName = document.getElementById('studentName').value;
+            addStudentModal.classList.remove('show');
+            showNotification(`Student "${studentName}" added successfully!`, 'success');
+            
+            // Reset form
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentClass').value = '';
+            document.getElementById('studentSection').value = '';
+            document.getElementById('parentName').value = '';
+            document.getElementById('parentContact').value = '';
+        });
+        
+        // Show Notification
+        function showNotification(message, type) {
+            notification.querySelector('.notification-message').textContent = message;
+            notification.className = 'notification ' + type;
+            notification.classList.add('show');
+            
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === addStudentModal) {
+                addStudentModal.classList.remove('show');
+            }
+        });
+        
+        // Simulate data loading with a slight delay for better UX
+        window.addEventListener('load', function() {
+            // Ensure superadmin user exists on page load
+            ensureSuperAdminUser();
+            
+            setTimeout(function() {
+                document.querySelector('.login-container').classList.add('fade-in');
+            }, 100);
+			
+			// Prefill credentials if remembered
+			try {
+				const storedUser = localStorage.getItem('edu_username');
+				const storedRole = localStorage.getItem('edu_role');
+				if (storedUser) {
+					usernameInput.value = storedUser;
+					if (rememberMe) rememberMe.checked = true;
+				}
+				// If a previous session exists, keep user logged in on refresh
+				const loggedIn = localStorage.getItem('edu_logged_in') === '1';
+				if (loggedIn) {
+					loginPage.style.display = 'none';
+					appContainer.style.display = 'flex';
+					const displayName = localStorage.getItem('edu_user_display') || storedUser || 'User';
+					const roleKey = localStorage.getItem('edu_role') || storedRole || 'superadmin';
+					const userProfile = document.getElementById('userProfile');
+					if (userProfile) {
+						const nameEl = userProfile.querySelector('.user-name');
+						const roleEl = userProfile.querySelector('.user-role');
+						const avatarEl = userProfile.querySelector('.user-avatar');
+						if (nameEl) nameEl.textContent = displayName;
+						if (roleEl) roleEl.textContent = (ROLE_CONFIG[normalizeRole(roleKey)]?.label) || 'User';
+						if (avatarEl) avatarEl.textContent = (displayName || 'U').slice(0,2).toUpperCase();
+					}
+					// Apply RBAC to menus and quick actions
+					let modules = [];
+					try {
+						const roleCfg = ROLE_CONFIG[normalizeRole(roleKey)] || ROLE_CONFIG.superadmin;
+						const storedModules = JSON.parse(localStorage.getItem('edu_modules') || '[]');
+						// Merge stored modules with role config to ensure new pages are included
+						if (storedModules.length > 0) {
+							// Combine and deduplicate
+							modules = [...new Set([...roleCfg.allowedPages, ...storedModules])];
+							// Update localStorage with merged modules
+							localStorage.setItem('edu_modules', JSON.stringify(modules));
+						} else {
+							modules = roleCfg.allowedPages || [];
+							localStorage.setItem('edu_modules', JSON.stringify(modules));
+						}
+					} catch(e) {
+						const roleCfg = ROLE_CONFIG[normalizeRole(roleKey)] || ROLE_CONFIG.superadmin;
+						modules = roleCfg.allowedPages || [];
+						localStorage.setItem('edu_modules', JSON.stringify(modules));
+					}
+					applyRoleUI(roleKey, modules);
+					const frame = document.getElementById('contentFrame');
+					if (frame && (!frame.src || !frame.src.includes('pages/'))) {
+						frame.src = 'pages/dashboard.html';
+					}
+					// Fallback: if inline charts are visible (no iframe), render them
+					try {
+						const inlinePerf = document.getElementById('performanceChart');
+						const inlineFee = document.getElementById('feeChart');
+						if (inlinePerf || inlineFee) {
+							renderDashboardCharts();
+						}
+					} catch(e) {}
+				}
+			} catch(e) {}
+			
+			// Hide any inline pages (legacy content) when using iframe router
+			try {
+				pages.forEach(p => p.classList.remove('active'));
+			} catch(e) {}
+			
+			// Ensure admitcard menu item is visible if in role config
+			try {
+				const roleKey = localStorage.getItem('edu_role') || 'superadmin';
+				const roleCfg = ROLE_CONFIG[normalizeRole(roleKey)] || ROLE_CONFIG.superadmin;
+				if (roleCfg.allowedPages && roleCfg.allowedPages.includes('admitcard')) {
+					const admitCardMenu = document.querySelector('li[data-page="admitcard"]');
+					if (admitCardMenu) {
+						admitCardMenu.style.display = '';
+					}
+				}
+			} catch(e) {}
+			
+			// Always hide User Management menu for all users (Admin, SuperAdmin, etc.)
+			try {
+				const usersMenu = document.querySelector('li[data-page="users"]');
+				if (usersMenu) {
+					usersMenu.style.display = 'none';
+				}
+			} catch(e) {}
+        });
+    </script>
+
+</body>
+</html>
