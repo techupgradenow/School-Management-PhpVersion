@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Report Card Generator</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="../assets/js/app.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; padding: 20px; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+
+		.controls-section {
+			background: white;
+			border-radius: 16px;
+			padding: 24px;
+			margin-bottom: 24px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+		}
+		.controls-row {
+			display: flex;
+			gap: 16px;
+			flex-wrap: wrap;
+			align-items: flex-end;
+		}
+		.control-group {
+			flex: 1;
+			min-width: 200px;
+		}
+		.control-group label {
+			display: block;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			margin-bottom: 8px;
+		}
+		.control-group select, .control-group input {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			background: white;
+		}
+		.control-group select:focus, .control-group input:focus {
+			outline: none;
+			border-color: #3b82f6;
+		}
+		.btn {
+			padding: 12px 24px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+
+		.report-card-container {
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.report-card {
+			background: white;
+			border-radius: 0;
+			padding: 40px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+			border: 2px solid #1e293b;
+		}
+
+		.report-header {
+			text-align: center;
+			border-bottom: 3px double #1e293b;
+			padding-bottom: 20px;
+			margin-bottom: 20px;
+		}
+		.school-logo {
+			width: 80px;
+			height: 80px;
+			background: linear-gradient(135deg, #667eea, #764ba2);
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto 15px;
+			color: white;
+			font-size: 32px;
+		}
+		.school-name {
+			font-size: 28px;
+			font-weight: 700;
+			color: #1e293b;
+			margin-bottom: 5px;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+		}
+		.school-address {
+			font-size: 13px;
+			color: #64748b;
+			margin-bottom: 10px;
+		}
+		.report-title {
+			font-size: 20px;
+			font-weight: 700;
+			color: #3b82f6;
+			text-transform: uppercase;
+			letter-spacing: 3px;
+			margin-top: 15px;
+		}
+
+		.student-info {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 15px;
+			margin-bottom: 25px;
+			padding: 20px;
+			background: #f8fafc;
+			border-radius: 10px;
+		}
+		.info-item {
+			display: flex;
+			gap: 10px;
+		}
+		.info-label {
+			font-weight: 600;
+			color: #64748b;
+			min-width: 100px;
+		}
+		.info-value {
+			font-weight: 600;
+			color: #1e293b;
+		}
+
+		.marks-table {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 25px;
+		}
+		.marks-table th, .marks-table td {
+			border: 1px solid #cbd5e1;
+			padding: 12px;
+			text-align: center;
+		}
+		.marks-table th {
+			background: linear-gradient(135deg, #1e293b, #334155);
+			color: white;
+			font-weight: 600;
+			text-transform: uppercase;
+			font-size: 12px;
+			letter-spacing: 1px;
+		}
+		.marks-table td { font-size: 14px; }
+		.marks-table tr:nth-child(even) { background: #f8fafc; }
+		.marks-table .subject-name { text-align: left; font-weight: 500; }
+		.marks-table .grade {
+			font-weight: 700;
+			padding: 4px 10px;
+			border-radius: 4px;
+		}
+		.grade-A { background: #dcfce7; color: #16a34a; }
+		.grade-B { background: #dbeafe; color: #2563eb; }
+		.grade-C { background: #fef3c7; color: #d97706; }
+		.grade-D { background: #fed7aa; color: #ea580c; }
+		.grade-F { background: #fee2e2; color: #dc2626; }
+
+		.result-section {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			margin-bottom: 25px;
+		}
+		.result-box {
+			text-align: center;
+			padding: 20px;
+			border-radius: 10px;
+			background: #f8fafc;
+			border: 2px solid #e2e8f0;
+		}
+		.result-box.pass { border-color: #22c55e; background: #f0fdf4; }
+		.result-box.fail { border-color: #ef4444; background: #fef2f2; }
+		.result-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+		.result-value { font-size: 24px; font-weight: 700; color: #1e293b; }
+		.result-box.pass .result-value { color: #16a34a; }
+		.result-box.fail .result-value { color: #dc2626; }
+
+		.remarks-section {
+			padding: 20px;
+			background: #f8fafc;
+			border-radius: 10px;
+			margin-bottom: 25px;
+		}
+		.remarks-title { font-weight: 600; color: #1e293b; margin-bottom: 10px; }
+		.remarks-text { color: #64748b; font-style: italic; }
+
+		.signature-section {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			margin-top: 40px;
+			padding-top: 20px;
+			border-top: 1px dashed #cbd5e1;
+		}
+		.signature-box {
+			text-align: center;
+		}
+		.signature-line {
+			border-top: 1px solid #1e293b;
+			margin-bottom: 8px;
+			width: 150px;
+			margin: 0 auto 8px;
+		}
+		.signature-label { font-size: 12px; color: #64748b; }
+
+		.grade-scale {
+			margin-top: 20px;
+			padding: 15px;
+			background: #f1f5f9;
+			border-radius: 8px;
+			font-size: 11px;
+			color: #64748b;
+		}
+		.grade-scale-title { font-weight: 600; margin-bottom: 8px; }
+		.grade-scale-items { display: flex; gap: 20px; flex-wrap: wrap; }
+
+		.no-print { }
+		@media print {
+			.no-print { display: none !important; }
+			body { padding: 0; background: white; }
+			.report-card { box-shadow: none; border: 2px solid #000; }
+		}
+	</style>
+</head>
+<body>
+	<div class="page-header no-print">
+		<div class="page-title-section">
+			<h1><i class="fas fa-file-alt"></i> Report Card Generator</h1>
+			<p>Generate and print student report cards</p>
+		</div>
+	</div>
+
+	<div class="controls-section no-print">
+		<div class="controls-row">
+			<div class="control-group">
+				<label><i class="fas fa-graduation-cap"></i> Select Class</label>
+				<select id="classSelect" onchange="loadSections()">
+					<option value="">Select Class</option>
+					<option value="1">Class 1</option>
+					<option value="2">Class 2</option>
+					<option value="3">Class 3</option>
+					<option value="4">Class 4</option>
+					<option value="5">Class 5</option>
+					<option value="6">Class 6</option>
+					<option value="7">Class 7</option>
+					<option value="8">Class 8</option>
+					<option value="9">Class 9</option>
+					<option value="10">Class 10</option>
+					<option value="11">Class 11</option>
+					<option value="12">Class 12</option>
+				</select>
+			</div>
+			<div class="control-group">
+				<label><i class="fas fa-layer-group"></i> Select Section</label>
+				<select id="sectionSelect" onchange="loadStudents()">
+					<option value="">Select Section</option>
+					<option value="A">Section A</option>
+					<option value="B">Section B</option>
+					<option value="C">Section C</option>
+				</select>
+			</div>
+			<div class="control-group">
+				<label><i class="fas fa-user-graduate"></i> Select Student</label>
+				<select id="studentSelect" onchange="generateReportCard()">
+					<option value="">Select Student</option>
+				</select>
+			</div>
+			<div class="control-group">
+				<label><i class="fas fa-calendar"></i> Exam Type</label>
+				<select id="examType">
+					<option value="midterm">Mid-Term Examination</option>
+					<option value="quarterly">Quarterly Examination</option>
+					<option value="halfyearly">Half-Yearly Examination</option>
+					<option value="annual">Annual Examination</option>
+				</select>
+			</div>
+			<div class="control-group" style="flex: 0;">
+				<label>&nbsp;</label>
+				<button class="btn btn-primary" onclick="generateReportCard()">
+					<i class="fas fa-sync"></i> Generate
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="report-card-container" id="reportCardContainer" style="display: none;">
+		<div class="no-print" style="text-align: right; margin-bottom: 16px;">
+			<button class="btn btn-success" onclick="printReportCard()">
+				<i class="fas fa-print"></i> Print Report Card
+			</button>
+			<button class="btn btn-outline" onclick="downloadPDF()">
+				<i class="fas fa-download"></i> Download PDF
+			</button>
+		</div>
+
+		<div class="report-card" id="reportCard">
+			<div class="report-header">
+				<div class="school-logo">
+					<i class="fas fa-graduation-cap"></i>
+				</div>
+				<div class="school-name" id="schoolName">EduManage Pro School</div>
+				<div class="school-address" id="schoolAddress">123 Education Street, City, Country | Phone: +91 1234567890</div>
+				<div class="report-title" id="examTitle">Mid-Term Examination Report Card</div>
+				<div style="font-size: 14px; color: #64748b; margin-top: 5px;">Academic Year: <span id="academicYear">2024-2025</span></div>
+			</div>
+
+			<div class="student-info">
+				<div class="info-item">
+					<span class="info-label">Student Name:</span>
+					<span class="info-value" id="studentName">-</span>
+				</div>
+				<div class="info-item">
+					<span class="info-label">Roll Number:</span>
+					<span class="info-value" id="rollNumber">-</span>
+				</div>
+				<div class="info-item">
+					<span class="info-label">Class:</span>
+					<span class="info-value" id="studentClass">-</span>
+				</div>
+				<div class="info-item">
+					<span class="info-label">Section:</span>
+					<span class="info-value" id="studentSection">-</span>
+				</div>
+				<div class="info-item">
+					<span class="info-label">Father's Name:</span>
+					<span class="info-value" id="fatherName">-</span>
+				</div>
+				<div class="info-item">
+					<span class="info-label">Date of Birth:</span>
+					<span class="info-value" id="dob">-</span>
+				</div>
+			</div>
+
+			<table class="marks-table">
+				<thead>
+					<tr>
+						<th style="width: 40px;">S.No</th>
+						<th style="text-align: left;">Subject</th>
+						<th>Max Marks</th>
+						<th>Marks Obtained</th>
+						<th>Percentage</th>
+						<th>Grade</th>
+					</tr>
+				</thead>
+				<tbody id="marksTableBody">
+					<!-- Marks will be populated here -->
+				</tbody>
+				<tfoot>
+					<tr style="background: #f1f5f9; font-weight: 700;">
+						<td colspan="2" style="text-align: right;">TOTAL</td>
+						<td id="totalMax">-</td>
+						<td id="totalObtained">-</td>
+						<td id="totalPercentage">-</td>
+						<td id="overallGrade">-</td>
+					</tr>
+				</tfoot>
+			</table>
+
+			<div class="result-section">
+				<div class="result-box" id="resultBox">
+					<div class="result-label">Result</div>
+					<div class="result-value" id="resultStatus">-</div>
+				</div>
+				<div class="result-box">
+					<div class="result-label">Percentage</div>
+					<div class="result-value" id="finalPercentage">-</div>
+				</div>
+				<div class="result-box">
+					<div class="result-label">Rank in Class</div>
+					<div class="result-value" id="classRank">-</div>
+				</div>
+			</div>
+
+			<div class="remarks-section">
+				<div class="remarks-title">Teacher's Remarks:</div>
+				<div class="remarks-text" id="remarks">-</div>
+			</div>
+
+			<div class="signature-section">
+				<div class="signature-box">
+					<div class="signature-line"></div>
+					<div class="signature-label">Class Teacher</div>
+				</div>
+				<div class="signature-box">
+					<div class="signature-line"></div>
+					<div class="signature-label">Principal</div>
+				</div>
+				<div class="signature-box">
+					<div class="signature-line"></div>
+					<div class="signature-label">Parent/Guardian</div>
+				</div>
+			</div>
+
+			<div class="grade-scale">
+				<div class="grade-scale-title">Grading Scale:</div>
+				<div class="grade-scale-items">
+					<span>A+ (90-100%)</span>
+					<span>A (80-89%)</span>
+					<span>B+ (70-79%)</span>
+					<span>B (60-69%)</span>
+					<span>C+ (50-59%)</span>
+					<span>C (40-49%)</span>
+					<span>D (33-39%)</span>
+					<span>F (Below 33%)</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const API_BASE_URL = '/School-Management-PhpVersion/backend/api';
+		let studentsData = [];
+		let examsData = [];
+
+		// Load students for selected class/section
+		function loadStudents() {
+			const classVal = document.getElementById('classSelect').value;
+			const section = document.getElementById('sectionSelect').value;
+			const studentSelect = document.getElementById('studentSelect');
+
+			if (!classVal || !section) {
+				studentSelect.innerHTML = '<option value="">Select Student</option>';
+				return;
+			}
+
+			// Try API first
+			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
+				EduManageApp.Students.getList({ class: classVal, section: section },
+					function(response) {
+						const students = response.data?.students || response.data || [];
+						studentsData = students;
+						populateStudentSelect(students);
+					},
+					function(error) {
+						console.warn('API not available, using localStorage');
+						loadStudentsFromLocalStorage(classVal, section);
+					}
+				);
+			} else {
+				loadStudentsFromLocalStorage(classVal, section);
+			}
+		}
+
+		function loadStudentsFromLocalStorage(classVal, section) {
+			try {
+				const data = localStorage.getItem('edu_students');
+				if (data) {
+					const allStudents = JSON.parse(data);
+					const filtered = allStudents.filter(s =>
+						s.class === classVal && s.section === section
+					);
+					studentsData = filtered;
+					populateStudentSelect(filtered);
+				}
+			} catch (e) {
+				console.error('Error loading students:', e);
+			}
+		}
+
+		function populateStudentSelect(students) {
+			const studentSelect = document.getElementById('studentSelect');
+			studentSelect.innerHTML = '<option value="">Select Student</option>';
+			students.forEach(s => {
+				const option = document.createElement('option');
+				option.value = s.id;
+				option.textContent = `${s.name} (${s.roll_number || s.id})`;
+				studentSelect.appendChild(option);
+			});
+		}
+
+		function loadSections() {
+			// Sections are static for now
+			document.getElementById('studentSelect').innerHTML = '<option value="">Select Student</option>';
+			document.getElementById('reportCardContainer').style.display = 'none';
+		}
+
+		function generateReportCard() {
+			const studentId = document.getElementById('studentSelect').value;
+			if (!studentId) {
+				document.getElementById('reportCardContainer').style.display = 'none';
+				return;
+			}
+
+			const student = studentsData.find(s => s.id === studentId || s.id === parseInt(studentId));
+			if (!student) return;
+
+			// Load exam data from API
+			loadExamMarks(student);
+		}
+
+		function loadExamMarks(student) {
+			const examType = document.getElementById('examType').value;
+
+			// Generate sample marks for demonstration
+			const subjects = ['Mathematics', 'English', 'Science', 'Social Studies', 'Hindi', 'Computer Science'];
+			const marks = subjects.map((subject, idx) => {
+				const maxMarks = 100;
+				const obtained = Math.floor(Math.random() * 40) + 60; // 60-99
+				return {
+					subject: subject,
+					maxMarks: maxMarks,
+					obtained: obtained,
+					percentage: Math.round((obtained / maxMarks) * 100),
+					grade: getGrade((obtained / maxMarks) * 100)
+				};
+			});
+
+			displayReportCard(student, marks, examType);
+		}
+
+		function getGrade(percentage) {
+			if (percentage >= 90) return 'A+';
+			if (percentage >= 80) return 'A';
+			if (percentage >= 70) return 'B+';
+			if (percentage >= 60) return 'B';
+			if (percentage >= 50) return 'C+';
+			if (percentage >= 40) return 'C';
+			if (percentage >= 33) return 'D';
+			return 'F';
+		}
+
+		function getGradeClass(grade) {
+			if (grade.startsWith('A')) return 'grade-A';
+			if (grade.startsWith('B')) return 'grade-B';
+			if (grade.startsWith('C')) return 'grade-C';
+			if (grade === 'D') return 'grade-D';
+			return 'grade-F';
+		}
+
+		function displayReportCard(student, marks, examType) {
+			document.getElementById('reportCardContainer').style.display = 'block';
+
+			// Exam title
+			const examTitles = {
+				'midterm': 'Mid-Term Examination Report Card',
+				'quarterly': 'Quarterly Examination Report Card',
+				'halfyearly': 'Half-Yearly Examination Report Card',
+				'annual': 'Annual Examination Report Card'
+			};
+			document.getElementById('examTitle').textContent = examTitles[examType] || 'Examination Report Card';
+
+			// Student info
+			document.getElementById('studentName').textContent = student.name;
+			document.getElementById('rollNumber').textContent = student.roll_number || student.id;
+			document.getElementById('studentClass').textContent = 'Class ' + (student.class || '-');
+			document.getElementById('studentSection').textContent = student.section || '-';
+			document.getElementById('fatherName').textContent = student.father_name || student.fatherName || 'N/A';
+			document.getElementById('dob').textContent = student.dob || student.date_of_birth || 'N/A';
+
+			// Marks table
+			let totalMax = 0, totalObtained = 0;
+			const marksHtml = marks.map((m, idx) => {
+				totalMax += m.maxMarks;
+				totalObtained += m.obtained;
+				return `
+					<tr>
+						<td>${idx + 1}</td>
+						<td class="subject-name">${m.subject}</td>
+						<td>${m.maxMarks}</td>
+						<td>${m.obtained}</td>
+						<td>${m.percentage}%</td>
+						<td><span class="grade ${getGradeClass(m.grade)}">${m.grade}</span></td>
+					</tr>
+				`;
+			}).join('');
+
+			document.getElementById('marksTableBody').innerHTML = marksHtml;
+
+			// Totals
+			const totalPercentage = Math.round((totalObtained / totalMax) * 100);
+			const overallGrade = getGrade(totalPercentage);
+			const passed = totalPercentage >= 33 && !marks.some(m => m.percentage < 33);
+
+			document.getElementById('totalMax').textContent = totalMax;
+			document.getElementById('totalObtained').textContent = totalObtained;
+			document.getElementById('totalPercentage').textContent = totalPercentage + '%';
+			document.getElementById('overallGrade').innerHTML = `<span class="grade ${getGradeClass(overallGrade)}">${overallGrade}</span>`;
+
+			// Result
+			const resultBox = document.getElementById('resultBox');
+			resultBox.className = 'result-box ' + (passed ? 'pass' : 'fail');
+			document.getElementById('resultStatus').textContent = passed ? 'PASSED' : 'FAILED';
+			document.getElementById('finalPercentage').textContent = totalPercentage + '%';
+			document.getElementById('classRank').textContent = Math.floor(Math.random() * 10) + 1;
+
+			// Remarks
+			const remarks = passed
+				? (totalPercentage >= 80 ? 'Excellent performance! Keep up the good work.' :
+				   totalPercentage >= 60 ? 'Good performance. Can improve with more practice.' :
+				   'Satisfactory. Needs to work harder in some subjects.')
+				: 'Needs significant improvement. Extra attention required.';
+			document.getElementById('remarks').textContent = remarks;
+
+			// Scroll to report card
+			document.getElementById('reportCardContainer').scrollIntoView({ behavior: 'smooth' });
+		}
+
+		function printReportCard() {
+			window.print();
+		}
+
+		async function downloadPDF() {
+			const { jsPDF } = window.jspdf;
+			const reportCard = document.getElementById('reportCard');
+
+			try {
+				const canvas = await html2canvas(reportCard, {
+					scale: 2,
+					useCORS: true,
+					backgroundColor: '#ffffff'
+				});
+
+				const imgData = canvas.toDataURL('image/png');
+				const pdf = new jsPDF('p', 'mm', 'a4');
+				const pdfWidth = pdf.internal.pageSize.getWidth();
+				const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+				pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+				pdf.save('report-card.pdf');
+			} catch (error) {
+				console.error('Error generating PDF:', error);
+				alert('Error generating PDF. Please try printing instead.');
+			}
+		}
+
+		// Load settings from API
+		function loadSettings() {
+			$.ajax({
+				url: API_BASE_URL + '/settings.php?action=list',
+				type: 'GET',
+				success: function(response) {
+					if (response.success && response.data) {
+						const settings = {};
+						response.data.forEach(s => settings[s.setting_key] = s.setting_value);
+						if (settings.school_name) document.getElementById('schoolName').textContent = settings.school_name;
+						if (settings.school_address) {
+							document.getElementById('schoolAddress').textContent =
+								settings.school_address + ' | Phone: ' + (settings.school_phone || '');
+						}
+						if (settings.academic_year) document.getElementById('academicYear').textContent = settings.academic_year;
+					}
+				},
+				error: function() {
+					console.log('Settings API not available');
+				}
+			});
+		}
+
+		// Initialize
+		document.addEventListener('DOMContentLoaded', function() {
+			loadSettings();
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,2793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Students</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="../assets/js/app.js"></script>
+	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+		.btn-outline:hover { border-color: #3b82f6; color: #3b82f6; }
+		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.stats-filters {
+			background: white;
+			border-radius: 16px;
+			padding: 20px 24px;
+			margin-bottom: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 24px;
+			flex-wrap: wrap;
+		}
+		.stats-filters .filter-group {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			flex: 1;
+			min-width: 200px;
+		}
+		.stats-filters .filter-group label {
+			font-size: 13px;
+			font-weight: 700;
+			color: #475569;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			white-space: nowrap;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.stats-filters .filter-group label i {
+			color: #3b82f6;
+			font-size: 14px;
+		}
+		.stats-filters .filter-select {
+			flex: 1;
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 500;
+			color: #1e293b;
+			background: white;
+			cursor: pointer;
+			transition: all 0.2s;
+			-webkit-appearance: none;
+			appearance: none;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 16px center;
+			padding-right: 40px;
+		}
+		.stats-filters .filter-select:focus {
+			outline: none;
+			border-color: #3b82f6;
+			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		}
+		.stats-filters .filter-select:hover {
+			border-color: #cbd5e1;
+		}
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+		}
+		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
+		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.stat-icon.purple { background: #f3e8ff; color: #8b5cf6; }
+		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.table-toolbar {
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 1px solid #f1f5f9;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.search-box { position: relative; width: 300px; }
+		.search-box input {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px 0 44px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.search-box input:focus { outline: none; border-color: #3b82f6; }
+		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+		.toolbar-actions { 
+			display: flex; 
+			gap: 10px; 
+			flex-wrap: wrap;
+			align-items: center;
+		}
+		.page-select {
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 500;
+			color: #1e293b;
+			background: white;
+			cursor: pointer;
+			transition: all 0.2s;
+			-webkit-appearance: none;
+			appearance: none;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 12px center;
+			padding-right: 36px;
+		}
+		.page-select:focus {
+			outline: none;
+			border-color: #3b82f6;
+			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		}
+		.page-select:hover {
+			border-color: #cbd5e1;
+		}
+
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { 
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
+			background-color: #3b82f6;
+		}
+		.data-table th {
+			padding: 16px 12px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 12px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
+		}
+		.data-table th:first-child { padding-left: 20px; }
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 12px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table td:first-child { padding-left: 20px; }
+
+		/* Editable Cells */
+		.editable-cell {
+			cursor: pointer;
+			padding: 8px 12px;
+			border-radius: 6px;
+			transition: all 0.2s;
+			min-height: 36px;
+			display: flex;
+			align-items: center;
+		}
+		.editable-cell:hover {
+			background: #eff6ff;
+			outline: 2px solid #3b82f6;
+		}
+		.editable-cell.editing {
+			padding: 0;
+		}
+		.editable-cell input, .editable-cell select {
+			width: 100%;
+			height: 36px;
+			padding: 0 10px;
+			border: 2px solid #3b82f6;
+			border-radius: 6px;
+			font-size: 14px;
+			background: white;
+		}
+		.editable-cell input:focus, .editable-cell select:focus {
+			outline: none;
+		}
+
+		/* Avatar with Upload */
+		.avatar-wrapper {
+			position: relative;
+			display: inline-block;
+		}
+		.avatar {
+			width: 48px;
+			height: 48px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			font-size: 16px;
+			color: white;
+			overflow: hidden;
+			position: relative;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		.avatar.male { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+		.avatar.female { background: linear-gradient(135deg, #f472b6, #ec4899); }
+		.avatar img { width: 100%; height: 100%; object-fit: cover; }
+		.avatar .upload-overlay {
+			position: absolute;
+			inset: 0;
+			background: rgba(0,0,0,0.6);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 0.3s;
+			border-radius: 50%;
+		}
+		.avatar:hover .upload-overlay { opacity: 1; }
+		.avatar .upload-overlay i { color: white; font-size: 18px; }
+		.remove-photo-btn {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #ef4444;
+			color: white;
+			border: 2px solid white;
+			font-size: 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: all 0.2s;
+			z-index: 10;
+		}
+		.avatar-wrapper:hover .remove-photo-btn { opacity: 1; }
+		.remove-photo-btn:hover { transform: scale(1.2); background: #dc2626; }
+
+		.student-info { display: flex; align-items: center; gap: 12px; }
+		.student-name { font-weight: 600; color: #1e293b; }
+		.student-id { font-weight: 700; color: #1e3a5f; }
+
+		.gender-badge {
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			display: inline-block;
+		}
+		.gender-badge.male { background: #dbeafe; color: #2563eb; }
+		.gender-badge.female { background: #fce7f3; color: #db2777; }
+
+		.status-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.status-badge.active { background: #dcfce7; color: #16a34a; }
+		.status-badge.inactive { background: #fef2f2; color: #dc2626; }
+
+		.checkbox-cell { width: 40px; }
+		.custom-checkbox { width: 18px; height: 18px; accent-color: #3b82f6; cursor: pointer; }
+
+		.action-btns { display: flex; gap: 6px; }
+		.action-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+			font-size: 13px;
+		}
+		.action-btn.save { background: #dcfce7; color: #16a34a; }
+		.action-btn.edit { background: #fef3c7; color: #d97706; }
+		.action-btn.edit:hover { background: #fde68a; }
+		.action-btn.view { background: #dbeafe; color: #2563eb; }
+		.action-btn.delete { background: #fef2f2; color: #ef4444; }
+		.action-btn:hover { transform: scale(1.1); }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.page-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.page-btn:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; }
+		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+
+		.fab-btn {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
+			color: white;
+			border: none;
+			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+			cursor: pointer;
+			font-size: 24px;
+			z-index: 100;
+			transition: all 0.3s;
+		}
+		.fab-btn:hover { transform: scale(1.1) rotate(90deg); }
+
+		.empty-state { text-align: center; padding: 60px 20px; }
+		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
+		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
+		.empty-state p { color: #94a3b8; }
+
+		.edit-hint {
+			background: #fffbeb;
+			border: 1px solid #fcd34d;
+			border-radius: 8px;
+			padding: 10px 16px;
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 13px;
+			color: #92400e;
+		}
+		.edit-hint i { color: #f59e0b; }
+
+		/* Add Student Modal - Modern Design */
+		.student-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(15, 23, 42, 0.6);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
+			z-index: 10000;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+		.student-modal.show {
+			display: flex;
+			opacity: 1;
+		}
+		.student-modal.closing {
+			opacity: 0;
+		}
+		.student-modal-content {
+			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+			border-radius: 24px;
+			width: 90%;
+			max-width: 750px;
+			max-height: 90vh;
+			overflow: hidden;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
+			            0 0 0 1px rgba(255, 255, 255, 0.1),
+			            0 0 100px rgba(59, 130, 246, 0.1);
+			animation: modalSlideIn 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+		}
+		.student-modal.closing .student-modal-content {
+			animation: modalCollapse 0.35s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
+		}
+		@keyframes modalSlideIn {
+			from { 
+				opacity: 0; 
+				transform: translateY(-50px) scale(0.95); 
+			}
+			to { 
+				opacity: 1; 
+				transform: translateY(0) scale(1); 
+			}
+		}
+		@keyframes modalCollapse {
+			0% { 
+				opacity: 1; 
+				transform: translateY(0) scale(1); 
+			}
+			50% { 
+				opacity: 0.5; 
+				transform: translateY(20px) scale(0.98); 
+			}
+			100% { 
+				opacity: 0; 
+				transform: translateY(50px) scale(0.95); 
+			}
+		}
+		.modal-header {
+			padding: 28px 32px;
+			background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+			border-bottom: none;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			position: relative;
+			overflow: hidden;
+		}
+		.modal-header::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+			pointer-events: none;
+		}
+		.modal-header h3 {
+			font-size: 22px;
+			font-weight: 700;
+			color: #ffffff;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			position: relative;
+			z-index: 1;
+			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+		.modal-header h3 i {
+			color: #ffffff;
+			font-size: 24px;
+			background: rgba(255, 255, 255, 0.2);
+			width: 40px;
+			height: 40px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			backdrop-filter: blur(10px);
+		}
+		.modal-close {
+			width: 40px;
+			height: 40px;
+			border-radius: 12px;
+			border: none;
+			background: rgba(255, 255, 255, 0.2);
+			backdrop-filter: blur(10px);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			color: #ffffff;
+			transition: all 0.2s ease;
+			position: relative;
+			z-index: 1;
+		}
+		.modal-close:hover {
+			background: rgba(255, 255, 255, 0.3);
+			transform: rotate(90deg) scale(1.1);
+		}
+		.modal-close:active {
+			transform: rotate(90deg) scale(0.95);
+		}
+		.modal-body {
+			padding: 32px;
+			overflow-y: auto;
+			background: #ffffff;
+		}
+		.modal-body::-webkit-scrollbar {
+			width: 8px;
+		}
+		.modal-body::-webkit-scrollbar-track {
+			background: #f1f5f9;
+			border-radius: 4px;
+		}
+		.modal-body::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 4px;
+		}
+		.modal-body::-webkit-scrollbar-thumb:hover {
+			background: #94a3b8;
+		}
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+		@media (max-width: 768px) {
+			.form-row {
+				grid-template-columns: 1fr;
+				gap: 16px;
+			}
+		}
+		.form-group {
+			margin-bottom: 20px;
+		}
+		.form-group label {
+			display: block;
+			font-size: 13px;
+			font-weight: 700;
+			color: #475569;
+			margin-bottom: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.form-group input,
+		.form-group select {
+			width: 100%;
+			height: 48px;
+			padding: 0 18px;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			font-size: 15px;
+			font-family: inherit;
+			background: #ffffff;
+			color: #1e293b;
+			transition: all 0.2s ease;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+		}
+		.form-group input:hover,
+		.form-group select:hover {
+			border-color: #cbd5e1;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+		}
+		.form-group input:focus,
+		.form-group select:focus {
+			outline: none;
+			border-color: #3b82f6;
+			box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 2px 8px rgba(59, 130, 246, 0.15);
+			transform: translateY(-1px);
+		}
+		.form-group select {
+			cursor: pointer;
+			appearance: none;
+			-webkit-appearance: none;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 18px center;
+			padding-right: 45px;
+		}
+		.form-group.full-width {
+			grid-column: 1 / -1;
+		}
+		.photo-upload-area {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.photo-preview {
+			width: 120px;
+			height: 150px;
+			border: 2px dashed #e2e8f0;
+			border-radius: 16px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+			background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+			position: relative;
+			transition: all 0.3s ease;
+		}
+		.photo-preview:hover {
+			border-color: #3b82f6;
+			background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+			transform: scale(1.02);
+		}
+		.photo-preview img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.photo-preview .placeholder {
+			text-align: center;
+			color: #94a3b8;
+		}
+		.photo-preview .placeholder i {
+			font-size: 48px;
+			margin-bottom: 8px;
+		}
+
+		/* Student Documents Section */
+		.documents-section {
+			margin-top: 32px;
+			padding-top: 24px;
+			border-top: 2px solid #f1f5f9;
+		}
+		.documents-section-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		.documents-section-title {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 16px;
+			font-weight: 700;
+			color: #1e293b;
+		}
+		.documents-section-title i {
+			color: #3b82f6;
+			font-size: 18px;
+		}
+		.documents-list {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+		}
+		.document-row {
+			background: #f8fafc;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			padding: 16px;
+			display: grid;
+			grid-template-columns: 1fr 1fr 1fr auto;
+			gap: 12px;
+			align-items: start;
+			transition: all 0.2s;
+		}
+		.document-row:hover {
+			border-color: #cbd5e1;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		}
+		.document-row.existing {
+			background: #ffffff;
+			border-color: #dbeafe;
+		}
+		.document-field {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+		.document-field label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.document-field input,
+		.document-field select {
+			width: 100%;
+			height: 40px;
+			padding: 0 12px;
+			border: 2px solid #e2e8f0;
+			border-radius: 8px;
+			font-size: 14px;
+			background: white;
+			transition: all 0.2s;
+		}
+		.document-field input:focus,
+		.document-field select:focus {
+			outline: none;
+			border-color: #3b82f6;
+			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		}
+		.document-file-upload {
+			position: relative;
+		}
+		.document-file-input {
+			position: absolute;
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+		.document-file-btn {
+			width: 100%;
+			height: 40px;
+			padding: 0 12px;
+			border: 2px solid #e2e8f0;
+			border-radius: 8px;
+			background: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #64748b;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+		.document-file-btn:hover {
+			border-color: #3b82f6;
+			color: #3b82f6;
+			background: #eff6ff;
+		}
+		.document-file-btn.has-file {
+			border-color: #16a34a;
+			color: #16a34a;
+			background: #f0fdf4;
+		}
+		.document-file-name {
+			font-size: 12px;
+			color: #16a34a;
+			margin-top: 4px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.document-file-name i {
+			font-size: 10px;
+		}
+		.document-actions {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			align-items: flex-end;
+		}
+		.document-action-btn {
+			width: 36px;
+			height: 36px;
+			border: none;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+		.document-action-btn.view {
+			background: #eff6ff;
+			color: #3b82f6;
+		}
+		.document-action-btn.view:hover {
+			background: #dbeafe;
+		}
+		.document-action-btn.download {
+			background: #f0fdf4;
+			color: #16a34a;
+		}
+		.document-action-btn.download:hover {
+			background: #dcfce7;
+		}
+		.document-action-btn.delete {
+			background: #fef2f2;
+			color: #ef4444;
+		}
+		.document-action-btn.delete:hover {
+			background: #fee2e2;
+		}
+		.document-row.existing .document-actions {
+			flex-direction: row;
+		}
+		.document-row.existing .document-action-btn {
+			width: 32px;
+			height: 32px;
+			font-size: 12px;
+		}
+		.document-preview-info {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 12px;
+			color: #64748b;
+			margin-top: 4px;
+		}
+		.document-preview-info i {
+			color: #3b82f6;
+		}
+		@media (max-width: 768px) {
+			.student-modal-content {
+				width: 95%;
+				max-width: 100%;
+				border-radius: 20px;
+			}
+			.modal-header {
+				padding: 20px 24px;
+			}
+			.modal-header h3 {
+				font-size: 18px;
+			}
+			.modal-body {
+				padding: 24px;
+			}
+			.modal-footer {
+				padding: 20px 24px;
+				flex-direction: column;
+			}
+			.modal-footer .btn {
+				width: 100%;
+			}
+			.document-row {
+				grid-template-columns: 1fr;
+			}
+			.document-actions {
+				flex-direction: row;
+				width: 100%;
+				justify-content: flex-end;
+			}
+		}
+		.modal-footer {
+			padding: 24px 32px;
+			border-top: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+			background: #f8fafc;
+			border-radius: 0 0 24px 24px;
+		}
+		.btn-secondary {
+			background: #ffffff;
+			border: 2px solid #e2e8f0;
+			color: #64748b;
+			font-weight: 600;
+			transition: all 0.2s ease;
+		}
+		.btn-secondary:hover {
+			background: #f8fafc;
+			border-color: #cbd5e1;
+			color: #475569;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		}
+		.btn-primary {
+			background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+			color: #ffffff;
+			font-weight: 600;
+			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+			transition: all 0.2s ease;
+		}
+		.btn-primary:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+		}
+		.btn-primary:active {
+			transform: translateY(0);
+		}
+
+		@media (max-width: 768px) {
+			.form-row {
+				grid-template-columns: 1fr;
+			}
+			.stats-filters {
+				flex-direction: column;
+				align-items: stretch;
+			}
+			.stats-filters .filter-group {
+				min-width: 100%;
+			}
+			.stats-row { grid-template-columns: 1fr; }
+			.search-box { width: 100%; }
+		}
+		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+	</style>
+</head>
+<body>
+	<div class="page students-page active">
+		<div class="page-header">
+			<div class="page-title-section">
+				<h1><i class="fas fa-user-graduate" style="color: #3b82f6; margin-right: 10px;"></i>Student Management</h1>
+				<p>Manage all student records - Click any cell to edit inline</p>
+		</div>
+			<div class="header-actions">
+				<input type="file" id="importFile" accept=".csv" style="display: none;">
+				<button class="btn btn-primary" id="addStudentBtn"><i class="fas fa-plus"></i> Add Student</button>
+				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
+				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+			</div>
+	</div>
+
+		<div class="edit-hint">
+			<i class="fas fa-lightbulb"></i>
+			<span><strong>Tip:</strong> Click on any cell to edit directly. Click on the avatar to upload a photo. Changes are auto-saved.</span>
+				</div>
+
+		<!-- Filter Section -->
+		<div class="stats-filters" id="statsFilters">
+			<div class="filter-group">
+				<label for="filterClass"><i class="fas fa-layer-group"></i> Class</label>
+				<select id="filterClass" class="filter-select" data-dropdown="class">
+					<option value="">All</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label for="filterSection"><i class="fas fa-columns"></i> Section</label>
+				<select id="filterSection" class="filter-select" data-dropdown="section">
+					<option value="">All</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label for="filterSubject"><i class="fas fa-book"></i> Subject</label>
+				<select id="filterSubject" class="filter-select" data-dropdown="subject">
+					<option value="">All</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label for="filterGender"><i class="fas fa-venus-mars"></i> Gender</label>
+				<select id="filterGender" class="filter-select" data-dropdown="gender">
+					<option value="">All</option>
+				</select>
+			</div>
+		</div>
+
+		<div class="stats-row" id="statsRow"></div>
+
+		<div class="table-card">
+			<div class="table-toolbar">
+				<div class="search-box">
+					<i class="fas fa-search"></i>
+					<input type="text" id="searchInput" placeholder="Search students...">
+			</div>
+				<div class="toolbar-actions">
+					<select id="tableClassFilter" class="page-select" style="min-width: 130px;" title="Filter by Class" data-dropdown="class">
+						<option value="">All Classes</option>
+					</select>
+					<select id="tableSectionFilter" class="page-select" style="min-width: 120px;" title="Filter by Section" data-dropdown="section">
+						<option value="">All Sections</option>
+					</select>
+					<select id="tableStatusFilter" class="page-select" style="min-width: 120px;" title="Filter by Status">
+						<option value="">All Status</option>
+						<option value="Active">Active</option>
+						<option value="Inactive">Inactive</option>
+					</select>
+					<select id="tableGenderFilter" class="page-select" style="min-width: 120px;" title="Filter by Gender" data-dropdown="gender">
+						<option value="">All Gender</option>
+					</select>
+					<button class="btn btn-outline btn-sm" id="clearFiltersBtn" title="Clear All Filters">
+						<i class="fas fa-times-circle"></i> Clear
+					</button>
+					<button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+						<i class="fas fa-trash"></i> Delete Selected
+					</button>
+				</div>
+			</div>
+
+			<!-- Hidden file input for photo upload -->
+			<input type="file" id="photoUpload" accept="image/*" style="display: none;">
+
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
+						<th>Photo</th>
+						<th>Student ID</th>
+						<th>Name</th>
+						<th>Gender</th>
+						<th>Class</th>
+						<th>Section</th>
+						<th>Parent</th>
+						<th>Address</th>
+						<th>DOB</th>
+						<th>Joining Date</th>
+						<th>Blood Group</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+
+			<div class="table-footer">
+				<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 students</div>
+				<div class="pagination-btns">
+					<button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+					<span id="pageNum" style="padding: 0 12px; font-weight: 600;">1</span>
+					<button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+					<select class="page-select" id="pageSizeSelect">
+						<option value="10">10 / page</option>
+						<option value="20">20 / page</option>
+						<option value="50">50 / page</option>
+					</select>
+			</div>
+			</div>
+		</div>
+	</div>
+
+	<button class="fab-btn" id="fabAddBtn" title="Add New Student"><i class="fas fa-plus"></i></button>
+
+	<script>
+		$(document).ready(function() {
+		// Initialize Dynamic Dropdowns
+		initDynamicDropdowns();
+
+		function initDynamicDropdowns() {
+			// Load all dropdown data for current institution type
+			DynamicDropdown.loadAll(function(dropdowns) {
+				// Populate filter dropdowns (with "All" as first option)
+				populateFilterDropdown('#filterClass', 'class', 'All');
+				populateFilterDropdown('#filterSection', 'section', 'All');
+				populateFilterDropdown('#filterSubject', 'subject', 'All');
+				populateFilterDropdown('#filterGender', 'gender', 'All');
+
+				// Populate table toolbar dropdowns
+				populateFilterDropdown('#tableClassFilter', 'class', 'All Classes');
+				populateFilterDropdown('#tableSectionFilter', 'section', 'All Sections');
+				populateFilterDropdown('#tableGenderFilter', 'gender', 'All Gender');
+
+				// Populate form dropdowns (with "Select..." as first option)
+				populateFormDropdown('#studentGender', 'gender', 'Select Gender');
+				populateFormDropdown('#studentClass', 'class', 'Select Class');
+				populateFormDropdown('#studentSection', 'section', 'Select Section');
+				populateFormDropdown('#studentBloodGroup', 'blood_group', 'Select Blood Group');
+			});
+		}
+
+		function populateFilterDropdown(selector, categoryKey, placeholder) {
+			DynamicDropdown.getValues(categoryKey, function(values) {
+				var $select = $(selector);
+				var currentVal = $select.val();
+				$select.empty();
+				$select.append($('<option>', { value: '', text: placeholder }));
+				$.each(values, function(i, item) {
+					$select.append($('<option>', { value: item.value, text: item.value }));
+				});
+				if (currentVal) $select.val(currentVal);
+			});
+		}
+
+		function populateFormDropdown(selector, categoryKey, placeholder) {
+			DynamicDropdown.getValues(categoryKey, function(values) {
+				var $select = $(selector);
+				var currentVal = $select.val();
+				$select.empty();
+				$select.append($('<option>', { value: '', text: placeholder }));
+				$.each(values, function(i, item) {
+					$select.append($('<option>', { value: item.value, text: item.value }));
+				});
+				if (currentVal) $select.val(currentVal);
+			});
+		}
+
+		function notify(msg, type = 'success') {
+			$('.toast').remove();
+			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
+			const icon = type === 'success' ? 'check-circle' : 'info-circle';
+			const toast = $('<div>').addClass('toast').css({
+				position: 'fixed',
+				bottom: '30px',
+				right: '30px',
+				padding: '14px 20px',
+				background: bg,
+				color: 'white',
+				borderRadius: '10px',
+				fontWeight: '600',
+				zIndex: '10000',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				animation: 'slideIn 0.3s ease',
+				fontFamily: "'Segoe UI', sans-serif",
+				fontSize: '14px'
+			}).html(`<i class="fas fa-${icon}"></i> ${msg}`);
+			
+			$('body').append(toast);
+			
+			if ($('#toastStyle').length === 0) {
+				$('<style>').attr('id', 'toastStyle').text('@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}').appendTo('head');
+			}
+			
+			setTimeout(() => {
+				toast.css('opacity', '0');
+				setTimeout(() => toast.remove(), 300);
+			}, 2500);
+		}
+
+		const STORAGE_KEY = 'edu_students';
+		let students = [];
+		let page = 1, pageSize = 10;
+		let selected = new Set();
+		let currentUploadIdx = -1;
+
+		function generateDemoStudents() {
+			const firstNames = {
+				Male: ['Rahul', 'Amit', 'Vikram', 'Karan', 'Arjun', 'Rohan', 'Siddharth', 'Aryan', 'Aditya', 'Pranav', 'Krishna', 'Dhruv', 'Vishal', 'Raj', 'Mohit', 'Ankit', 'Nikhil', 'Yash', 'Sahil', 'Dev', 'Harsh', 'Manish', 'Suraj', 'Abhishek', 'Vivek', 'Akash', 'Ravi', 'Gaurav', 'Rishabh', 'Kunal', 'Mayank', 'Shubham', 'Jay', 'Ritesh', 'Nitin'],
+				Female: ['Priya', 'Ananya', 'Sneha', 'Neha', 'Pooja', 'Kavya', 'Isha', 'Anjali', 'Divya', 'Meera', 'Riya', 'Sakshi', 'Shreya', 'Aanya', 'Kriti', 'Avni', 'Tanvi', 'Aditi', 'Ishita', 'Disha', 'Saanvi', 'Aishwarya', 'Anushka', 'Vidya', 'Radha', 'Kiran', 'Sarika', 'Pallavi', 'Megha', 'Swati', 'Urvashi', 'Nikita', 'Jyoti', 'Manisha', 'Rashmi']
+			};
+			const lastNames = ['Sharma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Reddy', 'Nair', 'Iyer', 'Malhotra', 'Verma', 'Das', 'Mehta', 'Chopra', 'Bansal', 'Agarwal', 'Jain', 'Shah', 'Rao', 'Pandey', 'Joshi', 'Desai', 'Mishra', 'Shukla', 'Yadav', 'Thakur', 'Chauhan', 'Rawat', 'Bhatt', 'Dubey', 'Tiwari'];
+			const sections = ['A', 'B', 'C'];
+			const addresses = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Surat', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad'];
+			
+			const students = [];
+			const currentYear = new Date().getFullYear();
+			
+			for (let i = 1; i <= 100; i++) {
+				const gender = i % 2 === 0 ? 'Female' : 'Male';
+				const firstName = firstNames[gender][Math.floor(Math.random() * firstNames[gender].length)];
+				const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+				const name = `${firstName} ${lastName}`;
+				const classNum = Math.floor(Math.random() * 12) + 1;
+				const section = classNum >= 11 ? 'Science' : sections[Math.floor(Math.random() * sections.length)];
+				const parentFirst = gender === 'Male' ? firstNames.Male[Math.floor(Math.random() * firstNames.Male.length)] : firstNames.Female[Math.floor(Math.random() * firstNames.Female.length)];
+				const parentLast = lastName;
+				const parent = `${parentFirst} ${parentLast}`;
+				const address = `${addresses[Math.floor(Math.random() * addresses.length)]}, India`;
+				
+				// Generate DOB (ages between 5-17 years)
+				const age = 5 + Math.floor(Math.random() * 13);
+				const birthYear = currentYear - age;
+				const birthMonth = Math.floor(Math.random() * 12) + 1;
+				const birthDay = Math.floor(Math.random() * 28) + 1;
+				const dob = `${String(birthDay).padStart(2, '0')}/${String(birthMonth).padStart(2, '0')}/${birthYear}`;
+				
+				// Generate Joining Date (within last 3 years)
+				const joiningYear = currentYear - Math.floor(Math.random() * 3);
+				const joiningMonth = Math.floor(Math.random() * 12) + 1;
+				const joiningDay = Math.floor(Math.random() * 28) + 1;
+				const joiningDate = `${String(joiningDay).padStart(2, '0')}/${String(joiningMonth).padStart(2, '0')}/${joiningYear}`;
+				
+				// Generate Blood Group
+				const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+				const bloodGroup = bloodGroups[Math.floor(Math.random() * bloodGroups.length)];
+				
+				const status = Math.random() > 0.1 ? 'Active' : 'Inactive';
+				const id = `STU-${currentYear}-${String(i).padStart(3, '0')}`;
+				
+				students.push({
+					id: id,
+					name: name,
+					gender: gender,
+					class: String(classNum),
+					section: section,
+					parent: parent,
+					address: address,
+					dob: dob,
+					joiningDate: joiningDate,
+					bloodGroup: bloodGroup,
+					status: status,
+					photo: ''
+				});
+			}
+			
+			return students;
+		}
+
+		function loadStudents() {
+			// Load students from backend API
+			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
+				EduManageApp.Students.getList({ page: page, perPage: 1000 },
+					function(response) {
+						// Success callback
+						if (response.data && response.data.students) {
+							students = response.data.students;
+							renderTable();
+							renderStats();
+						} else {
+							students = [];
+							renderTable();
+							renderStats();
+						}
+					},
+					function(error) {
+						// Error callback - fallback to demo data for development
+						console.warn('API not available, using demo data:', error);
+						try {
+							const data = localStorage.getItem(STORAGE_KEY);
+							if (data && data !== '[]' && data.trim() !== '' && data !== 'null') {
+								const parsed = JSON.parse(data);
+								if (Array.isArray(parsed) && parsed.length >= 10) {
+									students = parsed;
+								} else {
+									students = generateDemoStudents();
+									localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+								}
+							} else {
+								students = generateDemoStudents();
+								localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+							}
+						} catch (e) {
+							students = generateDemoStudents();
+							localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+						}
+						renderTable();
+						renderStats();
+					}
+				);
+			} else {
+				// Fallback to localStorage if API not available
+				try {
+					const data = localStorage.getItem(STORAGE_KEY);
+					if (data && data !== '[]' && data.trim() !== '' && data !== 'null') {
+						const parsed = JSON.parse(data);
+						if (Array.isArray(parsed) && parsed.length >= 10) {
+							students = parsed;
+						} else {
+							students = generateDemoStudents();
+							localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+						}
+					} else {
+						students = generateDemoStudents();
+						localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+					}
+				} catch (e) {
+					students = generateDemoStudents();
+					localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+				}
+				renderTable();
+				renderStats();
+			}
+		}
+
+		function saveStudents() {
+			// Deprecated - API calls handle saving individual students
+			// Keep for backward compatibility during migration
+			localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
+		}
+
+		function renderStats() {
+			// Get filter values
+			const filterClass = $('#filterClass').val() || '';
+			const filterSection = $('#filterSection').val() || '';
+			const filterSubject = $('#filterSubject').val() || '';
+			const filterGender = $('#filterGender').val() || '';
+
+			// Filter students based on selected filters
+			let filteredStudents = students.filter(s => {
+				const matchClass = !filterClass || s.class === filterClass;
+				const matchSection = !filterSection || s.section === filterSection;
+				const matchGender = !filterGender || s.gender === filterGender;
+				
+				// For subject filter, we need to check if student has marks/exams for that subject
+				let matchSubject = true;
+				if (filterSubject) {
+					// Check if student has exam marks for this subject
+					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
+					const hasSubjectMarks = examMarks.some(mark => 
+						mark.studentId === s.id && mark.subjectId === filterSubject
+					);
+					matchSubject = hasSubjectMarks;
+				}
+				
+				return matchClass && matchSection && matchSubject && matchGender;
+			});
+
+			const total = filteredStudents.length;
+			const active = filteredStudents.filter(s => s.status === 'Active').length;
+			const male = filteredStudents.filter(s => s.gender === 'Male').length;
+			const female = filteredStudents.filter(s => s.gender === 'Female').length;
+			
+			$('#statsRow').html(`
+				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">Total Students</div></div></div>
+				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div><div class="stat-value">${active}</div><div class="stat-label">Active Students</div></div></div>
+				<div class="stat-card"><div class="stat-icon purple"><i class="fas fa-male"></i></div><div><div class="stat-value">${male}</div><div class="stat-label">Male Students</div></div></div>
+				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-female"></i></div><div><div class="stat-value">${female}</div><div class="stat-label">Female Students</div></div></div>
+			`);
+		}
+
+		// Load sections dynamically based on selected class
+		function loadSectionsForClass(classVal) {
+			const sectionSelect = $('#filterSection');
+			sectionSelect.html('<option value="">All</option>');
+			
+			if (!classVal) {
+				return;
+			}
+
+			// Get unique sections for the selected class from students
+			const sections = [...new Set(students
+				.filter(s => s.class === classVal)
+				.map(s => s.section)
+				.filter(s => s && s !== '-')
+			)].sort();
+
+			sections.forEach(section => {
+				sectionSelect.append(`<option value="${section}">${section}</option>`);
+			});
+		}
+
+		// Load subjects dynamically based on selected class
+		function loadSubjectsForClass(classVal) {
+			const subjectSelect = $('#filterSubject');
+			subjectSelect.html('<option value="">All</option>');
+			
+			if (!classVal) {
+				return;
+			}
+
+			try {
+				// Get class-subject mapping
+				const mappingData = localStorage.getItem('edu_class_subject_mapping');
+				if (!mappingData) {
+					return;
+				}
+
+				const mapping = JSON.parse(mappingData);
+				const subjectIds = mapping[classVal] || [];
+
+				// Get subject master
+				const subjectMasterData = localStorage.getItem('edu_subject_master');
+				if (!subjectMasterData) {
+					return;
+				}
+
+				const subjectMaster = JSON.parse(subjectMasterData);
+				const subjectMap = {};
+				subjectMaster.forEach(s => { subjectMap[s.id] = s; });
+
+				// Add subjects to dropdown
+				subjectIds.forEach(subjectId => {
+					const subject = subjectMap[subjectId];
+					if (subject) {
+						subjectSelect.append(`<option value="${subjectId}">${subject.name}</option>`);
+					}
+				});
+			} catch (e) {
+				console.error('Error loading subjects:', e);
+			}
+		}
+
+		function renderTable() {
+			const search = $('#searchInput').val().toLowerCase();
+			const classFilter = $('#tableClassFilter').val() || $('#filterClass').val() || '';
+			const sectionFilter = $('#tableSectionFilter').val() || $('#filterSection').val() || '';
+			const statusFilter = $('#tableStatusFilter').val() || '';
+			const genderFilter = $('#tableGenderFilter').val() || $('#filterGender').val() || '';
+			const subjectFilter = $('#filterSubject').val() || '';
+
+			let filtered = students.filter(s => {
+				const matchSearch = !search || [s.id, s.name, s.parent, s.address].join(' ').toLowerCase().includes(search);
+				const matchClass = !classFilter || s.class === classFilter;
+				const matchSection = !sectionFilter || s.section === sectionFilter;
+				const matchStatus = !statusFilter || s.status === statusFilter;
+				const matchGender = !genderFilter || s.gender === genderFilter;
+				
+				// For subject filter, check if student has exam marks for that subject
+				let matchSubject = true;
+				if (subjectFilter) {
+					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
+					const hasSubjectMarks = examMarks.some(mark => 
+						mark.studentId === s.id && mark.subjectId === subjectFilter
+					);
+					matchSubject = hasSubjectMarks;
+				}
+				
+				return matchSearch && matchClass && matchSection && matchStatus && matchGender && matchSubject;
+			});
+
+			const total = filtered.length;
+			const totalPages = Math.max(1, Math.ceil(total / pageSize));
+			if (page > totalPages) page = totalPages;
+			const start = (page - 1) * pageSize;
+			const pageData = filtered.slice(start, start + pageSize);
+
+			if (pageData.length === 0) {
+				$('#tableBody').html(`<tr><td colspan="14"><div class="empty-state"><i class="fas fa-user-graduate"></i><h3>No Students Found</h3><p>Add students or adjust your search</p></div></td></tr>`);
+			} else {
+				$('#tableBody').html(pageData.map((s, idx) => {
+					const globalIdx = students.indexOf(s);
+					const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+					const genderClass = s.gender === 'Female' ? 'female' : 'male';
+					const avatarContent = s.photo ? `<img src="${s.photo}" alt="${s.name}">` : initials;
+					const removeBtn = s.photo ? `<button class="remove-photo-btn" onclick="event.stopPropagation(); removePhoto(${globalIdx})" title="Remove photo"><i class="fas fa-times"></i></button>` : '';
+					return `
+						<tr data-idx="${globalIdx}">
+							<td class="checkbox-cell"><input type="checkbox" class="custom-checkbox row-check" data-id="${s.id}" ${selected.has(s.id) ? 'checked' : ''}></td>
+							<td>
+								<div class="avatar-wrapper">
+									<div class="avatar ${genderClass}" onclick="triggerPhotoUpload(${globalIdx})" title="Click to upload photo">
+										${avatarContent}
+										<div class="upload-overlay"><i class="fas fa-camera"></i></div>
+									</div>
+									${removeBtn}
+								</div>
+							</td>
+							<td><span class="student-id">${s.id}</span></td>
+							<td><div class="editable-cell" data-field="name" data-idx="${globalIdx}">${s.name}</div></td>
+							<td><div class="editable-cell" data-field="gender" data-idx="${globalIdx}" data-type="select"><span class="gender-badge ${genderClass}">${s.gender}</span></div></td>
+							<td><div class="editable-cell" data-field="class" data-idx="${globalIdx}">${s.class}</div></td>
+							<td><div class="editable-cell" data-field="section" data-idx="${globalIdx}" data-type="select">${s.section}</div></td>
+							<td><div class="editable-cell" data-field="parent" data-idx="${globalIdx}">${s.parent || '-'}</div></td>
+							<td><div class="editable-cell" data-field="address" data-idx="${globalIdx}">${s.address || '-'}</div></td>
+							<td><div class="editable-cell" data-field="dob" data-idx="${globalIdx}" data-type="date">${s.dob || '-'}</div></td>
+							<td><div class="editable-cell" data-field="joiningDate" data-idx="${globalIdx}" data-type="date">${s.joiningDate || '-'}</div></td>
+							<td><div class="editable-cell" data-field="bloodGroup" data-idx="${globalIdx}" data-type="select">${s.bloodGroup || '-'}</div></td>
+							<td><span class="status-badge ${s.status === 'Active' ? 'active' : 'inactive'}" onclick="toggleStatus(${globalIdx})">${s.status}</span></td>
+							<td>
+								<div class="action-btns">
+									<button class="action-btn edit" title="Edit Student" onclick="openEditStudentModal(${globalIdx})"><i class="fas fa-edit"></i></button>
+									${s.documents && s.documents.length > 0 ? `<button class="action-btn view" title="View Documents (${s.documents.length})" onclick="viewStudentDocuments(${globalIdx})"><i class="fas fa-file-alt"></i></button>` : ''}
+									<button class="action-btn delete" title="Delete" onclick="deleteStudent(${globalIdx})"><i class="fas fa-trash"></i></button>
+								</div>
+					</td>
+						</tr>
+					`;
+				}).join(''));
+			}
+
+			$('#pageInfo').text(`Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} students`);
+			$('#pageNum').text(page);
+			$('#prevBtn').prop('disabled', page <= 1);
+			$('#nextBtn').prop('disabled', page >= totalPages);
+			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
+			$('#selectAll').prop('checked', pageData.length > 0 && pageData.every(s => selected.has(s.id)));
+		}
+
+		// Inline Editing
+		$(document).on('click', '#tableBody .editable-cell', function(e) {
+			const $cell = $(this);
+			if ($cell.hasClass('editing')) return;
+
+			const idx = parseInt($cell.data('idx'));
+			const field = $cell.data('field');
+			const type = $cell.data('type') || 'text';
+			const currentValue = students[idx][field] || '';
+
+			$cell.addClass('editing');
+
+			if (type === 'select' && field === 'gender') {
+				$cell.html(`<select><option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Female</option></select>`);
+			} else if (type === 'select' && field === 'section') {
+				$cell.html(`<select><option value="A" ${currentValue === 'A' ? 'selected' : ''}>A</option><option value="B" ${currentValue === 'B' ? 'selected' : ''}>B</option><option value="C" ${currentValue === 'C' ? 'selected' : ''}>C</option><option value="Science" ${currentValue === 'Science' ? 'selected' : ''}>Science</option></select>`);
+			} else if (type === 'select' && field === 'bloodGroup') {
+				const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+				const options = bloodGroups.map(bg => `<option value="${bg}" ${currentValue === bg ? 'selected' : ''}>${bg}</option>`).join('');
+				$cell.html(`<select><option value="">-</option>${options}</select>`);
+			} else if (type === 'date') {
+				const dateVal = currentValue && currentValue !== '-' ? formatDateForInput(currentValue) : '';
+				$cell.html(`<input type="date" value="${dateVal}">`);
+			} else {
+				$cell.html(`<input type="text" value="${currentValue === '-' ? '' : currentValue}">`);
+			}
+
+			const $input = $cell.find('input, select');
+			$input.focus();
+			if ($input.is('input[type="text"]')) {
+				$input.select();
+			}
+
+			function saveEdit() {
+				let newValue = $input.val().trim();
+				if (type === 'date' && newValue) {
+					newValue = formatDateForDisplay(newValue);
+				}
+				students[idx][field] = newValue || '-';
+				saveStudents();
+				renderTable();
+				renderStats();
+				notify('Saved!', 'success');
+			}
+
+			$input.off('blur keydown').on('blur', saveEdit).on('keydown', function(e) {
+				if (e.key === 'Enter') { 
+					$(this).blur(); 
+				}
+				if (e.key === 'Escape') { 
+					renderTable(); 
+				}
+			});
+		});
+
+		// Photo Upload - make globally accessible
+		window.triggerPhotoUpload = function(idx) {
+			currentUploadIdx = idx;
+			$('#photoUpload').click();
+		};
+
+		$('#photoUpload').on('change', function(e) {
+			const file = this.files[0];
+			if (!file || currentUploadIdx < 0) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				notify('Photo must be less than 2MB', 'error');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				students[currentUploadIdx].photo = event.target.result;
+				saveStudents();
+				renderTable();
+				notify('Photo uploaded!', 'success');
+			};
+			reader.readAsDataURL(file);
+			$(this).val('');
+		});
+
+		// Remove Photo - make globally accessible
+		window.removePhoto = function(idx) {
+			if (!confirm('Remove this photo?')) return;
+			students[idx].photo = '';
+			saveStudents();
+			renderTable();
+			notify('Photo removed!', 'success');
+		};
+
+		function formatDateForInput(dateStr) {
+			if (!dateStr || dateStr === '-') return '';
+			const parts = dateStr.split('/');
+			if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+			return dateStr;
+		}
+
+		function formatDateForDisplay(dateStr) {
+			if (!dateStr) return '-';
+			const d = new Date(dateStr);
+			if (isNaN(d)) return dateStr;
+			return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+		}
+
+		// Make globally accessible for onclick handlers
+		window.toggleStatus = function(idx) {
+			students[idx].status = students[idx].status === 'Active' ? 'Inactive' : 'Active';
+			saveStudents();
+			renderTable();
+			renderStats();
+		};
+
+		window.deleteStudent = function(idx) {
+			const student = students[idx];
+			const studentName = student.name || 'this student';
+			const studentId = student.id || '';
+
+			const confirmMessage = `⚠️ Are you sure you want to delete "${studentName}" (${studentId})?\n\n` +
+				`This action cannot be undone and will permanently remove:\n` +
+				`• Student record\n` +
+				`• All associated data\n\n` +
+				`Click OK to confirm deletion, or Cancel to abort.`;
+
+			if (!confirm(confirmMessage)) {
+				notify('Deletion cancelled', 'info');
+				return;
+			}
+
+			// Use backend API if available
+			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
+				EduManageApp.Students.delete(studentId,
+					function(response) {
+						notify(`Student "${studentName}" deleted successfully!`, 'success');
+						loadStudents(); // Reload from backend
+					},
+					function(error) {
+						notify(error.message || 'Failed to delete student', 'error');
+					}
+				);
+			} else {
+				// Fallback to localStorage
+				students.splice(idx, 1);
+				saveStudents();
+				renderTable();
+				renderStats();
+				notify(`Student "${studentName}" deleted successfully!`, 'success');
+			}
+		};
+
+		let editingStudentIndex = -1;
+		let modalPhotoPreview = '';
+
+		// Document management
+		let documentRowCounter = 0;
+		let studentDocuments = [];
+		let documentsCache = {}; // Cache for document data to avoid escaping issues
+
+		function addDocumentRow(existingDoc = null) {
+			const docId = existingDoc ? existingDoc.id : 'doc_' + Date.now() + '_' + (documentRowCounter++);
+			const isExisting = !!existingDoc;
+			
+			const docRow = `
+				<div class="document-row ${isExisting ? 'existing' : ''}" data-doc-id="${docId}">
+					<div class="document-field">
+						<label>Document Name <span style="color:#ef4444">*</span></label>
+						<input type="text" class="doc-name-input" placeholder="e.g., Birth Certificate" 
+							value="${existingDoc ? (existingDoc.name || '') : ''}" required>
+					</div>
+					<div class="document-field">
+						<label>Document Type <span style="color:#ef4444">*</span></label>
+						<select class="doc-type-select" required>
+							<option value="">Select Type</option>
+							<option value="Birth Certificate" ${existingDoc && existingDoc.type === 'Birth Certificate' ? 'selected' : ''}>Birth Certificate</option>
+							<option value="Transfer Certificate (TC)" ${existingDoc && existingDoc.type === 'Transfer Certificate (TC)' ? 'selected' : ''}>Transfer Certificate (TC)</option>
+							<option value="Aadhaar Card" ${existingDoc && existingDoc.type === 'Aadhaar Card' ? 'selected' : ''}>Aadhaar Card</option>
+							<option value="Community Certificate" ${existingDoc && existingDoc.type === 'Community Certificate' ? 'selected' : ''}>Community Certificate</option>
+							<option value="Mark Sheet" ${existingDoc && existingDoc.type === 'Mark Sheet' ? 'selected' : ''}>Mark Sheet</option>
+							<option value="ID Proof" ${existingDoc && existingDoc.type === 'ID Proof' ? 'selected' : ''}>ID Proof</option>
+							<option value="Other" ${existingDoc && existingDoc.type === 'Other' ? 'selected' : ''}>Other</option>
+						</select>
+					</div>
+					<div class="document-field">
+						<label>File Upload</label>
+						<div class="document-file-upload">
+							<input type="file" class="document-file-input" accept=".pdf,.jpg,.jpeg,.png" 
+								data-doc-id="${docId}">
+							<button type="button" class="document-file-btn ${existingDoc && existingDoc.file ? 'has-file' : ''}" 
+								onclick="$(this).siblings('.document-file-input').click()">
+								<i class="fas fa-upload"></i> ${existingDoc && existingDoc.file ? 'Change File' : 'Upload File'}
+							</button>
+							${existingDoc && existingDoc.fileName ? `
+								<div class="document-file-name">
+									<i class="fas fa-check-circle"></i> ${existingDoc.fileName}
+								</div>
+							` : ''}
+						</div>
+					</div>
+					<div class="document-actions">
+						${isExisting && existingDoc.file ? `
+							<button type="button" class="document-action-btn view" onclick="viewDocument('${docId}')" title="View">
+								<i class="fas fa-eye"></i>
+							</button>
+							<button type="button" class="document-action-btn download" onclick="downloadDocument('${docId}')" title="Download">
+								<i class="fas fa-download"></i>
+							</button>
+						` : ''}
+						<button type="button" class="document-action-btn delete" onclick="removeDocumentRow('${docId}')" title="Remove">
+							<i class="fas fa-trash"></i>
+						</button>
+					</div>
+				</div>
+			`;
+			
+			$('#documentsList').append(docRow);
+			
+			// Attach file change handler
+			$(`.document-file-input[data-doc-id="${docId}"]`).on('change', function(e) {
+				handleDocumentUpload(e, docId);
+			});
+		}
+
+		function handleDocumentUpload(event, docId) {
+			const file = event.target.files[0];
+			if (!file) return;
+
+			// Validate file type
+			const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+			if (!allowedTypes.includes(file.type)) {
+				notify('Only PDF, JPG, and PNG files are allowed', 'error');
+				event.target.value = '';
+				return;
+			}
+
+			// Validate file size (5MB max)
+			const maxSize = 5 * 1024 * 1024; // 5MB
+			if (file.size > maxSize) {
+				notify('File size must be less than 5MB', 'error');
+				event.target.value = '';
+				return;
+			}
+
+			// Read file as base64
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				const fileData = e.target.result;
+				const docRow = $(`.document-row[data-doc-id="${docId}"]`);
+				
+				// Update button
+				const btn = docRow.find('.document-file-btn');
+				btn.addClass('has-file');
+				btn.html(`<i class="fas fa-check"></i> ${file.name}`);
+				
+				// Show file name
+				if (docRow.find('.document-file-name').length === 0) {
+					btn.after(`<div class="document-file-name"><i class="fas fa-check-circle"></i> ${file.name}</div>`);
+				} else {
+					docRow.find('.document-file-name').html(`<i class="fas fa-check-circle"></i> ${file.name}`);
+				}
+
+				// Store file data
+				const docIndex = studentDocuments.findIndex(d => d.id === docId);
+				if (docIndex >= 0) {
+					studentDocuments[docIndex].file = fileData;
+					studentDocuments[docIndex].fileName = file.name;
+					studentDocuments[docIndex].fileType = file.type;
+				} else {
+					studentDocuments.push({
+						id: docId,
+						file: fileData,
+						fileName: file.name,
+						fileType: file.type
+					});
+				}
+
+				notify('File uploaded successfully', 'success');
+			};
+			reader.readAsDataURL(file);
+		}
+
+		// Make document functions globally accessible
+		window.removeDocumentRow = function(docId) {
+			if (confirm('Remove this document?')) {
+				$(`.document-row[data-doc-id="${docId}"]`).remove();
+				studentDocuments = studentDocuments.filter(d => d.id !== docId);
+			}
+		};
+
+		window.viewDocument = function(docId) {
+			const doc = studentDocuments.find(d => d.id === docId);
+			if (!doc || !doc.file) {
+				// Try to get from student's documents if editing
+				if (editingStudentIndex >= 0 && students[editingStudentIndex].documents) {
+					const studentDoc = students[editingStudentIndex].documents.find(d => d.id === docId);
+					if (studentDoc && studentDoc.file) {
+						viewDocumentFromModal(docId, studentDoc.file, studentDoc.fileType || 'application/pdf');
+						return;
+					}
+				}
+				notify('Document not found', 'error');
+				return;
+			}
+
+			viewDocumentFromModal(docId, doc.file, doc.fileType || 'application/pdf');
+		}
+
+		window.downloadDocument = function(docId) {
+			const doc = studentDocuments.find(d => d.id === docId);
+			if (!doc || !doc.file) {
+				// Try to get from student's documents if editing
+				if (editingStudentIndex >= 0 && students[editingStudentIndex].documents) {
+					const studentDoc = students[editingStudentIndex].documents.find(d => d.id === docId);
+					if (studentDoc && studentDoc.file) {
+						downloadDocumentFromModal(docId, studentDoc.file, studentDoc.fileName || 'document');
+						return;
+					}
+				}
+				notify('Document not found', 'error');
+				return;
+			}
+
+			downloadDocumentFromModal(docId, doc.file, doc.fileName || 'document');
+		}
+
+		function loadStudentDocuments(student) {
+			studentDocuments = [];
+			$('#documentsList').empty();
+			
+			if (student && student.documents && student.documents.length > 0) {
+				student.documents.forEach(doc => {
+					const docData = {
+						id: doc.id || 'doc_' + Date.now() + '_' + Math.random(),
+						name: doc.name || '',
+						type: doc.type || '',
+						file: doc.file || null,
+						fileName: doc.fileName || null,
+						fileType: doc.fileType || null
+					};
+					studentDocuments.push(docData);
+					addDocumentRow(docData);
+				});
+			}
+		}
+
+		function collectDocumentsData() {
+			const docs = [];
+			$('.document-row').each(function() {
+				const docId = $(this).data('doc-id');
+				const name = $(this).find('.doc-name-input').val().trim();
+				const type = $(this).find('.doc-type-select').val();
+				const doc = studentDocuments.find(d => d.id === docId);
+				
+				// Only include documents with both name and type
+				if (name && type) {
+					// If document has file data, include it; otherwise keep existing file if editing
+					const existingDoc = editingStudentIndex >= 0 && students[editingStudentIndex].documents 
+						? students[editingStudentIndex].documents.find(d => d.id === docId) 
+						: null;
+					
+					docs.push({
+						id: docId,
+						name: name,
+						type: type,
+						file: doc && doc.file ? doc.file : (existingDoc && existingDoc.file ? existingDoc.file : null),
+						fileName: doc && doc.fileName ? doc.fileName : (existingDoc && existingDoc.fileName ? existingDoc.fileName : null),
+						fileType: doc && doc.fileType ? doc.fileType : (existingDoc && existingDoc.fileType ? existingDoc.fileType : null)
+					});
+				}
+			});
+			return docs;
+		}
+
+		function openAddStudentModal() {
+			editingStudentIndex = -1;
+			modalPhotoPreview = '';
+			studentDocuments = [];
+			$('#modalTitle').html('<i class="fas fa-user-plus"></i> Add New Student');
+			$('#studentForm')[0].reset();
+			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+			$('#studentStatus').val('Active');
+			$('#studentBloodGroup').val('');
+			$('#documentsList').empty();
+			$('#studentModal').addClass('show');
+		}
+
+		function closeStudentModal() {
+			$('#studentModal').addClass('closing');
+			setTimeout(() => {
+				$('#studentModal').removeClass('show closing');
+				editingStudentIndex = -1;
+				modalPhotoPreview = '';
+				studentDocuments = [];
+				$('#documentsList').empty();
+			}, 350);
+		}
+
+		// Make closeStudentModal globally accessible
+		window.closeStudentModal = function() {
+			closeStudentModal();
+		};
+
+		function addNewStudent() {
+			openAddStudentModal();
+		}
+
+		// Make saveStudentFromModal globally accessible
+		window.saveStudentFromModal = function() {
+			const name = $('#studentName').val().trim();
+			const gender = $('#studentGender').val();
+			const classVal = $('#studentClass').val();
+			const section = $('#studentSection').val();
+			const parent = $('#studentParent').val().trim();
+			const address = $('#studentAddress').val().trim();
+			const dob = $('#studentDob').val();
+			const joiningDate = $('#studentJoiningDate').val();
+			const bloodGroup = $('#studentBloodGroup').val();
+			const status = $('#studentStatus').val();
+			const photo = modalPhotoPreview;
+
+			if (!name) {
+				notify('Please enter student name', 'error');
+				return;
+			}
+
+			// Validate documents
+			let hasInvalidDoc = false;
+			$('.document-row').each(function() {
+				const docName = $(this).find('.doc-name-input').val().trim();
+				const type = $(this).find('.doc-type-select').val();
+				const docId = $(this).data('doc-id');
+				const doc = studentDocuments.find(d => d.id === docId);
+
+				if (docName && !type) {
+					notify('Please select document type for: ' + docName, 'error');
+					hasInvalidDoc = true;
+					return false;
+				}
+				if (type && !docName) {
+					notify('Please enter document name', 'error');
+					hasInvalidDoc = true;
+					return false;
+				}
+				if (docName && type && !doc) {
+					notify('Please upload file for: ' + docName, 'error');
+					hasInvalidDoc = true;
+					return false;
+				}
+			});
+
+			if (hasInvalidDoc) return;
+
+			// Collect documents data
+			const documents = collectDocumentsData();
+
+			// Prepare student data for API
+			const studentData = {
+				name: name,
+				gender: gender,
+				class: classVal,
+				section: section,
+				parent_name: parent || '',
+				contact: '', // Will need to add contact field to form
+				address: address || '',
+				dob: dob || '',
+				joining_date: joiningDate || '',
+				blood_group: bloodGroup || '',
+				status: status,
+				photo: photo || '',
+				documents: documents
+			};
+
+			// Use backend API if available
+			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
+				if (editingStudentIndex >= 0) {
+					// Update existing student
+					const studentId = students[editingStudentIndex].id;
+					studentData.id = studentId;
+
+					EduManageApp.Students.update(studentData,
+						function(response) {
+							notify('Student updated successfully!', 'success');
+							closeStudentModal();
+							loadStudents(); // Reload from backend
+						},
+						function(error) {
+							notify(error.message || 'Failed to update student', 'error');
+						}
+					);
+				} else {
+					// Create new student
+					EduManageApp.Students.create(studentData,
+						function(response) {
+							notify('New student added successfully!', 'success');
+							closeStudentModal();
+							page = 1;
+							loadStudents(); // Reload from backend
+						},
+						function(error) {
+							notify(error.message || 'Failed to create student', 'error');
+						}
+					);
+				}
+			} else {
+				// Fallback to localStorage
+				if (editingStudentIndex >= 0) {
+					// Update existing student
+					students[editingStudentIndex].name = name;
+					students[editingStudentIndex].gender = gender;
+					students[editingStudentIndex].class = classVal;
+					students[editingStudentIndex].section = section;
+					students[editingStudentIndex].parent = parent || '-';
+					students[editingStudentIndex].address = address || '-';
+					students[editingStudentIndex].dob = dob ? formatDateForDisplay(dob) : '-';
+					students[editingStudentIndex].joiningDate = joiningDate ? formatDateForDisplay(joiningDate) : '-';
+					students[editingStudentIndex].bloodGroup = bloodGroup || '-';
+					students[editingStudentIndex].status = status;
+					if (photo) students[editingStudentIndex].photo = photo;
+					students[editingStudentIndex].documents = documents;
+					notify('Student updated successfully!', 'success');
+				} else {
+					// Add new student
+					const newId = 'STU-' + new Date().getFullYear() + '-' + String(students.length + 1).padStart(3, '0');
+					students.unshift({
+						id: newId,
+						name: name,
+						gender: gender,
+						class: classVal,
+						section: section,
+						parent: parent || '-',
+						address: address || '-',
+						dob: dob ? formatDateForDisplay(dob) : '-',
+						joiningDate: joiningDate ? formatDateForDisplay(joiningDate) : '-',
+						bloodGroup: bloodGroup || '-',
+						status: status,
+						photo: photo,
+						documents: documents
+					});
+					notify('New student added successfully!', 'success');
+				}
+
+				saveStudents();
+				page = 1;
+				renderTable();
+				renderStats();
+				closeStudentModal();
+			}
+		};
+
+		function exportCSV() {
+			console.log('Export button clicked');
+			if (!students || !students.length) { 
+				notify('No students to export', 'error'); 
+				return; 
+			}
+			
+			// Get current filter values (same logic as renderTable)
+			const search = $('#searchInput').val() ? $('#searchInput').val().toLowerCase() : '';
+			const classFilter = $('#tableClassFilter').val() || $('#filterClass').val() || '';
+			const sectionFilter = $('#tableSectionFilter').val() || $('#filterSection').val() || '';
+			const statusFilter = $('#tableStatusFilter').val() || '';
+			const genderFilter = $('#tableGenderFilter').val() || $('#filterGender').val() || '';
+			const subjectFilter = $('#filterSubject').val() || '';
+			
+			console.log('Filters:', { search, classFilter, sectionFilter, statusFilter, genderFilter, subjectFilter });
+			
+			// Apply same filtering logic as renderTable
+			let filtered = students.filter(s => {
+				const matchSearch = !search || [s.id, s.name, s.parent, s.address].join(' ').toLowerCase().includes(search);
+				const matchClass = !classFilter || s.class === classFilter;
+				const matchSection = !sectionFilter || s.section === sectionFilter;
+				const matchStatus = !statusFilter || s.status === statusFilter;
+				const matchGender = !genderFilter || s.gender === genderFilter;
+				
+				// For subject filter, check if student has exam marks for that subject
+				let matchSubject = true;
+				if (subjectFilter) {
+					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
+					const hasSubjectMarks = examMarks.some(mark => 
+						mark.studentId === s.id && mark.subjectId === subjectFilter
+					);
+					matchSubject = hasSubjectMarks;
+				}
+				
+				return matchSearch && matchClass && matchSection && matchStatus && matchGender && matchSubject;
+			});
+			
+			console.log('Filtered students count:', filtered.length, 'Total students:', students.length);
+			
+			if (!filtered.length) {
+				notify('No students match the current filters', 'warning');
+				return;
+			}
+			
+			// Build filter description for filename
+			const filterParts = [];
+			if (classFilter) filterParts.push(`Class_${classFilter}`);
+			if (sectionFilter) filterParts.push(`Section_${sectionFilter}`);
+			if (statusFilter) filterParts.push(statusFilter);
+			if (genderFilter) filterParts.push(genderFilter);
+			if (subjectFilter) {
+				try {
+					const subjectMaster = JSON.parse(localStorage.getItem('edu_subject_master') || '[]');
+					const subject = subjectMaster.find(s => s.id === subjectFilter);
+					if (subject) filterParts.push(subject.name.replace(/\s+/g, '_'));
+				} catch(e) {}
+			}
+			if (search) filterParts.push('Search');
+			const filterSuffix = filterParts.length > 0 ? '_' + filterParts.join('_') : '_All';
+			
+			// Export headers including new fields
+			const headers = ['S.No', 'Student ID', 'Name', 'Gender', 'Class', 'Section', 'Parent', 'Address', 'DOB', 'Joining Date', 'Blood Group', 'Status'];
+			let csv = '\uFEFF' + headers.join(',') + '\n';
+			
+			filtered.forEach((s, i) => {
+				csv += [
+					i + 1,
+					s.id,
+					s.name,
+					s.gender,
+					s.class,
+					s.section,
+					s.parent || '-',
+					s.address || '-',
+					s.dob || '-',
+					s.joiningDate || '-',
+					s.bloodGroup || '-',
+					s.status
+				].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
+			});
+			
+			try {
+				const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+				const link = document.createElement('a');
+				link.href = URL.createObjectURL(blob);
+				link.download = `Students${filterSuffix}_${new Date().toISOString().slice(0, 10)}.csv`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				
+				// Clean up the object URL after a delay
+				setTimeout(() => {
+					URL.revokeObjectURL(link.href);
+				}, 100);
+				
+				// Show notification with count
+				const totalCount = students.length;
+				const filteredCount = filtered.length;
+				if (filteredCount < totalCount) {
+					notify(`Exported ${filteredCount} of ${totalCount} students (filtered)`, 'success');
+				} else {
+					notify(`Exported ${filteredCount} students`, 'success');
+				}
+			} catch (error) {
+				console.error('Export error:', error);
+				notify('Export failed: ' + error.message, 'error');
+			}
+		}
+
+		// Event Listeners
+		$('#addStudentBtn').on('click', addNewStudent);
+		$('#fabAddBtn').on('click', addNewStudent);
+		$('#addDocumentBtn').on('click', function() {
+			addDocumentRow();
+		});
+		$('#exportBtn').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			console.log('Export button event triggered');
+			exportCSV();
+		});
+		$('#importBtn').on('click', () => $('#importFile').click());
+		$('#searchInput').on('input', () => { page = 1; renderTable(); });
+		
+		// Table filter handlers
+		$('#tableClassFilter').on('change', function() {
+			const classVal = $(this).val();
+			// Sync with stats filter
+			$('#filterClass').val(classVal);
+			loadSectionsForClass(classVal);
+			loadSubjectsForClass(classVal);
+			// Update table section filter
+			loadTableSectionsForClass(classVal);
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		$('#tableSectionFilter').on('change', function() {
+			const sectionVal = $(this).val();
+			// Sync with stats filter
+			$('#filterSection').val(sectionVal);
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		$('#tableStatusFilter').on('change', function() {
+			page = 1;
+			renderTable();
+		});
+
+		$('#tableGenderFilter').on('change', function() {
+			const genderVal = $(this).val();
+			// Sync with stats filter
+			$('#filterGender').val(genderVal);
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		// Clear all filters
+		$('#clearFiltersBtn').on('click', function() {
+			$('#searchInput').val('');
+			$('#tableClassFilter').val('');
+			$('#tableSectionFilter').val('').html('<option value="">All Sections</option>');
+			$('#tableStatusFilter').val('');
+			$('#tableGenderFilter').val('');
+			$('#filterClass').val('');
+			$('#filterSection').val('').html('<option value="">All</option>');
+			$('#filterSubject').val('').html('<option value="">All</option>');
+			$('#filterGender').val('');
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		// Load sections for table filter
+		function loadTableSectionsForClass(classVal) {
+			const sectionSelect = $('#tableSectionFilter');
+			sectionSelect.html('<option value="">All Sections</option>');
+			
+			if (!classVal) {
+				return;
+			}
+
+			// Get unique sections for the selected class from students
+			const sections = [...new Set(students
+				.filter(s => s.class === classVal)
+				.map(s => s.section)
+				.filter(s => s && s !== '-')
+			)].sort();
+
+			sections.forEach(section => {
+				sectionSelect.append(`<option value="${section}">${section}</option>`);
+			});
+		}
+		$('#prevBtn').on('click', () => { if (page > 1) { page--; renderTable(); } });
+		$('#nextBtn').on('click', () => { page++; renderTable(); });
+		$('#pageSizeSelect').on('change', function() { pageSize = parseInt($(this).val()); page = 1; renderTable(); });
+
+		// Stats filter change handlers
+		$('#filterClass').on('change', function() {
+			const classVal = $(this).val();
+			// Sync with table filter
+			$('#tableClassFilter').val(classVal);
+			loadSectionsForClass(classVal);
+			loadSubjectsForClass(classVal);
+			loadTableSectionsForClass(classVal);
+			$('#filterSection').val('');
+			$('#filterSubject').val('');
+			$('#tableSectionFilter').val('');
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		$('#filterSection').on('change', function() {
+			const sectionVal = $(this).val();
+			// Sync with table filter
+			$('#tableSectionFilter').val(sectionVal);
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		$('#filterSubject').on('change', function() {
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		$('#filterGender').on('change', function() {
+			const genderVal = $(this).val();
+			// Sync with table filter
+			$('#tableGenderFilter').val(genderVal);
+			page = 1;
+			renderTable();
+			renderStats();
+		});
+
+		$('#selectAll').on('change', function() {
+			const search = $('#searchInput').val().toLowerCase();
+			const classFilter = $('#tableClassFilter').val() || $('#filterClass').val() || '';
+			const sectionFilter = $('#tableSectionFilter').val() || $('#filterSection').val() || '';
+			const statusFilter = $('#tableStatusFilter').val() || '';
+			const genderFilter = $('#tableGenderFilter').val() || $('#filterGender').val() || '';
+			const subjectFilter = $('#filterSubject').val() || '';
+			
+			let filtered = students.filter(s => {
+				const matchSearch = !search || [s.id, s.name].join(' ').toLowerCase().includes(search);
+				const matchClass = !classFilter || s.class === classFilter;
+				const matchSection = !sectionFilter || s.section === sectionFilter;
+				const matchStatus = !statusFilter || s.status === statusFilter;
+				const matchGender = !genderFilter || s.gender === genderFilter;
+				
+				let matchSubject = true;
+				if (subjectFilter) {
+					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
+					const hasSubjectMarks = examMarks.some(mark => 
+						mark.studentId === s.id && mark.subjectId === subjectFilter
+					);
+					matchSubject = hasSubjectMarks;
+				}
+				
+				return matchSearch && matchClass && matchSection && matchStatus && matchGender && matchSubject;
+			});
+			const start = (page - 1) * pageSize;
+			const isChecked = $(this).prop('checked');
+			filtered.slice(start, start + pageSize).forEach(s => { 
+				if (isChecked) selected.add(s.id); 
+				else selected.delete(s.id); 
+			});
+			renderTable();
+		});
+
+		$(document).on('change', '#tableBody .row-check', function() {
+			const id = $(this).data('id');
+			if ($(this).prop('checked')) {
+				selected.add(id);
+			} else {
+				selected.delete(id);
+			}
+			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
+		});
+
+		$('#bulkDeleteBtn').on('click', () => {
+			if (selected.size === 0) return;
+			
+			const count = selected.size;
+			const selectedStudents = students.filter(s => selected.has(s.id));
+			const studentNames = selectedStudents.slice(0, 3).map(s => s.name).join(', ');
+			const moreText = count > 3 ? ` and ${count - 3} more` : '';
+			
+			const confirmMessage = `⚠️ Are you sure you want to delete ${count} student(s)?\n\n` +
+				`Students to be deleted:\n` +
+				`• ${studentNames}${moreText}\n\n` +
+				`⚠️ WARNING: This action cannot be undone!\n` +
+				`All student records and associated data will be permanently removed.\n\n` +
+				`Click OK to confirm deletion, or Cancel to abort.`;
+			
+			if (!confirm(confirmMessage)) {
+				notify('Bulk deletion cancelled', 'info');
+				return;
+			}
+			
+			students = students.filter(s => !selected.has(s.id));
+			selected.clear();
+			saveStudents();
+			renderTable();
+			renderStats();
+			notify(`Successfully deleted ${count} student(s)!`, 'success');
+		});
+
+		// Documents Modal - make globally accessible
+		window.viewStudentDocuments = function(idx) {
+			const student = students[idx];
+			if (!student || !student.documents || student.documents.length === 0) {
+				notify('No documents found for this student.', 'error');
+				return;
+			}
+			
+			// Clear cache and store document data
+			documentsCache = {};
+			student.documents.forEach((doc, i) => {
+				const docId = doc.id || `doc_${idx}_${i}`;
+				const fileType = doc.fileType || (doc.type && doc.type.includes('pdf') ? 'application/pdf' : 
+					(doc.type && doc.type.includes('image') ? 'image/jpeg' : 'application/pdf'));
+				const fileData = doc.file || doc.data || '';
+				const fileName = doc.fileName || doc.name || 'document';
+				
+				documentsCache[docId] = {
+					fileData: fileData,
+					fileType: fileType,
+					fileName: fileName
+				};
+			});
+			
+			$('#documentsModalTitle').text(`${student.name} - Documents (${student.documents.length})`);
+			$('#documentsModalBody').html(student.documents.map((doc, i) => {
+				const docId = doc.id || `doc_${idx}_${i}`;
+				const docName = doc.name || 'Document';
+				const docType = doc.type || 'Document';
+				const fileType = documentsCache[docId]?.fileType || 'application/pdf';
+				const isPDF = fileType.includes('pdf');
+				
+				return `
+				<div class="document-item" style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+					<div style="display:flex;align-items:center;gap:12px;flex:1;">
+						<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;">
+							<i class="fas fa-file-${isPDF ? 'pdf' : 'image'}"></i>
+						</div>
+						<div style="flex:1;">
+							<div style="font-weight:600;color:#1e293b;margin-bottom:4px;">${docName}</div>
+							<div style="font-size:12px;color:#64748b;margin-bottom:2px;">Type: ${docType}</div>
+							<div style="font-size:11px;color:#94a3b8;">File: ${documentsCache[docId]?.fileName || 'document'}</div>
+						</div>
+					</div>
+					<div style="display:flex;gap:8px;">
+						<button class="btn btn-primary btn-sm" onclick="viewDocumentFromCache('${docId}')" style="padding:8px 16px;" title="View">
+							<i class="fas fa-eye"></i> View
+						</button>
+						<button class="btn btn-success btn-sm" onclick="downloadDocumentFromCache('${docId}')" style="padding:8px 16px;" title="Download">
+							<i class="fas fa-download"></i> Download
+						</button>
+					</div>
+				</div>
+			`;
+			}).join(''));
+			
+			$('#documentsModal').css('display', 'flex');
+		};
+
+		// View document from cache
+		window.viewDocumentFromCache = function(docId) {
+			const doc = documentsCache[docId];
+			if (!doc || !doc.fileData) {
+				notify('Document not found', 'error');
+				return;
+			}
+			viewDocumentFromModal(docId, doc.fileData, doc.fileType);
+		};
+
+		// Download document from cache
+		window.downloadDocumentFromCache = function(docId) {
+			const doc = documentsCache[docId];
+			if (!doc || !doc.fileData) {
+				notify('Document not found', 'error');
+				return;
+			}
+			downloadDocumentFromModal(docId, doc.fileData, doc.fileName);
+		};
+
+		// View document from modal (for documents list modal)
+		window.viewDocumentFromModal = function(docId, fileData, fileType) {
+			if (!fileData || fileData === 'null' || fileData === 'undefined') {
+				notify('Document file not found', 'error');
+				return;
+			}
+
+			try {
+				const newWindow = window.open('', '_blank', 'width=1200,height=800');
+				if (!newWindow) {
+					notify('Please allow popups to view documents', 'error');
+					return;
+				}
+
+				// Ensure fileData is a proper data URL
+				let dataUrl = fileData;
+				if (!dataUrl.startsWith('data:')) {
+					// If it's base64 without data URL prefix, add it
+					if (fileType && fileType.includes('pdf')) {
+						dataUrl = 'data:application/pdf;base64,' + fileData;
+					} else if (fileType && fileType.includes('image')) {
+						dataUrl = 'data:' + fileType + ';base64,' + fileData;
+					} else {
+						dataUrl = 'data:application/octet-stream;base64,' + fileData;
+					}
+				}
+
+				const isPDF = fileType && (fileType.includes('pdf') || fileType === 'application/pdf') || dataUrl.includes('application/pdf');
+				
+				if (isPDF) {
+					newWindow.document.write(`
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<title>Document Viewer</title>
+							<style>
+								body { margin: 0; padding: 0; overflow: hidden; background: #2d3748; }
+								iframe { width: 100vw; height: 100vh; border: none; }
+							</style>
+						</head>
+						<body>
+							<iframe src="${dataUrl}"></iframe>
+						</body>
+						</html>
+					`);
+				} else {
+					newWindow.document.write(`
+						<!DOCTYPE html>
+						<html>
+						<head>
+							<title>Document Viewer</title>
+							<style>
+								body { margin: 0; padding: 20px; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+								img { max-width: 100%; max-height: 100vh; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+							</style>
+						</head>
+						<body>
+							<img src="${dataUrl}" alt="Document">
+						</body>
+						</html>
+					`);
+				}
+				newWindow.document.close();
+				notify('Document opened in new window', 'success');
+			} catch (error) {
+				notify('Error opening document: ' + error.message, 'error');
+				console.error('View document error:', error);
+			}
+		};
+
+		// Download document from modal (for documents list modal)
+		window.downloadDocumentFromModal = function(docId, fileData, fileName) {
+			if (!fileData || fileData === 'null' || fileData === 'undefined') {
+				notify('Document file not found', 'error');
+				return;
+			}
+
+			try {
+				let blob;
+				let url;
+				
+				if (fileData.startsWith('data:')) {
+					// Already a data URL
+					const byteString = atob(fileData.split(',')[1]);
+					const mimeString = fileData.split(',')[0].split(':')[1].split(';')[0];
+					const ab = new ArrayBuffer(byteString.length);
+					const ia = new Uint8Array(ab);
+					for (let i = 0; i < byteString.length; i++) {
+						ia[i] = byteString.charCodeAt(i);
+					}
+					blob = new Blob([ab], { type: mimeString });
+					url = URL.createObjectURL(blob);
+				} else {
+					// Base64 string without data URL prefix
+					try {
+						const byteString = atob(fileData);
+						const ab = new ArrayBuffer(byteString.length);
+						const ia = new Uint8Array(ab);
+						for (let i = 0; i < byteString.length; i++) {
+							ia[i] = byteString.charCodeAt(i);
+						}
+						// Try to detect MIME type from file extension
+						const ext = fileName.split('.').pop().toLowerCase();
+						const mimeTypes = {
+							'pdf': 'application/pdf',
+							'jpg': 'image/jpeg',
+							'jpeg': 'image/jpeg',
+							'png': 'image/png'
+						};
+						const mimeType = mimeTypes[ext] || 'application/octet-stream';
+						blob = new Blob([ab], { type: mimeType });
+						url = URL.createObjectURL(blob);
+					} catch (e) {
+						// If base64 decode fails, try as direct data URL
+						url = fileData;
+					}
+				}
+
+				// Create download link
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = fileName || 'document';
+				link.style.display = 'none';
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				
+				// Clean up blob URL
+				if (url.startsWith('blob:')) {
+					setTimeout(() => URL.revokeObjectURL(url), 100);
+				}
+				
+				notify('Document downloaded successfully', 'success');
+			} catch (error) {
+				notify('Error downloading document: ' + error.message, 'error');
+				console.error('Download document error:', error);
+			}
+		};
+		
+		function formatFileSize(bytes) {
+			if (!bytes || bytes === 0) return '0 Bytes';
+			const k = 1024;
+			const sizes = ['Bytes', 'KB', 'MB'];
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+			return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+		}
+		
+		window.openDocument = function(data, type) {
+			const newWindow = window.open();
+			if (type === 'application/pdf') {
+				newWindow.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:none;"></iframe>`);
+			} else {
+				newWindow.document.write(`<img src="${data}" style="max-width:100%;height:auto;">`);
+			}
+		};
+
+		// Initialize data
+		loadStudents();
+		
+		// Double-check: if still no students or very few, force generate 100
+		if (!students || students.length < 10) {
+			console.log('Generating 100 demo students... Current count:', students ? students.length : 0);
+			students = generateDemoStudents();
+			saveStudents();
+			console.log('Generated', students.length, 'students successfully');
+		}
+		
+		renderStats();
+		renderTable();
+		// Function to open modal in edit mode (if needed from table)
+		window.openEditStudentModal = function(idx) {
+			try {
+				console.log('Opening edit modal for student index:', idx);
+				const student = students[idx];
+				if (!student) {
+					console.error('Student not found at index:', idx);
+					notify('Student not found', 'error');
+					return;
+				}
+				
+				console.log('Student found:', student);
+				editingStudentIndex = idx;
+				modalPhotoPreview = student.photo || '';
+				$('#modalTitle').html('<i class="fas fa-user-edit"></i> Edit Student');
+				$('#studentForm')[0].reset();
+				$('#studentName').val(student.name || '');
+				$('#studentGender').val(student.gender || 'Male');
+				$('#studentClass').val(student.class || '');
+				$('#studentSection').val(student.section || '');
+				$('#studentParent').val(student.parent || '');
+				$('#studentAddress').val(student.address || '');
+				$('#studentDob').val(student.dob && student.dob !== '-' ? formatDateForInput(student.dob) : '');
+				$('#studentJoiningDate').val(student.joiningDate && student.joiningDate !== '-' ? formatDateForInput(student.joiningDate) : '');
+				$('#studentBloodGroup').val(student.bloodGroup && student.bloodGroup !== '-' ? student.bloodGroup : '');
+				$('#studentStatus').val(student.status || 'Active');
+				
+				if (modalPhotoPreview) {
+					$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
+					$('#removePhotoBtn').show();
+				} else {
+					$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+					$('#removePhotoBtn').hide();
+				}
+				
+				// Load documents
+				loadStudentDocuments(student);
+				
+				$('#studentModal').addClass('show');
+				console.log('Modal opened successfully');
+			} catch (error) {
+				console.error('Error opening edit modal:', error);
+				notify('Error opening edit form: ' + error.message, 'error');
+			}
+		};
+
+		}); // End of $(document).ready()
+
+		// Modal photo upload handler
+		$('#modalPhotoUpload').on('change', function(e) {
+			const file = this.files[0];
+			if (!file) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				notify('Photo must be less than 2MB', 'error');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				modalPhotoPreview = event.target.result;
+				$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
+				$('#removePhotoBtn').show();
+			};
+			reader.readAsDataURL(file);
+		});
+
+		window.removeModalPhoto = function() {
+			modalPhotoPreview = '';
+			$('#modalPhotoUpload').val('');
+			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+			$('#removePhotoBtn').hide();
+		};
+
+		// Close modal when clicking outside
+		$(document).on('click', '#studentModal', function(e) {
+			if ($(e.target).is('#studentModal')) {
+				closeStudentModal();
+			}
+		});
+
+	</script>
+
+	<!-- Add Student Modal -->
+	<div id="studentModal" class="student-modal">
+		<div class="student-modal-content">
+			<div class="modal-header">
+				<h3 id="modalTitle"><i class="fas fa-user-plus"></i> Add New Student</h3>
+				<button type="button" class="modal-close" onclick="window.closeStudentModal()"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<form id="studentForm">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Student Name <span style="color:#ef4444">*</span></label>
+							<input type="text" id="studentName" placeholder="Enter full name" required>
+						</div>
+						<div class="form-group">
+							<label>Gender</label>
+							<select id="studentGender" data-dropdown="gender">
+								<option value="">Select Gender</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Class</label>
+							<select id="studentClass" data-dropdown="class">
+								<option value="">Select Class</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Section</label>
+							<select id="studentSection" data-dropdown="section">
+								<option value="">Select Section</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Parent/Guardian Name</label>
+							<input type="text" id="studentParent" placeholder="Enter parent name">
+						</div>
+						<div class="form-group">
+							<label>Date of Birth</label>
+							<input type="date" id="studentDob">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Joining Date</label>
+							<input type="date" id="studentJoiningDate">
+						</div>
+						<div class="form-group">
+							<label>Blood Group</label>
+							<select id="studentBloodGroup" data-dropdown="blood_group">
+								<option value="">Select Blood Group</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group full-width">
+							<label>Address</label>
+							<input type="text" id="studentAddress" placeholder="Enter address">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Status</label>
+							<select id="studentStatus">
+								<option value="Active">Active</option>
+								<option value="Inactive">Inactive</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Photo</label>
+							<div class="photo-upload-area">
+								<div class="photo-preview" id="modalPhotoPreview">
+									<div class="placeholder">
+										<i class="fas fa-user"></i>
+										<div style="font-size:12px;margin-top:8px;">No Photo</div>
+									</div>
+								</div>
+								<div>
+									<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
+									<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
+										<i class="fas fa-camera"></i> Upload Photo
+									</button>
+									<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
+										<i class="fas fa-trash"></i> Remove
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Student Documents Section -->
+					<div class="documents-section">
+						<div class="documents-section-header">
+							<div class="documents-section-title">
+								<i class="fas fa-file-alt"></i>
+								<span>Student Documents</span>
+							</div>
+							<button type="button" class="btn btn-outline btn-sm" id="addDocumentBtn">
+								<i class="fas fa-plus"></i> Add Document
+							</button>
+						</div>
+						<div class="documents-list" id="documentsList">
+							<!-- Document rows will be added here dynamically -->
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" onclick="window.closeStudentModal()">Cancel</button>
+				<button type="button" class="btn btn-primary" onclick="window.saveStudentFromModal()">
+					<i class="fas fa-save"></i> Save Student
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Documents Modal -->
+	<div id="documentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
+		<div style="background:white;border-radius:16px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+			<div style="padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
+				<h3 id="documentsModalTitle" style="margin:0;font-size:18px;font-weight:700;color:#1e293b;">Documents</h3>
+				<button onclick="$('#documentsModal').hide()" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;">&times;</button>
+			</div>
+			<div id="documentsModalBody" style="padding:20px;"></div>
+		</div>
+	</div>
+</body>
+</html>

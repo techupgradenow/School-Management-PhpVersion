@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd.exe /c \"start C:\\xampp\\xampp-control.exe\")",
+      "Bash(cmd.exe /c \"xcopy /E /Y /I \"\"C:\\Users\\admin\\Documents\\GitHub\\School-Management-PhpVersion\\backend\"\" \"\"C:\\xampp\\htdocs\\School-Management-PhpVersion\\backend\"\"\")",
+      "Bash(powershell -Command:*)",
+      "Bash(curl:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(for file in /c/Users/admin/Documents/GitHub/School-Management-PhpVersion/backend/api/*.php)",
+      "Bash(do php -l:*)",
+      "Bash(grep:*)",
+      "Bash(dir:*)",
+      "Bash(xcopy:*)",
+      "Bash(php:*)"
+    ]
+  }
+}

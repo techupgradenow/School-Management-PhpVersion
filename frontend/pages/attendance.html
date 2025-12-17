@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Attendance</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="../assets/js/app.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+		.btn-outline:hover { border-color: #22c55e; color: #22c55e; }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+		.btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+		}
+		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
+		.stat-icon.red { background: #fef2f2; color: #ef4444; }
+		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+		.filters-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px 24px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			margin-bottom: 24px;
+			display: flex;
+			align-items: center;
+			gap: 16px;
+			flex-wrap: wrap;
+		}
+		.filter-group { display: flex; flex-direction: column; gap: 6px; }
+		.filter-label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+		.filter-input, .filter-select {
+			height: 44px;
+			padding: 0 14px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			min-width: 150px;
+		}
+		.filter-input:focus, .filter-select:focus { outline: none; border-color: #22c55e; }
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.table-toolbar {
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 1px solid #f1f5f9;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.toolbar-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { 
+			background: linear-gradient(135deg, #22c55e, #16a34a);
+			background-color: #22c55e;
+		}
+		.data-table th {
+			padding: 16px 20px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 13px;
+			color: white;
+			text-transform: uppercase;
+			background: linear-gradient(135deg, #22c55e, #16a34a);
+		}
+		.data-table th:first-child { padding-left: 24px; }
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 16px 20px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table td:first-child { padding-left: 24px; }
+
+		.student-id { font-weight: 700; color: #16a34a; }
+		.avatar {
+			width: 44px;
+			height: 44px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			font-size: 16px;
+			color: white;
+			background: linear-gradient(135deg, #60a5fa, #3b82f6);
+		}
+		.student-info { display: flex; align-items: center; gap: 14px; }
+		.student-name { font-weight: 600; color: #1e293b; }
+
+		.attendance-btn {
+			width: 44px;
+			height: 44px;
+			border-radius: 10px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			cursor: pointer;
+			font-size: 18px;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.attendance-btn:hover { transform: scale(1.1); }
+		.attendance-btn.present { background: #dcfce7; border-color: #22c55e; color: #16a34a; }
+		.attendance-btn.absent { background: #fef2f2; border-color: #ef4444; color: #dc2626; }
+		.attendance-btn.late { background: #fffbeb; border-color: #f59e0b; color: #d97706; }
+
+		.attendance-actions { display: flex; gap: 8px; }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+			background: #f8fafc;
+		}
+		.summary-stats { display: flex; gap: 24px; }
+		.summary-item { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+		.summary-dot { width: 12px; height: 12px; border-radius: 50%; }
+		.summary-dot.present { background: #22c55e; }
+		.summary-dot.absent { background: #ef4444; }
+		.summary-dot.late { background: #f59e0b; }
+
+		.empty-state { text-align: center; padding: 60px 20px; }
+		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
+		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
+		.empty-state p { color: #94a3b8; }
+
+		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+		@media (max-width: 768px) {
+			.stats-row { grid-template-columns: 1fr; }
+			.filters-card { flex-direction: column; align-items: stretch; }
+			.filter-group { width: 100%; }
+			.filter-input, .filter-select { width: 100%; }
+		}
+	</style>
+	</head>
+<body>
+	<div class="page attendance-page active">
+		<div class="page-header">
+			<div class="page-title-section">
+				<h1><i class="fas fa-calendar-check" style="color: #22c55e; margin-right: 10px;"></i>Attendance Management</h1>
+				<p>Mark and track daily student attendance</p>
+			</div>
+			<div class="header-actions">
+				<button class="btn btn-outline" id="loadSavedBtn"><i class="fas fa-history"></i> Load Saved</button>
+				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+				<button class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Save Attendance</button>
+			</div>
+		</div>
+
+		<div class="stats-row" id="statsRow"></div>
+
+		<div class="filters-card">
+			<div class="filter-group">
+				<label class="filter-label">Date</label>
+				<input type="date" class="filter-input" id="attendanceDate">
+			</div>
+			<div class="filter-group">
+				<label class="filter-label">Class</label>
+				<select class="filter-select" id="classFilter">
+					<option value="">Select Class</option>
+					<option value="1">Class 1</option>
+					<option value="2">Class 2</option>
+					<option value="3">Class 3</option>
+					<option value="4">Class 4</option>
+					<option value="5">Class 5</option>
+					<option value="6">Class 6</option>
+					<option value="7">Class 7</option>
+					<option value="8">Class 8</option>
+					<option value="9">Class 9</option>
+					<option value="10">Class 10</option>
+					<option value="11">Class 11</option>
+					<option value="12">Class 12</option>
+				</select>
+			</div>
+			<div class="filter-group">
+				<label class="filter-label">Section</label>
+				<select class="filter-select" id="sectionFilter">
+					<option value="">Select Section</option>
+					<option value="A">Section A</option>
+					<option value="B">Section B</option>
+					<option value="C">Section C</option>
+				</select>
+			</div>
+			<div class="filter-group" style="margin-left: auto;">
+				<label class="filter-label">&nbsp;</label>
+				<div style="display: flex; gap: 10px;">
+					<button class="btn btn-success btn-sm" id="markAllPresent"><i class="fas fa-check-double"></i> All Present</button>
+					<button class="btn btn-danger btn-sm" id="markAllAbsent"><i class="fas fa-times"></i> All Absent</button>
+					<button class="btn btn-outline btn-sm" id="clearAll"><i class="fas fa-eraser"></i> Clear</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Edit Hint Banner -->
+		<div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #166534;">
+			<i class="fas fa-lightbulb" style="color: #22c55e; font-size: 16px;"></i>
+			<span><strong>Tip:</strong> Click P/A/L buttons to mark attendance. Use "All Present" or "All Absent" for quick marking. Click "Save" to persist and "Export CSV" to download.</span>
+		</div>
+
+		<div class="table-card">
+			<div class="table-toolbar">
+				<div class="toolbar-title" id="tableTitle">Student Attendance</div>
+				<div class="toolbar-actions">
+					<span style="font-size: 14px; color: #64748b;"><i class="fas fa-info-circle"></i> Click P/A/L to mark attendance</span>
+				</div>
+			</div>
+
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th>S.No</th>
+						<th>Student ID</th>
+						<th>Student</th>
+						<th>Gender</th>
+						<th>Roll No</th>
+						<th style="text-align: center;">Attendance</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+
+			<div class="table-footer">
+				<div class="summary-stats">
+					<div class="summary-item"><div class="summary-dot present"></div><span id="presentCount">0</span> Present</div>
+					<div class="summary-item"><div class="summary-dot absent"></div><span id="absentCount">0</span> Absent</div>
+					<div class="summary-item"><div class="summary-dot late"></div><span id="lateCount">0</span> Late</div>
+				</div>
+				<div style="font-weight: 600; color: #1e293b;">
+					Total: <span id="totalCount">0</span> Students
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		function notify(msg, type = 'success') {
+			document.querySelectorAll('.toast').forEach(t => t.remove());
+			const toast = document.createElement('div');
+			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
+			toast.style.cssText = `position:fixed;bottom:30px;right:30px;padding:16px 24px;background:${bg};color:white;border-radius:12px;font-weight:600;z-index:10000;display:flex;align-items:center;gap:10px;animation:slideIn 0.4s ease;`;
+			toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+			document.body.appendChild(toast);
+			if (!document.getElementById('toastStyle')) {
+				const s = document.createElement('style');
+				s.id = 'toastStyle';
+				s.textContent = `@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}`;
+				document.head.appendChild(s);
+			}
+			setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+		}
+
+		const STUDENTS_KEY = 'edu_students';
+		const ATTENDANCE_KEY = 'edu_attendance';
+
+		// ========== PERMISSIONS (from User Management) ==========
+		let ATT_PERMS = { view: true, edit: true, delete: false };
+		try {
+			const rawPerms = localStorage.getItem('edu_permissions');
+			if (rawPerms) {
+				const perms = JSON.parse(rawPerms);
+				if (perms && perms.attendance) {
+					ATT_PERMS = {
+						view: !!perms.attendance.view,
+						edit: !!perms.attendance.edit,
+						delete: !!perms.attendance.delete
+					};
+				}
+			}
+		} catch(e) {}
+		let students = [];
+		let attendance = {}; // { studentId: 'P' | 'A' | 'L' }
+
+		function loadStudents() {
+			// Try loading from API first
+			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
+				EduManageApp.Students.getList({},
+					function(response) {
+						if (response.data && response.data.students) {
+							students = response.data.students;
+						} else if (response.data && Array.isArray(response.data)) {
+							students = response.data;
+						} else {
+							loadStudentsFromLocalStorage();
+							return;
+						}
+						renderStats();
+						renderTable();
+					},
+					function(error) {
+						console.warn('API not available, using localStorage:', error);
+						loadStudentsFromLocalStorage();
+					}
+				);
+				return;
+			}
+			loadStudentsFromLocalStorage();
+		}
+
+		function loadStudentsFromLocalStorage() {
+			try {
+				const data = localStorage.getItem(STUDENTS_KEY);
+				if (data) students = JSON.parse(data);
+				else {
+					students = [
+						{ id: '#0021', name: 'Mark Willy', gender: 'Male', class: '2', section: 'A' },
+						{ id: '#0022', name: 'Jessia Rose', gender: 'Female', class: '1', section: 'A' },
+						{ id: '#0023', name: 'Rahul Sharma', gender: 'Male', class: '10', section: 'B' },
+						{ id: '#0024', name: 'Priya Patel', gender: 'Female', class: '9', section: 'A' },
+						{ id: '#0025', name: 'Arjun Kumar', gender: 'Male', class: '10', section: 'A' },
+						{ id: '#0026', name: 'Ananya Singh', gender: 'Female', class: '10', section: 'A' },
+						{ id: '#0027', name: 'Rohan Gupta', gender: 'Male', class: '10', section: 'B' },
+						{ id: '#0028', name: 'Sneha Reddy', gender: 'Female', class: '10', section: 'A' }
+					];
+				}
+			} catch (e) { students = []; }
+			renderStats();
+			renderTable();
+		}
+
+		function renderStats() {
+			const present = Object.values(attendance).filter(v => v === 'P').length;
+			const absent = Object.values(attendance).filter(v => v === 'A').length;
+			const late = Object.values(attendance).filter(v => v === 'L').length;
+			const total = present + absent + late;
+			const rate = total > 0 ? Math.round((present / total) * 100) : 0;
+
+			document.getElementById('statsRow').innerHTML = `
+				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div><div class="stat-value">${present}</div><div class="stat-label">Present</div></div></div>
+				<div class="stat-card"><div class="stat-icon red"><i class="fas fa-user-times"></i></div><div><div class="stat-value">${absent}</div><div class="stat-label">Absent</div></div></div>
+				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-clock"></i></div><div><div class="stat-value">${late}</div><div class="stat-label">Late</div></div></div>
+				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-percentage"></i></div><div><div class="stat-value">${rate}%</div><div class="stat-label">Attendance Rate</div></div></div>
+			`;
+
+			document.getElementById('presentCount').textContent = present;
+			document.getElementById('absentCount').textContent = absent;
+			document.getElementById('lateCount').textContent = late;
+		}
+
+		function renderTable() {
+			const classFilter = document.getElementById('classFilter').value;
+			const sectionFilter = document.getElementById('sectionFilter').value;
+
+			let filtered = students.filter(s => {
+				const matchClass = !classFilter || s.class === classFilter;
+				const matchSection = !sectionFilter || s.section === sectionFilter;
+				return matchClass && matchSection;
+			});
+
+			document.getElementById('totalCount').textContent = filtered.length;
+			document.getElementById('tableTitle').textContent = classFilter && sectionFilter ? `Class ${classFilter} - Section ${sectionFilter} Attendance` : 'Student Attendance';
+
+			const tbody = document.getElementById('tableBody');
+			if (filtered.length === 0) {
+				tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-calendar-check"></i><h3>No Students Found</h3><p>Select a class and section to view students</p></div></td></tr>`;
+				return;
+			}
+
+			tbody.innerHTML = filtered.map((s, idx) => {
+				const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+				const status = attendance[s.id] || '';
+				return `
+				<tr>
+						<td>${idx + 1}</td>
+						<td><span class="student-id">${s.id}</span></td>
+						<td><div class="student-info"><div class="avatar">${initials}</div><span class="student-name">${s.name}</span></div></td>
+						<td><span style="padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;background:${s.gender === 'Female' ? '#fce7f3' : '#dbeafe'};color:${s.gender === 'Female' ? '#db2777' : '#2563eb'}">${s.gender}</span></td>
+						<td>${idx + 1}</td>
+						<td>
+							<div class="attendance-actions" style="justify-content: center;">
+								<button class="attendance-btn ${status === 'P' ? 'present' : ''}" data-id="${s.id}" data-status="P" title="Present"><i class="fas fa-check"></i></button>
+								<button class="attendance-btn ${status === 'A' ? 'absent' : ''}" data-id="${s.id}" data-status="A" title="Absent"><i class="fas fa-times"></i></button>
+								<button class="attendance-btn ${status === 'L' ? 'late' : ''}" data-id="${s.id}" data-status="L" title="Late"><i class="fas fa-clock"></i></button>
+						</div>
+					</td>
+					</tr>
+				`;
+			}).join('');
+
+			renderStats();
+		}
+
+		function saveAttendance() {
+			if (!ATT_PERMS.edit) {
+				notify('You have view-only access to Attendance.', 'error');
+				return;
+			}
+			const date = document.getElementById('attendanceDate').value;
+			const classVal = document.getElementById('classFilter').value;
+			const section = document.getElementById('sectionFilter').value;
+
+			if (!date) { notify('Please select a date', 'error'); return; }
+			if (!classVal || !section) { notify('Please select class and section', 'error'); return; }
+
+			const records = {};
+			Object.keys(attendance).forEach(id => { records[id] = attendance[id]; });
+
+			let allAttendance = [];
+			try { allAttendance = JSON.parse(localStorage.getItem(ATTENDANCE_KEY) || '[]'); } catch (e) {}
+
+			const existingIdx = allAttendance.findIndex(a => a.date === date && a.class === classVal && a.section === section);
+			if (existingIdx >= 0) {
+				allAttendance[existingIdx].records = records;
+			} else {
+				allAttendance.push({ date, class: classVal, section, records });
+			}
+
+			localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(allAttendance));
+			notify('Attendance saved successfully!');
+		}
+
+		function loadSavedAttendance() {
+			const date = document.getElementById('attendanceDate').value;
+			const classVal = document.getElementById('classFilter').value;
+			const section = document.getElementById('sectionFilter').value;
+
+			if (!date || !classVal || !section) { notify('Please select date, class and section', 'error'); return; }
+
+			let allAttendance = [];
+			try { allAttendance = JSON.parse(localStorage.getItem(ATTENDANCE_KEY) || '[]'); } catch (e) {}
+
+			const found = allAttendance.find(a => a.date === date && a.class === classVal && a.section === section);
+			if (found) {
+				attendance = { ...found.records };
+				renderTable();
+				notify('Attendance loaded!');
+			} else {
+				notify('No saved attendance found for this date', 'error');
+			}
+		}
+
+		function exportCSV() {
+			const date = document.getElementById('attendanceDate').value;
+			const classVal = document.getElementById('classFilter').value;
+			const section = document.getElementById('sectionFilter').value;
+
+			if (!classVal || !section) { notify('Please select class and section', 'error'); return; }
+
+			let filtered = students.filter(s => s.class === classVal && s.section === section);
+			if (!filtered.length) { notify('No students to export', 'error'); return; }
+
+			const headers = ['S.No', 'Student ID', 'Name', 'Gender', 'Class', 'Section', 'Date', 'Status'];
+			let csv = '\uFEFF' + headers.join(',') + '\n';
+			filtered.forEach((s, i) => {
+				const status = attendance[s.id] === 'P' ? 'Present' : attendance[s.id] === 'A' ? 'Absent' : attendance[s.id] === 'L' ? 'Late' : 'Not Marked';
+				csv += [i + 1, s.id, s.name, s.gender, 'Class ' + s.class, s.section, date || '-', status].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
+			});
+
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `Attendance_Class${classVal}_${section}_${date || 'today'}.csv`;
+			link.click();
+			notify('Exported to Excel!');
+		}
+
+		// Event Listeners
+		document.getElementById('attendanceDate').value = new Date().toISOString().slice(0, 10);
+		document.getElementById('classFilter').addEventListener('change', () => { attendance = {}; renderTable(); });
+		document.getElementById('sectionFilter').addEventListener('change', () => { attendance = {}; renderTable(); });
+		document.getElementById('loadSavedBtn').addEventListener('click', loadSavedAttendance);
+		document.getElementById('exportBtn').addEventListener('click', exportCSV);
+
+		// Only bind editing actions if user has edit permission
+		if (ATT_PERMS.edit) {
+			document.getElementById('saveBtn').addEventListener('click', saveAttendance);
+
+			document.getElementById('markAllPresent').addEventListener('click', () => {
+				const classVal = document.getElementById('classFilter').value;
+				const section = document.getElementById('sectionFilter').value;
+				students.filter(s => (!classVal || s.class === classVal) && (!section || s.section === section)).forEach(s => attendance[s.id] = 'P');
+				renderTable();
+				notify('All marked present!');
+			});
+
+			document.getElementById('markAllAbsent').addEventListener('click', () => {
+				const classVal = document.getElementById('classFilter').value;
+				const section = document.getElementById('sectionFilter').value;
+				students.filter(s => (!classVal || s.class === classVal) && (!section || s.section === section)).forEach(s => attendance[s.id] = 'A');
+				renderTable();
+				notify('All marked absent!');
+			});
+
+			document.getElementById('clearAll').addEventListener('click', () => {
+				attendance = {};
+				renderTable();
+				notify('Attendance cleared!');
+			});
+
+			document.getElementById('tableBody').addEventListener('click', e => {
+				const btn = e.target.closest('.attendance-btn');
+				if (btn) {
+					const id = btn.dataset.id;
+					const status = btn.dataset.status;
+					attendance[id] = status;
+					renderTable();
+				}
+			});
+		} else {
+			// Read-only mode: visually disable editing controls
+			document.getElementById('saveBtn').disabled = true;
+			document.getElementById('markAllPresent').disabled = true;
+			document.getElementById('markAllAbsent').disabled = true;
+			document.getElementById('clearAll').disabled = true;
+			document.getElementById('tableBody').classList.add('read-only');
+		}
+
+		loadStudents();
+		renderStats();
+			renderTable();
+	</script>
+</body>
+</html>

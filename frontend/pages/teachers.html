@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Teachers</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="../assets/js/app.js"></script>
+	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+		.btn-outline:hover { border-color: #8b5cf6; color: #8b5cf6; }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+		}
+		.stat-icon.purple { background: #f3e8ff; color: #8b5cf6; }
+		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
+		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.table-toolbar {
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 1px solid #f1f5f9;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.search-box { position: relative; width: 300px; }
+		.search-box input {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px 0 44px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.search-box input:focus { outline: none; border-color: #8b5cf6; }
+		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { 
+			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+			background-color: #8b5cf6;
+		}
+		.data-table th {
+			padding: 16px 12px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 12px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+		}
+		.data-table th:first-child { padding-left: 20px; }
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 12px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table td:first-child { padding-left: 20px; }
+
+		/* Editable Cells */
+		.editable-cell {
+			cursor: pointer;
+			padding: 8px 12px;
+			border-radius: 6px;
+			transition: all 0.2s;
+			min-height: 36px;
+			display: flex;
+			align-items: center;
+		}
+		.editable-cell:hover {
+			background: #f3e8ff;
+			outline: 2px solid #8b5cf6;
+		}
+		.editable-cell.editing { padding: 0; }
+		.editable-cell input, .editable-cell select {
+			width: 100%;
+			height: 36px;
+			padding: 0 10px;
+			border: 2px solid #8b5cf6;
+			border-radius: 6px;
+			font-size: 14px;
+			background: white;
+		}
+		.editable-cell input:focus, .editable-cell select:focus { outline: none; }
+
+		/* Avatar with Upload */
+		.avatar-wrapper {
+			position: relative;
+			display: inline-block;
+		}
+		.avatar {
+			width: 48px;
+			height: 48px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			font-size: 16px;
+			color: white;
+			overflow: hidden;
+			position: relative;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		.avatar.male { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+		.avatar.female { background: linear-gradient(135deg, #f472b6, #ec4899); }
+		.avatar img { width: 100%; height: 100%; object-fit: cover; }
+		.avatar .upload-overlay {
+			position: absolute;
+			inset: 0;
+			background: rgba(0,0,0,0.6);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 0.3s;
+			border-radius: 50%;
+		}
+		.avatar:hover .upload-overlay { opacity: 1; }
+		.avatar .upload-overlay i { color: white; font-size: 18px; }
+		.remove-photo-btn {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #ef4444;
+			color: white;
+			border: 2px solid white;
+			font-size: 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: all 0.2s;
+			z-index: 10;
+		}
+		.avatar-wrapper:hover .remove-photo-btn { opacity: 1; }
+		.remove-photo-btn:hover { transform: scale(1.2); background: #dc2626; }
+
+		.teacher-info { display: flex; align-items: center; gap: 12px; }
+		.teacher-name { font-weight: 600; color: #1e293b; }
+		.teacher-email { font-size: 12px; color: #64748b; }
+		.teacher-id { font-weight: 700; color: #7c3aed; }
+
+		.subject-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			background: #f3e8ff;
+			color: #7c3aed;
+		}
+		.gender-badge {
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+		.gender-badge.male { background: #dbeafe; color: #2563eb; }
+		.gender-badge.female { background: #fce7f3; color: #db2777; }
+
+		.status-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.status-badge.active { background: #dcfce7; color: #16a34a; }
+		.status-badge.inactive { background: #fef2f2; color: #dc2626; }
+
+		.checkbox-cell { width: 40px; }
+		.custom-checkbox { width: 18px; height: 18px; accent-color: #8b5cf6; cursor: pointer; }
+
+		.action-btns { display: flex; gap: 6px; }
+		.action-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+		.action-btn.edit {
+			background: #eff6ff;
+			color: #3b82f6;
+		}
+		.action-btn.edit:hover {
+			background: #dbeafe;
+		}
+		.action-btn.view { background: #dbeafe; color: #2563eb; }
+		.action-btn.delete { background: #fef2f2; color: #ef4444; }
+		.action-btn:hover { transform: scale(1.1); }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.page-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.page-btn:hover:not(:disabled) { border-color: #8b5cf6; color: #8b5cf6; }
+		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+
+		.fab-btn {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+			color: white;
+			border: none;
+			box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+			cursor: pointer;
+			font-size: 24px;
+			z-index: 100;
+			transition: all 0.3s;
+		}
+		.fab-btn:hover { transform: scale(1.1) rotate(90deg); }
+
+		.empty-state { text-align: center; padding: 60px 20px; }
+		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
+		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
+		.empty-state p { color: #94a3b8; }
+
+		.edit-hint {
+			background: #f3e8ff;
+			border: 1px solid #c4b5fd;
+			border-radius: 8px;
+			padding: 10px 16px;
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 13px;
+			color: #6b21a8;
+		}
+		.edit-hint i { color: #8b5cf6; }
+
+		/* Add Teacher Modal */
+		.teacher-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.5);
+			backdrop-filter: blur(4px);
+			z-index: 10000;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+		.teacher-modal.show {
+			display: flex;
+		}
+		.teacher-modal-content {
+			background: white;
+			border-radius: 16px;
+			width: 90%;
+			max-width: 700px;
+			max-height: 90vh;
+			overflow-y: auto;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+			animation: modalSlideIn 0.3s ease;
+		}
+		@keyframes modalSlideIn {
+			from { opacity: 0; transform: translateY(-20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		.modal-header {
+			padding: 24px;
+			border-bottom: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.modal-header h3 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.modal-header h3 i {
+			color: #8b5cf6;
+		}
+		.modal-close {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: none;
+			background: #f1f5f9;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			color: #64748b;
+		}
+		.modal-close:hover {
+			background: #fef2f2;
+			color: #ef4444;
+		}
+		.modal-body {
+			padding: 24px;
+		}
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-bottom: 16px;
+		}
+		.form-group {
+			margin-bottom: 16px;
+		}
+		.form-group label {
+			display: block;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			margin-bottom: 8px;
+		}
+		.form-group input,
+		.form-group select {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			font-family: inherit;
+		}
+		.form-group input:focus,
+		.form-group select:focus {
+			outline: none;
+			border-color: #8b5cf6;
+		}
+		.form-group.full-width {
+			grid-column: 1 / -1;
+		}
+		.photo-upload-area {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.photo-preview {
+			width: 120px;
+			height: 150px;
+			border: 2px dashed #e2e8f0;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+			background: #f8fafc;
+			position: relative;
+		}
+		.photo-preview img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.photo-preview .placeholder {
+			text-align: center;
+			color: #94a3b8;
+		}
+		.photo-preview .placeholder i {
+			font-size: 48px;
+			margin-bottom: 8px;
+		}
+		.modal-footer {
+			padding: 20px 24px;
+			border-top: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+		.btn-secondary {
+			background: white;
+			border: 2px solid #e2e8f0;
+			color: #64748b;
+		}
+		.btn-secondary:hover {
+			background: #f8fafc;
+			border-color: #cbd5e1;
+		}
+
+		/* Teacher Documents Section */
+		.documents-section {
+			margin-top: 32px;
+			padding-top: 24px;
+			border-top: 2px solid #f1f5f9;
+		}
+		.documents-section-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		.documents-section-title {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 16px;
+			font-weight: 700;
+			color: #1e293b;
+		}
+		.documents-section-title i {
+			color: #8b5cf6;
+			font-size: 18px;
+		}
+		.documents-list {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+		}
+		.document-row {
+			background: #f8fafc;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			padding: 16px;
+			display: grid;
+			grid-template-columns: 1fr 1fr 1fr auto;
+			gap: 12px;
+			align-items: start;
+			transition: all 0.2s;
+		}
+		.document-row:hover {
+			border-color: #cbd5e1;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+		}
+		.document-row.existing {
+			background: #ffffff;
+			border-color: #dbeafe;
+		}
+		.document-field {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+		.document-field label {
+			font-size: 12px;
+			font-weight: 600;
+			color: #64748b;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.document-field input,
+		.document-field select {
+			width: 100%;
+			height: 40px;
+			padding: 0 12px;
+			border: 2px solid #e2e8f0;
+			border-radius: 8px;
+			font-size: 14px;
+			background: white;
+			transition: all 0.2s;
+		}
+		.document-field input:focus,
+		.document-field select:focus {
+			outline: none;
+			border-color: #8b5cf6;
+			box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+		}
+		.document-file-upload {
+			position: relative;
+		}
+		.document-file-input {
+			position: absolute;
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+		.document-file-btn {
+			width: 100%;
+			height: 40px;
+			padding: 0 12px;
+			border: 2px solid #e2e8f0;
+			border-radius: 8px;
+			background: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			font-size: 13px;
+			font-weight: 600;
+			color: #64748b;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+		.document-file-btn:hover {
+			border-color: #8b5cf6;
+			color: #8b5cf6;
+			background: #f3e8ff;
+		}
+		.document-file-btn.has-file {
+			border-color: #16a34a;
+			color: #16a34a;
+			background: #f0fdf4;
+		}
+		.document-file-name {
+			font-size: 12px;
+			color: #16a34a;
+			margin-top: 4px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.document-file-name i {
+			font-size: 10px;
+		}
+		.document-actions {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+			align-items: flex-end;
+		}
+		.document-action-btn {
+			width: 36px;
+			height: 36px;
+			border: none;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+		.document-action-btn.view {
+			background: #eff6ff;
+			color: #3b82f6;
+		}
+		.document-action-btn.view:hover {
+			background: #dbeafe;
+		}
+		.document-action-btn.download {
+			background: #f0fdf4;
+			color: #16a34a;
+		}
+		.document-action-btn.download:hover {
+			background: #dcfce7;
+		}
+		.document-action-btn.delete {
+			background: #fef2f2;
+			color: #ef4444;
+		}
+		.document-action-btn.delete:hover {
+			background: #fee2e2;
+		}
+
+		@media (max-width: 768px) {
+			.form-row {
+				grid-template-columns: 1fr;
+			}
+			.document-row {
+				grid-template-columns: 1fr;
+			}
+			.document-actions {
+				flex-direction: row;
+				justify-content: flex-end;
+			}
+			.stats-row { grid-template-columns: 1fr; }
+			.search-box { width: 100%; }
+		}
+		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+	</style>
+</head>
+<body>
+	<div class="page teachers-page active">
+		<div class="page-header">
+			<div class="page-title-section">
+				<h1><i class="fas fa-chalkboard-teacher" style="color: #8b5cf6; margin-right: 10px;"></i>Teacher Management</h1>
+				<p>Manage all teacher records - Click any cell to edit inline</p>
+			</div>
+			<div class="header-actions">
+				<input type="file" id="importFile" accept=".csv" style="display: none;">
+				<button class="btn btn-primary" id="addTeacherBtn"><i class="fas fa-plus"></i> Add Teacher</button>
+				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
+				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+			</div>
+		</div>
+
+		<div class="edit-hint">
+			<i class="fas fa-lightbulb"></i>
+			<span><strong>Tip:</strong> Click on any cell to edit directly. Click on the avatar to upload a photo. Changes are auto-saved.</span>
+		</div>
+
+		<div class="stats-row" id="statsRow"></div>
+
+		<div class="table-card">
+			<div class="table-toolbar">
+				<div class="search-box">
+					<i class="fas fa-search"></i>
+					<input type="text" id="searchInput" placeholder="Search teachers...">
+				</div>
+				<div class="toolbar-actions">
+					<select id="subjectFilter" class="page-select" style="min-width: 150px;" data-dropdown="subject">
+						<option value="">All Subjects</option>
+					</select>
+					<select id="designationFilter" class="page-select" style="min-width: 150px;" data-dropdown="designation">
+						<option value="">All Designations</option>
+					</select>
+					<button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+						<i class="fas fa-trash"></i> Delete Selected
+					</button>
+				</div>
+		</div>
+
+			<!-- Hidden file input for photo upload -->
+			<input type="file" id="photoUpload" accept="image/*" style="display: none;">
+
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
+						<th>Photo</th>
+						<th>Teacher ID</th>
+						<th>Name</th>
+						<th>Gender</th>
+						<th>Subject</th>
+						<th>Email</th>
+						<th>Phone</th>
+						<th>Experience</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+
+			<div class="table-footer">
+				<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 teachers</div>
+				<div class="pagination-btns">
+					<button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+					<span id="pageNum" style="padding: 0 12px; font-weight: 600;">1</span>
+					<button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+					<select class="page-select" id="pageSizeSelect">
+						<option value="10">10 / page</option>
+						<option value="20">20 / page</option>
+						<option value="50">50 / page</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<button class="fab-btn" id="fabAddBtn" title="Add New Teacher"><i class="fas fa-plus"></i></button>
+
+	<script>
+		$(document).ready(function() {
+		// Initialize Dynamic Dropdowns
+		initDynamicDropdowns();
+
+		function initDynamicDropdowns() {
+			DynamicDropdown.loadAll(function(dropdowns) {
+				// Populate filter dropdowns
+				populateDropdown('#subjectFilter', 'subject', 'All Subjects');
+				populateDropdown('#designationFilter', 'designation', 'All Designations');
+				// Populate form dropdowns
+				populateDropdown('#teacherGender', 'gender', 'Select Gender');
+				populateDropdown('#teacherSubject', 'subject', 'Select Subject');
+			});
+		}
+
+		function populateDropdown(selector, categoryKey, placeholder) {
+			DynamicDropdown.getValues(categoryKey, function(values) {
+				var $select = $(selector);
+				var currentVal = $select.val();
+				$select.empty();
+				$select.append($('<option>', { value: '', text: placeholder }));
+				$.each(values, function(i, item) {
+					$select.append($('<option>', { value: item.value, text: item.value }));
+				});
+				if (currentVal) $select.val(currentVal);
+			});
+		}
+
+		function notify(msg, type = 'success') {
+			$('.toast').remove();
+			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#8b5cf6';
+			const icon = type === 'success' ? 'check-circle' : 'info-circle';
+			const toast = $('<div>').addClass('toast').css({
+				position: 'fixed',
+				bottom: '30px',
+				right: '30px',
+				padding: '14px 20px',
+				background: bg,
+				color: 'white',
+				borderRadius: '10px',
+				fontWeight: '600',
+				zIndex: '10000',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				animation: 'slideIn 0.3s ease',
+				fontFamily: "'Segoe UI', sans-serif",
+				fontSize: '14px'
+			}).html(`<i class="fas fa-${icon}"></i> ${msg}`);
+			
+			$('body').append(toast);
+			
+			if ($('#toastStyle').length === 0) {
+				$('<style>').attr('id', 'toastStyle').text('@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}').appendTo('head');
+			}
+			
+			setTimeout(() => {
+				toast.css('opacity', '0');
+				setTimeout(() => toast.remove(), 300);
+			}, 2500);
+		}
+
+		const STORAGE_KEY = 'edu_teachers';
+		let teachers = [];
+		let page = 1, pageSize = 10;
+		let selected = new Set();
+		let currentUploadIdx = -1;
+
+		function generateDemoTeachers() {
+			const firstNames = {
+				Male: ['Rajesh', 'Amit', 'Vikram', 'Karan', 'Arjun', 'Rohan', 'Siddharth', 'Aryan', 'Aditya', 'Pranav', 'Krishna', 'Dhruv', 'Vishal', 'Raj', 'Mohit', 'Ankit', 'Nikhil', 'Yash', 'Sahil', 'Dev'],
+				Female: ['Priya', 'Ananya', 'Sneha', 'Neha', 'Pooja', 'Kavya', 'Isha', 'Anjali', 'Divya', 'Meera', 'Riya', 'Sakshi', 'Shreya', 'Aanya', 'Kriti', 'Avni', 'Tanvi', 'Aditi', 'Ishita', 'Disha']
+			};
+			const lastNames = ['Sharma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Reddy', 'Nair', 'Iyer', 'Malhotra', 'Verma', 'Das', 'Mehta', 'Chopra', 'Bansal', 'Agarwal', 'Jain', 'Shah', 'Rao', 'Pandey', 'Joshi'];
+			const subjects = ['Mathematics', 'English', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'History', 'Geography', 'Economics', 'Hindi', 'Sanskrit', 'Physical Education', 'Art', 'Music'];
+			
+			const demoTeachers = [];
+			const currentYear = new Date().getFullYear();
+			
+			for (let i = 1; i <= 20; i++) {
+				const gender = i % 2 === 0 ? 'Female' : 'Male';
+				const firstName = firstNames[gender][Math.floor(Math.random() * firstNames[gender].length)];
+				const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+				const name = `${gender === 'Male' && i <= 3 ? 'Dr. ' : ''}${firstName} ${lastName}`;
+				const subject = subjects[Math.floor(Math.random() * subjects.length)];
+				const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@school.edu`;
+				const phone = `+91 ${9}${Math.floor(Math.random() * 9)}${Math.floor(10000000 + Math.random() * 90000000)}`;
+				const experience = Math.floor(Math.random() * 25) + 2; // 2-26 years
+				const status = Math.random() > 0.15 ? 'Active' : 'Inactive';
+				const id = `TCH-${currentYear}-${String(i).padStart(3, '0')}`;
+				
+				demoTeachers.push({
+					id: id,
+					name: name,
+					gender: gender,
+					subject: subject,
+					email: email,
+					phone: phone,
+					experience: experience,
+					status: status,
+					photo: ''
+				});
+			}
+			
+			return demoTeachers;
+		}
+
+		function loadTeachers() {
+			// Load teachers from backend API
+			if (typeof EduManageApp !== 'undefined' && EduManageApp.Teachers) {
+				EduManageApp.Teachers.getList({ page: page, perPage: 1000 },
+					function(response) {
+						// Success callback
+						if (response.data && Array.isArray(response.data)) {
+							teachers = response.data;
+							renderStats();
+							renderTable();
+						} else if (response.data && response.data.teachers) {
+							teachers = response.data.teachers;
+							renderStats();
+							renderTable();
+						} else {
+							loadTeachersFromLocalStorage();
+						}
+					},
+					function(error) {
+						// Error callback - fallback to localStorage
+						console.warn('API not available, using localStorage:', error);
+						loadTeachersFromLocalStorage();
+					}
+				);
+			} else {
+				// Fallback to localStorage
+				loadTeachersFromLocalStorage();
+			}
+		}
+
+		function loadTeachersFromLocalStorage() {
+			try {
+				const data = localStorage.getItem(STORAGE_KEY);
+				if (data && data !== '[]' && data.trim() !== '' && data !== 'null') {
+					const parsed = JSON.parse(data);
+					if (Array.isArray(parsed) && parsed.length >= 10) {
+						teachers = parsed;
+					} else {
+						teachers = generateDemoTeachers();
+						saveTeachers();
+					}
+				} else {
+					teachers = generateDemoTeachers();
+					saveTeachers();
+				}
+			} catch (e) {
+				console.log('Error loading teachers, generating demo data:', e);
+				teachers = generateDemoTeachers();
+				saveTeachers();
+			}
+			renderStats();
+			renderTable();
+		}
+
+		function saveTeachers() { localStorage.setItem(STORAGE_KEY, JSON.stringify(teachers)); }
+
+		function renderStats() {
+			const total = teachers.length;
+			const active = teachers.filter(t => t.status === 'Active').length;
+			const male = teachers.filter(t => t.gender === 'Male').length;
+			const avgExp = teachers.length ? Math.round(teachers.reduce((a, t) => a + (t.experience || 0), 0) / teachers.length) : 0;
+			$('#statsRow').html(`
+				<div class="stat-card"><div class="stat-icon purple"><i class="fas fa-users"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">Total Teachers</div></div></div>
+				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div><div class="stat-value">${active}</div><div class="stat-label">Active Teachers</div></div></div>
+				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-male"></i></div><div><div class="stat-value">${male}</div><div class="stat-label">Male Teachers</div></div></div>
+				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-award"></i></div><div><div class="stat-value">${avgExp} yrs</div><div class="stat-label">Avg. Experience</div></div></div>
+			`);
+		}
+
+		function renderTable() {
+			const search = $('#searchInput').val().toLowerCase();
+			const subjectFilter = $('#subjectFilter').val();
+			let filtered = teachers.filter(t => {
+				const matchSearch = !search || [t.id, t.name, t.email, t.subject].join(' ').toLowerCase().includes(search);
+				const matchSubject = !subjectFilter || t.subject === subjectFilter;
+				return matchSearch && matchSubject;
+			});
+
+			const total = filtered.length;
+			const totalPages = Math.max(1, Math.ceil(total / pageSize));
+			if (page > totalPages) page = totalPages;
+			const start = (page - 1) * pageSize;
+			const pageData = filtered.slice(start, start + pageSize);
+			if (pageData.length === 0) {
+				$('#tableBody').html(`<tr><td colspan="11"><div class="empty-state"><i class="fas fa-chalkboard-teacher"></i><h3>No Teachers Found</h3><p>Add teachers or adjust your search</p></div></td></tr>`);
+			} else {
+				$('#tableBody').html(pageData.map((t, idx) => {
+					const globalIdx = teachers.indexOf(t);
+					const initials = t.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+					const genderClass = t.gender === 'Female' ? 'female' : 'male';
+					const avatarContent = t.photo ? `<img src="${t.photo}" alt="${t.name}">` : initials;
+					const removeBtn = t.photo ? `<button class="remove-photo-btn" onclick="event.stopPropagation(); removePhoto(${globalIdx})" title="Remove photo"><i class="fas fa-times"></i></button>` : '';
+					return `
+						<tr data-idx="${globalIdx}">
+							<td class="checkbox-cell"><input type="checkbox" class="custom-checkbox row-check" data-id="${t.id}" ${selected.has(t.id) ? 'checked' : ''}></td>
+							<td>
+								<div class="avatar-wrapper">
+									<div class="avatar ${genderClass}" onclick="triggerPhotoUpload(${globalIdx})" title="Click to upload photo">
+										${avatarContent}
+										<div class="upload-overlay"><i class="fas fa-camera"></i></div>
+									</div>
+									${removeBtn}
+								</div>
+							</td>
+							<td><span class="teacher-id">${t.id}</span></td>
+							<td><div class="editable-cell" data-field="name" data-idx="${globalIdx}">${t.name}</div></td>
+							<td><div class="editable-cell" data-field="gender" data-idx="${globalIdx}" data-type="select"><span class="gender-badge ${genderClass}">${t.gender}</span></div></td>
+							<td><div class="editable-cell" data-field="subject" data-idx="${globalIdx}" data-type="subject"><span class="subject-badge">${t.subject}</span></div></td>
+							<td><div class="editable-cell" data-field="email" data-idx="${globalIdx}">${t.email || '-'}</div></td>
+							<td><div class="editable-cell" data-field="phone" data-idx="${globalIdx}">${t.phone || '-'}</div></td>
+							<td><div class="editable-cell" data-field="experience" data-idx="${globalIdx}" data-type="number">${t.experience || 0} yrs</div></td>
+							<td><span class="status-badge ${t.status === 'Active' ? 'active' : 'inactive'}" onclick="toggleStatus(${globalIdx})">${t.status}</span></td>
+							<td>
+								<div class="action-btns">
+									<button class="action-btn edit" title="Edit Teacher" onclick="openEditTeacherModal(${globalIdx})"><i class="fas fa-edit"></i></button>
+									${t.documents && t.documents.length > 0 ? `<button class="action-btn view" title="View Documents (${t.documents.length})" onclick="viewTeacherDocuments(${globalIdx})"><i class="fas fa-file-alt"></i></button>` : ''}
+									<button class="action-btn delete" title="Delete" onclick="deleteTeacher(${globalIdx})"><i class="fas fa-trash"></i></button>
+								</div>
+					</td>
+				</tr>
+					`;
+				}).join(''));
+			}
+
+			$('#pageInfo').text(`Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} teachers`);
+			$('#pageNum').text(page);
+			$('#prevBtn').prop('disabled', page <= 1);
+			$('#nextBtn').prop('disabled', page >= totalPages);
+			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
+			$('#selectAll').prop('checked', pageData.length > 0 && pageData.every(t => selected.has(t.id)));
+		}
+
+		// Inline Editing
+		$(document).on('click', '#tableBody .editable-cell', function(e) {
+			const $cell = $(this);
+			if ($cell.hasClass('editing')) return;
+
+			const idx = parseInt($cell.data('idx'));
+			const field = $cell.data('field');
+			const type = $cell.data('type') || 'text';
+			let currentValue = teachers[idx][field] || '';
+			if (field === 'experience') currentValue = parseInt(currentValue) || 0;
+
+			$cell.addClass('editing');
+
+			if (type === 'select' && field === 'gender') {
+				$cell.html(`<select><option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Female</option></select>`);
+			} else if (type === 'subject') {
+				const subjects = ['Mathematics', 'Science', 'English', 'Physics', 'Chemistry', 'Biology', 'History', 'Computer Science'];
+				$cell.html(`<select>${subjects.map(s => `<option value="${s}" ${currentValue === s ? 'selected' : ''}>${s}</option>`).join('')}</select>`);
+			} else if (type === 'number') {
+				$cell.html(`<input type="number" value="${currentValue}" min="0" max="50">`);
+			} else {
+				$cell.html(`<input type="text" value="${currentValue === '-' ? '' : currentValue}">`);
+			}
+
+			const $input = $cell.find('input, select');
+			$input.focus();
+			if ($input.is('input[type="text"]')) {
+				$input.select();
+			}
+
+			function saveEdit() {
+				let newValue = $input.val().trim();
+				if (type === 'number') newValue = parseInt(newValue) || 0;
+				teachers[idx][field] = newValue || (type === 'number' ? 0 : '-');
+				saveTeachers();
+				renderTable();
+				renderStats();
+				notify('Saved!', 'success');
+			}
+
+			$input.off('blur keydown').on('blur', saveEdit).on('keydown', function(e) {
+				if (e.key === 'Enter') { 
+					$(this).blur(); 
+				}
+				if (e.key === 'Escape') { 
+					renderTable(); 
+				}
+			});
+		});
+
+		// Photo Upload - make globally accessible
+		window.triggerPhotoUpload = function(idx) {
+			currentUploadIdx = idx;
+			$('#photoUpload').click();
+		};
+
+		$('#photoUpload').on('change', function(e) {
+			const file = this.files[0];
+			if (!file || currentUploadIdx < 0) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				notify('Photo must be less than 2MB', 'error');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				teachers[currentUploadIdx].photo = event.target.result;
+				saveTeachers();
+				renderTable();
+				notify('Photo uploaded!', 'success');
+			};
+			reader.readAsDataURL(file);
+			$(this).val('');
+		});
+
+		// Remove Photo - make globally accessible
+		window.removePhoto = function(idx) {
+			if (!confirm('Remove this photo?')) return;
+			teachers[idx].photo = '';
+			saveTeachers();
+			renderTable();
+			notify('Photo removed!', 'success');
+		};
+
+		// Make globally accessible for onclick handlers
+		window.toggleStatus = function(idx) {
+			teachers[idx].status = teachers[idx].status === 'Active' ? 'Inactive' : 'Active';
+			saveTeachers();
+			renderTable();
+			renderStats();
+		};
+
+		window.deleteTeacher = function(idx) {
+			if (!confirm(`Delete "${teachers[idx].name}"?`)) return;
+			teachers.splice(idx, 1);
+			saveTeachers();
+			renderTable();
+			renderStats();
+			notify('Teacher deleted!');
+		};
+
+		let editingTeacherIndex = -1;
+		let modalPhotoPreview = '';
+		let teacherDocuments = [];
+		let teacherDocumentRowCounter = 0;
+		let teacherDocumentsCache = {};
+
+		// Teacher Document Management Functions
+		function addTeacherDocumentRow(existingDoc = null) {
+			const docId = existingDoc ? existingDoc.id : 'doc_' + Date.now() + '_' + (teacherDocumentRowCounter++);
+			const isExisting = !!existingDoc;
+			
+			// Store document data in cache for easy access
+			if (existingDoc) {
+				teacherDocumentsCache[docId] = {
+					file: existingDoc.file,
+					fileName: existingDoc.fileName,
+					fileType: existingDoc.fileType,
+					size: existingDoc.size
+				};
+			}
+			
+			const docRow = `
+				<div class="document-row ${isExisting ? 'existing' : ''}" data-doc-id="${docId}">
+					<div class="document-field">
+						<label>Document Name <span style="color:#ef4444">*</span></label>
+						<input type="text" class="doc-name-input" placeholder="e.g., Bachelor's Degree" 
+							value="${existingDoc ? (existingDoc.name || '') : ''}" required>
+					</div>
+					<div class="document-field">
+						<label>Document Type <span style="color:#ef4444">*</span></label>
+						<select class="doc-type-select" required>
+							<option value="">Select Type</option>
+							<option value="Degree Certificate" ${existingDoc && existingDoc.type === 'Degree Certificate' ? 'selected' : ''}>Degree Certificate</option>
+							<option value="Experience Certificate" ${existingDoc && existingDoc.type === 'Experience Certificate' ? 'selected' : ''}>Experience Certificate</option>
+							<option value="Training Certificate" ${existingDoc && existingDoc.type === 'Training Certificate' ? 'selected' : ''}>Training Certificate</option>
+							<option value="ID Proof" ${existingDoc && existingDoc.type === 'ID Proof' ? 'selected' : ''}>ID Proof</option>
+							<option value="Appointment Letter" ${existingDoc && existingDoc.type === 'Appointment Letter' ? 'selected' : ''}>Appointment Letter</option>
+							<option value="Other" ${existingDoc && existingDoc.type === 'Other' ? 'selected' : ''}>Other</option>
+						</select>
+					</div>
+					<div class="document-field">
+						<label>File Upload</label>
+						<div class="document-file-upload">
+							<input type="file" class="document-file-input" accept=".pdf,.jpg,.jpeg,.png" 
+								data-doc-id="${docId}">
+							<button type="button" class="document-file-btn ${existingDoc && existingDoc.file ? 'has-file' : ''}" 
+								onclick="$(this).siblings('.document-file-input').click()">
+								<i class="fas fa-upload"></i> ${existingDoc && existingDoc.file ? 'Change File' : 'Upload File'}
+							</button>
+							${existingDoc && existingDoc.fileName ? `
+								<div class="document-file-name">
+									<i class="fas fa-check-circle"></i> ${existingDoc.fileName}
+								</div>
+							` : ''}
+						</div>
+					</div>
+					<div class="document-actions">
+						${isExisting && existingDoc.file ? `
+							<button type="button" class="document-action-btn view" onclick="viewTeacherDocument('${docId}')" title="View">
+								<i class="fas fa-eye"></i>
+							</button>
+							<button type="button" class="document-action-btn download" onclick="downloadTeacherDocument('${docId}')" title="Download">
+								<i class="fas fa-download"></i>
+							</button>
+						` : ''}
+						<button type="button" class="document-action-btn delete" onclick="removeTeacherDocumentRow('${docId}')" title="Remove">
+							<i class="fas fa-trash"></i>
+						</button>
+					</div>
+				</div>
+			`;
+			
+			$('#teacherDocumentsList').append(docRow);
+			
+			// Attach file change handler
+			$(`.document-file-input[data-doc-id="${docId}"]`).on('change', function(e) {
+				handleTeacherDocumentUpload(e, docId);
+			});
+		}
+
+		function handleTeacherDocumentUpload(event, docId) {
+			const file = event.target.files[0];
+			if (!file) return;
+
+			// Validate file type
+			const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+			if (!allowedTypes.includes(file.type)) {
+				notify('Only PDF, JPG, and PNG files are allowed', 'error');
+				event.target.value = '';
+				return;
+			}
+
+			// Validate file size (5MB max)
+			const maxSize = 5 * 1024 * 1024; // 5MB
+			if (file.size > maxSize) {
+				notify('File size must be less than 5MB', 'error');
+				event.target.value = '';
+				return;
+			}
+
+			// Read file as base64
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				const fileData = e.target.result;
+				const docRow = $(`.document-row[data-doc-id="${docId}"]`);
+				
+				// Update button
+				const btn = docRow.find('.document-file-btn');
+				btn.addClass('has-file');
+				btn.html(`<i class="fas fa-check"></i> ${file.name}`);
+				
+				// Show file name
+				if (docRow.find('.document-file-name').length === 0) {
+					btn.after(`<div class="document-file-name"><i class="fas fa-check-circle"></i> ${file.name}</div>`);
+				} else {
+					docRow.find('.document-file-name').html(`<i class="fas fa-check-circle"></i> ${file.name}`);
+				}
+
+				// Store file data
+				const docIndex = teacherDocuments.findIndex(d => d.id === docId);
+				if (docIndex >= 0) {
+					teacherDocuments[docIndex].file = fileData;
+					teacherDocuments[docIndex].fileName = file.name;
+					teacherDocuments[docIndex].fileType = file.type;
+				} else {
+					teacherDocuments.push({
+						id: docId,
+						file: fileData,
+						fileName: file.name,
+						fileType: file.type
+					});
+				}
+
+				// Update cache
+				teacherDocumentsCache[docId] = {
+					file: fileData,
+					fileName: file.name,
+					fileType: file.type,
+					size: file.size
+				};
+
+				notify('File uploaded successfully', 'success');
+			};
+			reader.readAsDataURL(file);
+		}
+
+		// Make document functions globally accessible
+		window.removeTeacherDocumentRow = function(docId) {
+			if (confirm('Remove this document?')) {
+				$(`.document-row[data-doc-id="${docId}"]`).remove();
+				teacherDocuments = teacherDocuments.filter(d => d.id !== docId);
+				delete teacherDocumentsCache[docId];
+			}
+		};
+
+		window.viewTeacherDocument = function(docId) {
+			let doc = teacherDocuments.find(d => d.id === docId);
+			if (!doc || !doc.file) {
+				// Try to get from teacher's documents if editing
+				if (editingTeacherIndex >= 0 && teachers[editingTeacherIndex].documents) {
+					const teacherDoc = teachers[editingTeacherIndex].documents.find(d => d.id === docId);
+					if (teacherDoc && teacherDoc.file) {
+						viewTeacherDocumentFromCache(docId, teacherDoc.file, teacherDoc.fileType || 'application/pdf');
+						return;
+					}
+				}
+				notify('Document not found', 'error');
+				return;
+			}
+			viewTeacherDocumentFromCache(docId, doc.file, doc.fileType || 'application/pdf');
+		};
+
+		window.downloadTeacherDocument = function(docId) {
+			let doc = teacherDocuments.find(d => d.id === docId);
+			if (!doc || !doc.file) {
+				// Try to get from teacher's documents if editing
+				if (editingTeacherIndex >= 0 && teachers[editingTeacherIndex].documents) {
+					const teacherDoc = teachers[editingTeacherIndex].documents.find(d => d.id === docId);
+					if (teacherDoc && teacherDoc.file) {
+						downloadTeacherDocumentFromCache(docId, teacherDoc.file, teacherDoc.fileName || 'document');
+						return;
+					}
+				}
+				notify('Document not found', 'error');
+				return;
+			}
+			downloadTeacherDocumentFromCache(docId, doc.file, doc.fileName || 'document');
+		};
+
+		function viewTeacherDocumentFromCache(docId, fileData, fileType) {
+			const newWindow = window.open();
+			if (fileType === 'application/pdf') {
+				newWindow.document.write(`<iframe src="${fileData}" style="width:100%;height:100vh;border:none;"></iframe>`);
+			} else {
+				newWindow.document.write(`<img src="${fileData}" style="max-width:100%;height:auto;">`);
+			}
+		}
+
+		function downloadTeacherDocumentFromCache(docId, fileData, fileName) {
+			const link = document.createElement('a');
+			link.href = fileData;
+			link.download = fileName;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		}
+
+		function loadTeacherDocuments(teacher) {
+			teacherDocuments = [];
+			teacherDocumentsCache = {};
+			$('#teacherDocumentsList').empty();
+			
+			if (teacher && teacher.documents && teacher.documents.length > 0) {
+				teacher.documents.forEach(doc => {
+					const docData = {
+						id: doc.id || 'doc_' + Date.now() + '_' + Math.random(),
+						name: doc.name || '',
+						type: doc.type || '',
+						file: doc.file || null,
+						fileName: doc.fileName || null,
+						fileType: doc.fileType || null
+					};
+					teacherDocuments.push(docData);
+					teacherDocumentsCache[docData.id] = {
+						file: docData.file,
+						fileName: docData.fileName,
+						fileType: docData.fileType
+					};
+					addTeacherDocumentRow(docData);
+				});
+			}
+		}
+
+		function collectTeacherDocumentsData() {
+			const docs = [];
+			$('#teacherDocumentsList .document-row').each(function() {
+				const docId = $(this).data('doc-id');
+				const name = $(this).find('.doc-name-input').val().trim();
+				const type = $(this).find('.doc-type-select').val();
+				const doc = teacherDocuments.find(d => d.id === docId);
+				
+				// Only include documents with both name and type
+				if (name && type) {
+					// If document has file data, include it; otherwise keep existing file if editing
+					const existingDoc = editingTeacherIndex >= 0 && teachers[editingTeacherIndex].documents 
+						? teachers[editingTeacherIndex].documents.find(d => d.id === docId) 
+						: null;
+					
+					docs.push({
+						id: docId,
+						name: name,
+						type: type,
+						file: doc && doc.file ? doc.file : (existingDoc && existingDoc.file ? existingDoc.file : null),
+						fileName: doc && doc.fileName ? doc.fileName : (existingDoc && existingDoc.fileName ? existingDoc.fileName : null),
+						fileType: doc && doc.fileType ? doc.fileType : (existingDoc && existingDoc.fileType ? existingDoc.fileType : null)
+					});
+				}
+			});
+			return docs;
+		}
+
+		function openAddTeacherModal() {
+			editingTeacherIndex = -1;
+			modalPhotoPreview = '';
+			teacherDocuments = [];
+			teacherDocumentsCache = {};
+			$('#modalTitle').html('<i class="fas fa-user-plus"></i> Add New Teacher');
+			$('#teacherForm')[0].reset();
+			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+			$('#teacherStatus').val('Active');
+			$('#teacherGender').val('Male');
+			$('#teacherSubject').val('Mathematics');
+			$('#teacherExperience').val('0');
+			$('#removePhotoBtn').hide();
+			$('#teacherDocumentsList').empty();
+			$('#teacherModal').addClass('show');
+		}
+
+		function closeTeacherModal() {
+			$('#teacherModal').removeClass('show');
+			editingTeacherIndex = -1;
+			modalPhotoPreview = '';
+			teacherDocuments = [];
+			teacherDocumentsCache = {};
+			$('#teacherDocumentsList').empty();
+		}
+
+		function addNewTeacher() {
+			openAddTeacherModal();
+		}
+
+		// Make functions globally accessible
+		window.openAddTeacherModal = openAddTeacherModal;
+		window.closeTeacherModal = closeTeacherModal;
+		window.addNewTeacher = addNewTeacher;
+
+		window.saveTeacherFromModal = function() {
+			const name = $('#teacherName').val().trim();
+			const gender = $('#teacherGender').val();
+			const subject = $('#teacherSubject').val();
+			const email = $('#teacherEmail').val().trim();
+			const phone = $('#teacherPhone').val().trim();
+			const experience = parseInt($('#teacherExperience').val()) || 0;
+			const status = $('#teacherStatus').val();
+			const photo = modalPhotoPreview;
+
+			if (!name) {
+				notify('Please enter teacher name', 'error');
+				return;
+			}
+
+			// Validate documents
+			let hasInvalidDoc = false;
+			$('#teacherDocumentsList .document-row').each(function() {
+				const name = $(this).find('.doc-name-input').val().trim();
+				const type = $(this).find('.doc-type-select').val();
+				const docId = $(this).data('doc-id');
+				const doc = teacherDocuments.find(d => d.id === docId);
+				
+				if (name && !type) {
+					notify('Please select document type for: ' + name, 'error');
+					hasInvalidDoc = true;
+					return false;
+				}
+				if (type && !name) {
+					notify('Please enter document name', 'error');
+					hasInvalidDoc = true;
+					return false;
+				}
+				if (name && type && !doc && !(editingTeacherIndex >= 0 && teachers[editingTeacherIndex].documents && teachers[editingTeacherIndex].documents.find(d => d.id === docId))) {
+					notify('Please upload file for: ' + name, 'error');
+					hasInvalidDoc = true;
+					return false;
+				}
+			});
+			
+			if (hasInvalidDoc) return;
+
+			// Collect documents data
+			const documents = collectTeacherDocumentsData();
+
+			if (editingTeacherIndex >= 0) {
+				// Update existing teacher
+				teachers[editingTeacherIndex].name = name;
+				teachers[editingTeacherIndex].gender = gender;
+				teachers[editingTeacherIndex].subject = subject;
+				teachers[editingTeacherIndex].email = email || '-';
+				teachers[editingTeacherIndex].phone = phone || '-';
+				teachers[editingTeacherIndex].experience = experience;
+				teachers[editingTeacherIndex].status = status;
+				if (photo) teachers[editingTeacherIndex].photo = photo;
+				teachers[editingTeacherIndex].documents = documents;
+				notify('Teacher updated successfully!', 'success');
+			} else {
+				// Add new teacher
+				const currentYear = new Date().getFullYear();
+				const newId = `TCH-${currentYear}-${String(teachers.length + 1).padStart(3, '0')}`;
+			teachers.unshift({
+					id: newId,
+					name: name,
+					gender: gender,
+					subject: subject,
+					email: email || '-',
+					phone: phone || '-',
+					experience: experience,
+					status: status,
+					photo: photo,
+					documents: documents
+				});
+				notify('New teacher added successfully!', 'success');
+			}
+
+			saveTeachers();
+			page = 1;
+			renderTable();
+			renderStats();
+			closeTeacherModal();
+		};
+
+		function exportCSV() {
+			if (!teachers.length) { notify('No teachers to export', 'error'); return; }
+			const headers = ['S.No', 'Teacher ID', 'Name', 'Gender', 'Subject', 'Email', 'Phone', 'Experience', 'Status'];
+			let csv = '\uFEFF' + headers.join(',') + '\n';
+			teachers.forEach((t, i) => {
+				csv += [i + 1, t.id, t.name, t.gender, t.subject, t.email || '', t.phone || '', t.experience || 0, t.status].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
+			});
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `Teachers_${new Date().toISOString().slice(0, 10)}.csv`;
+			link.click();
+			notify('Exported to Excel!');
+		}
+
+		// Function to open edit modal
+		window.openEditTeacherModal = function(idx) {
+			try {
+				const teacher = teachers[idx];
+				if (!teacher) {
+					notify('Teacher not found', 'error');
+					return;
+				}
+				
+				editingTeacherIndex = idx;
+				modalPhotoPreview = teacher.photo || '';
+				$('#modalTitle').html('<i class="fas fa-user-edit"></i> Edit Teacher');
+				$('#teacherForm')[0].reset();
+				$('#teacherName').val(teacher.name || '');
+				$('#teacherGender').val(teacher.gender || 'Male');
+				$('#teacherSubject').val(teacher.subject || '');
+				$('#teacherEmail').val(teacher.email && teacher.email !== '-' ? teacher.email : '');
+				$('#teacherPhone').val(teacher.phone && teacher.phone !== '-' ? teacher.phone : '');
+				$('#teacherExperience').val(teacher.experience || 0);
+				$('#teacherStatus').val(teacher.status || 'Active');
+				
+				if (modalPhotoPreview) {
+					$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
+					$('#removePhotoBtn').show();
+				} else {
+					$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+					$('#removePhotoBtn').hide();
+				}
+				
+				// Load documents
+				loadTeacherDocuments(teacher);
+				
+				$('#teacherModal').addClass('show');
+			} catch (error) {
+				console.error('Error opening edit modal:', error);
+				notify('Error opening edit modal', 'error');
+			}
+		};
+
+		// Function to view teacher documents from table
+		window.viewTeacherDocuments = function(idx) {
+			const teacher = teachers[idx];
+			if (!teacher || !teacher.documents || teacher.documents.length === 0) {
+				notify('No documents found for this teacher', 'warning');
+				return;
+			}
+			
+			let html = '<div style="display:grid;gap:12px;">';
+			teacher.documents.forEach((doc, i) => {
+				html += `
+					<div style="padding:16px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+						<div>
+							<div style="font-weight:600;color:#1e293b;margin-bottom:4px;">${doc.name || 'Untitled Document'}</div>
+							<div style="font-size:12px;color:#64748b;">Type: ${doc.type || 'N/A'}</div>
+						</div>
+						<div style="display:flex;gap:8px;">
+							<button onclick="viewTeacherDocumentFromTable(${idx}, '${doc.id}')" style="padding:8px 12px;background:#eff6ff;border:none;border-radius:6px;color:#3b82f6;cursor:pointer;font-size:12px;">
+								<i class="fas fa-eye"></i> View
+							</button>
+							<button onclick="downloadTeacherDocumentFromTable(${idx}, '${doc.id}')" style="padding:8px 12px;background:#f0fdf4;border:none;border-radius:6px;color:#16a34a;cursor:pointer;font-size:12px;">
+								<i class="fas fa-download"></i> Download
+							</button>
+						</div>
+					</div>
+				`;
+			});
+			html += '</div>';
+			
+			$('#documentsModalBody').html(html);
+			$('#documentsModalTitle').text(`Documents - ${teacher.name}`);
+			$('#documentsModal').show();
+		};
+
+		window.viewTeacherDocumentFromTable = function(teacherIdx, docId) {
+			const teacher = teachers[teacherIdx];
+			if (!teacher || !teacher.documents) return;
+			const doc = teacher.documents.find(d => d.id === docId);
+			if (!doc || !doc.file) {
+				notify('Document not found', 'error');
+				return;
+			}
+			viewTeacherDocumentFromCache(docId, doc.file, doc.fileType || 'application/pdf');
+		};
+
+		window.downloadTeacherDocumentFromTable = function(teacherIdx, docId) {
+			const teacher = teachers[teacherIdx];
+			if (!teacher || !teacher.documents) return;
+			const doc = teacher.documents.find(d => d.id === docId);
+			if (!doc || !doc.file) {
+				notify('Document not found', 'error');
+				return;
+			}
+			downloadTeacherDocumentFromCache(docId, doc.file, doc.fileName || 'document');
+		};
+
+		// Event Listeners
+		$('#addTeacherBtn').on('click', addNewTeacher);
+		$('#fabAddBtn').on('click', addNewTeacher);
+		$('#addTeacherDocumentBtn').on('click', function() {
+			addTeacherDocumentRow();
+		});
+		$('#exportBtn').on('click', exportCSV);
+		$('#importBtn').on('click', () => $('#importFile').click());
+		$('#searchInput').on('input', () => { page = 1; renderTable(); });
+		$('#subjectFilter').on('change', () => { page = 1; renderTable(); });
+		$('#prevBtn').on('click', () => { if (page > 1) { page--; renderTable(); } });
+		$('#nextBtn').on('click', () => { page++; renderTable(); });
+		$('#pageSizeSelect').on('change', function() { pageSize = parseInt($(this).val()); page = 1; renderTable(); });
+
+		$('#selectAll').on('change', function() {
+			const search = $('#searchInput').val().toLowerCase();
+			const subjectFilter = $('#subjectFilter').val();
+			let filtered = teachers.filter(t => (!search || [t.id, t.name].join(' ').toLowerCase().includes(search)) && (!subjectFilter || t.subject === subjectFilter));
+			const start = (page - 1) * pageSize;
+			const isChecked = $(this).prop('checked');
+			filtered.slice(start, start + pageSize).forEach(t => { 
+				if (isChecked) selected.add(t.id); 
+				else selected.delete(t.id); 
+			});
+			renderTable();
+		});
+
+		$(document).on('change', '#tableBody .row-check', function() {
+			const id = $(this).data('id');
+			if ($(this).prop('checked')) {
+				selected.add(id);
+			} else {
+				selected.delete(id);
+			}
+			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
+		});
+
+		$('#bulkDeleteBtn').on('click', () => {
+			if (selected.size === 0) return;
+			if (!confirm(`Delete ${selected.size} teachers?`)) return;
+			teachers = teachers.filter(t => !selected.has(t.id));
+			selected.clear();
+			saveTeachers();
+			renderTable();
+			renderStats();
+			notify('Deleted selected teachers!');
+		});
+
+		// Documents Modal - make globally accessible
+		window.viewTeacherDocuments = function(idx) {
+			const teacher = teachers[idx];
+			if (!teacher || !teacher.documents || teacher.documents.length === 0) {
+				notify('No documents found for this teacher.', 'error');
+				return;
+			}
+			
+			$('#documentsModalTitle').text(`${teacher.name} - Documents (${teacher.documents.length})`);
+			$('#documentsModalBody').html(teacher.documents.map((doc, i) => `
+				<div class="document-item" style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+					<div style="display:flex;align-items:center;gap:12px;flex:1;">
+						<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;">
+							<i class="fas fa-file-${doc.type === 'application/pdf' ? 'pdf' : 'image'}"></i>
+						</div>
+						<div style="flex:1;">
+							<div style="font-weight:600;color:#1e293b;margin-bottom:4px;">${doc.name}</div>
+							<div style="font-size:12px;color:#64748b;">${formatFileSize(doc.size || 0)}</div>
+						</div>
+					</div>
+					<button class="btn btn-primary btn-sm" onclick="openDocument('${doc.data}', '${doc.type}')" style="padding:8px 16px;">
+						<i class="fas fa-eye"></i> View
+					</button>
+				</div>
+			`).join(''));
+			
+			$('#documentsModal').css('display', 'flex');
+		};
+		
+		function formatFileSize(bytes) {
+			if (!bytes || bytes === 0) return '0 Bytes';
+			const k = 1024;
+			const sizes = ['Bytes', 'KB', 'MB'];
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+			return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+		}
+		
+		window.openDocument = function(data, type) {
+			const newWindow = window.open();
+			if (type === 'application/pdf') {
+				newWindow.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:none;"></iframe>`);
+			} else {
+				newWindow.document.write(`<img src="${data}" style="max-width:100%;height:auto;">`);
+			}
+		};
+
+		// Initialize data
+		loadTeachers();
+		
+		// Double-check: if still no teachers or very few, force generate 20
+		if (!teachers || teachers.length < 10) {
+			console.log('Generating 20 demo teachers... Current count:', teachers ? teachers.length : 0);
+			teachers = generateDemoTeachers();
+			saveTeachers();
+			console.log('Generated', teachers.length, 'teachers successfully');
+		}
+		
+		renderStats();
+		renderTable();
+
+		// Modal photo upload handler
+		$('#modalPhotoUpload').on('change', function(e) {
+			const file = this.files[0];
+			if (!file) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				notify('Photo must be less than 2MB', 'error');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				modalPhotoPreview = event.target.result;
+				$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
+				$('#removePhotoBtn').show();
+			};
+			reader.readAsDataURL(file);
+		});
+
+		window.removeModalPhoto = function() {
+			modalPhotoPreview = '';
+			$('#modalPhotoUpload').val('');
+			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+			$('#removePhotoBtn').hide();
+		};
+
+		// Close modal when clicking outside
+		$(document).on('click', '#teacherModal', function(e) {
+			if ($(e.target).is('#teacherModal')) {
+				closeTeacherModal();
+			}
+		});
+		}); // End of $(document).ready()
+	</script>
+
+	<!-- Add Teacher Modal -->
+	<div id="teacherModal" class="teacher-modal">
+		<div class="teacher-modal-content">
+			<div class="modal-header">
+				<h3 id="modalTitle"><i class="fas fa-user-plus"></i> Add New Teacher</h3>
+				<button class="modal-close" onclick="closeTeacherModal()"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<form id="teacherForm">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Teacher Name <span style="color:#ef4444">*</span></label>
+							<input type="text" id="teacherName" placeholder="Enter full name" required>
+						</div>
+						<div class="form-group">
+							<label>Gender</label>
+							<select id="teacherGender" data-dropdown="gender">
+								<option value="">Select Gender</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Subject</label>
+							<select id="teacherSubject" data-dropdown="subject">
+								<option value="">Select Subject</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Experience (Years)</label>
+							<input type="number" id="teacherExperience" placeholder="0" min="0" max="50" value="0">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Email</label>
+							<input type="email" id="teacherEmail" placeholder="teacher@school.edu">
+						</div>
+						<div class="form-group">
+							<label>Phone</label>
+							<input type="tel" id="teacherPhone" placeholder="+91 9876543210">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Status</label>
+							<select id="teacherStatus">
+								<option value="Active">Active</option>
+								<option value="Inactive">Inactive</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Photo</label>
+							<div class="photo-upload-area">
+								<div class="photo-preview" id="modalPhotoPreview">
+									<div class="placeholder">
+										<i class="fas fa-user"></i>
+										<div style="font-size:12px;margin-top:8px;">No Photo</div>
+									</div>
+								</div>
+								<div>
+									<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
+									<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
+										<i class="fas fa-camera"></i> Upload Photo
+									</button>
+									<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
+										<i class="fas fa-trash"></i> Remove
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Teacher Documents Section -->
+					<div class="documents-section">
+						<div class="documents-section-header">
+							<div class="documents-section-title">
+								<i class="fas fa-file-alt"></i>
+								<span>Teacher Certificates / Documents</span>
+							</div>
+							<button type="button" class="btn btn-outline btn-sm" id="addTeacherDocumentBtn">
+								<i class="fas fa-plus"></i> Add Document
+							</button>
+						</div>
+						<div class="documents-list" id="teacherDocumentsList">
+							<!-- Document rows will be added here dynamically -->
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" onclick="closeTeacherModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveTeacherFromModal()">
+					<i class="fas fa-save"></i> Save Teacher
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Documents Modal -->
+	<div id="documentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
+		<div style="background:white;border-radius:16px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+			<div style="padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
+				<h3 id="documentsModalTitle" style="margin:0;font-size:18px;font-weight:700;color:#1e293b;">Documents</h3>
+				<button onclick="$('#documentsModal').hide()" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;">&times;</button>
+			</div>
+			<div id="documentsModalBody" style="padding:20px;"></div>
+		</div>
+	</div>
+</body>
+</html>
