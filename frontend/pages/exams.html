@@ -241,10 +241,24 @@
 			width: 800px;
 			max-width: 100%;
 			max-height: 95vh;
-			overflow-y: auto;
+			overflow: visible;
 			animation: modalSlide 0.3s ease;
 			display: flex;
 			flex-direction: column;
+		}
+		.modal-body {
+			overflow-y: auto;
+			overflow-x: visible;
+			max-height: calc(95vh - 160px);
+		}
+		/* Ensure select dropdowns appear above modal */
+		.modal-content select {
+			position: relative;
+			z-index: 1001;
+		}
+		.exam-filter-select {
+			position: relative;
+			z-index: 1002;
 		}
 		@media (max-width: 768px) {
 			.modal-overlay {

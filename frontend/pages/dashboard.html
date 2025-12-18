@@ -3426,7 +3426,9 @@
 				type: 'GET',
 				success: function(response) {
 					if (response.success && response.data) {
-						const students = response.data.slice(0, 5);
+						// Handle both array and object with students property
+						const studentsData = Array.isArray(response.data) ? response.data : (response.data.students || []);
+						const students = studentsData.slice(0, 5);
 						renderRecentStudentsFromAPI(students);
 					}
 				}
@@ -3438,7 +3440,9 @@
 				type: 'GET',
 				success: function(response) {
 					if (response.success && response.data) {
-						const upcomingExams = response.data.filter(exam =>
+						// Handle both array and object with exams property
+						const examsData = Array.isArray(response.data) ? response.data : (response.data.exams || []);
+						const upcomingExams = examsData.filter(exam =>
 							exam.status === 'Scheduled' && new Date(exam.exam_date) >= new Date()
 						).slice(0, 5);
 						renderUpcomingExamsFromAPI(upcomingExams);
@@ -3452,7 +3456,9 @@
 				type: 'GET',
 				success: function(response) {
 					if (response.success && response.data) {
-						renderNotificationsFromAPI(response.data.slice(0, 5));
+						// Handle both array and object with notifications property
+						const notificationsData = Array.isArray(response.data) ? response.data : (response.data.notifications || []);
+						renderNotificationsFromAPI(notificationsData.slice(0, 5));
 					}
 				}
 			});
