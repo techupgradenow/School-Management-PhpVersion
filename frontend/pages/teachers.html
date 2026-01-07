@@ -2,127 +2,300 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Teachers</title>
 	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<script src="../assets/js/app.js"></script>
 	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<script src="../assets/js/permissions.js"></script>
 	<style>
+		/* ============================================ */
+		/* TEACHER PAGE - CLEAN CSS REWRITE            */
+		/* ============================================ */
 		* { box-sizing: border-box; margin: 0; padding: 0; }
 		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
 
+		/* Parent container - fill entire iframe viewport */
+		.teachers-page {
+			position: relative;
+			min-height: 100vh;
+			height: 100vh;
+			overflow: hidden;
+		}
+
+		/* ===== PAGE HEADER ===== */
 		.page-header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 24px;
+			margin-bottom: 20px;
 			flex-wrap: wrap;
-			gap: 16px;
+			gap: 12px;
 		}
-		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-		.page-title-section p { font-size: 14px; color: #64748b; }
-		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.page-title-section h1 {
+			font-size: 22px;
+			font-weight: 700;
+			color: #1e293b;
+			margin-bottom: 4px;
+			display: flex;
+			align-items: center;
+		}
+		.page-title-section p { font-size: 13px; color: #64748b; }
+		.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+		/* ===== BUTTONS ===== */
 		.btn {
-			padding: 12px 20px;
-			border-radius: 10px;
-			font-weight: 600;
-			font-size: 14px;
+			height: 36px;
+			padding: 0 14px;
+			border-radius: 6px;
+			font-weight: 500;
+			font-size: 13px;
 			cursor: pointer;
 			display: inline-flex;
 			align-items: center;
-			gap: 8px;
+			justify-content: center;
+			gap: 6px;
 			transition: all 0.2s;
 			border: none;
+			white-space: nowrap;
 		}
-		.btn-primary { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
-		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
-		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
-		.btn-outline:hover { border-color: #8b5cf6; color: #8b5cf6; }
-		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
-		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-		.btn-sm { padding: 8px 14px; font-size: 13px; }
+		.btn-primary {
+			background: #7c3aed;
+			color: white;
+		}
+		.btn-primary:hover {
+			background: #6d28d9;
+		}
+		.btn-outline {
+			background: #ffffff;
+			border: 1px solid #d1d5db;
+			color: #6b7280;
+			font-size: 12px;
+			height: 34px;
+			padding: 0 12px;
+		}
+		.btn-outline:hover {
+			border-color: #9ca3af;
+			background: #f9fafb;
+		}
+		.btn-success {
+			background: #ffffff;
+			border: 1px solid #d1d5db;
+			color: #6b7280;
+			font-size: 12px;
+			height: 34px;
+			padding: 0 12px;
+		}
+		.btn-success:hover {
+			border-color: #9ca3af;
+			background: #f9fafb;
+		}
+		.btn-danger {
+			background: linear-gradient(135deg, #ef4444, #dc2626);
+			color: white;
+		}
+		.btn-sm {
+			height: 32px;
+			padding: 0 10px;
+			font-size: 12px;
+		}
 
+		/* ===== STATS ROW ===== */
 		.stats-row {
 			display: grid;
 			grid-template-columns: repeat(4, 1fr);
-			gap: 20px;
-			margin-bottom: 24px;
+			gap: 12px;
+			margin-bottom: 16px;
 		}
 		.stat-card {
 			background: white;
-			border-radius: 16px;
-			padding: 20px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			border-radius: 10px;
+			padding: 14px 16px;
+			box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+			border: 1px solid #e5e7eb;
 			display: flex;
 			align-items: center;
-			gap: 16px;
+			gap: 12px;
 		}
 		.stat-icon {
-			width: 56px;
-			height: 56px;
-			border-radius: 14px;
+			width: 42px;
+			height: 42px;
+			border-radius: 8px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 24px;
+			font-size: 18px;
+			flex-shrink: 0;
 		}
 		.stat-icon.purple { background: #f3e8ff; color: #8b5cf6; }
 		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
 		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
 		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
-		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
-		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+		.stat-value { font-size: 22px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 11px; color: #64748b; margin-top: 2px; }
 
+		/* ===== TABLE CARD ===== */
 		.table-card {
 			background: white;
-			border-radius: 16px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			border-radius: 10px;
+			box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+			border: 1px solid #e5e7eb;
 			overflow: hidden;
 		}
+
+		/* ===== TABLE TOOLBAR ===== */
 		.table-toolbar {
-			padding: 20px 24px;
+			padding: 12px 16px;
 			display: flex;
-			justify-content: space-between;
 			align-items: center;
-			border-bottom: 1px solid #f1f5f9;
+			border-bottom: 1px solid #e5e7eb;
+			gap: 12px;
+			background: #ffffff;
 			flex-wrap: wrap;
-			gap: 16px;
 		}
-		.search-box { position: relative; width: 300px; }
+		.search-box {
+			position: relative;
+			width: 220px;
+			flex-shrink: 0;
+		}
 		.search-box input {
 			width: 100%;
-			height: 44px;
-			padding: 0 16px 0 44px;
-			border: 2px solid #e2e8f0;
-			border-radius: 10px;
-			font-size: 14px;
+			height: 34px;
+			padding: 0 12px 0 34px;
+			border: 1px solid #d1d5db;
+			border-radius: 6px;
+			font-size: 13px;
+			background: #f9fafb;
+			transition: all 0.2s;
 		}
-		.search-box input:focus { outline: none; border-color: #8b5cf6; }
-		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+		.search-box input:hover {
+			border-color: #9ca3af;
+		}
+		.search-box input:focus {
+			outline: none;
+			border-color: #8b5cf6;
+			background: #ffffff;
+			box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+		}
+		.search-box i {
+			position: absolute;
+			left: 10px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #9ca3af;
+			font-size: 13px;
+		}
+		.toolbar-actions {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			align-items: center;
+			margin-left: auto;
+		}
+		/* Filter dropdowns */
+		.toolbar-actions select {
+			height: 34px;
+			padding: 0 28px 0 10px;
+			border: 1px solid #d1d5db;
+			border-radius: 6px;
+			font-size: 12px;
+			font-weight: 500;
+			color: #374151;
+			background: #f9fafb url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") no-repeat right 6px center;
+			background-size: 14px;
+			cursor: pointer;
+			appearance: none;
+			transition: all 0.2s;
+			min-width: 120px;
+		}
+		.toolbar-actions select:hover {
+			border-color: #9ca3af;
+		}
+		.toolbar-actions select:focus {
+			outline: none;
+			border-color: #8b5cf6;
+			background-color: #ffffff;
+			box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+		}
+		/* Delete Selected Button */
+		.btn-delete-selected {
+			height: 34px;
+			padding: 0 12px;
+			background: #ffffff;
+			border: 1px solid #fca5a5;
+			border-radius: 6px;
+			color: #dc2626;
+			font-size: 12px;
+			font-weight: 500;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			transition: all 0.2s;
+		}
+		.btn-delete-selected:hover {
+			background: #fef2f2;
+			border-color: #f87171;
+		}
+		.btn-delete-selected:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
 
-		.data-table { width: 100%; border-collapse: collapse; }
-		.data-table thead { 
-			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-			background-color: #8b5cf6;
+		/* ===== TABLE WRAPPER ===== */
+		.table-wrapper {
+			width: 100%;
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		/* ===== DATA TABLE ===== */
+		.data-table {
+			width: 100%;
+			border-collapse: collapse;
+			table-layout: auto;
+			min-width: 900px;
+		}
+		.data-table thead {
+			background: #f8fafc;
+			border-bottom: 2px solid #e5e7eb;
 		}
 		.data-table th {
-			padding: 16px 12px;
+			padding: 10px 8px;
 			text-align: left;
 			font-weight: 600;
-			font-size: 12px;
-			color: white;
+			font-size: 11px;
+			color: #374151;
 			text-transform: uppercase;
 			letter-spacing: 0.5px;
-			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+			white-space: nowrap;
+			background: #f8fafc;
 		}
-		.data-table th:first-child { padding-left: 20px; }
-		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
-		.data-table tbody tr:hover { background: #f8fafc; }
-		.data-table td { padding: 12px; font-size: 14px; color: #334155; vertical-align: middle; }
-		.data-table td:first-child { padding-left: 20px; }
+		.data-table th:first-child {
+			padding-left: 12px;
+			width: 36px;
+		}
+		.data-table tbody tr {
+			border-bottom: 1px solid #f1f5f9;
+			transition: background 0.15s;
+		}
+		.data-table tbody tr:hover {
+			background: #f9fafb;
+		}
+		.data-table td {
+			padding: 10px 8px;
+			font-size: 13px;
+			color: #374151;
+			vertical-align: middle;
+			white-space: nowrap;
+		}
+		.data-table td:first-child {
+			padding-left: 12px;
+			width: 36px;
+		}
 
 		/* Editable Cells */
 		.editable-cell {
@@ -156,19 +329,20 @@
 			display: inline-block;
 		}
 		.avatar {
-			width: 48px;
-			height: 48px;
+			width: 34px;
+			height: 34px;
 			border-radius: 50%;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			font-weight: 600;
-			font-size: 16px;
+			font-size: 12px;
 			color: white;
 			overflow: hidden;
 			position: relative;
 			cursor: pointer;
 			transition: all 0.3s;
+			flex-shrink: 0;
 		}
 		.avatar.male { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
 		.avatar.female { background: linear-gradient(135deg, #f472b6, #ec4899); }
@@ -211,50 +385,81 @@
 		.teacher-info { display: flex; align-items: center; gap: 12px; }
 		.teacher-name { font-weight: 600; color: #1e293b; }
 		.teacher-email { font-size: 12px; color: #64748b; }
-		.teacher-id { font-weight: 700; color: #7c3aed; }
+		.teacher-id { font-weight: 700; color: #7c3aed; font-size: 13px; }
 
+		/* ===== BADGES ===== */
 		.subject-badge {
-			padding: 6px 14px;
-			border-radius: 20px;
-			font-size: 12px;
-			font-weight: 600;
+			padding: 4px 10px;
+			border-radius: 4px;
+			font-size: 11px;
+			font-weight: 500;
 			background: #f3e8ff;
 			color: #7c3aed;
+			display: inline-block;
+			white-space: nowrap;
 		}
 		.gender-badge {
-			padding: 4px 12px;
-			border-radius: 20px;
-			font-size: 12px;
-			font-weight: 600;
+			padding: 4px 10px;
+			border-radius: 4px;
+			font-size: 11px;
+			font-weight: 500;
+			display: inline-block;
+			white-space: nowrap;
 		}
-		.gender-badge.male { background: #dbeafe; color: #2563eb; }
-		.gender-badge.female { background: #fce7f3; color: #db2777; }
+		.gender-badge.male {
+			background: #dbeafe;
+			color: #2563eb;
+		}
+		.gender-badge.female {
+			background: #fce7f3;
+			color: #db2777;
+		}
 
 		.status-badge {
-			padding: 6px 14px;
-			border-radius: 20px;
-			font-size: 12px;
-			font-weight: 600;
+			padding: 4px 10px;
+			border-radius: 4px;
+			font-size: 11px;
+			font-weight: 500;
 			cursor: pointer;
+			display: inline-block;
+			white-space: nowrap;
 		}
-		.status-badge.active { background: #dcfce7; color: #16a34a; }
-		.status-badge.inactive { background: #fef2f2; color: #dc2626; }
+		.status-badge.active {
+			background: #dcfce7;
+			color: #16a34a;
+		}
+		.status-badge.inactive {
+			background: #fef2f2;
+			color: #dc2626;
+		}
 
-		.checkbox-cell { width: 40px; }
-		.custom-checkbox { width: 18px; height: 18px; accent-color: #8b5cf6; cursor: pointer; }
+		/* Checkbox alignment */
+		.checkbox-cell {
+			width: 40px;
+			text-align: center;
+			vertical-align: middle;
+		}
+		.custom-checkbox {
+			width: 16px;
+			height: 16px;
+			accent-color: #8b5cf6;
+			cursor: pointer;
+			vertical-align: middle;
+			margin: 0;
+		}
 
-		.action-btns { display: flex; gap: 6px; }
+		.action-btns { display: flex; gap: 4px; }
 		.action-btn {
-			width: 32px;
-			height: 32px;
-			border-radius: 6px;
+			width: 26px;
+			height: 26px;
+			border-radius: 4px;
 			border: none;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 14px;
-			transition: all 0.2s;
+			font-size: 11px;
+			transition: all 0.15s;
 		}
 		.action-btn.edit {
 			background: #eff6ff;
@@ -263,50 +468,76 @@
 		.action-btn.edit:hover {
 			background: #dbeafe;
 		}
-		.action-btn.view { background: #dbeafe; color: #2563eb; }
+		.action-btn.view {
+			background: #f0fdf4;
+			color: #16a34a;
+		}
+		.action-btn.view:hover {
+			background: #dcfce7;
+		}
 		.action-btn.delete { background: #fef2f2; color: #ef4444; }
-		.action-btn:hover { transform: scale(1.1); }
+		.action-btn:hover { transform: scale(1.05); }
 
 		.table-footer {
-			padding: 16px 24px;
+			padding: 10px 16px;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			border-top: 1px solid #f1f5f9;
+			border-top: 1px solid #e5e7eb;
+			background: #fafafa;
 		}
-		.pagination-info { font-size: 14px; color: #64748b; }
-		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.pagination-info { font-size: 12px; color: #6b7280; }
+		.pagination-btns { display: flex; align-items: center; gap: 6px; }
 		.page-btn {
-			width: 36px;
-			height: 36px;
-			border-radius: 8px;
-			border: 2px solid #e2e8f0;
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			border: 1px solid #d1d5db;
 			background: white;
-			color: #64748b;
+			color: #6b7280;
 			font-weight: 600;
 			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
 		.page-btn:hover:not(:disabled) { border-color: #8b5cf6; color: #8b5cf6; }
 		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+		.page-select { height: 32px; padding: 0 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12px; }
 
+		/* ===== FLOATING ACTION BUTTON ===== */
 		.fab-btn {
 			position: fixed;
 			bottom: 30px;
 			right: 30px;
-			width: 60px;
-			height: 60px;
-			border-radius: 50%;
+			width: 50px;
+			height: 50px;
+			border-radius: 12px;
 			background: linear-gradient(135deg, #8b5cf6, #7c3aed);
 			color: white;
 			border: none;
-			box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+			box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
 			cursor: pointer;
-			font-size: 24px;
-			z-index: 100;
+			font-size: 20px;
+			z-index: 90;
 			transition: all 0.3s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 		}
-		.fab-btn:hover { transform: scale(1.1) rotate(90deg); }
+		.fab-btn:hover {
+			transform: scale(1.05);
+			box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+		}
+		@media (max-width: 768px) {
+			.fab-btn {
+				bottom: 20px;
+				right: 20px;
+				width: 46px;
+				height: 46px;
+				font-size: 18px;
+			}
+		}
 
 		.empty-state { text-align: center; padding: 60px 20px; }
 		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
@@ -314,130 +545,434 @@
 		.empty-state p { color: #94a3b8; }
 
 		.edit-hint {
-			background: #f3e8ff;
-			border: 1px solid #c4b5fd;
-			border-radius: 8px;
-			padding: 10px 16px;
+			background: #faf5ff;
+			border: 1px solid #e9d5ff;
+			border-radius: 6px;
+			padding: 8px 14px;
 			margin-bottom: 16px;
 			display: flex;
 			align-items: center;
-			gap: 10px;
-			font-size: 13px;
-			color: #6b21a8;
+			gap: 8px;
+			font-size: 12px;
+			color: #7c3aed;
 		}
-		.edit-hint i { color: #8b5cf6; }
+		.edit-hint i { color: #a78bfa; font-size: 12px; }
 
-		/* Add Teacher Modal */
-		.teacher-modal {
+		/* ============================================ */
+		/* PAGE VIEW SYSTEM                           */
+		/* ============================================ */
+		/* List View - normal flow with padding */
+		#listView {
 			display: none;
-			position: fixed;
-			inset: 0;
-			background: rgba(0,0,0,0.5);
-			backdrop-filter: blur(4px);
-			z-index: 10000;
-			align-items: center;
-			justify-content: center;
 			padding: 20px;
-		}
-		.teacher-modal.show {
-			display: flex;
-		}
-		.teacher-modal-content {
-			background: white;
-			border-radius: 16px;
-			width: 90%;
-			max-width: 700px;
-			max-height: 90vh;
+			height: 100%;
 			overflow-y: auto;
-			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-			animation: modalSlideIn 0.3s ease;
 		}
-		@keyframes modalSlideIn {
-			from { opacity: 0; transform: translateY(-20px); }
-			to { opacity: 1; transform: translateY(0); }
+		#listView.active {
+			display: block;
 		}
-		.modal-header {
-			padding: 24px;
-			border-bottom: 1px solid #f1f5f9;
+
+		/* ============================================ */
+		/* CLEAN PROFESSIONAL FORM - NO SCROLL        */
+		/* ============================================ */
+
+		/* Form View Container */
+		#formView {
+			display: none;
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 100;
+			background: #f8fafc;
+		}
+
+		#formView.active {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.form-page-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			min-height: 0;
+		}
+
+		/* ===== HEADER - CLEAN ===== */
+		.form-page-header {
+			padding: 12px 20px;
+			background: linear-gradient(135deg, #6366f1, #8b5cf6);
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
+			flex-shrink: 0;
 		}
-		.modal-header h3 {
-			font-size: 20px;
-			font-weight: 700;
-			color: #1e293b;
+
+		.form-page-header-left {
 			display: flex;
 			align-items: center;
-			gap: 10px;
+			gap: 12px;
 		}
-		.modal-header h3 i {
-			color: #8b5cf6;
-		}
-		.modal-close {
-			width: 36px;
-			height: 36px;
+
+		.back-btn {
+			width: 34px;
+			height: 34px;
 			border-radius: 8px;
 			border: none;
-			background: #f1f5f9;
+			background: rgba(255,255,255,0.2);
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 20px;
+			font-size: 14px;
+			color: #ffffff;
+			transition: all 0.2s;
+		}
+		.back-btn:hover {
+			background: rgba(255,255,255,0.3);
+		}
+
+		.form-page-title {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.form-page-title-icon {
+			width: 34px;
+			height: 34px;
+			border-radius: 8px;
+			background: rgba(255,255,255,0.2);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 15px;
+			color: #ffffff;
+		}
+
+		.form-page-title h2 {
+			font-size: 16px;
+			font-weight: 600;
+			color: #ffffff;
+			margin-bottom: 1px;
+		}
+
+		.form-page-title p {
+			font-size: 11px;
+			color: rgba(255,255,255,0.8);
+		}
+
+		/* ===== TAB NAVIGATION - SIMPLE UNDERLINE ===== */
+		.tab-navigation {
+			display: flex;
+			background: #ffffff;
+			padding: 0 20px;
+			gap: 0;
+			flex-shrink: 0;
+			border-bottom: 1px solid #e5e7eb;
+		}
+
+		.tab-btn {
+			flex: 1;
+			padding: 10px 14px;
+			background: transparent;
+			border: none;
+			border-bottom: 2px solid transparent;
+			margin-bottom: -1px;
 			color: #64748b;
+			font-weight: 500;
+			font-size: 12px;
+			cursor: pointer;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
 		}
-		.modal-close:hover {
-			background: #fef2f2;
-			color: #ef4444;
+
+		.tab-btn i {
+			font-size: 13px;
 		}
-		.modal-body {
-			padding: 24px;
+
+		.tab-btn:hover {
+			color: #6366f1;
 		}
-		.form-row {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 16px;
-			margin-bottom: 16px;
+
+		.tab-btn.active {
+			color: #6366f1;
+			border-bottom-color: #6366f1;
 		}
-		.form-group {
-			margin-bottom: 16px;
+
+		/* ===== FORM BODY ===== */
+		.form-page-body {
+			padding: 14px 20px;
+			flex: 1;
+			overflow-y: auto;
+			overflow-x: hidden;
+			background: #f8fafc;
+			min-height: 0;
 		}
-		.form-group label {
+
+		/* Custom Scrollbar */
+		.form-page-body::-webkit-scrollbar {
+			width: 4px;
+		}
+		.form-page-body::-webkit-scrollbar-track {
+			background: #e5e7eb;
+		}
+		.form-page-body::-webkit-scrollbar-thumb {
+			background: #94a3b8;
+			border-radius: 2px;
+		}
+
+		/* Tab Content */
+		.tab-content {
+			display: none;
+		}
+
+		.tab-content.active {
 			display: block;
+		}
+
+		/* ===== FORM SECTIONS - COMPACT ===== */
+		.form-section {
+			background: #ffffff;
+			border-radius: 8px;
+			padding: 14px 16px;
+			margin-bottom: 10px;
+			border: 1px solid #e5e7eb;
+		}
+
+		.form-section:last-child {
+			margin-bottom: 0;
+		}
+
+		.form-section h4 {
 			font-size: 13px;
 			font-weight: 600;
-			color: #475569;
+			color: #1e293b;
+			margin-bottom: 12px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid #f1f5f9;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.form-section h4 i {
+			width: 24px;
+			height: 24px;
+			background: #6366f1;
+			border-radius: 5px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #ffffff;
+			font-size: 11px;
+		}
+
+		/* ===== FORM GRID - COMPACT ===== */
+		.form-row {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 12px;
 			margin-bottom: 8px;
 		}
-		.form-group input,
-		.form-group select {
-			width: 100%;
-			height: 44px;
-			padding: 0 16px;
-			border: 2px solid #e2e8f0;
-			border-radius: 10px;
-			font-size: 14px;
-			font-family: inherit;
+
+		.form-row:last-child {
+			margin-bottom: 0;
 		}
-		.form-group input:focus,
-		.form-group select:focus {
-			outline: none;
-			border-color: #8b5cf6;
+
+		@media (max-width: 768px) {
+			.form-row {
+				grid-template-columns: 1fr;
+				gap: 8px;
+			}
 		}
+
+		.form-group {
+			margin-bottom: 0;
+		}
+
 		.form-group.full-width {
 			grid-column: 1 / -1;
+		}
+
+		.form-group label {
+			display: flex;
+			align-items: center;
+			gap: 3px;
+			font-size: 11px;
+			font-weight: 600;
+			color: #475569;
+			margin-bottom: 4px;
+			text-transform: uppercase;
+			letter-spacing: 0.3px;
+		}
+
+		.form-group label .required {
+			color: #ef4444;
+			font-size: 11px;
+		}
+
+		/* Help text */
+		.help-text {
+			display: none;
+		}
+
+		/* ===== INPUT STYLING - COMPACT ===== */
+		.form-group input,
+		.form-group select,
+		.form-group textarea {
+			width: 100%;
+			height: 36px;
+			padding: 0 10px;
+			border: 1px solid #d1d5db;
+			border-radius: 6px;
+			font-size: 13px;
+			font-family: inherit;
+			transition: all 0.15s;
+			background: #ffffff;
+			color: #1f2937;
+		}
+
+		.form-group textarea {
+			height: auto;
+			padding: 8px 10px;
+			min-height: 60px;
+			resize: vertical;
+		}
+
+		.form-group input::placeholder,
+		.form-group textarea::placeholder {
+			color: #9ca3af;
+		}
+
+		.form-group input:hover,
+		.form-group select:hover,
+		.form-group textarea:hover {
+			border-color: #a5b4fc;
+		}
+
+		.form-group input:focus,
+		.form-group select:focus,
+		.form-group textarea:focus {
+			outline: none;
+			border-color: #6366f1;
+			box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+		}
+
+		/* Select Styling */
+		.form-group select {
+			cursor: pointer;
+			appearance: none;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 8px center;
+			background-size: 12px;
+			padding-right: 28px;
+		}
+
+		/* ===== FORM FOOTER - COMPACT ===== */
+		.form-page-footer,
+		.modal-footer-sticky {
+			padding: 10px 20px;
+			background: #ffffff;
+			border-top: 1px solid #e5e7eb;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			gap: 8px;
+			flex-shrink: 0;
+		}
+
+		.form-page-footer .btn,
+		.modal-footer-sticky .btn {
+			padding: 8px 18px;
+			border-radius: 6px;
+			font-weight: 500;
+			font-size: 13px;
+			cursor: pointer;
+			transition: all 0.15s;
+			border: none;
+			min-width: 90px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+		}
+
+		.form-page-footer .btn-secondary,
+		.modal-footer-sticky .btn-secondary {
+			background: #ffffff;
+			color: #4b5563;
+			border: 1px solid #d1d5db;
+		}
+
+		.form-page-footer .btn-secondary:hover,
+		.modal-footer-sticky .btn-secondary:hover {
+			background: #f9fafb;
+			border-color: #9ca3af;
+		}
+
+		.form-page-footer .btn-primary,
+		.modal-footer-sticky .btn-primary {
+			background: #6366f1;
+			color: white;
+		}
+
+		.form-page-footer .btn-primary:hover,
+		.modal-footer-sticky .btn-primary:hover {
+			background: #4f46e5;
+		}
+
+		/* ===== INPUT STATES ===== */
+		.form-group input:read-only,
+		.form-group select:disabled {
+			background: #f9fafb;
+			color: #9ca3af;
+			cursor: not-allowed;
+			border-color: #e5e7eb;
+		}
+
+		.form-group .error-msg {
+			font-size: 10px;
+			color: #ef4444;
+			margin-top: 2px;
+			display: none;
+		}
+
+		.form-group.error input,
+		.form-group.error select {
+			border-color: #ef4444;
+			background: #fef2f2;
+		}
+
+		.form-group.error .error-msg {
+			display: block;
+		}
+
+		.form-group.full-width {
+			grid-column: 1 / -1;
+		}
+
+		/* Legacy modal styles - hidden */
+		.teacher-modal {
+			display: none !important;
 		}
 		.photo-upload-area {
 			display: flex;
 			align-items: center;
-			gap: 16px;
+			gap: 10px;
 		}
 		.photo-preview {
-			width: 120px;
-			height: 150px;
-			border: 2px dashed #e2e8f0;
-			border-radius: 8px;
+			width: 60px;
+			height: 70px;
+			border: 1px dashed #e2e8f0;
+			border-radius: 6px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -455,8 +990,11 @@
 			color: #94a3b8;
 		}
 		.photo-preview .placeholder i {
-			font-size: 48px;
-			margin-bottom: 8px;
+			font-size: 20px;
+			margin-bottom: 2px;
+		}
+		.photo-preview .placeholder div {
+			font-size: 8px !important;
 		}
 		.modal-footer {
 			padding: 20px 24px;
@@ -475,49 +1013,50 @@
 			border-color: #cbd5e1;
 		}
 
-		/* Teacher Documents Section */
+		/* Teacher Documents Section - Compact */
 		.documents-section {
-			margin-top: 32px;
-			padding-top: 24px;
-			border-top: 2px solid #f1f5f9;
+			margin-top: 8px;
+			padding-top: 8px;
+			border-top: 1px solid #f1f5f9;
 		}
 		.documents-section-header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			margin-bottom: 20px;
+			margin-bottom: 8px;
 		}
 		.documents-section-title {
 			display: flex;
 			align-items: center;
-			gap: 10px;
-			font-size: 16px;
+			gap: 6px;
+			font-size: 12px;
 			font-weight: 700;
 			color: #1e293b;
 		}
 		.documents-section-title i {
 			color: #8b5cf6;
-			font-size: 18px;
+			font-size: 12px;
 		}
 		.documents-list {
 			display: flex;
 			flex-direction: column;
-			gap: 16px;
+			gap: 6px;
+			max-height: 120px;
+			overflow-y: auto;
 		}
 		.document-row {
 			background: #f8fafc;
-			border: 2px solid #e2e8f0;
-			border-radius: 12px;
-			padding: 16px;
+			border: 1px solid #e2e8f0;
+			border-radius: 6px;
+			padding: 8px;
 			display: grid;
 			grid-template-columns: 1fr 1fr 1fr auto;
-			gap: 12px;
-			align-items: start;
-			transition: all 0.2s;
+			gap: 8px;
+			align-items: center;
+			transition: all 0.15s;
 		}
 		.document-row:hover {
 			border-color: #cbd5e1;
-			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 		}
 		.document-row.existing {
 			background: #ffffff;
@@ -526,10 +1065,10 @@
 		.document-field {
 			display: flex;
 			flex-direction: column;
-			gap: 6px;
+			gap: 3px;
 		}
 		.document-field label {
-			font-size: 12px;
+			font-size: 9px;
 			font-weight: 600;
 			color: #64748b;
 			text-transform: uppercase;
@@ -639,39 +1178,498 @@
 			background: #fee2e2;
 		}
 
+		/* ===== ENHANCED MODAL - TAB NAVIGATION ===== */
+		.enhanced-modal .teacher-modal-content {
+			max-width: 1400px;
+			width: 85%;
+		}
+
+		.tab-navigation {
+			display: flex;
+			gap: 0;
+			border-bottom: 1px solid #e5e7eb;
+			background: #fafafa;
+			padding: 0 28px;
+			flex-shrink: 0;
+		}
+
+		.tab-btn {
+			flex: 1;
+			padding: 14px 18px;
+			background: transparent;
+			border: none;
+			border-bottom: 2px solid transparent;
+			color: #64748b;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.3s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			position: relative;
+		}
+
+		.tab-btn:hover {
+			background: #f1f5f9;
+			color: #475569;
+		}
+
+		.tab-btn.active {
+			color: #8b5cf6;
+			border-bottom-color: #8b5cf6;
+			background: white;
+		}
+
+		.tab-btn i {
+			font-size: 16px;
+		}
+
+		/* Tab Content */
+		.tab-content {
+			display: none;
+			animation: fadeIn 0.3s ease-in;
+		}
+
+		.tab-content.active {
+			display: block;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		/* Form Sections */
+		.form-section {
+			margin-bottom: 16px;
+			padding-bottom: 14px;
+			border-bottom: 1px solid #e5e7eb;
+		}
+
+		.form-section:last-child {
+			border-bottom: none;
+		}
+
+		.form-section h4 {
+			font-size: 15px;
+			font-weight: 700;
+			color: #1e293b;
+			margin-bottom: 12px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.form-section h4 i {
+			color: #8b5cf6;
+			font-size: 18px;
+		}
+
+		.section-description {
+			font-size: 11px;
+			color: #64748b;
+			margin-bottom: 8px;
+			line-height: 1.4;
+		}
+
+		/* Required Field Indicator */
+		.required {
+			color: #ef4444;
+			font-weight: 700;
+			margin-left: 2px;
+		}
+
+		.required.conditional {
+			color: #f59e0b;
+		}
+
+		/* Help Text - Hidden for compact view */
+		.help-text {
+			display: none;
+		}
+
+		/* Error Messages - Compact */
+		.error-msg {
+			display: none;
+			font-size: 10px;
+			color: #ef4444;
+			margin-top: 2px;
+			font-weight: 500;
+		}
+
+		.error-msg.show {
+			display: block;
+		}
+
+		.form-group input.error,
+		.form-group select.error {
+			border-color: #ef4444;
+			background: #fef2f2;
+		}
+
+		.form-group input.success,
+		.form-group select.success {
+			border-color: #22c55e;
+			background: #f0fdf4;
+		}
+
+		/* Align End for Buttons */
+		.form-group.align-end {
+			display: flex;
+			align-items: flex-end;
+		}
+
+		/* ===== TEACHING ASSIGNMENT - COMPACT ===== */
+		.allocation-form-card {
+			background: #f8fafc;
+			border: 1px dashed #d1d5db;
+			border-radius: 8px;
+			padding: 12px;
+			margin-bottom: 12px;
+		}
+
+		.allocation-form-card .form-row {
+			gap: 10px;
+			align-items: end;
+		}
+
+		.allocation-form-card .btn {
+			height: 36px;
+			padding: 0 14px;
+			border-radius: 6px;
+			font-weight: 500;
+			background: #6366f1;
+			color: white;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			transition: all 0.15s;
+		}
+
+		.allocation-form-card .btn:hover {
+			background: #4f46e5;
+		}
+
+		.validation-message {
+			background: #fef2f2;
+			border: 1px solid #fecaca;
+			border-radius: 6px;
+			padding: 8px 12px;
+			margin-top: 8px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 12px;
+			color: #dc2626;
+		}
+
+		.validation-message i {
+			font-size: 14px;
+		}
+
+		/* Compact Allocation Table */
+		.allocations-grid-card {
+			background: white;
+			border: 1px solid #e5e7eb;
+			border-radius: 8px;
+			overflow: hidden;
+			margin-bottom: 10px;
+		}
+
+		.allocations-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.allocations-table thead {
+			background: #6366f1;
+			position: sticky;
+			top: 0;
+		}
+
+		.allocations-table th {
+			padding: 10px 14px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 11px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.allocations-table tbody tr {
+			border-bottom: 1px solid #f1f5f9;
+		}
+
+		.allocations-table tbody tr:hover {
+			background: #f8fafc;
+		}
+
+		.allocations-table td {
+			padding: 10px 14px;
+			font-size: 13px;
+			color: #334155;
+		}
+
+		.allocations-table td:first-child {
+			color: #6366f1;
+			font-weight: 600;
+		}
+
+		/* Remove Button in Table */
+		.btn-remove-allocation {
+			width: 28px;
+			height: 28px;
+			border-radius: 6px;
+			border: none;
+			background: #fef2f2;
+			color: #ef4444;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 14px;
+			transition: all 0.3s ease;
+		}
+
+		.btn-remove-allocation:hover {
+			background: linear-gradient(135deg, #fecaca, #fca5a5);
+			transform: scale(1.1);
+			box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+		}
+
+		.empty-state-row {
+			background: #fafafa !important;
+		}
+
+		.empty-state-cell {
+			text-align: center;
+			padding: 20px 15px !important;
+			color: #94a3b8;
+		}
+
+		.empty-state-cell i {
+			font-size: 24px;
+			color: #cbd5e1;
+			margin-bottom: 6px;
+			display: block;
+		}
+
+		.empty-state-cell p {
+			font-size: 15px;
+			font-weight: 600;
+			color: #64748b;
+			margin-bottom: 4px;
+		}
+
+		.empty-state-cell small {
+			font-size: 13px;
+			color: #94a3b8;
+		}
+
+		.allocation-summary {
+			background: #f0fdf4;
+			border: 1px solid #86efac;
+			border-radius: 6px;
+			padding: 10px 14px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 13px;
+			color: #16a34a;
+			font-weight: 500;
+		}
+
+		.allocation-summary i {
+			font-size: 16px;
+			color: #22c55e;
+		}
+
 		@media (max-width: 768px) {
+			.form-page-container {
+				padding: 10px;
+			}
+
+			.form-page-header {
+				padding: 16px 20px;
+			}
+
+			.form-page-title h2 {
+				font-size: 16px;
+			}
+
+			.form-page-title-icon {
+				width: 40px;
+				height: 40px;
+				font-size: 16px;
+			}
+
 			.form-row {
 				grid-template-columns: 1fr;
 			}
+
 			.document-row {
 				grid-template-columns: 1fr;
 			}
+
 			.document-actions {
 				flex-direction: row;
 				justify-content: flex-end;
 			}
+
 			.stats-row { grid-template-columns: 1fr; }
 			.search-box { width: 100%; }
+
+			/* Tab Navigation Mobile */
+			.tab-navigation {
+				flex-direction: column;
+				padding: 8px;
+				gap: 4px;
+			}
+
+			.tab-btn {
+				justify-content: flex-start;
+				padding: 12px 16px;
+				border-radius: 10px;
+			}
+
+			.tab-btn.active {
+				box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+			}
+
+			.form-section {
+				padding: 16px;
+				border-radius: 12px;
+			}
+
+			.form-group input,
+			.form-group select {
+				height: 44px;
+			}
+
+			.enhanced-modal .teacher-modal-content {
+				width: 98%;
+				max-height: 95vh;
+			}
+
+			.allocation-form-card .form-row {
+				grid-template-columns: 1fr;
+			}
+
+			.form-group.align-end {
+				align-items: stretch;
+			}
+
+			.form-group.align-end .btn {
+				width: 100%;
+				justify-content: center;
+			}
+
+			.form-page-footer {
+				padding: 16px 20px;
+			}
+
+			.form-page-footer .btn {
+				flex: 1;
+				min-width: auto;
+			}
 		}
-		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+		/* ===== RESPONSIVE STYLES ===== */
+		@media (max-width: 1200px) {
+			.stats-row {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 992px) {
+			.page-header {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+			.header-actions {
+				width: 100%;
+			}
+			.table-toolbar {
+				flex-direction: column;
+				align-items: stretch;
+			}
+			.search-box {
+				width: 100%;
+			}
+			.toolbar-actions {
+				width: 100%;
+				margin-left: 0;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.stats-row {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 10px;
+			}
+			.stat-card {
+				padding: 12px 14px;
+			}
+			.stat-icon {
+				width: 38px;
+				height: 38px;
+				font-size: 16px;
+			}
+			.stat-value {
+				font-size: 18px;
+			}
+			.header-actions .btn {
+				flex: 1;
+				min-width: 80px;
+			}
+			.toolbar-actions {
+				flex-direction: column;
+				gap: 8px;
+			}
+			.toolbar-actions select,
+			.toolbar-actions .btn-delete-selected {
+				width: 100%;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.stats-row {
+				grid-template-columns: 1fr 1fr;
+			}
+			.page-title-section h1 {
+				font-size: 18px;
+			}
+			.header-actions .btn {
+				font-size: 12px;
+				padding: 0 10px;
+				height: 34px;
+			}
+		}
 	</style>
 </head>
 <body>
 	<div class="page teachers-page active">
-		<div class="page-header">
-			<div class="page-title-section">
-				<h1><i class="fas fa-chalkboard-teacher" style="color: #8b5cf6; margin-right: 10px;"></i>Teacher Management</h1>
-				<p>Manage all teacher records - Click any cell to edit inline</p>
+		<!-- ============ LIST VIEW ============ -->
+		<div id="listView" class="active">
+			<div class="page-header">
+				<div class="page-title-section">
+					<h1><i class="fas fa-chalkboard-teacher" style="color: #8b5cf6; margin-right: 10px;"></i>Teacher Management</h1>
+					<p>Manage all teacher records - Click any cell to edit inline</p>
+				</div>
+				<div class="header-actions">
+					<input type="file" id="importFile" accept=".csv" style="display: none;">
+					<button class="btn btn-primary" id="addTeacherBtn" data-permission="teachers:create"><i class="fas fa-plus"></i> Add Teacher</button>
+					<button class="btn btn-outline" id="importBtn" data-permission="teachers:create"><i class="fas fa-file-import"></i> Import</button>
+					<button class="btn btn-success" id="exportBtn" data-permission="teachers:export"><i class="fas fa-file-export"></i> Export</button>
+				</div>
 			</div>
-			<div class="header-actions">
-				<input type="file" id="importFile" accept=".csv" style="display: none;">
-				<button class="btn btn-primary" id="addTeacherBtn"><i class="fas fa-plus"></i> Add Teacher</button>
-				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
-				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
-			</div>
-		</div>
 
-		<div class="edit-hint">
+			<div class="edit-hint">
 			<i class="fas fa-lightbulb"></i>
 			<span><strong>Tip:</strong> Click on any cell to edit directly. Click on the avatar to upload a photo. Changes are auto-saved.</span>
 		</div>
@@ -691,7 +1689,7 @@
 					<select id="designationFilter" class="page-select" style="min-width: 150px;" data-dropdown="designation">
 						<option value="">All Designations</option>
 					</select>
-					<button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+					<button class="btn-delete-selected" id="bulkDeleteBtn" disabled>
 						<i class="fas fa-trash"></i> Delete Selected
 					</button>
 				</div>
@@ -700,24 +1698,27 @@
 			<!-- Hidden file input for photo upload -->
 			<input type="file" id="photoUpload" accept="image/*" style="display: none;">
 
-			<table class="data-table">
-				<thead>
-					<tr>
-						<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
-						<th>Photo</th>
-						<th>Teacher ID</th>
-						<th>Name</th>
-						<th>Gender</th>
-						<th>Subject</th>
-						<th>Email</th>
-						<th>Phone</th>
-						<th>Experience</th>
-						<th>Status</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody id="tableBody"></tbody>
-			</table>
+			<!-- Table wrapper for horizontal scroll on small screens -->
+			<div class="table-wrapper">
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
+							<th>Photo</th>
+							<th>Teacher ID</th>
+							<th>Name</th>
+							<th>Gender</th>
+							<th>Subject</th>
+							<th>Email</th>
+							<th>Phone</th>
+							<th>Experience</th>
+							<th>Status</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody"></tbody>
+				</table>
+			</div>
 
 			<div class="table-footer">
 				<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 teachers</div>
@@ -733,6 +1734,503 @@
 				</div>
 			</div>
 		</div>
+		</div><!-- End of listView -->
+
+		<!-- ============ FORM VIEW (Add/Edit Teacher) ============ -->
+		<div id="formView">
+			<div class="form-page-container">
+				<div class="form-page-header">
+					<div class="form-page-header-left">
+						<button class="back-btn" onclick="showListView()" title="Back to List">
+							<i class="fas fa-arrow-left"></i>
+						</button>
+						<div class="form-page-title">
+							<div class="form-page-title-icon">
+								<i class="fas fa-user-plus" id="formTitleIcon"></i>
+							</div>
+							<div>
+								<h2 id="formTitle">Add New Teacher</h2>
+								<p id="formSubtitle">Fill in the details to register a new teacher</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Tab Navigation -->
+				<div class="tab-navigation">
+					<button type="button" class="tab-btn active" data-tab="0" onclick="switchFormTab(0)">
+						<i class="fas fa-user"></i> Personal Information
+					</button>
+					<button type="button" class="tab-btn" data-tab="1" onclick="switchFormTab(1)">
+						<i class="fas fa-briefcase"></i> Professional Details
+					</button>
+					<button type="button" class="tab-btn" data-tab="2" onclick="switchFormTab(2)">
+						<i class="fas fa-chalkboard-teacher"></i> Teaching Assignment
+					</button>
+				</div>
+
+				<div class="form-page-body" id="formPageBody">
+				<form id="teacherForm">
+					<!-- TAB 1: PERSONAL INFORMATION -->
+					<div class="tab-content active" data-tab-content="0">
+						<!-- Basic Details Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-info-circle"></i> Basic Details</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Teacher Name <span class="required">*</span></label>
+									<input type="text" id="teacherName" required pattern="[A-Za-z\s]{3,50}" placeholder="Enter full name">
+									<span class="error-msg" id="teacherName-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Gender <span class="required">*</span></label>
+									<select id="teacherGender" required>
+										<option value="">Select Gender</option>
+										<option value="Male">Male</option>
+										<option value="Female">Female</option>
+										<option value="Other">Other</option>
+									</select>
+									<span class="error-msg" id="teacherGender-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Date of Birth <span class="required">*</span></label>
+									<input type="date" id="teacherDOB" required>
+									<span class="error-msg" id="teacherDOB-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Blood Group <span class="required">*</span></label>
+									<select id="teacherBloodGroup" required>
+										<option value="">Select Blood Group</option>
+										<option value="A+">A+</option>
+										<option value="A-">A-</option>
+										<option value="B+">B+</option>
+										<option value="B-">B-</option>
+										<option value="AB+">AB+</option>
+										<option value="AB-">AB-</option>
+										<option value="O+">O+</option>
+										<option value="O-">O-</option>
+									</select>
+									<span class="error-msg" id="teacherBloodGroup-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Email <span class="required">*</span></label>
+									<input type="email" id="teacherEmail" required placeholder="teacher@school.edu">
+									<span class="error-msg" id="teacherEmail-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Phone <span class="required">*</span></label>
+									<input type="tel" id="teacherPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10 digit mobile number">
+									<span class="error-msg" id="teacherPhone-error"></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Government IDs Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-id-card"></i> Government Identification</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Aadhaar Number <span class="required">*</span></label>
+									<input type="text" id="teacherAadhaar" required pattern="[0-9]{12}" maxlength="12" placeholder="12 digit Aadhaar number">
+									<span class="help-text">Exactly 12 digits, numeric only</span>
+									<span class="error-msg" id="teacherAadhaar-error"></span>
+								</div>
+								<div class="form-group">
+									<label>PAN Number <span class="required">*</span></label>
+									<input type="text" id="teacherPANPersonal" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10" placeholder="ABCDE1234F" style="text-transform: uppercase">
+									<span class="help-text">Format: ABCDE1234F</span>
+									<span class="error-msg" id="teacherPANPersonal-error"></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Marital Status Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-heart"></i> Marital Information</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Marital Status <span class="required">*</span></label>
+									<select id="teacherMaritalStatus" required onchange="toggleSpouseField()">
+										<option value="">Select Status</option>
+										<option value="Single">Single</option>
+										<option value="Married">Married</option>
+										<option value="Divorced">Divorced</option>
+										<option value="Widowed">Widowed</option>
+									</select>
+									<span class="error-msg" id="teacherMaritalStatus-error"></span>
+								</div>
+								<div class="form-group" id="spouseNameGroup" style="display: none;">
+									<label>Spouse Name <span class="required conditional">*</span></label>
+									<input type="text" id="teacherSpouseName" placeholder="Husband / Wife name">
+									<span class="error-msg" id="teacherSpouseName-error"></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Address Details Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-map-marker-alt"></i> Address Details</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Door No / Street <span class="required">*</span></label>
+									<input type="text" id="teacherDoorNo" required placeholder="123, Main Street">
+									<span class="error-msg" id="teacherDoorNo-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Area / Locality <span class="required">*</span></label>
+									<input type="text" id="teacherArea" required placeholder="Area name">
+									<span class="error-msg" id="teacherArea-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>City <span class="required">*</span></label>
+									<input type="text" id="teacherCity" required placeholder="City">
+									<span class="error-msg" id="teacherCity-error"></span>
+								</div>
+								<div class="form-group">
+									<label>State <span class="required">*</span></label>
+									<select id="teacherState" required>
+										<option value="">Select State</option>
+										<option value="Andhra Pradesh">Andhra Pradesh</option>
+										<option value="Arunachal Pradesh">Arunachal Pradesh</option>
+										<option value="Assam">Assam</option>
+										<option value="Bihar">Bihar</option>
+										<option value="Chhattisgarh">Chhattisgarh</option>
+										<option value="Goa">Goa</option>
+										<option value="Gujarat">Gujarat</option>
+										<option value="Haryana">Haryana</option>
+										<option value="Himachal Pradesh">Himachal Pradesh</option>
+										<option value="Jharkhand">Jharkhand</option>
+										<option value="Karnataka">Karnataka</option>
+										<option value="Kerala">Kerala</option>
+										<option value="Madhya Pradesh">Madhya Pradesh</option>
+										<option value="Maharashtra">Maharashtra</option>
+										<option value="Manipur">Manipur</option>
+										<option value="Meghalaya">Meghalaya</option>
+										<option value="Mizoram">Mizoram</option>
+										<option value="Nagaland">Nagaland</option>
+										<option value="Odisha">Odisha</option>
+										<option value="Punjab">Punjab</option>
+										<option value="Rajasthan">Rajasthan</option>
+										<option value="Sikkim">Sikkim</option>
+										<option value="Tamil Nadu">Tamil Nadu</option>
+										<option value="Telangana">Telangana</option>
+										<option value="Tripura">Tripura</option>
+										<option value="Uttar Pradesh">Uttar Pradesh</option>
+										<option value="Uttarakhand">Uttarakhand</option>
+										<option value="West Bengal">West Bengal</option>
+									</select>
+									<span class="error-msg" id="teacherState-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Pincode <span class="required">*</span></label>
+									<input type="text" id="teacherPincode" required pattern="[0-9]{6}" maxlength="6" placeholder="6 digit pincode">
+									<span class="error-msg" id="teacherPincode-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Photo</label>
+									<div class="photo-upload-area">
+										<div class="photo-preview" id="modalPhotoPreview">
+											<div class="placeholder">
+												<i class="fas fa-user"></i>
+												<div style="font-size:12px;margin-top:8px;">No Photo</div>
+											</div>
+										</div>
+										<div>
+											<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
+											<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
+												<i class="fas fa-camera"></i> Upload
+											</button>
+											<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
+												<i class="fas fa-trash"></i> Remove
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- TAB 2: PROFESSIONAL DETAILS -->
+					<div class="tab-content" data-tab-content="1">
+						<div class="form-section">
+							<h4><i class="fas fa-briefcase"></i> Professional Information</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Teacher ID / Employee Code</label>
+									<input type="text" id="teacherEmployeeCode" readonly placeholder="Auto-generated" style="background: #f1f5f9; cursor: not-allowed;">
+									<span class="help-text">Automatically generated on save</span>
+								</div>
+								<div class="form-group">
+									<label>Qualification <span class="required">*</span></label>
+									<select id="teacherQualification" required>
+										<option value="">Select Qualification</option>
+									</select>
+									<span class="error-msg" id="teacherQualification-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Years of Experience <span class="required">*</span></label>
+									<input type="number" id="teacherExperience" required min="0" max="50" value="0" placeholder="Years of teaching experience">
+									<span class="error-msg" id="teacherExperience-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Date of Joining <span class="required">*</span></label>
+									<input type="date" id="teacherJoiningDate" required>
+									<span class="error-msg" id="teacherJoiningDate-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Employment Type <span class="required">*</span></label>
+									<select id="teacherEmploymentType" required>
+										<option value="">Select Type</option>
+									</select>
+									<span class="error-msg" id="teacherEmploymentType-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Status <span class="required">*</span></label>
+									<select id="teacherStatus" required>
+										<option value="Active">Active</option>
+										<option value="Inactive">Inactive</option>
+										<option value="On Leave">On Leave</option>
+										<option value="Suspended">Suspended</option>
+									</select>
+									<span class="error-msg" id="teacherStatus-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group full-width">
+									<label>Subject Expertise</label>
+									<input type="text" id="teacherSubjectExpertise" placeholder="e.g., Mathematics, Physics, Chemistry">
+									<span class="help-text">Comma-separated list of subjects</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Compensation & Benefits Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-money-bill-wave"></i> Compensation & Benefits</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Basic Salary <span class="required">*</span></label>
+									<input type="number" id="teacherBasicSalary" required min="0" step="0.01" placeholder="Enter basic salary">
+									<span class="help-text">Monthly basic salary amount</span>
+									<span class="error-msg" id="teacherBasicSalary-error"></span>
+								</div>
+								<div class="form-group">
+									<label>HRA (House Rent Allowance)</label>
+									<input type="number" id="teacherHRA" min="0" step="0.01" placeholder="Enter HRA amount">
+									<span class="help-text">Monthly HRA amount</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Transport Allowance</label>
+									<input type="number" id="teacherTransportAllowance" min="0" step="0.01" placeholder="Enter transport allowance">
+									<span class="help-text">Monthly transport allowance</span>
+								</div>
+								<div class="form-group">
+									<label>Other Allowances</label>
+									<input type="number" id="teacherOtherAllowances" min="0" step="0.01" placeholder="Enter other allowances">
+									<span class="help-text">Medical, special allowances, etc.</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>PF (Provident Fund) %</label>
+									<input type="number" id="teacherPFPercentage" min="0" max="100" step="0.1" placeholder="e.g., 12" value="12">
+									<span class="help-text">Percentage of basic salary</span>
+								</div>
+								<div class="form-group">
+									<label>PF Account Number</label>
+									<input type="text" id="teacherPFAccountNumber" placeholder="Enter PF account number">
+									<span class="help-text">Employee's PF account number</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>ESI (Employee State Insurance) %</label>
+									<input type="number" id="teacherESIPercentage" min="0" max="100" step="0.1" placeholder="e.g., 0.75">
+									<span class="help-text">ESI contribution percentage</span>
+								</div>
+								<div class="form-group">
+									<label>Professional Tax</label>
+									<input type="number" id="teacherProfessionalTax" min="0" step="0.01" placeholder="Enter professional tax">
+									<span class="help-text">Monthly professional tax deduction</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Gross Salary (Auto-calculated)</label>
+									<input type="number" id="teacherGrossSalary" readonly style="background: #f9fafb; cursor: not-allowed;" placeholder="0.00">
+									<span class="help-text">Basic + HRA + Transport + Other</span>
+								</div>
+								<div class="form-group">
+									<label>Net Salary (Auto-calculated)</label>
+									<input type="number" id="teacherNetSalary" readonly style="background: #f9fafb; cursor: not-allowed;" placeholder="0.00">
+									<span class="help-text">Gross - Deductions (PF, ESI, Tax)</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Bank Account Number</label>
+									<input type="text" id="teacherBankAccount" placeholder="Enter bank account number">
+									<span class="help-text">For salary transfer</span>
+								</div>
+								<div class="form-group">
+									<label>Bank Name & Branch</label>
+									<input type="text" id="teacherBankDetails" placeholder="e.g., SBI - Main Branch">
+									<span class="help-text">Bank name and branch details</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>IFSC Code</label>
+									<input type="text" id="teacherIFSC" placeholder="e.g., SBIN0001234" maxlength="11">
+									<span class="help-text">Bank IFSC code for transfers</span>
+								</div>
+								<div class="form-group">
+									<label>PAN Number</label>
+									<input type="text" id="teacherPAN" placeholder="e.g., ABCDE1234F" maxlength="10" style="text-transform: uppercase;">
+									<span class="help-text">Permanent Account Number for tax</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Teacher Documents Section -->
+						<div class="form-section">
+							<div class="documents-section">
+								<div class="documents-section-header">
+									<div class="documents-section-title">
+										<i class="fas fa-file-alt"></i>
+										<span>Teacher Certificates / Documents</span>
+									</div>
+									<button type="button" class="btn btn-outline btn-sm" id="addTeacherDocumentBtn">
+										<i class="fas fa-plus"></i> Add Document
+									</button>
+								</div>
+								<div class="documents-list" id="teacherDocumentsList">
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- TAB 3: TEACHING ASSIGNMENT -->
+					<div class="tab-content" data-tab-content="2">
+						<div class="form-section">
+							<h4><i class="fas fa-chalkboard-teacher"></i> Class & Subject Allocation</h4>
+							<p class="section-description">
+								Assign classes and subjects to this teacher. At least one allocation is mandatory.
+							</p>
+
+							<!-- Add Allocation Form -->
+							<div class="allocation-form-card">
+								<div class="form-row">
+									<div class="form-group">
+										<label>Select Class <span class="required">*</span></label>
+										<select id="allocationClass" onchange="loadSubjectsForClass()">
+											<option value="">Choose a class</option>
+											<option value="1">Class 1</option>
+											<option value="2">Class 2</option>
+											<option value="3">Class 3</option>
+											<option value="4">Class 4</option>
+											<option value="5">Class 5</option>
+											<option value="6">Class 6</option>
+											<option value="7">Class 7</option>
+											<option value="8">Class 8</option>
+											<option value="9">Class 9</option>
+											<option value="10">Class 10</option>
+											<option value="11">Class 11</option>
+											<option value="12">Class 12</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label>Select Subject <span class="required">*</span></label>
+										<select id="allocationSubject" disabled>
+											<option value="">Select class first</option>
+										</select>
+									</div>
+
+									<div class="form-group align-end">
+										<button type="button" class="btn btn-success btn-sm" onclick="addAllocation()">
+											<i class="fas fa-plus"></i> Add
+										</button>
+									</div>
+								</div>
+
+								<div class="validation-message" id="allocationValidation" style="display: none;">
+									<i class="fas fa-exclamation-circle"></i>
+									<span id="allocationValidationText"></span>
+								</div>
+							</div>
+
+							<!-- Allocations Grid -->
+							<div class="allocations-grid-card">
+								<table class="allocations-table">
+									<thead>
+										<tr>
+											<th width="10%">#</th>
+											<th width="35%">Class</th>
+											<th width="45%">Subject</th>
+											<th width="10%">Action</th>
+										</tr>
+									</thead>
+									<tbody id="allocationsTableBody">
+										<tr class="empty-state-row">
+											<td colspan="4" class="empty-state-cell">
+												<i class="fas fa-clipboard-list"></i>
+												<p>No allocations added yet</p>
+												<small>Add at least one class-subject combination</small>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="allocation-summary" id="allocationSummary" style="display: none;">
+								<i class="fas fa-check-circle"></i>
+								<span id="allocationCount">0</span> allocation(s) added
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+
+				<!-- Form Footer -->
+				<div class="modal-footer-sticky">
+					<button type="button" class="btn btn-secondary" onclick="showListView()">
+						<i class="fas fa-times"></i> Cancel
+					</button>
+					<button type="button" class="btn btn-primary" onclick="saveTeacherFromModal()">
+						<i class="fas fa-check"></i> Save Teacher
+					</button>
+				</div>
+			</div>
+		</div><!-- End of formView -->
+
 	</div>
 
 	<button class="fab-btn" id="fabAddBtn" title="Add New Teacher"><i class="fas fa-plus"></i></button>
@@ -751,6 +2249,47 @@
 				populateDropdown('#teacherGender', 'gender', 'Select Gender');
 				populateDropdown('#teacherSubject', 'subject', 'Select Subject');
 			});
+
+			// Populate dynamic dropdowns by Dropdown ID with add new functionality
+			populateDropdownById('#teacherQualification', 465, 'Select Qualification', true);
+			populateDropdownById('#teacherEmploymentType', 464, 'Select Type', true);
+
+			// Initialize salary auto-calculation
+			initSalaryCalculation();
+		}
+
+		// Auto-calculate Gross and Net Salary
+		function initSalaryCalculation() {
+			// Attach event listeners to all salary-related fields
+			$('#teacherBasicSalary, #teacherHRA, #teacherTransportAllowance, #teacherOtherAllowances, #teacherPFPercentage, #teacherESIPercentage, #teacherProfessionalTax')
+				.on('input change', calculateSalary);
+		}
+
+		function calculateSalary() {
+			// Get all input values (default to 0 if empty or invalid)
+			var basic = parseFloat($('#teacherBasicSalary').val()) || 0;
+			var hra = parseFloat($('#teacherHRA').val()) || 0;
+			var transport = parseFloat($('#teacherTransportAllowance').val()) || 0;
+			var other = parseFloat($('#teacherOtherAllowances').val()) || 0;
+
+			// Calculate Gross Salary (Total Earnings)
+			var gross = basic + hra + transport + other;
+			$('#teacherGrossSalary').val(gross.toFixed(2));
+
+			// Get deduction percentages and amounts
+			var pfPercent = parseFloat($('#teacherPFPercentage').val()) || 0;
+			var esiPercent = parseFloat($('#teacherESIPercentage').val()) || 0;
+			var profTax = parseFloat($('#teacherProfessionalTax').val()) || 0;
+
+			// Calculate deductions
+			// PF is calculated on Basic Salary only (industry standard)
+			var pfAmount = (basic * pfPercent) / 100;
+			// ESI is calculated on Gross Salary
+			var esiAmount = (gross * esiPercent) / 100;
+
+			// Calculate Net Salary (Take Home)
+			var net = gross - pfAmount - esiAmount - profTax;
+			$('#teacherNetSalary').val(net.toFixed(2));
 		}
 
 		function populateDropdown(selector, categoryKey, placeholder) {
@@ -763,6 +2302,290 @@
 					$select.append($('<option>', { value: item.value, text: item.value }));
 				});
 				if (currentVal) $select.val(currentVal);
+			});
+		}
+
+		// New function to populate dropdowns by Dropdown ID with add new functionality
+		function populateDropdownById(selector, dropdownId, placeholder, allowAddNew = false) {
+			$.ajax({
+				url: '/School-Management-PhpVersion/backend/api/dropdowns_v2.php',
+				type: 'GET',
+				data: { action: 'by_dropdown_id', dropdown_id: dropdownId },
+				dataType: 'json',
+				success: function(response) {
+					if (response.success) {
+						var $select = $(selector);
+						var $parent = $select.parent();
+						var currentVal = $select.val();
+
+						// Clear and populate dropdown
+						$select.empty();
+						$select.append($('<option>', { value: '', text: placeholder }));
+
+						$.each(response.data.values, function(i, item) {
+							$select.append($('<option>', { value: item.value, text: item.value }));
+						});
+
+						if (currentVal) $select.val(currentVal);
+
+						// Add "+" button for adding new values if allowed
+						if (allowAddNew && !$parent.find('.add-dropdown-value-btn').length) {
+							// Wrap select in a container for better icon positioning
+							if (!$select.parent().hasClass('dropdown-with-add')) {
+								$select.wrap('<div class="dropdown-with-add" style="position: relative; display: block;"></div>');
+								$parent = $select.parent(); // Update parent reference
+							}
+
+							// Add padding to select to make room for + icon inside
+							$select.css({
+								'padding-right': '48px',
+								'appearance': 'none',
+								'-webkit-appearance': 'none',
+								'-moz-appearance': 'none',
+								'background-image': 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")',
+								'background-repeat': 'no-repeat',
+								'background-position': 'right 38px center',
+								'background-size': '20px'
+							});
+
+							var $addBtn = $('<button>', {
+								type: 'button',
+								class: 'add-dropdown-value-btn',
+								title: 'Add New ' + response.data.category_name
+							});
+
+							$addBtn.html('<i class="fas fa-plus"></i>');
+
+							$addBtn.css({
+								position: 'absolute',
+								right: '8px',
+								top: '50%',
+								transform: 'translateY(-50%)',
+								background: '#8b5cf6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								width: '30px',
+								height: '30px',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontSize: '13px',
+								zIndex: '10',
+								transition: 'all 0.2s',
+								pointerEvents: 'auto',
+								boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)'
+							});
+
+							$addBtn.on('mouseenter', function() {
+								$(this).css({
+									background: '#7c3aed',
+									transform: 'translateY(-50%) scale(1.08)',
+									boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)'
+								});
+							});
+
+							$addBtn.on('mouseleave', function() {
+								$(this).css({
+									background: '#8b5cf6',
+									transform: 'translateY(-50%) scale(1)',
+									boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)'
+								});
+							});
+
+							$addBtn.on('click', function(e) {
+								e.preventDefault();
+								e.stopPropagation();
+								console.log('Plus button clicked for dropdown ID:', dropdownId);
+								showAddValueModal(dropdownId, response.data.category_name, selector);
+								return false;
+							});
+
+							$parent.append($addBtn);
+						}
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error('Failed to load dropdown ID: ' + dropdownId, error);
+				}
+			});
+		}
+
+		// Function to show modal for adding new dropdown value
+		function showAddValueModal(dropdownId, categoryName, targetSelector) {
+			var modalHtml = `
+				<div class="modal-overlay" id="addValueModal" style="
+					display: flex;
+					position: fixed;
+					inset: 0;
+					background: rgba(0, 0, 0, 0.6);
+					backdrop-filter: blur(4px);
+					z-index: 15000;
+					align-items: center;
+					justify-content: center;
+					padding: 20px;
+					animation: fadeIn 0.2s ease;
+				">
+					<div class="modal-box" style="
+						max-width: 450px;
+						width: 100%;
+						background: white;
+						border-radius: 16px;
+						box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+						animation: slideUp 0.3s ease;
+					">
+						<div class="modal-header" style="
+							background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+							color: white;
+							padding: 20px;
+							border-radius: 16px 16px 0 0;
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+						">
+							<h3 style="margin: 0; font-size: 18px; font-weight: 600;">
+								<i class="fas fa-plus-circle" style="margin-right: 8px;"></i>
+								Add New ${categoryName}
+							</h3>
+							<button type="button" onclick="closeAddValueModal()" style="
+								background: none;
+								border: none;
+								color: white;
+								cursor: pointer;
+								font-size: 20px;
+								padding: 4px 8px;
+								opacity: 0.8;
+								transition: opacity 0.2s;
+							" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">
+								<i class="fas fa-times"></i>
+							</button>
+						</div>
+						<div class="modal-body" style="padding: 24px;">
+							<div class="form-group">
+								<label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">
+									New ${categoryName} Value <span style="color: #ef4444;">*</span>
+								</label>
+								<input type="text" id="newDropdownValue" placeholder="Enter ${categoryName.toLowerCase()}"
+									style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;" required autocomplete="off">
+								<span class="error-msg" id="newDropdownValue-error" style="display: block; margin-top: 4px; color: #ef4444; font-size: 12px;"></span>
+							</div>
+						</div>
+						<div class="modal-footer" style="display: flex; gap: 12px; padding: 0 24px 24px 24px; justify-content: flex-end;">
+							<button type="button" class="btn btn-outline" onclick="closeAddValueModal()">
+								<i class="fas fa-times"></i> Cancel
+							</button>
+							<button type="button" class="btn btn-success" id="saveValueBtn" onclick="saveNewDropdownValue(${dropdownId}, '${categoryName}', '${targetSelector}')">
+								<i class="fas fa-check"></i> Add Value
+							</button>
+						</div>
+					</div>
+				</div>
+			`;
+
+			// Add fade-in and slide-up animations if not already present
+			if (!$('#modalAnimations').length) {
+				$('head').append(`
+					<style id="modalAnimations">
+						@keyframes fadeIn {
+							from { opacity: 0; }
+							to { opacity: 1; }
+						}
+						@keyframes fadeOut {
+							from { opacity: 1; }
+							to { opacity: 0; }
+						}
+						@keyframes slideUp {
+							from { transform: translateY(20px); opacity: 0; }
+							to { transform: translateY(0); opacity: 1; }
+						}
+					</style>
+				`);
+			}
+
+			$('body').append(modalHtml);
+
+			// Prevent background scrolling
+			$('body').css('overflow', 'hidden');
+
+			// Focus input after animation
+			setTimeout(function() {
+				$('#newDropdownValue').focus();
+			}, 100);
+
+			// Allow Enter key to submit
+			$('#newDropdownValue').off('keypress').on('keypress', function(e) {
+				if (e.which === 13) {
+					e.preventDefault();
+					saveNewDropdownValue(dropdownId, categoryName, targetSelector);
+				}
+			});
+
+			// Click outside to close
+			$('#addValueModal').on('click', function(e) {
+				if (e.target.id === 'addValueModal') {
+					closeAddValueModal();
+				}
+			});
+		}
+
+		// Function to close add value modal
+		window.closeAddValueModal = function() {
+			// Fade out animation
+			$('#addValueModal').css('animation', 'fadeOut 0.2s ease');
+			setTimeout(function() {
+				$('#addValueModal').remove();
+				// Restore scrolling
+				$('body').css('overflow', '');
+			}, 200);
+		}
+
+		// Function to save new dropdown value
+		window.saveNewDropdownValue = function(dropdownId, categoryName, targetSelector) {
+			var newValue = $('#newDropdownValue').val().trim();
+			var $error = $('#newDropdownValue-error');
+
+			$error.text('');
+
+			if (!newValue) {
+				$error.text('Please enter a value');
+				return;
+			}
+
+			// Show loading state
+			var $btn = $('#addValueModal .btn-success');
+			var originalHtml = $btn.html();
+			$btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+			$.ajax({
+				url: '/School-Management-PhpVersion/backend/api/dropdowns_v2.php',
+				type: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify({
+					action: 'add_by_dropdown_id',
+					dropdown_id: dropdownId,
+					value: newValue
+				}),
+				dataType: 'json',
+				success: function(response) {
+					if (response.success) {
+						notify(`"${newValue}" added to ${categoryName} successfully!`, 'success');
+						closeAddValueModal();
+						// Reload the dropdown to show the new value
+						populateDropdownById(targetSelector, dropdownId, 'Select ' + categoryName, true);
+						// Set the newly added value as selected
+						setTimeout(function() {
+							$(targetSelector).val(newValue);
+						}, 300);
+					} else {
+						$error.text(response.message || 'Failed to add value');
+						$btn.prop('disabled', false).html(originalHtml);
+					}
+				},
+				error: function() {
+					$error.text('Network error. Please try again.');
+					$btn.prop('disabled', false).html(originalHtml);
+				}
 			});
 		}
 
@@ -901,6 +2724,104 @@
 
 		function saveTeachers() { localStorage.setItem(STORAGE_KEY, JSON.stringify(teachers)); }
 
+		// Sync teacher salary data to Payroll module
+		function syncTeacherToPayroll(teacher) {
+			try {
+				const PAYROLL_KEY = 'edu_payroll';
+				let payrollRecords = JSON.parse(localStorage.getItem(PAYROLL_KEY)) || [];
+
+				// Get current month and year
+				const now = new Date();
+				const month = String(now.getMonth() + 1).padStart(2, '0');
+				const year = now.getFullYear();
+				const currentPeriod = `${year}-${month}`;
+
+				// Check if payroll record exists for this teacher in current month
+				const existingIndex = payrollRecords.findIndex(p =>
+					p.employeeId === teacher.id && p.payPeriod === currentPeriod
+				);
+
+				// Calculate salary components from teacher data
+				const basicSalary = parseFloat(teacher.basicSalary) || 0;
+				const hra = parseFloat(teacher.hra) || 0;
+				const transportAllowance = parseFloat(teacher.transportAllowance) || 0;
+				const otherAllowances = parseFloat(teacher.otherAllowances) || 0;
+				const pfPercentage = parseFloat(teacher.pfPercentage) || 0;
+				const esiPercentage = parseFloat(teacher.esiPercentage) || 0;
+				const professionalTax = parseFloat(teacher.professionalTax) || 0;
+
+				// Calculate PF and ESI amounts
+				const pfAmount = (basicSalary * pfPercentage) / 100;
+				const esiAmount = ((basicSalary + hra + transportAllowance + otherAllowances) * esiPercentage) / 100;
+
+				// Calculate gross and net
+				const grossEarnings = basicSalary + hra + transportAllowance + otherAllowances;
+				const totalDeductions = pfAmount + esiAmount + professionalTax;
+				const netSalary = grossEarnings - totalDeductions;
+
+				// Create/update payroll record
+				const payrollRecord = {
+					id: existingIndex >= 0 ? payrollRecords[existingIndex].id : 'PAY' + Date.now(),
+					employeeId: teacher.id,
+					employeeName: teacher.name,
+					designation: teacher.designation || 'Teacher',
+					department: teacher.department || '-',
+					payPeriod: currentPeriod,
+					// Earnings
+					basic: basicSalary,
+					hra: hra,
+					da: 0, // Not in teacher form
+					transport: transportAllowance,
+					medical: 0, // Not in teacher form
+					otherAllowances: otherAllowances,
+					// Deductions
+					pf: pfAmount,
+					professionalTax: professionalTax,
+					esi: esiAmount,
+					tds: 0, // Can be calculated later
+					otherDeductions: 0,
+					leaveDays: 0,
+					leaveDeduction: 0,
+					loanEmi: 0,
+					// Totals
+					grossEarnings: grossEarnings,
+					totalDeductions: totalDeductions,
+					netSalary: netSalary,
+					// Payment details
+					paymentMode: 'Bank Transfer',
+					bankAccount: teacher.bankAccount || '',
+					bankDetails: teacher.bankDetails || '',
+					ifscCode: teacher.ifscCode || '',
+					panNumber: teacher.panNumber || '',
+					pfAccountNumber: teacher.pfAccountNumber || '',
+					// Status
+					status: 'Pending',
+					paymentDate: null,
+					remarks: `Auto-synced from Teacher module on ${new Date().toLocaleString()}`,
+					createdAt: existingIndex >= 0 ? payrollRecords[existingIndex].createdAt : new Date().toISOString(),
+					updatedAt: new Date().toISOString()
+				};
+
+				if (existingIndex >= 0) {
+					// Update existing record
+					payrollRecords[existingIndex] = payrollRecord;
+					console.log(`✓ Updated payroll record for ${teacher.name} (${currentPeriod})`);
+				} else {
+					// Add new record
+					payrollRecords.push(payrollRecord);
+					console.log(`✓ Created new payroll record for ${teacher.name} (${currentPeriod})`);
+				}
+
+				// Save to localStorage
+				localStorage.setItem(PAYROLL_KEY, JSON.stringify(payrollRecords));
+
+				return true;
+			} catch (error) {
+				console.error('Error syncing to payroll:', error);
+				return false;
+			}
+		}
+
 		function renderStats() {
 			const total = teachers.length;
 			const active = teachers.filter(t => t.status === 'Active').length;
@@ -959,9 +2880,9 @@
 							<td><span class="status-badge ${t.status === 'Active' ? 'active' : 'inactive'}" onclick="toggleStatus(${globalIdx})">${t.status}</span></td>
 							<td>
 								<div class="action-btns">
-									<button class="action-btn edit" title="Edit Teacher" onclick="openEditTeacherModal(${globalIdx})"><i class="fas fa-edit"></i></button>
-									${t.documents && t.documents.length > 0 ? `<button class="action-btn view" title="View Documents (${t.documents.length})" onclick="viewTeacherDocuments(${globalIdx})"><i class="fas fa-file-alt"></i></button>` : ''}
-									<button class="action-btn delete" title="Delete" onclick="deleteTeacher(${globalIdx})"><i class="fas fa-trash"></i></button>
+									<button class="action-btn view" title="View Teacher Details" onclick="viewTeacherDetails(${globalIdx})"><i class="fas fa-eye"></i></button>
+									${PermissionManager.hasPermission('teachers', 'edit') ? `<button class="action-btn edit" title="Edit Teacher" onclick="openEditTeacherModal(${globalIdx})"><i class="fas fa-edit"></i></button>` : ''}
+									${PermissionManager.hasPermission('teachers', 'delete') ? `<button class="action-btn delete" title="Delete" onclick="deleteTeacher(${globalIdx})"><i class="fas fa-trash"></i></button>` : ''}
 								</div>
 					</td>
 				</tr>
@@ -1077,6 +2998,36 @@
 			renderTable();
 			renderStats();
 			notify('Teacher deleted!');
+		};
+
+		// Function to view teacher details (read-only)
+		window.viewTeacherDetails = function(idx) {
+			try {
+				const teacher = teachers[idx];
+				if (!teacher) {
+					notify('Teacher not found', 'error');
+					return;
+				}
+
+				// Open the modal in view-only mode
+				editingTeacherIndex = -1; // Set to -1 to indicate view mode
+				openEditTeacherModal(idx);
+
+				// Change modal title
+				$('#modalTitle').html('<i class="fas fa-eye"></i> View Teacher Details');
+
+				// Make all inputs read-only
+				$('#teacherModal input, #teacherModal select, #teacherModal textarea').prop('readonly', true).prop('disabled', true);
+
+				// Hide the save button, show only close
+				$('#saveTeacherBtn').hide();
+				$('.modal-footer-sticky .btn-secondary').text('Close');
+
+				notify('Viewing teacher details (read-only mode)', 'info');
+			} catch (error) {
+				console.error('Error viewing teacher:', error);
+				notify('Error loading teacher details', 'error');
+			}
 		};
 
 		let editingTeacherIndex = -1;
@@ -1340,12 +3291,54 @@
 			return docs;
 		}
 
+		// ============================================
+		// PAGE VIEW NAVIGATION FUNCTIONS
+		// ============================================
+		function showListView() {
+			$('#formView').removeClass('active');
+			$('#listView').addClass('active');
+			editingTeacherIndex = -1;
+			modalPhotoPreview = '';
+			teacherDocuments = [];
+			teacherDocumentsCache = {};
+			$('#teacherDocumentsList').empty();
+		}
+
+		function showFormView(isEdit = false, teacher = null) {
+			// Update title based on add/edit mode
+			if (isEdit && teacher) {
+				$('#formTitle').text('Edit Teacher');
+				$('#formSubtitle').text('Update teacher information');
+				$('#formTitleIcon').removeClass('fa-user-plus').addClass('fa-user-edit');
+			} else {
+				$('#formTitle').text('Add New Teacher');
+				$('#formSubtitle').text('Fill in the details to register a new teacher');
+				$('#formTitleIcon').removeClass('fa-user-edit').addClass('fa-user-plus');
+			}
+
+			// Switch views - form content is now directly in the page
+			$('#listView').removeClass('active');
+			$('#formView').addClass('active');
+
+			// Reset to first tab
+			switchFormTab(0);
+		}
+
+		function switchFormTab(tabIndex) {
+			// Update tab buttons
+			$('.tab-btn').removeClass('active');
+			$('.tab-btn[data-tab="' + tabIndex + '"]').addClass('active');
+
+			// Update tab content
+			$('.tab-content').removeClass('active');
+			$('.tab-content[data-tab-content="' + tabIndex + '"]').addClass('active');
+		}
+
 		function openAddTeacherModal() {
 			editingTeacherIndex = -1;
 			modalPhotoPreview = '';
 			teacherDocuments = [];
 			teacherDocumentsCache = {};
-			$('#modalTitle').html('<i class="fas fa-user-plus"></i> Add New Teacher');
 			$('#teacherForm')[0].reset();
 			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
 			$('#teacherStatus').val('Active');
@@ -1354,16 +3347,14 @@
 			$('#teacherExperience').val('0');
 			$('#removePhotoBtn').hide();
 			$('#teacherDocumentsList').empty();
-			$('#teacherModal').addClass('show');
+
+			// Show full-page form view instead of modal
+			showFormView(false);
 		}
 
 		function closeTeacherModal() {
-			$('#teacherModal').removeClass('show');
-			editingTeacherIndex = -1;
-			modalPhotoPreview = '';
-			teacherDocuments = [];
-			teacherDocumentsCache = {};
-			$('#teacherDocumentsList').empty();
+			// Redirect to list view instead of closing modal
+			showListView();
 		}
 
 		function addNewTeacher() {
@@ -1371,9 +3362,17 @@
 		}
 
 		// Make functions globally accessible
+		window.showListView = showListView;
+		window.showFormView = showFormView;
+		window.switchFormTab = switchFormTab;
 		window.openAddTeacherModal = openAddTeacherModal;
 		window.closeTeacherModal = closeTeacherModal;
 		window.addNewTeacher = addNewTeacher;
+
+		// Alias for page-based save
+		window.saveTeacherFromPage = function() {
+			window.saveTeacherFromModal();
+		};
 
 		window.saveTeacherFromModal = function() {
 			const name = $('#teacherName').val().trim();
@@ -1384,6 +3383,22 @@
 			const experience = parseInt($('#teacherExperience').val()) || 0;
 			const status = $('#teacherStatus').val();
 			const photo = modalPhotoPreview;
+
+			// Collect salary and compensation data
+			const basicSalary = parseFloat($('#teacherBasicSalary').val()) || 0;
+			const hra = parseFloat($('#teacherHRA').val()) || 0;
+			const transportAllowance = parseFloat($('#teacherTransportAllowance').val()) || 0;
+			const otherAllowances = parseFloat($('#teacherOtherAllowances').val()) || 0;
+			const pfPercentage = parseFloat($('#teacherPFPercentage').val()) || 0;
+			const pfAccountNumber = $('#teacherPFAccountNumber').val().trim();
+			const esiPercentage = parseFloat($('#teacherESIPercentage').val()) || 0;
+			const professionalTax = parseFloat($('#teacherProfessionalTax').val()) || 0;
+			const grossSalary = parseFloat($('#teacherGrossSalary').val()) || 0;
+			const netSalary = parseFloat($('#teacherNetSalary').val()) || 0;
+			const bankAccount = $('#teacherBankAccount').val().trim();
+			const bankDetails = $('#teacherBankDetails').val().trim();
+			const ifscCode = $('#teacherIFSC').val().trim();
+			const panNumber = $('#teacherPAN').val().trim();
 
 			if (!name) {
 				notify('Please enter teacher name', 'error');
@@ -1431,7 +3446,33 @@
 				teachers[editingTeacherIndex].status = status;
 				if (photo) teachers[editingTeacherIndex].photo = photo;
 				teachers[editingTeacherIndex].documents = documents;
-				notify('Teacher updated successfully!', 'success');
+				// Update salary fields
+				teachers[editingTeacherIndex].basicSalary = basicSalary;
+				teachers[editingTeacherIndex].hra = hra;
+				teachers[editingTeacherIndex].transportAllowance = transportAllowance;
+				teachers[editingTeacherIndex].otherAllowances = otherAllowances;
+				teachers[editingTeacherIndex].pfPercentage = pfPercentage;
+				teachers[editingTeacherIndex].pfAccountNumber = pfAccountNumber;
+				teachers[editingTeacherIndex].esiPercentage = esiPercentage;
+				teachers[editingTeacherIndex].professionalTax = professionalTax;
+				teachers[editingTeacherIndex].grossSalary = grossSalary;
+				teachers[editingTeacherIndex].netSalary = netSalary;
+				teachers[editingTeacherIndex].bankAccount = bankAccount;
+				teachers[editingTeacherIndex].bankDetails = bankDetails;
+				teachers[editingTeacherIndex].ifscCode = ifscCode;
+				teachers[editingTeacherIndex].panNumber = panNumber;
+
+				// Sync to payroll if salary data exists
+				if (basicSalary > 0) {
+					const synced = syncTeacherToPayroll(teachers[editingTeacherIndex]);
+					if (synced) {
+						notify('Teacher updated & synced to Payroll successfully!', 'success');
+					} else {
+						notify('Teacher updated (payroll sync failed)', 'warning');
+					}
+				} else {
+					notify('Teacher updated successfully!', 'success');
+				}
 			} else {
 				// Add new teacher
 				const currentYear = new Date().getFullYear();
@@ -1446,9 +3487,35 @@
 					experience: experience,
 					status: status,
 					photo: photo,
-					documents: documents
+					documents: documents,
+					// Salary and compensation fields
+					basicSalary: basicSalary,
+					hra: hra,
+					transportAllowance: transportAllowance,
+					otherAllowances: otherAllowances,
+					pfPercentage: pfPercentage,
+					pfAccountNumber: pfAccountNumber,
+					esiPercentage: esiPercentage,
+					professionalTax: professionalTax,
+					grossSalary: grossSalary,
+					netSalary: netSalary,
+					bankAccount: bankAccount,
+					bankDetails: bankDetails,
+					ifscCode: ifscCode,
+					panNumber: panNumber
 				});
-				notify('New teacher added successfully!', 'success');
+
+				// Sync to payroll if salary data exists
+				if (basicSalary > 0) {
+					const synced = syncTeacherToPayroll(teachers[0]); // Just added teacher at index 0
+					if (synced) {
+						notify('Teacher added & synced to Payroll successfully!', 'success');
+					} else {
+						notify('Teacher added (payroll sync failed)', 'warning');
+					}
+				} else {
+					notify('New teacher added successfully!', 'success');
+				}
 			}
 
 			saveTeachers();
@@ -1501,10 +3568,26 @@
 					$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
 					$('#removePhotoBtn').hide();
 				}
-				
+
 				// Load documents
 				loadTeacherDocuments(teacher);
-				
+
+				// Populate salary and compensation fields
+				$('#teacherBasicSalary').val(teacher.basicSalary || '');
+				$('#teacherHRA').val(teacher.hra || '');
+				$('#teacherTransportAllowance').val(teacher.transportAllowance || '');
+				$('#teacherOtherAllowances').val(teacher.otherAllowances || '');
+				$('#teacherPFPercentage').val(teacher.pfPercentage || 12);
+				$('#teacherPFAccountNumber').val(teacher.pfAccountNumber || '');
+				$('#teacherESIPercentage').val(teacher.esiPercentage || '');
+				$('#teacherProfessionalTax').val(teacher.professionalTax || '');
+				$('#teacherGrossSalary').val(teacher.grossSalary || '');
+				$('#teacherNetSalary').val(teacher.netSalary || '');
+				$('#teacherBankAccount').val(teacher.bankAccount || '');
+				$('#teacherBankDetails').val(teacher.bankDetails || '');
+				$('#teacherIFSC').val(teacher.ifscCode || '');
+				$('#teacherPAN').val(teacher.panNumber || '');
+
 				$('#teacherModal').addClass('show');
 			} catch (error) {
 				console.error('Error opening edit modal:', error);
@@ -1708,103 +3791,848 @@
 				closeTeacherModal();
 			}
 		});
+
+		// ===== ENHANCED MODAL - TAB NAVIGATION & VALIDATION =====
+
+		// Global state for teaching allocations
+		let teacherAllocations = [];
+
+		// Initialize tab navigation
+		function initTabs() {
+			$('.tab-btn').on('click', function() {
+				const tabIndex = $(this).data('tab');
+
+				// Remove active class from all tabs and contents
+				$('.tab-btn').removeClass('active');
+				$('.tab-content').removeClass('active');
+
+				// Add active to clicked tab and corresponding content
+				$(this).addClass('active');
+				$(`.tab-content[data-tab-content="${tabIndex}"]`).addClass('active');
+			});
+		}
+
+		// Toggle spouse name field based on marital status
+		window.toggleSpouseField = function() {
+			const maritalStatus = $('#teacherMaritalStatus').val();
+			const spouseGroup = $('#spouseNameGroup');
+
+			if (maritalStatus === 'Married') {
+				spouseGroup.show();
+				$('#teacherSpouseName').attr('required', true);
+			} else {
+				spouseGroup.hide();
+				$('#teacherSpouseName').attr('required', false);
+				$('#teacherSpouseName').val('');
+				clearError('teacherSpouseName');
+			}
+		};
+
+		// Show error message
+		function showError(fieldId, message) {
+			const field = $('#' + fieldId);
+			const errorSpan = $('#' + fieldId + '-error');
+
+			field.addClass('error').removeClass('success');
+			errorSpan.text(message).addClass('show');
+		}
+
+		// Clear error message
+		function clearError(fieldId) {
+			const field = $('#' + fieldId);
+			const errorSpan = $('#' + fieldId + '-error');
+
+			field.removeClass('error');
+			errorSpan.removeClass('show').text('');
+		}
+
+		// Show success state
+		function showSuccess(fieldId) {
+			const field = $('#' + fieldId);
+			field.removeClass('error').addClass('success');
+			clearError(fieldId);
+		}
+
+		// Load subjects for selected class
+		window.loadSubjectsForClass = function() {
+			const classValue = $('#allocationClass').val();
+			const subjectSelect = $('#allocationSubject');
+
+			if (!classValue) {
+				subjectSelect.prop('disabled', true).html('<option value="">Select class first</option>');
+				return;
+			}
+
+			// For now, use hardcoded subjects based on class
+			// In production, this would be an AJAX call to backend
+			const subjectsByClass = {
+				'1': ['English', 'Mathematics', 'EVS', 'Hindi'],
+				'2': ['English', 'Mathematics', 'EVS', 'Hindi'],
+				'3': ['English', 'Mathematics', 'EVS', 'Hindi'],
+				'4': ['English', 'Mathematics', 'EVS', 'Hindi', 'Computer'],
+				'5': ['English', 'Mathematics', 'EVS', 'Hindi', 'Computer'],
+				'6': ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Computer Science'],
+				'7': ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Computer Science'],
+				'8': ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Computer Science'],
+				'9': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Social Science', 'Hindi'],
+				'10': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Social Science', 'Hindi'],
+				'11': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Accountancy', 'Business Studies', 'Economics'],
+				'12': ['English', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Accountancy', 'Business Studies', 'Economics']
+			};
+
+			const subjects = subjectsByClass[classValue] || [];
+			let optionsHtml = '<option value="">Select a subject</option>';
+
+			subjects.forEach(subject => {
+				optionsHtml += `<option value="${subject}">${subject}</option>`;
+			});
+
+			subjectSelect.prop('disabled', false).html(optionsHtml);
+		};
+
+		// Add allocation to the list
+		window.addAllocation = function() {
+			const classVal = $('#allocationClass').val();
+			const subjectVal = $('#allocationSubject').val();
+			const classText = $('#allocationClass option:selected').text();
+			const subjectText = $('#allocationSubject option:selected').text();
+
+			// Validation
+			if (!classVal) {
+				$('#allocationValidation').show();
+				$('#allocationValidationText').text('Please select a class');
+				return;
+			}
+
+			if (!subjectVal) {
+				$('#allocationValidation').show();
+				$('#allocationValidationText').text('Please select a subject');
+				return;
+			}
+
+			// Check for duplicate
+			const isDuplicate = teacherAllocations.some(alloc =>
+				alloc.class === classVal && alloc.subject === subjectVal
+			);
+
+			if (isDuplicate) {
+				$('#allocationValidation').show();
+				$('#allocationValidationText').text('This class-subject combination is already added');
+				return;
+			}
+
+			// Hide validation message
+			$('#allocationValidation').hide();
+
+			// Add to array
+			teacherAllocations.push({
+				class: classVal,
+				classText: classText,
+				subject: subjectVal,
+				subjectText: subjectText
+			});
+
+			// Render table
+			renderAllocationsTable();
+
+			// Reset form
+			$('#allocationClass').val('');
+			$('#allocationSubject').prop('disabled', true).html('<option value="">Select class first</option>');
+		};
+
+		// Remove allocation
+		window.removeAllocation = function(index) {
+			teacherAllocations.splice(index, 1);
+			renderAllocationsTable();
+		};
+
+		// Render allocations table
+		function renderAllocationsTable() {
+			const tbody = $('#allocationsTableBody');
+
+			if (teacherAllocations.length === 0) {
+				tbody.html(`
+					<tr class="empty-state-row">
+						<td colspan="4" class="empty-state-cell">
+							<i class="fas fa-clipboard-list"></i>
+							<p>No allocations added yet</p>
+							<small>Add at least one class-subject combination</small>
+						</td>
+					</tr>
+				`);
+				$('#allocationSummary').hide();
+			} else {
+				let html = '';
+				teacherAllocations.forEach((alloc, index) => {
+					html += `
+						<tr>
+							<td>${index + 1}</td>
+							<td>${alloc.classText}</td>
+							<td>${alloc.subjectText}</td>
+							<td>
+								<button type="button" class="btn-remove-allocation" onclick="removeAllocation(${index})" title="Remove">
+									<i class="fas fa-times"></i>
+								</button>
+							</td>
+						</tr>
+					`;
+				});
+				tbody.html(html);
+
+				$('#allocationSummary').show();
+				$('#allocationCount').text(teacherAllocations.length);
+			}
+		}
+
+		// Validate Personal Info Tab
+		function validatePersonalInfo() {
+			let isValid = true;
+
+			// Name validation
+			const name = $('#teacherName').val().trim();
+			if (name.length < 3 || name.length > 50) {
+				showError('teacherName', 'Name must be 3-50 characters');
+				isValid = false;
+			} else if (!/^[A-Za-z\s]+$/.test(name)) {
+				showError('teacherName', 'Name can only contain letters and spaces');
+				isValid = false;
+			} else {
+				clearError('teacherName');
+			}
+
+			// DOB validation (must be 18+)
+			const dob = new Date($('#teacherDOB').val());
+			const age = (new Date() - dob) / (365.25 * 24 * 60 * 60 * 1000);
+			if (!$('#teacherDOB').val()) {
+				showError('teacherDOB', 'Date of birth is required');
+				isValid = false;
+			} else if (age < 18) {
+				showError('teacherDOB', 'Teacher must be at least 18 years old');
+				isValid = false;
+			} else {
+				clearError('teacherDOB');
+			}
+
+			// Email validation
+			const email = $('#teacherEmail').val().trim();
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(email)) {
+				showError('teacherEmail', 'Please enter a valid email address');
+				isValid = false;
+			} else {
+				clearError('teacherEmail');
+			}
+
+			// Phone validation (exactly 10 digits)
+			const phone = $('#teacherPhone').val().trim();
+			if (!/^[0-9]{10}$/.test(phone)) {
+				showError('teacherPhone', '10 digit mobile number required');
+				isValid = false;
+			} else {
+				clearError('teacherPhone');
+			}
+
+			// Aadhaar validation (exactly 12 digits)
+			const aadhaar = $('#teacherAadhaar').val().trim();
+			if (!/^[0-9]{12}$/.test(aadhaar)) {
+				showError('teacherAadhaar', 'Aadhaar must be exactly 12 digits');
+				isValid = false;
+			} else {
+				clearError('teacherAadhaar');
+			}
+
+			// PAN validation (format: ABCDE1234F)
+			const pan = $('#teacherPAN').val().trim().toUpperCase();
+			if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
+				showError('teacherPAN', 'Invalid PAN format. Use: ABCDE1234F');
+				isValid = false;
+			} else {
+				$('#teacherPAN').val(pan); // Update to uppercase
+				clearError('teacherPAN');
+			}
+
+			// Spouse name validation (required if married)
+			const maritalStatus = $('#teacherMaritalStatus').val();
+			const spouseName = $('#teacherSpouseName').val().trim();
+			if (maritalStatus === 'Married' && spouseName.length === 0) {
+				showError('teacherSpouseName', 'Spouse name required for married status');
+				isValid = false;
+			} else {
+				clearError('teacherSpouseName');
+			}
+
+			// Pincode validation (exactly 6 digits)
+			const pincode = $('#teacherPincode').val().trim();
+			if (!/^[0-9]{6}$/.test(pincode)) {
+				showError('teacherPincode', '6 digit pincode required');
+				isValid = false;
+			} else {
+				clearError('teacherPincode');
+			}
+
+			// Check all required fields
+			const requiredFields = [
+				'teacherGender', 'teacherBloodGroup', 'teacherMaritalStatus',
+				'teacherDoorNo', 'teacherArea', 'teacherCity', 'teacherState'
+			];
+
+			requiredFields.forEach(field => {
+				if (!$('#' + field).val()) {
+					showError(field, 'This field is required');
+					isValid = false;
+				} else {
+					clearError(field);
+				}
+			});
+
+			return isValid;
+		}
+
+		// Validate Professional Details Tab
+		function validateProfessionalDetails() {
+			let isValid = true;
+
+			const requiredFields = [
+				'teacherQualification',
+				'teacherExperience',
+				'teacherJoiningDate',
+				'teacherEmploymentType',
+				'teacherStatus'
+			];
+
+			requiredFields.forEach(field => {
+				if (!$('#' + field).val()) {
+					showError(field, 'This field is required');
+					isValid = false;
+				} else {
+					clearError(field);
+				}
+			});
+
+			// Experience validation (0-50 years)
+			const exp = parseInt($('#teacherExperience').val());
+			if (exp < 0 || exp > 50) {
+				showError('teacherExperience', 'Experience must be between 0-50 years');
+				isValid = false;
+			}
+
+			// Joining date cannot be future
+			const joiningDate = new Date($('#teacherJoiningDate').val());
+			if (joiningDate > new Date()) {
+				showError('teacherJoiningDate', 'Joining date cannot be in the future');
+				isValid = false;
+			}
+
+			return isValid;
+		}
+
+		// Validate Teaching Assignments
+		function validateTeachingAssignments() {
+			if (teacherAllocations.length === 0) {
+				$('#allocationValidation').show();
+				$('#allocationValidationText').text('At least one class-subject allocation is required');
+				return false;
+			}
+
+			$('#allocationValidation').hide();
+			return true;
+		}
+
+		// Initialize tabs on page load
+		initTabs();
+
+		// Keyboard handler for Escape key
+		$(document).on('keydown', function(e) {
+			if (e.key === 'Escape') {
+				if ($('#formView').hasClass('active')) {
+					showListView();
+				}
+			}
+		});
+
 		}); // End of $(document).ready()
 	</script>
 
-	<!-- Add Teacher Modal -->
-	<div id="teacherModal" class="teacher-modal">
-		<div class="teacher-modal-content">
+	<!-- Teacher Modal Removed - Form is now in page view -->
+	<div id="teacherModal" class="teacher-modal" style="display:none!important;">
+		<div class="teacher-modal-content enhanced-modal">
 			<div class="modal-header">
 				<h3 id="modalTitle"><i class="fas fa-user-plus"></i> Add New Teacher</h3>
 				<button class="modal-close" onclick="closeTeacherModal()"><i class="fas fa-times"></i></button>
 			</div>
+
+			<!-- Tab Navigation -->
+			<div class="tab-navigation">
+				<button type="button" class="tab-btn active" data-tab="0">
+					<i class="fas fa-user"></i> Personal Information
+				</button>
+				<button type="button" class="tab-btn" data-tab="1">
+					<i class="fas fa-briefcase"></i> Professional Details
+				</button>
+				<button type="button" class="tab-btn" data-tab="2">
+					<i class="fas fa-chalkboard-teacher"></i> Teaching Assignment
+				</button>
+			</div>
+
 			<div class="modal-body">
 				<form id="teacherForm">
-					<div class="form-row">
-						<div class="form-group">
-							<label>Teacher Name <span style="color:#ef4444">*</span></label>
-							<input type="text" id="teacherName" placeholder="Enter full name" required>
-						</div>
-						<div class="form-group">
-							<label>Gender</label>
-							<select id="teacherGender" data-dropdown="gender">
-								<option value="">Select Gender</option>
-							</select>
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group">
-							<label>Subject</label>
-							<select id="teacherSubject" data-dropdown="subject">
-								<option value="">Select Subject</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>Experience (Years)</label>
-							<input type="number" id="teacherExperience" placeholder="0" min="0" max="50" value="0">
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group">
-							<label>Email</label>
-							<input type="email" id="teacherEmail" placeholder="teacher@school.edu">
-						</div>
-						<div class="form-group">
-							<label>Phone</label>
-							<input type="tel" id="teacherPhone" placeholder="+91 9876543210">
-						</div>
-					</div>
-					<div class="form-row">
-						<div class="form-group">
-							<label>Status</label>
-							<select id="teacherStatus">
-								<option value="Active">Active</option>
-								<option value="Inactive">Inactive</option>
-							</select>
-						</div>
-						<div class="form-group">
-							<label>Photo</label>
-							<div class="photo-upload-area">
-								<div class="photo-preview" id="modalPhotoPreview">
-									<div class="placeholder">
-										<i class="fas fa-user"></i>
-										<div style="font-size:12px;margin-top:8px;">No Photo</div>
-									</div>
+					<!-- TAB 1: PERSONAL INFORMATION -->
+					<div class="tab-content active" data-tab-content="0">
+						<!-- Basic Details Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-info-circle"></i> Basic Details</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Teacher Name <span class="required">*</span></label>
+									<input type="text" id="teacherName" required pattern="[A-Za-z\s]{3,50}" placeholder="Enter full name">
+									<span class="error-msg" id="teacherName-error"></span>
 								</div>
-								<div>
-									<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
-									<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
-										<i class="fas fa-camera"></i> Upload Photo
-									</button>
-									<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
-										<i class="fas fa-trash"></i> Remove
-									</button>
+								<div class="form-group">
+									<label>Gender <span class="required">*</span></label>
+									<select id="teacherGender" required>
+										<option value="">Select Gender</option>
+										<option value="Male">Male</option>
+										<option value="Female">Female</option>
+										<option value="Other">Other</option>
+									</select>
+									<span class="error-msg" id="teacherGender-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Date of Birth <span class="required">*</span></label>
+									<input type="date" id="teacherDOB" required>
+									<span class="error-msg" id="teacherDOB-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Blood Group <span class="required">*</span></label>
+									<select id="teacherBloodGroup" required>
+										<option value="">Select Blood Group</option>
+										<option value="A+">A+</option>
+										<option value="A-">A-</option>
+										<option value="B+">B+</option>
+										<option value="B-">B-</option>
+										<option value="AB+">AB+</option>
+										<option value="AB-">AB-</option>
+										<option value="O+">O+</option>
+										<option value="O-">O-</option>
+									</select>
+									<span class="error-msg" id="teacherBloodGroup-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Email <span class="required">*</span></label>
+									<input type="email" id="teacherEmail" required placeholder="teacher@school.edu">
+									<span class="error-msg" id="teacherEmail-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Phone <span class="required">*</span></label>
+									<input type="tel" id="teacherPhone" required pattern="[0-9]{10}" maxlength="10" placeholder="10 digit mobile number">
+									<span class="error-msg" id="teacherPhone-error"></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Government IDs Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-id-card"></i> Government Identification</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Aadhaar Number <span class="required">*</span></label>
+									<input type="text" id="teacherAadhaar" required pattern="[0-9]{12}" maxlength="12" placeholder="12 digit Aadhaar number">
+									<span class="help-text">Exactly 12 digits, numeric only</span>
+									<span class="error-msg" id="teacherAadhaar-error"></span>
+								</div>
+								<div class="form-group">
+									<label>PAN Number <span class="required">*</span></label>
+									<input type="text" id="teacherPAN" required pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" maxlength="10" placeholder="ABCDE1234F" style="text-transform: uppercase">
+									<span class="help-text">Format: ABCDE1234F</span>
+									<span class="error-msg" id="teacherPAN-error"></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Marital Status Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-heart"></i> Marital Information</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Marital Status <span class="required">*</span></label>
+									<select id="teacherMaritalStatus" required onchange="toggleSpouseField()">
+										<option value="">Select Status</option>
+										<option value="Single">Single</option>
+										<option value="Married">Married</option>
+										<option value="Divorced">Divorced</option>
+										<option value="Widowed">Widowed</option>
+									</select>
+									<span class="error-msg" id="teacherMaritalStatus-error"></span>
+								</div>
+								<div class="form-group" id="spouseNameGroup" style="display: none;">
+									<label>Spouse Name <span class="required conditional">*</span></label>
+									<input type="text" id="teacherSpouseName" placeholder="Husband / Wife name">
+									<span class="error-msg" id="teacherSpouseName-error"></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Address Details Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-map-marker-alt"></i> Address Details</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Door No / Street <span class="required">*</span></label>
+									<input type="text" id="teacherDoorNo" required placeholder="123, Main Street">
+									<span class="error-msg" id="teacherDoorNo-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Area / Locality <span class="required">*</span></label>
+									<input type="text" id="teacherArea" required placeholder="Area name">
+									<span class="error-msg" id="teacherArea-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>City <span class="required">*</span></label>
+									<input type="text" id="teacherCity" required placeholder="City">
+									<span class="error-msg" id="teacherCity-error"></span>
+								</div>
+								<div class="form-group">
+									<label>State <span class="required">*</span></label>
+									<select id="teacherState" required>
+										<option value="">Select State</option>
+										<option value="Andhra Pradesh">Andhra Pradesh</option>
+										<option value="Arunachal Pradesh">Arunachal Pradesh</option>
+										<option value="Assam">Assam</option>
+										<option value="Bihar">Bihar</option>
+										<option value="Chhattisgarh">Chhattisgarh</option>
+										<option value="Goa">Goa</option>
+										<option value="Gujarat">Gujarat</option>
+										<option value="Haryana">Haryana</option>
+										<option value="Himachal Pradesh">Himachal Pradesh</option>
+										<option value="Jharkhand">Jharkhand</option>
+										<option value="Karnataka">Karnataka</option>
+										<option value="Kerala">Kerala</option>
+										<option value="Madhya Pradesh">Madhya Pradesh</option>
+										<option value="Maharashtra">Maharashtra</option>
+										<option value="Manipur">Manipur</option>
+										<option value="Meghalaya">Meghalaya</option>
+										<option value="Mizoram">Mizoram</option>
+										<option value="Nagaland">Nagaland</option>
+										<option value="Odisha">Odisha</option>
+										<option value="Punjab">Punjab</option>
+										<option value="Rajasthan">Rajasthan</option>
+										<option value="Sikkim">Sikkim</option>
+										<option value="Tamil Nadu">Tamil Nadu</option>
+										<option value="Telangana">Telangana</option>
+										<option value="Tripura">Tripura</option>
+										<option value="Uttar Pradesh">Uttar Pradesh</option>
+										<option value="Uttarakhand">Uttarakhand</option>
+										<option value="West Bengal">West Bengal</option>
+									</select>
+									<span class="error-msg" id="teacherState-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Pincode <span class="required">*</span></label>
+									<input type="text" id="teacherPincode" required pattern="[0-9]{6}" maxlength="6" placeholder="6 digit pincode">
+									<span class="error-msg" id="teacherPincode-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Photo</label>
+									<div class="photo-upload-area">
+										<div class="photo-preview" id="modalPhotoPreview">
+											<div class="placeholder">
+												<i class="fas fa-user"></i>
+												<div style="font-size:12px;margin-top:8px;">No Photo</div>
+											</div>
+										</div>
+										<div>
+											<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
+											<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
+												<i class="fas fa-camera"></i> Upload
+											</button>
+											<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
+												<i class="fas fa-trash"></i> Remove
+											</button>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<!-- Teacher Documents Section -->
-					<div class="documents-section">
-						<div class="documents-section-header">
-							<div class="documents-section-title">
-								<i class="fas fa-file-alt"></i>
-								<span>Teacher Certificates / Documents</span>
+					<!-- TAB 2: PROFESSIONAL DETAILS -->
+					<div class="tab-content" data-tab-content="1">
+						<div class="form-section">
+							<h4><i class="fas fa-briefcase"></i> Professional Information</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Teacher ID / Employee Code</label>
+									<input type="text" id="teacherEmployeeCode" readonly placeholder="Auto-generated" style="background: #f1f5f9; cursor: not-allowed;">
+									<span class="help-text">Automatically generated on save</span>
+								</div>
+								<div class="form-group">
+									<label>Qualification <span class="required">*</span></label>
+									<select id="teacherQualification" required>
+										<option value="">Select Qualification</option>
+										<!-- Options loaded dynamically from Dropdown ID 465 -->
+									</select>
+									<span class="error-msg" id="teacherQualification-error"></span>
+								</div>
 							</div>
-							<button type="button" class="btn btn-outline btn-sm" id="addTeacherDocumentBtn">
-								<i class="fas fa-plus"></i> Add Document
-							</button>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Years of Experience <span class="required">*</span></label>
+									<input type="number" id="teacherExperience" required min="0" max="50" value="0" placeholder="Years of teaching experience">
+									<span class="error-msg" id="teacherExperience-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Date of Joining <span class="required">*</span></label>
+									<input type="date" id="teacherJoiningDate" required>
+									<span class="error-msg" id="teacherJoiningDate-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Employment Type <span class="required">*</span></label>
+									<select id="teacherEmploymentType" required>
+										<option value="">Select Type</option>
+										<!-- Options loaded dynamically from Dropdown ID 464 -->
+									</select>
+									<span class="error-msg" id="teacherEmploymentType-error"></span>
+								</div>
+								<div class="form-group">
+									<label>Status <span class="required">*</span></label>
+									<select id="teacherStatus" required>
+										<option value="Active">Active</option>
+										<option value="Inactive">Inactive</option>
+										<option value="On Leave">On Leave</option>
+										<option value="Suspended">Suspended</option>
+									</select>
+									<span class="error-msg" id="teacherStatus-error"></span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group full-width">
+									<label>Subject Expertise</label>
+									<input type="text" id="teacherSubjectExpertise" placeholder="e.g., Mathematics, Physics, Chemistry">
+									<span class="help-text">Comma-separated list of subjects</span>
+								</div>
+							</div>
 						</div>
-						<div class="documents-list" id="teacherDocumentsList">
-							<!-- Document rows will be added here dynamically -->
+
+						<!-- Compensation & Benefits Section -->
+						<div class="form-section">
+							<h4><i class="fas fa-money-bill-wave"></i> Compensation & Benefits</h4>
+							<div class="form-row">
+								<div class="form-group">
+									<label>Basic Salary <span class="required">*</span></label>
+									<input type="number" id="teacherBasicSalary" required min="0" step="0.01" placeholder="Enter basic salary">
+									<span class="help-text">Monthly basic salary amount</span>
+									<span class="error-msg" id="teacherBasicSalary-error"></span>
+								</div>
+								<div class="form-group">
+									<label>HRA (House Rent Allowance)</label>
+									<input type="number" id="teacherHRA" min="0" step="0.01" placeholder="Enter HRA amount">
+									<span class="help-text">Monthly HRA amount</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Transport Allowance</label>
+									<input type="number" id="teacherTransportAllowance" min="0" step="0.01" placeholder="Enter transport allowance">
+									<span class="help-text">Monthly transport allowance</span>
+								</div>
+								<div class="form-group">
+									<label>Other Allowances</label>
+									<input type="number" id="teacherOtherAllowances" min="0" step="0.01" placeholder="Enter other allowances">
+									<span class="help-text">Medical, special allowances, etc.</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>PF (Provident Fund) %</label>
+									<input type="number" id="teacherPFPercentage" min="0" max="100" step="0.1" placeholder="e.g., 12" value="12">
+									<span class="help-text">Percentage of basic salary</span>
+								</div>
+								<div class="form-group">
+									<label>PF Account Number</label>
+									<input type="text" id="teacherPFAccountNumber" placeholder="Enter PF account number">
+									<span class="help-text">Employee's PF account number</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>ESI (Employee State Insurance) %</label>
+									<input type="number" id="teacherESIPercentage" min="0" max="100" step="0.1" placeholder="e.g., 0.75">
+									<span class="help-text">ESI contribution percentage</span>
+								</div>
+								<div class="form-group">
+									<label>Professional Tax</label>
+									<input type="number" id="teacherProfessionalTax" min="0" step="0.01" placeholder="Enter professional tax">
+									<span class="help-text">Monthly professional tax deduction</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Gross Salary (Auto-calculated)</label>
+									<input type="number" id="teacherGrossSalary" readonly style="background: #f9fafb; cursor: not-allowed;" placeholder="0.00">
+									<span class="help-text">Basic + HRA + Transport + Other</span>
+								</div>
+								<div class="form-group">
+									<label>Net Salary (Auto-calculated)</label>
+									<input type="number" id="teacherNetSalary" readonly style="background: #f9fafb; cursor: not-allowed;" placeholder="0.00">
+									<span class="help-text">Gross - Deductions (PF, ESI, Tax)</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>Bank Account Number</label>
+									<input type="text" id="teacherBankAccount" placeholder="Enter bank account number">
+									<span class="help-text">For salary transfer</span>
+								</div>
+								<div class="form-group">
+									<label>Bank Name & Branch</label>
+									<input type="text" id="teacherBankDetails" placeholder="e.g., SBI - Main Branch">
+									<span class="help-text">Bank name and branch details</span>
+								</div>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group">
+									<label>IFSC Code</label>
+									<input type="text" id="teacherIFSC" placeholder="e.g., SBIN0001234" maxlength="11">
+									<span class="help-text">Bank IFSC code for transfers</span>
+								</div>
+								<div class="form-group">
+									<label>PAN Number</label>
+									<input type="text" id="teacherPAN" placeholder="e.g., ABCDE1234F" maxlength="10" style="text-transform: uppercase;">
+									<span class="help-text">Permanent Account Number for tax</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Teacher Documents Section -->
+						<div class="form-section">
+							<div class="documents-section">
+								<div class="documents-section-header">
+									<div class="documents-section-title">
+										<i class="fas fa-file-alt"></i>
+										<span>Teacher Certificates / Documents</span>
+									</div>
+									<button type="button" class="btn btn-outline btn-sm" id="addTeacherDocumentBtn">
+										<i class="fas fa-plus"></i> Add Document
+									</button>
+								</div>
+								<div class="documents-list" id="teacherDocumentsList">
+									<!-- Document rows will be added here dynamically -->
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- TAB 3: TEACHING ASSIGNMENT -->
+					<div class="tab-content" data-tab-content="2">
+						<div class="form-section">
+							<h4><i class="fas fa-chalkboard-teacher"></i> Class & Subject Allocation</h4>
+							<p class="section-description">
+								Assign classes and subjects to this teacher. At least one allocation is mandatory.
+							</p>
+
+							<!-- Add Allocation Form -->
+							<div class="allocation-form-card">
+								<div class="form-row">
+									<div class="form-group">
+										<label>Select Class <span class="required">*</span></label>
+										<select id="allocationClass" onchange="loadSubjectsForClass()">
+											<option value="">Choose a class</option>
+											<option value="1">Class 1</option>
+											<option value="2">Class 2</option>
+											<option value="3">Class 3</option>
+											<option value="4">Class 4</option>
+											<option value="5">Class 5</option>
+											<option value="6">Class 6</option>
+											<option value="7">Class 7</option>
+											<option value="8">Class 8</option>
+											<option value="9">Class 9</option>
+											<option value="10">Class 10</option>
+											<option value="11">Class 11</option>
+											<option value="12">Class 12</option>
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label>Select Subject <span class="required">*</span></label>
+										<select id="allocationSubject" disabled>
+											<option value="">Select class first</option>
+										</select>
+									</div>
+
+									<div class="form-group align-end">
+										<button type="button" class="btn btn-success btn-sm" onclick="addAllocation()">
+											<i class="fas fa-plus"></i> Add
+										</button>
+									</div>
+								</div>
+
+								<div class="validation-message" id="allocationValidation" style="display: none;">
+									<i class="fas fa-exclamation-circle"></i>
+									<span id="allocationValidationText"></span>
+								</div>
+							</div>
+
+							<!-- Allocations Grid -->
+							<div class="allocations-grid-card">
+								<table class="allocations-table">
+									<thead>
+										<tr>
+											<th width="10%">#</th>
+											<th width="35%">Class</th>
+											<th width="45%">Subject</th>
+											<th width="10%">Action</th>
+										</tr>
+									</thead>
+									<tbody id="allocationsTableBody">
+										<tr class="empty-state-row">
+											<td colspan="4" class="empty-state-cell">
+												<i class="fas fa-clipboard-list"></i>
+												<p>No allocations added yet</p>
+												<small>Add at least one class-subject combination</small>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div class="allocation-summary" id="allocationSummary" style="display: none;">
+								<i class="fas fa-check-circle"></i>
+								<span id="allocationCount">0</span> allocation(s) added
+							</div>
 						</div>
 					</div>
 				</form>
 			</div>
-			<div class="modal-footer">
-				<button class="btn btn-secondary" onclick="closeTeacherModal()">Cancel</button>
-				<button class="btn btn-primary" onclick="saveTeacherFromModal()">
-					<i class="fas fa-save"></i> Save Teacher
+
+			<div class="modal-footer-sticky">
+				<button class="btn btn-secondary" onclick="closeTeacherModal()">
+					<i class="fas fa-times"></i> Cancel
+				</button>
+				<button class="btn btn-primary" id="saveTeacherBtn" onclick="saveTeacherFromModal()">
+					<i class="fas fa-check"></i> Save Teacher
 				</button>
 			</div>
 		</div>
@@ -1820,5 +4648,6 @@
 			<div id="documentsModalBody" style="padding:20px;"></div>
 		</div>
 	</div>
+	<script src="../assets/js/responsive.js"></script>
 </body>
 </html>

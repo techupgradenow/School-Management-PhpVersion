@@ -4,10 +4,17 @@
  * EduManage Pro - School Management System
  *
  * Handles all CRUD operations for exams and marks
+ * Protected by Permission Guard - enforces strict RBAC
  */
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/functions.php';
+require_once __DIR__ . '/../helpers/permission_guard.php';
+
+// Start session for permission checks
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Get request method
 $method = $_SERVER['REQUEST_METHOD'];
@@ -23,21 +30,29 @@ try {
     sendResponse(false, 'Database connection failed', null, ['database' => $e->getMessage()]);
 }
 
-// Route requests
+// Require authentication and module access for ALL requests
+requireAuth();
+requireModuleAccess('exams');
+
+// Route requests with permission checks
 switch ($method) {
     case 'GET':
+        requirePermission('exams', 'view');
         handleGet($db, $_GET);
         break;
 
     case 'POST':
+        requirePermission('exams', 'create');
         handlePost($db, $data);
         break;
 
     case 'PUT':
+        requirePermission('exams', 'edit');
         handlePut($db, $data);
         break;
 
     case 'DELETE':
+        requirePermission('exams', 'delete');
         handleDelete($db, $_GET);
         break;
 

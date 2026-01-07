@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Fee Management</title>
 	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="../assets/js/app.js"></script>
 	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<script src="../assets/js/permissions.js"></script>
 	<style>
 		/* Fee Management Styles */
 		.fee-stats {
@@ -399,32 +401,39 @@
 		</div>
 
 		<!-- Filter Bar -->
-		<div class="filter-bar">
-			<input type="text" id="searchFee" placeholder="Search by name, ID, or class...">
-			<select id="filterClass" data-dropdown="class">
-				<option value="">All Classes</option>
-			</select>
-			<select id="filterStatus">
-				<option value="">All Status</option>
-				<option value="paid">Paid</option>
-				<option value="partial">Partial</option>
-				<option value="unpaid">Unpaid</option>
-				<option value="overdue">Overdue</option>
-			</select>
-			<select id="filterMonth">
-				<option value="">All Months</option>
-				<option value="nov">November 2024</option>
-				<option value="oct">October 2024</option>
-				<option value="sep">September 2024</option>
-			</select>
-			<div style="margin-left: auto; display: flex; gap: 10px;">
-				<button class="btn btn-outline btn-sm" id="syncStudentsBtn" style="border-color: #8b5cf6; color: #8b5cf6;" title="Sync fee records with all students">
-					<i class="fas fa-sync-alt"></i> Sync Students
+		<div class="filter-bar" style="flex-wrap: wrap;">
+			<div style="display: flex; flex-wrap: wrap; gap: 12px; flex: 1;">
+				<input type="text" id="searchName" placeholder="Search by name..." style="min-width: 180px;">
+				<input type="text" id="searchRollNo" placeholder="Roll Number..." style="min-width: 120px; max-width: 150px;">
+				<select id="filterClass" data-dropdown="class" style="min-width: 130px;">
+					<option value="">All Classes</option>
+				</select>
+				<select id="filterSection" style="min-width: 130px;">
+					<option value="">All Sections</option>
+					<option value="A">Section A</option>
+					<option value="B">Section B</option>
+					<option value="C">Section C</option>
+					<option value="D">Section D</option>
+				</select>
+				<select id="filterStatus" style="min-width: 130px;">
+					<option value="">All Status</option>
+					<option value="paid">Paid</option>
+					<option value="partial">Partial</option>
+					<option value="unpaid">Unpaid</option>
+					<option value="overdue">Overdue</option>
+				</select>
+			</div>
+			<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+				<button class="btn btn-primary btn-sm" id="loadAllStudentsBtn" title="Load all students from database">
+					<i class="fas fa-users"></i> Load Students
 				</button>
-				<button class="btn btn-outline btn-sm" id="exportBtn">
+				<button class="btn btn-outline btn-sm" id="syncStudentsBtn" style="border-color: #8b5cf6; color: #8b5cf6;" title="Sync fee records with all students" data-permission="fees:create">
+					<i class="fas fa-sync-alt"></i> Sync
+				</button>
+				<button class="btn btn-outline btn-sm" id="exportBtn" data-permission="fees:export">
 					<i class="fas fa-download"></i> Export
 				</button>
-				<button class="btn btn-outline btn-sm" id="printBtn">
+				<button class="btn btn-outline btn-sm" id="printBtn" data-permission="fees:export">
 					<i class="fas fa-print"></i> Print
 				</button>
 			</div>
@@ -447,13 +456,13 @@
 			<table class="fee-table">
 				<thead>
 					<tr>
+						<th>Roll No</th>
 						<th>Student</th>
 						<th>Class</th>
 						<th>Total Fee</th>
 						<th>Paid</th>
 						<th>Balance</th>
 						<th>Progress</th>
-						<th>Due Date</th>
 						<th>Status</th>
 						<th>Actions</th>
 					</tr>
@@ -547,9 +556,14 @@
 	</div>
 
 	<script>
+		// API Configuration
+		const API_BASE = '/School-Management-PhpVersion/backend/api';
+
 		// Initialize Dynamic Dropdowns
 		$(function() {
 			initDynamicDropdowns();
+			// Auto-load students on page load
+			loadAllStudentsFromAPI();
 		});
 
 		function initDynamicDropdowns() {
@@ -557,6 +571,7 @@
 				populateDropdown('#filterClass', 'class', 'All Classes');
 				populateDropdown('#feeType', 'fee_type', 'Select Fee Type');
 				populateDropdown('#paymentMethod', 'payment_mode', 'Select Payment Method');
+				populateSectionDropdown();
 			});
 		}
 
@@ -571,6 +586,98 @@
 				});
 				if (currentVal) $select.val(currentVal);
 			});
+		}
+
+		function populateSectionDropdown() {
+			// Try to get sections from API
+			$.ajax({
+				url: API_BASE + '/dropdowns.php?action=sections',
+				type: 'GET',
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data) {
+						var $select = $('#filterSection');
+						var currentVal = $select.val();
+						$select.empty();
+						$select.append($('<option>', { value: '', text: 'All Sections' }));
+						response.data.forEach(function(section) {
+							$select.append($('<option>', { value: section, text: 'Section ' + section }));
+						});
+						if (currentVal) $select.val(currentVal);
+					}
+				},
+				error: function() {
+					// Keep default sections if API fails
+					console.log('Using default sections');
+				}
+			});
+		}
+
+		// Load all students from API
+		function loadAllStudentsFromAPI() {
+			$('#loadAllStudentsBtn').html('<i class="fas fa-spinner fa-spin"></i> Loading...').prop('disabled', true);
+
+			$.ajax({
+				url: API_BASE + '/students.php?action=list',
+				type: 'GET',
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data) {
+						const students = response.data;
+						// Create fee records for all students
+						createFeeRecordsForStudents(students);
+						notify('Loaded ' + students.length + ' students successfully!', 'success');
+					} else {
+						notify('No students found in database', 'info');
+						loadFeesFromLocalStorage();
+					}
+					$('#loadAllStudentsBtn').html('<i class="fas fa-users"></i> Load Students').prop('disabled', false);
+				},
+				error: function(xhr, status, error) {
+					console.error('Error loading students:', error);
+					notify('Error loading students. Using cached data.', 'error');
+					loadFeesFromLocalStorage();
+					$('#loadAllStudentsBtn').html('<i class="fas fa-users"></i> Load Students').prop('disabled', false);
+				}
+			});
+		}
+
+		function createFeeRecordsForStudents(students) {
+			const existingFees = JSON.parse(localStorage.getItem(FEES_KEY) || '[]');
+			const existingStudentIds = new Set(existingFees.map(f => f.studentId));
+
+			students.forEach((student, idx) => {
+				const studentId = student.id || student.student_id || ('STU-' + (idx + 1));
+				if (!existingStudentIds.has(studentId)) {
+					const classNum = parseInt(student.class) || 10;
+					const baseAmount = 35000 + (classNum * 1000);
+
+					existingFees.push({
+						id: 'FEE' + String(existingFees.length + 1).padStart(4, '0'),
+						studentId: studentId,
+						rollNo: student.roll_no || student.rollNo || student.admission_no || '-',
+						name: student.name || student.student_name || 'Unknown',
+						class: student.class || '10',
+						section: student.section || 'A',
+						total: baseAmount,
+						paid: 0,
+						dueDate: getNextDueDate(),
+						status: 'unpaid',
+						lastPayment: null
+					});
+				}
+			});
+
+			saveFees(existingFees);
+			fees = existingFees;
+			renderAll();
+		}
+
+		function getNextDueDate() {
+			const date = new Date();
+			date.setMonth(date.getMonth() + 1);
+			date.setDate(15);
+			return date.toISOString().split('T')[0];
 		}
 
 		const FEES_KEY = 'edu_fees';
@@ -716,23 +823,26 @@
 		let state = {
 			page: 1,
 			pageSize: 10,
-			search: '',
+			searchName: '',
+			searchRollNo: '',
 			filterClass: '',
-			filterStatus: '',
-			filterMonth: ''
+			filterSection: '',
+			filterStatus: ''
 		};
 
 		// DOM Elements
 		const feeTableBody = document.getElementById('feeTableBody');
-		const searchInput = document.getElementById('searchFee');
+		const searchNameInput = document.getElementById('searchName');
+		const searchRollNoInput = document.getElementById('searchRollNo');
 		const filterClass = document.getElementById('filterClass');
+		const filterSection = document.getElementById('filterSection');
 		const filterStatus = document.getElementById('filterStatus');
-		const filterMonth = document.getElementById('filterMonth');
 		const feeModal = document.getElementById('feeModal');
 		const collectFeeBtn = document.getElementById('collectFeeBtn');
 		const closeFeeModal = document.getElementById('closeFeeModal');
 		const cancelFeeBtn = document.getElementById('cancelFeeBtn');
 		const saveFeeBtn = document.getElementById('saveFeeBtn');
+		const loadAllStudentsBtn = document.getElementById('loadAllStudentsBtn');
 
 		function updateStats() {
 			const fees = loadFees();
@@ -751,16 +861,25 @@
 			let fees = loadFees();
 
 			// Apply filters
-			if (state.search) {
-				const q = state.search.toLowerCase();
-				fees = fees.filter(f => 
-					f.name.toLowerCase().includes(q) || 
-					f.studentId.toLowerCase().includes(q) ||
-					f.class.includes(q)
+			if (state.searchName) {
+				const q = state.searchName.toLowerCase();
+				fees = fees.filter(f =>
+					f.name.toLowerCase().includes(q) ||
+					f.studentId.toLowerCase().includes(q)
+				);
+			}
+			if (state.searchRollNo) {
+				const q = state.searchRollNo.toLowerCase();
+				fees = fees.filter(f =>
+					(f.rollNo && f.rollNo.toLowerCase().includes(q)) ||
+					(f.studentId && f.studentId.toLowerCase().includes(q))
 				);
 			}
 			if (state.filterClass) {
 				fees = fees.filter(f => f.class === state.filterClass);
+			}
+			if (state.filterSection) {
+				fees = fees.filter(f => f.section === state.filterSection);
 			}
 			if (state.filterStatus) {
 				fees = fees.filter(f => f.status === state.filterStatus);
@@ -801,13 +920,16 @@
 				return `
 					<tr data-fee-id="${fee.id}">
 						<td>
+							<span style="font-weight: 600; color: #3b82f6;">${fee.rollNo || fee.studentId || '-'}</span>
+						</td>
+						<td>
 							<div class="student-info">
 								<div class="student-avatar" style="background: ${avatarColor};">${initials}</div>
 								<div>
 									<div class="student-name editable-name" data-id="${fee.id}" data-field="name" title="Click to edit">${fee.name}</div>
 									<div class="student-id">${fee.studentId}</div>
 								</div>
-		</div>
+							</div>
 						</td>
 						<td>
 							<span class="editable-cell" data-id="${fee.id}" data-field="class" title="Click to edit"><strong>${fee.class}</strong></span>-<span class="editable-cell" data-id="${fee.id}" data-field="section" title="Click to edit">${fee.section}</span>
@@ -822,17 +944,14 @@
 							<span class="amount balance" style="color: ${balance > 0 ? '#dc2626' : '#16a34a'};">${formatCurrency(balance)}</span>
 						</td>
 						<td>
-							<div style="min-width: 100px;">
+							<div style="min-width: 80px;">
 								<div style="display: flex; justify-content: space-between; font-size: 11px; color: #64748b; margin-bottom: 4px;">
 									<span>${progress}%</span>
-			</div>
+								</div>
 								<div class="payment-progress">
 									<div class="payment-progress-bar ${progressClass}" style="width: ${progress}%;"></div>
-		</div>
-	</div>
-						</td>
-						<td>
-							<span class="editable-cell" data-id="${fee.id}" data-field="dueDate" data-type="date" title="Click to edit">${new Date(fee.dueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+								</div>
+							</div>
 						</td>
 						<td>${statusOptions}</td>
 						<td>
@@ -889,8 +1008,14 @@
 		}
 
 		// Event Listeners
-		searchInput.addEventListener('input', (e) => {
-			state.search = e.target.value;
+		searchNameInput.addEventListener('input', (e) => {
+			state.searchName = e.target.value;
+			state.page = 1;
+			renderFees();
+		});
+
+		searchRollNoInput.addEventListener('input', (e) => {
+			state.searchRollNo = e.target.value;
 			state.page = 1;
 			renderFees();
 		});
@@ -901,10 +1026,21 @@
 			renderFees();
 		});
 
+		filterSection.addEventListener('change', (e) => {
+			state.filterSection = e.target.value;
+			state.page = 1;
+			renderFees();
+		});
+
 		filterStatus.addEventListener('change', (e) => {
 			state.filterStatus = e.target.value;
 			state.page = 1;
 			renderFees();
+		});
+
+		// Load Students Button
+		loadAllStudentsBtn.addEventListener('click', () => {
+			loadAllStudentsFromAPI();
 		});
 
 		document.getElementById('prevPage').addEventListener('click', () => {
@@ -1130,5 +1266,6 @@
 		// Initialize
 		document.addEventListener('DOMContentLoaded', renderFees);
 	</script>
+	<script src="../assets/js/responsive.js"></script>
 </body>
 </html>

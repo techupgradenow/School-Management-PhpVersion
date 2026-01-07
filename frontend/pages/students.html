@@ -2,17 +2,67 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Students</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Students Management - EduManage Pro</title>
 	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="../assets/js/app.js"></script>
-	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<script src="../assets/js/permissions.js"></script>
 	<style>
-		* { box-sizing: border-box; margin: 0; padding: 0; }
-		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+		:root {
+			--primary: #22C55E;
+			--primary-hover: #16A34A;
+			--primary-light: #DCFCE7;
+			--primary-50: #F0FDF4;
+			--secondary: #0F172A;
+			--bg-main: #F8FAFC;
+			--bg-card: #FFFFFF;
+			--bg-hover: #F1F5F9;
+			--success: #22C55E;
+			--success-light: #DCFCE7;
+			--warning: #F59E0B;
+			--warning-light: #FEF3C7;
+			--danger: #EF4444;
+			--danger-light: #FEE2E2;
+			--info: #3B82F6;
+			--info-light: #DBEAFE;
+			--purple: #8B5CF6;
+			--purple-light: #EDE9FE;
+			--text-primary: #0F172A;
+			--text-secondary: #334155;
+			--text-muted: #64748B;
+			--text-light: #94A3B8;
+			--border: #E2E8F0;
+			--border-light: #F1F5F9;
+			--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+			--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+			--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+			--radius-sm: 6px;
+			--radius-md: 8px;
+			--radius-lg: 12px;
+			--radius-xl: 16px;
+		}
 
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body {
+			font-family: 'Inter', 'Segoe UI', sans-serif;
+			background: var(--bg-main);
+			min-height: 100vh;
+			color: var(--text-primary);
+			font-size: 14px;
+		}
+
+		.main-container {
+			padding: 24px;
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		.page-view { display: none; }
+		.page-view.active { display: block; }
+
+		/* ============ PAGE HEADER ============ */
 		.page-header {
 			display: flex;
 			justify-content: space-between;
@@ -21,13 +71,35 @@
 			flex-wrap: wrap;
 			gap: 16px;
 		}
-		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-		.page-title-section p { font-size: 14px; color: #64748b; }
-		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+		.page-title-section {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+
+		.page-icon {
+			width: 48px;
+			height: 48px;
+			background: var(--primary);
+			border-radius: var(--radius-lg);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+		}
+
+		.page-title h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+		.page-title p { font-size: 14px; color: var(--text-muted); }
+
+		.header-actions { display: flex; gap: 12px; }
+
+		/* ============ BUTTONS ============ */
 		.btn {
-			padding: 12px 20px;
-			border-radius: 10px;
-			font-weight: 600;
+			padding: 10px 18px;
+			border-radius: var(--radius-md);
+			font-weight: 500;
 			font-size: 14px;
 			cursor: pointer;
 			display: inline-flex;
@@ -35,2820 +107,2222 @@
 			gap: 8px;
 			transition: all 0.2s;
 			border: none;
+			font-family: inherit;
 		}
-		.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
-		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
-		.btn-outline:hover { border-color: #3b82f6; color: #3b82f6; }
-		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
-		.btn-sm { padding: 8px 14px; font-size: 13px; }
+		.btn-primary { background: var(--primary); color: white; }
+		.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+		.btn-secondary { background: white; color: var(--text-secondary); border: 1px solid var(--border); }
+		.btn-secondary:hover { background: var(--bg-hover); }
+		.btn-success { background: var(--success); color: white; }
+		.btn-success:hover { background: #16A34A; }
 
-		.stats-filters {
-			background: white;
-			border-radius: 16px;
-			padding: 20px 24px;
-			margin-bottom: 20px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-			display: flex;
-			align-items: center;
-			gap: 24px;
-			flex-wrap: wrap;
-		}
-		.stats-filters .filter-group {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			flex: 1;
-			min-width: 200px;
-		}
-		.stats-filters .filter-group label {
-			font-size: 13px;
-			font-weight: 700;
-			color: #475569;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-			white-space: nowrap;
-			display: flex;
-			align-items: center;
-			gap: 6px;
-		}
-		.stats-filters .filter-group label i {
-			color: #3b82f6;
-			font-size: 14px;
-		}
-		.stats-filters .filter-select {
-			flex: 1;
-			height: 44px;
-			padding: 0 16px;
-			border: 2px solid #e2e8f0;
-			border-radius: 10px;
-			font-size: 14px;
-			font-weight: 500;
-			color: #1e293b;
-			background: white;
-			cursor: pointer;
-			transition: all 0.2s;
-			-webkit-appearance: none;
-			appearance: none;
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-			background-repeat: no-repeat;
-			background-position: right 16px center;
-			padding-right: 40px;
-		}
-		.stats-filters .filter-select:focus {
-			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-		}
-		.stats-filters .filter-select:hover {
-			border-color: #cbd5e1;
-		}
-		.stats-row {
+		/* ============ STATS GRID ============ */
+		.stats-grid {
 			display: grid;
-			grid-template-columns: repeat(4, 1fr);
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 			gap: 20px;
 			margin-bottom: 24px;
 		}
 		.stat-card {
 			background: white;
-			border-radius: 16px;
+			border-radius: var(--radius-lg);
 			padding: 20px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			box-shadow: var(--shadow-sm);
 			display: flex;
 			align-items: center;
 			gap: 16px;
+			border: 1px solid var(--border-light);
+			transition: all 0.2s;
 		}
+		.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 		.stat-icon {
-			width: 56px;
-			height: 56px;
-			border-radius: 14px;
+			width: 50px;
+			height: 50px;
+			border-radius: var(--radius-lg);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 24px;
+			font-size: 20px;
+			color: white;
 		}
-		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
-		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
-		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
-		.stat-icon.purple { background: #f3e8ff; color: #8b5cf6; }
-		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
-		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+		.stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+		.stat-icon.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.stat-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+		.stat-info h3 { font-size: 24px; font-weight: 700; }
+		.stat-info p { font-size: 13px; color: var(--text-muted); }
 
-		.table-card {
+		/* ============ CONTENT CARD ============ */
+		.content-card {
 			background: white;
-			border-radius: 16px;
-			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			border-radius: var(--radius-lg);
+			box-shadow: var(--shadow-sm);
+			border: 1px solid var(--border-light);
 			overflow: hidden;
 		}
-		.table-toolbar {
-			padding: 20px 24px;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 1px solid #f1f5f9;
-			flex-wrap: wrap;
-			gap: 16px;
-		}
-		.search-box { position: relative; width: 300px; }
-		.search-box input {
-			width: 100%;
-			height: 44px;
-			padding: 0 16px 0 44px;
-			border: 2px solid #e2e8f0;
-			border-radius: 10px;
-			font-size: 14px;
-		}
-		.search-box input:focus { outline: none; border-color: #3b82f6; }
-		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-		.toolbar-actions { 
-			display: flex; 
-			gap: 10px; 
-			flex-wrap: wrap;
-			align-items: center;
-		}
-		.page-select {
-			height: 44px;
-			padding: 0 16px;
-			border: 2px solid #e2e8f0;
-			border-radius: 10px;
-			font-size: 14px;
-			font-weight: 500;
-			color: #1e293b;
-			background: white;
-			cursor: pointer;
-			transition: all 0.2s;
-			-webkit-appearance: none;
-			appearance: none;
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-			background-repeat: no-repeat;
-			background-position: right 12px center;
-			padding-right: 36px;
-		}
-		.page-select:focus {
-			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-		}
-		.page-select:hover {
-			border-color: #cbd5e1;
+
+		.filter-bar {
+			padding: 16px 20px;
+			border-bottom: 1px solid var(--border);
 		}
 
-		.data-table { width: 100%; border-collapse: collapse; }
-		.data-table thead { 
-			background: linear-gradient(135deg, #3b82f6, #2563eb);
-			background-color: #3b82f6;
+		.filter-grid {
+			display: grid;
+			grid-template-columns: 2fr 1fr 1fr 1fr auto;
+			gap: 12px;
+			align-items: end;
 		}
+
+		.filter-group { display: flex; flex-direction: column; gap: 4px; }
+		.filter-label { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
+		.filter-input, .filter-select {
+			padding: 9px 12px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			font-size: 13px;
+			width: 100%;
+			transition: all 0.2s;
+		}
+		.filter-input:focus, .filter-select:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
+		}
+		.btn-clear {
+			padding: 9px 16px;
+			background: var(--bg-hover);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			color: var(--text-secondary);
+			font-weight: 500;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.btn-clear:hover { background: var(--danger-light); color: var(--danger); }
+
+		/* ============ TABLE ============ */
+		.table-container { overflow-x: auto; }
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { background: var(--secondary); }
 		.data-table th {
-			padding: 16px 12px;
+			padding: 14px 16px;
 			text-align: left;
 			font-weight: 600;
 			font-size: 12px;
 			color: white;
 			text-transform: uppercase;
-			letter-spacing: 0.5px;
-			background: linear-gradient(135deg, #3b82f6, #2563eb);
 		}
 		.data-table th:first-child { padding-left: 20px; }
-		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
-		.data-table tbody tr:hover { background: #f8fafc; }
-		.data-table td { padding: 12px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table th:last-child { text-align: center; }
+		.data-table tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
+		.data-table tbody tr:nth-child(even) { background: var(--bg-main); }
+		.data-table tbody tr:hover { background: var(--primary-50); }
+		.data-table td { padding: 14px 16px; font-size: 14px; color: var(--text-secondary); }
 		.data-table td:first-child { padding-left: 20px; }
 
-		/* Editable Cells */
-		.editable-cell {
-			cursor: pointer;
-			padding: 8px 12px;
-			border-radius: 6px;
-			transition: all 0.2s;
-			min-height: 36px;
-			display: flex;
-			align-items: center;
+		.student-cell { display: flex; align-items: center; gap: 12px; }
+		.student-avatar {
+			width: 40px; height: 40px;
+			border-radius: var(--radius-md);
+			display: flex; align-items: center; justify-content: center;
+			color: white; font-weight: 700; font-size: 14px;
 		}
-		.editable-cell:hover {
-			background: #eff6ff;
-			outline: 2px solid #3b82f6;
-		}
-		.editable-cell.editing {
-			padding: 0;
-		}
-		.editable-cell input, .editable-cell select {
-			width: 100%;
-			height: 36px;
-			padding: 0 10px;
-			border: 2px solid #3b82f6;
-			border-radius: 6px;
-			font-size: 14px;
-			background: white;
-		}
-		.editable-cell input:focus, .editable-cell select:focus {
-			outline: none;
-		}
-
-		/* Avatar with Upload */
-		.avatar-wrapper {
-			position: relative;
-			display: inline-block;
-		}
-		.avatar {
-			width: 48px;
-			height: 48px;
-			border-radius: 50%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-weight: 600;
-			font-size: 16px;
-			color: white;
-			overflow: hidden;
-			position: relative;
-			cursor: pointer;
-			transition: all 0.3s;
-		}
-		.avatar.male { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
-		.avatar.female { background: linear-gradient(135deg, #f472b6, #ec4899); }
-		.avatar img { width: 100%; height: 100%; object-fit: cover; }
-		.avatar .upload-overlay {
-			position: absolute;
-			inset: 0;
-			background: rgba(0,0,0,0.6);
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			opacity: 0;
-			transition: opacity 0.3s;
-			border-radius: 50%;
-		}
-		.avatar:hover .upload-overlay { opacity: 1; }
-		.avatar .upload-overlay i { color: white; font-size: 18px; }
-		.remove-photo-btn {
-			position: absolute;
-			top: -4px;
-			right: -4px;
-			width: 20px;
-			height: 20px;
-			border-radius: 50%;
-			background: #ef4444;
-			color: white;
-			border: 2px solid white;
-			font-size: 10px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			opacity: 0;
-			transition: all 0.2s;
-			z-index: 10;
-		}
-		.avatar-wrapper:hover .remove-photo-btn { opacity: 1; }
-		.remove-photo-btn:hover { transform: scale(1.2); background: #dc2626; }
-
-		.student-info { display: flex; align-items: center; gap: 12px; }
-		.student-name { font-weight: 600; color: #1e293b; }
-		.student-id { font-weight: 700; color: #1e3a5f; }
-
-		.gender-badge {
-			padding: 4px 12px;
-			border-radius: 20px;
-			font-size: 12px;
-			font-weight: 600;
-			display: inline-block;
-		}
-		.gender-badge.male { background: #dbeafe; color: #2563eb; }
-		.gender-badge.female { background: #fce7f3; color: #db2777; }
+		.student-name { font-weight: 600; color: var(--text-primary); }
+		.student-id { font-size: 12px; color: var(--text-light); }
 
 		.status-badge {
-			padding: 6px 14px;
+			padding: 4px 10px;
 			border-radius: 20px;
-			font-size: 12px;
+			font-size: 11px;
 			font-weight: 600;
-			cursor: pointer;
+			text-transform: uppercase;
 		}
-		.status-badge.active { background: #dcfce7; color: #16a34a; }
-		.status-badge.inactive { background: #fef2f2; color: #dc2626; }
+		.status-badge.active { background: var(--success-light); color: var(--success); }
+		.status-badge.inactive { background: var(--danger-light); color: var(--danger); }
 
-		.checkbox-cell { width: 40px; }
-		.custom-checkbox { width: 18px; height: 18px; accent-color: #3b82f6; cursor: pointer; }
-
-		.action-btns { display: flex; gap: 6px; }
+		.action-buttons { display: flex; gap: 6px; justify-content: center; }
 		.action-btn {
-			width: 32px;
-			height: 32px;
-			border-radius: 6px;
-			border: none;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			transition: all 0.2s;
-			font-size: 13px;
+			width: 34px; height: 34px;
+			border: none; border-radius: var(--radius-md);
+			cursor: pointer; display: inline-flex;
+			align-items: center; justify-content: center;
+			transition: all 0.2s; font-size: 14px;
 		}
-		.action-btn.save { background: #dcfce7; color: #16a34a; }
+		.action-btn.view { background: #eff6ff; color: #3b82f6; }
 		.action-btn.edit { background: #fef3c7; color: #d97706; }
-		.action-btn.edit:hover { background: #fde68a; }
-		.action-btn.view { background: #dbeafe; color: #2563eb; }
-		.action-btn.delete { background: #fef2f2; color: #ef4444; }
+		.action-btn.delete { background: #fee2e2; color: #dc2626; }
 		.action-btn:hover { transform: scale(1.1); }
 
-		.table-footer {
-			padding: 16px 24px;
+		.pagination {
+			padding: 16px 20px;
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
-			border-top: 1px solid #f1f5f9;
+			border-top: 1px solid var(--border);
 		}
-		.pagination-info { font-size: 14px; color: #64748b; }
-		.pagination-btns { display: flex; align-items: center; gap: 8px; }
-		.page-btn {
-			width: 36px;
-			height: 36px;
-			border-radius: 8px;
-			border: 2px solid #e2e8f0;
+		.pagination-info { font-size: 14px; color: var(--text-muted); }
+		.pagination-btns { display: flex; gap: 8px; }
+		.pagination-btns button {
+			padding: 8px 16px;
+			border: 1px solid var(--border);
 			background: white;
-			color: #64748b;
-			font-weight: 600;
+			border-radius: var(--radius-md);
 			cursor: pointer;
 		}
-		.page-btn:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; }
-		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+		.pagination-btns button:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+		.pagination-btns button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-		.fab-btn {
-			position: fixed;
-			bottom: 30px;
-			right: 30px;
-			width: 60px;
-			height: 60px;
-			border-radius: 50%;
-			background: linear-gradient(135deg, #3b82f6, #2563eb);
-			color: white;
-			border: none;
-			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+		/* ============ FORM PAGE VIEW ============ */
+		.form-page-header { margin-bottom: 24px; }
+
+		.back-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 16px;
+			background: white;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			color: var(--text-secondary);
+			font-weight: 500;
 			cursor: pointer;
-			font-size: 24px;
-			z-index: 100;
-			transition: all 0.3s;
-		}
-		.fab-btn:hover { transform: scale(1.1) rotate(90deg); }
-
-		.empty-state { text-align: center; padding: 60px 20px; }
-		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
-		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
-		.empty-state p { color: #94a3b8; }
-
-		.edit-hint {
-			background: #fffbeb;
-			border: 1px solid #fcd34d;
-			border-radius: 8px;
-			padding: 10px 16px;
+			transition: all 0.2s;
 			margin-bottom: 16px;
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			font-size: 13px;
-			color: #92400e;
 		}
-		.edit-hint i { color: #f59e0b; }
+		.back-button:hover { background: var(--bg-hover); }
 
-		/* Add Student Modal - Modern Design */
-		.student-modal {
-			display: none;
-			position: fixed;
-			inset: 0;
-			background: rgba(15, 23, 42, 0.6);
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-			z-index: 10000;
+		.form-header {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+
+		.form-header-icon {
+			width: 56px;
+			height: 56px;
+			background: var(--primary);
+			border-radius: var(--radius-lg);
+			display: flex;
 			align-items: center;
 			justify-content: center;
-			padding: 20px;
-			opacity: 0;
-			transition: opacity 0.3s ease;
-		}
-		.student-modal.show {
-			display: flex;
-			opacity: 1;
-		}
-		.student-modal.closing {
-			opacity: 0;
-		}
-		.student-modal-content {
-			background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-			border-radius: 24px;
-			width: 90%;
-			max-width: 750px;
-			max-height: 90vh;
-			overflow: hidden;
-			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 
-			            0 0 0 1px rgba(255, 255, 255, 0.1),
-			            0 0 100px rgba(59, 130, 246, 0.1);
-			animation: modalSlideIn 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-			display: flex;
-			flex-direction: column;
-			position: relative;
-			border: 1px solid rgba(255, 255, 255, 0.2);
-		}
-		.student-modal.closing .student-modal-content {
-			animation: modalCollapse 0.35s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards;
-		}
-		@keyframes modalSlideIn {
-			from { 
-				opacity: 0; 
-				transform: translateY(-50px) scale(0.95); 
-			}
-			to { 
-				opacity: 1; 
-				transform: translateY(0) scale(1); 
-			}
-		}
-		@keyframes modalCollapse {
-			0% { 
-				opacity: 1; 
-				transform: translateY(0) scale(1); 
-			}
-			50% { 
-				opacity: 0.5; 
-				transform: translateY(20px) scale(0.98); 
-			}
-			100% { 
-				opacity: 0; 
-				transform: translateY(50px) scale(0.95); 
-			}
-		}
-		.modal-header {
-			padding: 28px 32px;
-			background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-			border-bottom: none;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			position: relative;
-			overflow: hidden;
-		}
-		.modal-header::before {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-			pointer-events: none;
-		}
-		.modal-header h3 {
-			font-size: 22px;
-			font-weight: 700;
-			color: #ffffff;
-			display: flex;
-			align-items: center;
-			gap: 12px;
-			position: relative;
-			z-index: 1;
-			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		}
-		.modal-header h3 i {
-			color: #ffffff;
+			color: white;
 			font-size: 24px;
-			background: rgba(255, 255, 255, 0.2);
-			width: 40px;
-			height: 40px;
-			border-radius: 12px;
+		}
+
+		.form-header-text h1 {
+			font-size: 24px;
+			font-weight: 700;
+			margin-bottom: 4px;
+		}
+		.form-header-text p {
+			color: var(--text-muted);
+			font-size: 14px;
+		}
+
+		/* ============ TABS ============ */
+		.form-tabs {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 24px;
+		}
+
+		.form-tab {
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			backdrop-filter: blur(10px);
-		}
-		.modal-close {
-			width: 40px;
-			height: 40px;
-			border-radius: 12px;
-			border: none;
-			background: rgba(255, 255, 255, 0.2);
-			backdrop-filter: blur(10px);
+			gap: 8px;
+			padding: 12px 24px;
+			background: white;
+			border: 1px solid var(--border);
+			border-radius: 30px;
+			font-weight: 500;
+			font-size: 14px;
+			color: var(--text-secondary);
 			cursor: pointer;
+			transition: all 0.2s;
+		}
+
+		.form-tab:hover {
+			border-color: var(--primary);
+			color: var(--primary);
+		}
+
+		.form-tab.active {
+			background: var(--primary);
+			border-color: var(--primary);
+			color: white;
+		}
+
+		.form-tab .tab-icon {
+			width: 20px;
+			height: 20px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 18px;
-			color: #ffffff;
-			transition: all 0.2s ease;
-			position: relative;
-			z-index: 1;
 		}
-		.modal-close:hover {
-			background: rgba(255, 255, 255, 0.3);
-			transform: rotate(90deg) scale(1.1);
+
+		.form-tab .tab-badge {
+			background: rgba(255,255,255,0.3);
+			padding: 2px 8px;
+			border-radius: 10px;
+			font-size: 12px;
+			font-weight: 600;
 		}
-		.modal-close:active {
-			transform: rotate(90deg) scale(0.95);
+
+		.form-tab.active .tab-badge {
+			background: rgba(255,255,255,0.3);
 		}
-		.modal-body {
-			padding: 32px;
-			overflow-y: auto;
-			background: #ffffff;
+
+		.form-tab:not(.active) .tab-badge {
+			background: var(--primary);
+			color: white;
 		}
-		.modal-body::-webkit-scrollbar {
-			width: 8px;
+
+		/* ============ TAB CONTENT ============ */
+		.tab-content { display: none; }
+		.tab-content.active { display: block; }
+
+		.form-card {
+			background: white;
+			border-radius: var(--radius-lg);
+			box-shadow: var(--shadow-sm);
+			border: 1px solid var(--border-light);
+			overflow: hidden;
 		}
-		.modal-body::-webkit-scrollbar-track {
-			background: #f1f5f9;
-			border-radius: 4px;
-		}
-		.modal-body::-webkit-scrollbar-thumb {
-			background: #cbd5e1;
-			border-radius: 4px;
-		}
-		.modal-body::-webkit-scrollbar-thumb:hover {
-			background: #94a3b8;
-		}
+
+		.form-card-body { padding: 32px; }
+
+		/* ============ FORM GRID ============ */
 		.form-row {
 			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 20px;
-			margin-bottom: 20px;
-		}
-		@media (max-width: 768px) {
-			.form-row {
-				grid-template-columns: 1fr;
-				gap: 16px;
-			}
-		}
-		.form-group {
-			margin-bottom: 20px;
-		}
-		.form-group label {
-			display: block;
-			font-size: 13px;
-			font-weight: 700;
-			color: #475569;
-			margin-bottom: 10px;
-			text-transform: uppercase;
-			letter-spacing: 0.5px;
-		}
-		.form-group input,
-		.form-group select {
-			width: 100%;
-			height: 48px;
-			padding: 0 18px;
-			border: 2px solid #e2e8f0;
-			border-radius: 12px;
-			font-size: 15px;
-			font-family: inherit;
-			background: #ffffff;
-			color: #1e293b;
-			transition: all 0.2s ease;
-			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-		}
-		.form-group input:hover,
-		.form-group select:hover {
-			border-color: #cbd5e1;
-			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-		}
-		.form-group input:focus,
-		.form-group select:focus {
-			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 2px 8px rgba(59, 130, 246, 0.15);
-			transform: translateY(-1px);
-		}
-		.form-group select {
-			cursor: pointer;
-			appearance: none;
-			-webkit-appearance: none;
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
-			background-repeat: no-repeat;
-			background-position: right 18px center;
-			padding-right: 45px;
-		}
-		.form-group.full-width {
-			grid-column: 1 / -1;
-		}
-		.photo-upload-area {
-			display: flex;
-			align-items: center;
-			gap: 16px;
-		}
-		.photo-preview {
-			width: 120px;
-			height: 150px;
-			border: 2px dashed #e2e8f0;
-			border-radius: 16px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			overflow: hidden;
-			background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-			position: relative;
-			transition: all 0.3s ease;
-		}
-		.photo-preview:hover {
-			border-color: #3b82f6;
-			background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-			transform: scale(1.02);
-		}
-		.photo-preview img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-		}
-		.photo-preview .placeholder {
-			text-align: center;
-			color: #94a3b8;
-		}
-		.photo-preview .placeholder i {
-			font-size: 48px;
-			margin-bottom: 8px;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 24px;
+			margin-bottom: 24px;
 		}
 
-		/* Student Documents Section */
-		.documents-section {
-			margin-top: 32px;
-			padding-top: 24px;
-			border-top: 2px solid #f1f5f9;
-		}
-		.documents-section-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 20px;
-		}
-		.documents-section-title {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			font-size: 16px;
-			font-weight: 700;
-			color: #1e293b;
-		}
-		.documents-section-title i {
-			color: #3b82f6;
-			font-size: 18px;
-		}
-		.documents-list {
-			display: flex;
-			flex-direction: column;
-			gap: 16px;
-		}
-		.document-row {
-			background: #f8fafc;
-			border: 2px solid #e2e8f0;
-			border-radius: 12px;
-			padding: 16px;
-			display: grid;
-			grid-template-columns: 1fr 1fr 1fr auto;
-			gap: 12px;
-			align-items: start;
-			transition: all 0.2s;
-		}
-		.document-row:hover {
-			border-color: #cbd5e1;
-			box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-		}
-		.document-row.existing {
-			background: #ffffff;
-			border-color: #dbeafe;
-		}
-		.document-field {
-			display: flex;
-			flex-direction: column;
-			gap: 6px;
-		}
-		.document-field label {
+		.form-row.three-col { grid-template-columns: repeat(3, 1fr); }
+		.form-row.two-col { grid-template-columns: repeat(2, 1fr); }
+
+		.form-group { display: flex; flex-direction: column; gap: 8px; }
+		.form-group.full-width { grid-column: span 4; }
+		.form-group.span-2 { grid-column: span 2; }
+
+		.form-label {
 			font-size: 12px;
 			font-weight: 600;
-			color: #64748b;
+			color: var(--primary);
 			text-transform: uppercase;
 			letter-spacing: 0.5px;
 		}
-		.document-field input,
-		.document-field select {
+
+		.form-label .required { color: var(--danger); }
+
+		.input-wrapper {
+			position: relative;
+			display: flex;
+			align-items: center;
+		}
+
+		.input-icon {
+			position: absolute;
+			left: 14px;
+			color: var(--text-light);
+			font-size: 16px;
+			z-index: 1;
+		}
+
+		.form-control {
 			width: 100%;
-			height: 40px;
-			padding: 0 12px;
-			border: 2px solid #e2e8f0;
-			border-radius: 8px;
+			padding: 12px 14px 12px 44px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
 			font-size: 14px;
 			background: white;
+			color: var(--text-primary);
 			transition: all 0.2s;
 		}
-		.document-field input:focus,
-		.document-field select:focus {
+
+		.form-control.no-icon {
+			padding-left: 14px;
+		}
+
+		.form-control:focus {
 			outline: none;
-			border-color: #3b82f6;
-			box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
 		}
-		.document-file-upload {
-			position: relative;
+
+		.form-control::placeholder { color: var(--text-light); }
+
+		/* ============ INFO CARDS ============ */
+		.info-cards {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+			margin-top: 32px;
+			padding-top: 32px;
+			border-top: 1px solid var(--border-light);
 		}
-		.document-file-input {
-			position: absolute;
-			opacity: 0;
-			width: 0;
-			height: 0;
+
+		.info-card {
+			display: flex;
+			align-items: flex-start;
+			gap: 16px;
+			padding: 20px;
+			background: var(--bg-main);
+			border-radius: var(--radius-lg);
 		}
-		.document-file-btn {
-			width: 100%;
-			height: 40px;
-			padding: 0 12px;
-			border: 2px solid #e2e8f0;
-			border-radius: 8px;
-			background: white;
+
+		.info-card-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: var(--radius-lg);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			gap: 8px;
-			font-size: 13px;
+			font-size: 20px;
+			flex-shrink: 0;
+		}
+
+		.info-card-icon.green { background: var(--success-light); color: var(--success); }
+		.info-card-icon.orange { background: var(--warning-light); color: var(--warning); }
+		.info-card-icon.purple { background: var(--purple-light); color: var(--purple); }
+		.info-card-icon.blue { background: var(--info-light); color: var(--info); }
+
+		.info-card-text h4 {
+			font-size: 14px;
 			font-weight: 600;
-			color: #64748b;
-			cursor: pointer;
-			transition: all 0.2s;
+			color: var(--text-primary);
+			margin-bottom: 4px;
 		}
-		.document-file-btn:hover {
-			border-color: #3b82f6;
-			color: #3b82f6;
-			background: #eff6ff;
+
+		.info-card-text p {
+			font-size: 13px;
+			color: var(--text-muted);
 		}
-		.document-file-btn.has-file {
-			border-color: #16a34a;
-			color: #16a34a;
-			background: #f0fdf4;
-		}
-		.document-file-name {
-			font-size: 12px;
-			color: #16a34a;
-			margin-top: 4px;
+
+		/* ============ DOCUMENTS TAB ============ */
+		.upload-section h3 {
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 8px;
 			display: flex;
 			align-items: center;
-			gap: 6px;
+			gap: 8px;
 		}
-		.document-file-name i {
-			font-size: 10px;
+
+		.upload-section h3 i { color: var(--primary); }
+
+		.upload-section p {
+			font-size: 13px;
+			color: var(--text-muted);
+			margin-bottom: 16px;
 		}
+
+		.upload-zone {
+			border: 2px dashed var(--border);
+			border-radius: var(--radius-lg);
+			padding: 48px;
+			text-align: center;
+			cursor: pointer;
+			transition: all 0.2s;
+			background: var(--bg-main);
+		}
+
+		.upload-zone:hover {
+			border-color: var(--primary);
+			background: var(--primary-50);
+		}
+
+		.upload-zone.dragover {
+			border-color: var(--primary);
+			background: var(--primary-light);
+		}
+
+		.upload-zone i {
+			font-size: 32px;
+			color: var(--primary);
+			margin-bottom: 12px;
+		}
+
+		.upload-zone span {
+			color: var(--text-muted);
+		}
+
+		.upload-zone .browse-link {
+			color: var(--primary);
+			font-weight: 600;
+			text-decoration: underline;
+		}
+
+		/* Uploaded Documents List */
+		.documents-list {
+			margin-top: 24px;
+		}
+
+		.documents-list h4 {
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			margin-bottom: 16px;
+		}
+
+		.document-item {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 16px;
+			background: white;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			margin-bottom: 12px;
+		}
+
+		.document-info {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+
+		.document-icon {
+			width: 48px;
+			height: 48px;
+			background: var(--danger-light);
+			border-radius: var(--radius-md);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--danger);
+			font-size: 20px;
+		}
+
+		.document-details h5 {
+			font-size: 14px;
+			font-weight: 600;
+			margin-bottom: 4px;
+		}
+
+		.document-details p {
+			font-size: 12px;
+			color: var(--text-muted);
+		}
+
 		.document-actions {
 			display: flex;
-			flex-direction: column;
-			gap: 6px;
-			align-items: flex-end;
+			gap: 8px;
 		}
-		.document-action-btn {
+
+		.doc-action-btn {
 			width: 36px;
 			height: 36px;
 			border: none;
-			border-radius: 8px;
+			border-radius: var(--radius-md);
+			background: var(--bg-hover);
+			color: var(--text-muted);
+			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			cursor: pointer;
-			font-size: 14px;
 			transition: all 0.2s;
 		}
-		.document-action-btn.view {
-			background: #eff6ff;
-			color: #3b82f6;
+
+		.doc-action-btn:hover {
+			background: var(--primary-light);
+			color: var(--primary);
 		}
-		.document-action-btn.view:hover {
-			background: #dbeafe;
+
+		.doc-action-btn.delete:hover {
+			background: var(--danger-light);
+			color: var(--danger);
 		}
-		.document-action-btn.download {
-			background: #f0fdf4;
-			color: #16a34a;
+
+		/* Tip Box */
+		.tip-box {
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+			padding: 16px;
+			background: var(--warning-light);
+			border-radius: var(--radius-md);
+			margin-top: 24px;
 		}
-		.document-action-btn.download:hover {
-			background: #dcfce7;
+
+		.tip-box i {
+			color: var(--warning);
+			font-size: 18px;
+			margin-top: 2px;
 		}
-		.document-action-btn.delete {
-			background: #fef2f2;
-			color: #ef4444;
+
+		.tip-box p {
+			font-size: 13px;
+			color: var(--text-secondary);
 		}
-		.document-action-btn.delete:hover {
-			background: #fee2e2;
+
+		.tip-box strong {
+			color: var(--warning);
 		}
-		.document-row.existing .document-actions {
-			flex-direction: row;
+
+		/* Document Name Modal */
+		.doc-name-modal {
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.5);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 1100;
+			padding: 20px;
 		}
-		.document-row.existing .document-action-btn {
-			width: 32px;
-			height: 32px;
-			font-size: 12px;
+		.doc-name-modal.show { display: flex; }
+		.doc-name-modal-content {
+			background: white;
+			border-radius: var(--radius-xl);
+			width: 100%;
+			max-width: 450px;
+			padding: 24px;
 		}
-		.document-preview-info {
+		.doc-name-modal h3 {
+			font-size: 18px;
+			font-weight: 700;
+			margin-bottom: 8px;
 			display: flex;
 			align-items: center;
+			gap: 10px;
+		}
+		.doc-name-modal h3 i { color: var(--primary); }
+		.doc-name-modal p {
+			color: var(--text-muted);
+			font-size: 13px;
+			margin-bottom: 16px;
+		}
+		.doc-name-modal .file-preview {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px;
+			background: var(--bg-main);
+			border-radius: var(--radius-md);
+			margin-bottom: 16px;
+		}
+		.doc-name-modal .file-preview-icon {
+			width: 40px;
+			height: 40px;
+			background: var(--danger-light);
+			border-radius: var(--radius-md);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--danger);
+			font-size: 16px;
+		}
+		.doc-name-modal .file-preview-icon.image { background: var(--info-light); color: var(--info); }
+		.doc-name-modal .file-preview-info h5 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+		.doc-name-modal .file-preview-info span { font-size: 12px; color: var(--text-muted); }
+		.doc-name-modal .doc-name-input {
+			width: 100%;
+			padding: 12px 14px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			font-size: 14px;
+			margin-bottom: 8px;
+		}
+		.doc-name-modal .doc-name-input:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
+		}
+		.doc-name-modal .quick-names {
+			display: flex;
+			flex-wrap: wrap;
 			gap: 8px;
+			margin-bottom: 20px;
+		}
+		.doc-name-modal .quick-name-btn {
+			padding: 6px 12px;
+			background: var(--bg-hover);
+			border: 1px solid var(--border);
+			border-radius: 20px;
 			font-size: 12px;
-			color: #64748b;
-			margin-top: 4px;
+			color: var(--text-secondary);
+			cursor: pointer;
+			transition: all 0.2s;
 		}
-		.document-preview-info i {
-			color: #3b82f6;
+		.doc-name-modal .quick-name-btn:hover {
+			background: var(--primary-light);
+			border-color: var(--primary);
+			color: var(--primary);
 		}
-		@media (max-width: 768px) {
-			.student-modal-content {
-				width: 95%;
-				max-width: 100%;
-				border-radius: 20px;
-			}
-			.modal-header {
-				padding: 20px 24px;
-			}
-			.modal-header h3 {
-				font-size: 18px;
-			}
-			.modal-body {
-				padding: 24px;
-			}
-			.modal-footer {
-				padding: 20px 24px;
-				flex-direction: column;
-			}
-			.modal-footer .btn {
-				width: 100%;
-			}
-			.document-row {
-				grid-template-columns: 1fr;
-			}
-			.document-actions {
-				flex-direction: row;
-				width: 100%;
-				justify-content: flex-end;
-			}
+		.doc-name-modal .modal-actions {
+			display: flex;
+			gap: 12px;
+			justify-content: flex-end;
 		}
-		.modal-footer {
-			padding: 24px 32px;
-			border-top: 1px solid #f1f5f9;
+		.doc-name-modal .btn-skip {
+			padding: 10px 20px;
+			background: white;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			color: var(--text-secondary);
+			font-weight: 500;
+			cursor: pointer;
+		}
+		.doc-name-modal .btn-skip:hover { background: var(--bg-hover); }
+		.doc-name-modal .btn-add {
+			padding: 10px 20px;
+			background: var(--primary);
+			border: none;
+			border-radius: var(--radius-md);
+			color: white;
+			font-weight: 500;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.doc-name-modal .btn-add:hover { background: var(--primary-hover); }
+
+		/* Document Preview Modal */
+		.doc-preview-modal {
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.8);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 1200;
+			padding: 20px;
+		}
+		.doc-preview-modal.show { display: flex; }
+		.doc-preview-modal-content {
+			background: white;
+			border-radius: var(--radius-xl);
+			width: 100%;
+			max-width: 900px;
+			max-height: 90vh;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+		.doc-preview-header {
+			padding: 16px 20px;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.doc-preview-header h3 {
+			font-size: 16px;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.doc-preview-header h3 i { color: var(--primary); }
+		.doc-preview-actions { display: flex; gap: 8px; }
+		.doc-preview-actions button {
+			padding: 8px 16px;
+			border-radius: var(--radius-md);
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			transition: all 0.2s;
+		}
+		.doc-preview-actions .btn-download {
+			background: var(--primary);
+			border: none;
+			color: white;
+		}
+		.doc-preview-actions .btn-download:hover { background: var(--primary-hover); }
+		.doc-preview-actions .btn-close-preview {
+			background: white;
+			border: 1px solid var(--border);
+			color: var(--text-secondary);
+		}
+		.doc-preview-actions .btn-close-preview:hover { background: var(--bg-hover); }
+		.doc-preview-body {
+			flex: 1;
+			overflow: auto;
+			padding: 20px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: var(--bg-main);
+		}
+		.doc-preview-body img {
+			max-width: 100%;
+			max-height: 70vh;
+			border-radius: var(--radius-md);
+			box-shadow: var(--shadow-lg);
+		}
+		.doc-preview-body iframe {
+			width: 100%;
+			height: 70vh;
+			border: none;
+			border-radius: var(--radius-md);
+		}
+		.doc-preview-body .no-preview {
+			text-align: center;
+			color: var(--text-muted);
+			padding: 40px;
+		}
+		.doc-preview-body .no-preview i {
+			font-size: 48px;
+			margin-bottom: 16px;
+			color: var(--text-light);
+		}
+
+		/* ============ FORM FOOTER ============ */
+		.form-footer {
 			display: flex;
 			justify-content: flex-end;
 			gap: 12px;
-			background: #f8fafc;
-			border-radius: 0 0 24px 24px;
+			padding: 20px 32px;
+			background: var(--bg-hover);
+			border-top: 1px solid var(--border);
 		}
-		.btn-secondary {
-			background: #ffffff;
-			border: 2px solid #e2e8f0;
-			color: #64748b;
-			font-weight: 600;
-			transition: all 0.2s ease;
+
+		.btn-cancel {
+			padding: 12px 24px;
+			background: white;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			color: var(--text-secondary);
+			font-weight: 500;
+			cursor: pointer;
 		}
-		.btn-secondary:hover {
-			background: #f8fafc;
-			border-color: #cbd5e1;
-			color: #475569;
-			transform: translateY(-1px);
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+		.btn-cancel:hover { background: var(--bg-hover); }
+
+		.btn-save {
+			padding: 12px 28px;
+			background: var(--primary);
+			border: none;
+			border-radius: var(--radius-md);
+			color: white;
+			font-weight: 500;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
 		}
-		.btn-primary {
-			background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-			color: #ffffff;
-			font-weight: 600;
-			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-			transition: all 0.2s ease;
+
+		.btn-save:hover { background: var(--primary-hover); }
+
+		/* ============ VIEW MODAL ============ */
+		.modal {
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.5);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+			padding: 20px;
 		}
-		.btn-primary:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+		.modal.show { display: flex; }
+		.modal-content {
+			background: white;
+			border-radius: var(--radius-xl);
+			width: 100%;
+			max-width: 600px;
+			max-height: 90vh;
+			overflow-y: auto;
 		}
-		.btn-primary:active {
-			transform: translateY(0);
+		.modal-header {
+			padding: 20px 24px;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.modal-header h3 { font-size: 18px; font-weight: 700; }
+		.modal-close { background: none; border: none; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+		.modal-body { padding: 24px; }
+		.modal-footer {
+			padding: 20px 24px;
+			border-top: 1px solid var(--border);
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+
+		/* ============ TOAST ============ */
+		.toast {
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			padding: 16px 24px;
+			border-radius: var(--radius-lg);
+			color: white;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			z-index: 2000;
+			animation: slideIn 0.3s ease;
+		}
+		.toast.success { background: var(--success); }
+		.toast.error { background: var(--danger); }
+		@keyframes slideIn {
+			from { transform: translateX(100px); opacity: 0; }
+			to { transform: translateX(0); opacity: 1; }
+		}
+
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: var(--text-muted);
+		}
+		.empty-state i { font-size: 48px; margin-bottom: 16px; color: var(--text-light); }
+		.empty-state h3 { font-size: 18px; margin-bottom: 8px; }
+
+		.loading { text-align: center; padding: 40px; }
+		.loading i { font-size: 32px; margin-bottom: 12px; color: var(--primary); }
+
+		/* ============ RESPONSIVE ============ */
+		@media (max-width: 1200px) {
+			.form-row { grid-template-columns: repeat(2, 1fr); }
+			.form-group.full-width { grid-column: span 2; }
+			.form-group.span-2 { grid-column: span 2; }
+			.info-cards { grid-template-columns: 1fr; }
 		}
 
 		@media (max-width: 768px) {
-			.form-row {
-				grid-template-columns: 1fr;
-			}
-			.stats-filters {
-				flex-direction: column;
-				align-items: stretch;
-			}
-			.stats-filters .filter-group {
-				min-width: 100%;
-			}
-			.stats-row { grid-template-columns: 1fr; }
-			.search-box { width: 100%; }
+			.main-container { padding: 16px; }
+			.filter-grid { grid-template-columns: 1fr; }
+			.form-tabs { flex-wrap: wrap; }
+			.form-row { grid-template-columns: 1fr; }
+			.form-group.full-width, .form-group.span-2 { grid-column: span 1; }
+			.form-footer { flex-wrap: wrap; }
+			.form-footer button { flex: 1; justify-content: center; }
 		}
-		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
 	</style>
 </head>
 <body>
-	<div class="page students-page active">
-		<div class="page-header">
-			<div class="page-title-section">
-				<h1><i class="fas fa-user-graduate" style="color: #3b82f6; margin-right: 10px;"></i>Student Management</h1>
-				<p>Manage all student records - Click any cell to edit inline</p>
-		</div>
-			<div class="header-actions">
-				<input type="file" id="importFile" accept=".csv" style="display: none;">
-				<button class="btn btn-primary" id="addStudentBtn"><i class="fas fa-plus"></i> Add Student</button>
-				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
-				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
-			</div>
-	</div>
-
-		<div class="edit-hint">
-			<i class="fas fa-lightbulb"></i>
-			<span><strong>Tip:</strong> Click on any cell to edit directly. Click on the avatar to upload a photo. Changes are auto-saved.</span>
+	<div class="main-container">
+		<!-- =============== STUDENT LIST VIEW =============== -->
+		<div class="page-view active" id="listView">
+			<div class="page-header">
+				<div class="page-title-section">
+					<div class="page-icon">
+						<i class="fas fa-user-graduate"></i>
+					</div>
+					<div class="page-title">
+						<h1>Students Management</h1>
+						<p>Manage student records, admissions, and profiles</p>
+					</div>
 				</div>
-
-		<!-- Filter Section -->
-		<div class="stats-filters" id="statsFilters">
-			<div class="filter-group">
-				<label for="filterClass"><i class="fas fa-layer-group"></i> Class</label>
-				<select id="filterClass" class="filter-select" data-dropdown="class">
-					<option value="">All</option>
-				</select>
-			</div>
-			<div class="filter-group">
-				<label for="filterSection"><i class="fas fa-columns"></i> Section</label>
-				<select id="filterSection" class="filter-select" data-dropdown="section">
-					<option value="">All</option>
-				</select>
-			</div>
-			<div class="filter-group">
-				<label for="filterSubject"><i class="fas fa-book"></i> Subject</label>
-				<select id="filterSubject" class="filter-select" data-dropdown="subject">
-					<option value="">All</option>
-				</select>
-			</div>
-			<div class="filter-group">
-				<label for="filterGender"><i class="fas fa-venus-mars"></i> Gender</label>
-				<select id="filterGender" class="filter-select" data-dropdown="gender">
-					<option value="">All</option>
-				</select>
-			</div>
-		</div>
-
-		<div class="stats-row" id="statsRow"></div>
-
-		<div class="table-card">
-			<div class="table-toolbar">
-				<div class="search-box">
-					<i class="fas fa-search"></i>
-					<input type="text" id="searchInput" placeholder="Search students...">
-			</div>
-				<div class="toolbar-actions">
-					<select id="tableClassFilter" class="page-select" style="min-width: 130px;" title="Filter by Class" data-dropdown="class">
-						<option value="">All Classes</option>
-					</select>
-					<select id="tableSectionFilter" class="page-select" style="min-width: 120px;" title="Filter by Section" data-dropdown="section">
-						<option value="">All Sections</option>
-					</select>
-					<select id="tableStatusFilter" class="page-select" style="min-width: 120px;" title="Filter by Status">
-						<option value="">All Status</option>
-						<option value="Active">Active</option>
-						<option value="Inactive">Inactive</option>
-					</select>
-					<select id="tableGenderFilter" class="page-select" style="min-width: 120px;" title="Filter by Gender" data-dropdown="gender">
-						<option value="">All Gender</option>
-					</select>
-					<button class="btn btn-outline btn-sm" id="clearFiltersBtn" title="Clear All Filters">
-						<i class="fas fa-times-circle"></i> Clear
+				<div class="header-actions">
+					<button class="btn btn-secondary" id="exportBtn" data-permission="export">
+						<i class="fas fa-download"></i> Export
 					</button>
-					<button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
-						<i class="fas fa-trash"></i> Delete Selected
+					<button class="btn btn-primary" id="addStudentBtn" data-permission="create">
+						<i class="fas fa-plus"></i> Add Student
 					</button>
 				</div>
 			</div>
 
-			<!-- Hidden file input for photo upload -->
-			<input type="file" id="photoUpload" accept="image/*" style="display: none;">
-
-			<table class="data-table">
-				<thead>
-					<tr>
-						<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
-						<th>Photo</th>
-						<th>Student ID</th>
-						<th>Name</th>
-						<th>Gender</th>
-						<th>Class</th>
-						<th>Section</th>
-						<th>Parent</th>
-						<th>Address</th>
-						<th>DOB</th>
-						<th>Joining Date</th>
-						<th>Blood Group</th>
-						<th>Status</th>
-						<th>Actions</th>
-					</tr>
-				</thead>
-				<tbody id="tableBody"></tbody>
-			</table>
-
-			<div class="table-footer">
-				<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 students</div>
-				<div class="pagination-btns">
-					<button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
-					<span id="pageNum" style="padding: 0 12px; font-weight: 600;">1</span>
-					<button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
-					<select class="page-select" id="pageSizeSelect">
-						<option value="10">10 / page</option>
-						<option value="20">20 / page</option>
-						<option value="50">50 / page</option>
-					</select>
-			</div>
-			</div>
-		</div>
-	</div>
-
-	<button class="fab-btn" id="fabAddBtn" title="Add New Student"><i class="fas fa-plus"></i></button>
-
-	<script>
-		$(document).ready(function() {
-		// Initialize Dynamic Dropdowns
-		initDynamicDropdowns();
-
-		function initDynamicDropdowns() {
-			// Load all dropdown data for current institution type
-			DynamicDropdown.loadAll(function(dropdowns) {
-				// Populate filter dropdowns (with "All" as first option)
-				populateFilterDropdown('#filterClass', 'class', 'All');
-				populateFilterDropdown('#filterSection', 'section', 'All');
-				populateFilterDropdown('#filterSubject', 'subject', 'All');
-				populateFilterDropdown('#filterGender', 'gender', 'All');
-
-				// Populate table toolbar dropdowns
-				populateFilterDropdown('#tableClassFilter', 'class', 'All Classes');
-				populateFilterDropdown('#tableSectionFilter', 'section', 'All Sections');
-				populateFilterDropdown('#tableGenderFilter', 'gender', 'All Gender');
-
-				// Populate form dropdowns (with "Select..." as first option)
-				populateFormDropdown('#studentGender', 'gender', 'Select Gender');
-				populateFormDropdown('#studentClass', 'class', 'Select Class');
-				populateFormDropdown('#studentSection', 'section', 'Select Section');
-				populateFormDropdown('#studentBloodGroup', 'blood_group', 'Select Blood Group');
-			});
-		}
-
-		function populateFilterDropdown(selector, categoryKey, placeholder) {
-			DynamicDropdown.getValues(categoryKey, function(values) {
-				var $select = $(selector);
-				var currentVal = $select.val();
-				$select.empty();
-				$select.append($('<option>', { value: '', text: placeholder }));
-				$.each(values, function(i, item) {
-					$select.append($('<option>', { value: item.value, text: item.value }));
-				});
-				if (currentVal) $select.val(currentVal);
-			});
-		}
-
-		function populateFormDropdown(selector, categoryKey, placeholder) {
-			DynamicDropdown.getValues(categoryKey, function(values) {
-				var $select = $(selector);
-				var currentVal = $select.val();
-				$select.empty();
-				$select.append($('<option>', { value: '', text: placeholder }));
-				$.each(values, function(i, item) {
-					$select.append($('<option>', { value: item.value, text: item.value }));
-				});
-				if (currentVal) $select.val(currentVal);
-			});
-		}
-
-		function notify(msg, type = 'success') {
-			$('.toast').remove();
-			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
-			const icon = type === 'success' ? 'check-circle' : 'info-circle';
-			const toast = $('<div>').addClass('toast').css({
-				position: 'fixed',
-				bottom: '30px',
-				right: '30px',
-				padding: '14px 20px',
-				background: bg,
-				color: 'white',
-				borderRadius: '10px',
-				fontWeight: '600',
-				zIndex: '10000',
-				display: 'flex',
-				alignItems: 'center',
-				gap: '8px',
-				animation: 'slideIn 0.3s ease',
-				fontFamily: "'Segoe UI', sans-serif",
-				fontSize: '14px'
-			}).html(`<i class="fas fa-${icon}"></i> ${msg}`);
-			
-			$('body').append(toast);
-			
-			if ($('#toastStyle').length === 0) {
-				$('<style>').attr('id', 'toastStyle').text('@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}').appendTo('head');
-			}
-			
-			setTimeout(() => {
-				toast.css('opacity', '0');
-				setTimeout(() => toast.remove(), 300);
-			}, 2500);
-		}
-
-		const STORAGE_KEY = 'edu_students';
-		let students = [];
-		let page = 1, pageSize = 10;
-		let selected = new Set();
-		let currentUploadIdx = -1;
-
-		function generateDemoStudents() {
-			const firstNames = {
-				Male: ['Rahul', 'Amit', 'Vikram', 'Karan', 'Arjun', 'Rohan', 'Siddharth', 'Aryan', 'Aditya', 'Pranav', 'Krishna', 'Dhruv', 'Vishal', 'Raj', 'Mohit', 'Ankit', 'Nikhil', 'Yash', 'Sahil', 'Dev', 'Harsh', 'Manish', 'Suraj', 'Abhishek', 'Vivek', 'Akash', 'Ravi', 'Gaurav', 'Rishabh', 'Kunal', 'Mayank', 'Shubham', 'Jay', 'Ritesh', 'Nitin'],
-				Female: ['Priya', 'Ananya', 'Sneha', 'Neha', 'Pooja', 'Kavya', 'Isha', 'Anjali', 'Divya', 'Meera', 'Riya', 'Sakshi', 'Shreya', 'Aanya', 'Kriti', 'Avni', 'Tanvi', 'Aditi', 'Ishita', 'Disha', 'Saanvi', 'Aishwarya', 'Anushka', 'Vidya', 'Radha', 'Kiran', 'Sarika', 'Pallavi', 'Megha', 'Swati', 'Urvashi', 'Nikita', 'Jyoti', 'Manisha', 'Rashmi']
-			};
-			const lastNames = ['Sharma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Reddy', 'Nair', 'Iyer', 'Malhotra', 'Verma', 'Das', 'Mehta', 'Chopra', 'Bansal', 'Agarwal', 'Jain', 'Shah', 'Rao', 'Pandey', 'Joshi', 'Desai', 'Mishra', 'Shukla', 'Yadav', 'Thakur', 'Chauhan', 'Rawat', 'Bhatt', 'Dubey', 'Tiwari'];
-			const sections = ['A', 'B', 'C'];
-			const addresses = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Surat', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad'];
-			
-			const students = [];
-			const currentYear = new Date().getFullYear();
-			
-			for (let i = 1; i <= 100; i++) {
-				const gender = i % 2 === 0 ? 'Female' : 'Male';
-				const firstName = firstNames[gender][Math.floor(Math.random() * firstNames[gender].length)];
-				const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-				const name = `${firstName} ${lastName}`;
-				const classNum = Math.floor(Math.random() * 12) + 1;
-				const section = classNum >= 11 ? 'Science' : sections[Math.floor(Math.random() * sections.length)];
-				const parentFirst = gender === 'Male' ? firstNames.Male[Math.floor(Math.random() * firstNames.Male.length)] : firstNames.Female[Math.floor(Math.random() * firstNames.Female.length)];
-				const parentLast = lastName;
-				const parent = `${parentFirst} ${parentLast}`;
-				const address = `${addresses[Math.floor(Math.random() * addresses.length)]}, India`;
-				
-				// Generate DOB (ages between 5-17 years)
-				const age = 5 + Math.floor(Math.random() * 13);
-				const birthYear = currentYear - age;
-				const birthMonth = Math.floor(Math.random() * 12) + 1;
-				const birthDay = Math.floor(Math.random() * 28) + 1;
-				const dob = `${String(birthDay).padStart(2, '0')}/${String(birthMonth).padStart(2, '0')}/${birthYear}`;
-				
-				// Generate Joining Date (within last 3 years)
-				const joiningYear = currentYear - Math.floor(Math.random() * 3);
-				const joiningMonth = Math.floor(Math.random() * 12) + 1;
-				const joiningDay = Math.floor(Math.random() * 28) + 1;
-				const joiningDate = `${String(joiningDay).padStart(2, '0')}/${String(joiningMonth).padStart(2, '0')}/${joiningYear}`;
-				
-				// Generate Blood Group
-				const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-				const bloodGroup = bloodGroups[Math.floor(Math.random() * bloodGroups.length)];
-				
-				const status = Math.random() > 0.1 ? 'Active' : 'Inactive';
-				const id = `STU-${currentYear}-${String(i).padStart(3, '0')}`;
-				
-				students.push({
-					id: id,
-					name: name,
-					gender: gender,
-					class: String(classNum),
-					section: section,
-					parent: parent,
-					address: address,
-					dob: dob,
-					joiningDate: joiningDate,
-					bloodGroup: bloodGroup,
-					status: status,
-					photo: ''
-				});
-			}
-			
-			return students;
-		}
-
-		function loadStudents() {
-			// Load students from backend API
-			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
-				EduManageApp.Students.getList({ page: page, perPage: 1000 },
-					function(response) {
-						// Success callback
-						if (response.data && response.data.students) {
-							students = response.data.students;
-							renderTable();
-							renderStats();
-						} else {
-							students = [];
-							renderTable();
-							renderStats();
-						}
-					},
-					function(error) {
-						// Error callback - fallback to demo data for development
-						console.warn('API not available, using demo data:', error);
-						try {
-							const data = localStorage.getItem(STORAGE_KEY);
-							if (data && data !== '[]' && data.trim() !== '' && data !== 'null') {
-								const parsed = JSON.parse(data);
-								if (Array.isArray(parsed) && parsed.length >= 10) {
-									students = parsed;
-								} else {
-									students = generateDemoStudents();
-									localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-								}
-							} else {
-								students = generateDemoStudents();
-								localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-							}
-						} catch (e) {
-							students = generateDemoStudents();
-							localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-						}
-						renderTable();
-						renderStats();
-					}
-				);
-			} else {
-				// Fallback to localStorage if API not available
-				try {
-					const data = localStorage.getItem(STORAGE_KEY);
-					if (data && data !== '[]' && data.trim() !== '' && data !== 'null') {
-						const parsed = JSON.parse(data);
-						if (Array.isArray(parsed) && parsed.length >= 10) {
-							students = parsed;
-						} else {
-							students = generateDemoStudents();
-							localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-						}
-					} else {
-						students = generateDemoStudents();
-						localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-					}
-				} catch (e) {
-					students = generateDemoStudents();
-					localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-				}
-				renderTable();
-				renderStats();
-			}
-		}
-
-		function saveStudents() {
-			// Deprecated - API calls handle saving individual students
-			// Keep for backward compatibility during migration
-			localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-		}
-
-		function renderStats() {
-			// Get filter values
-			const filterClass = $('#filterClass').val() || '';
-			const filterSection = $('#filterSection').val() || '';
-			const filterSubject = $('#filterSubject').val() || '';
-			const filterGender = $('#filterGender').val() || '';
-
-			// Filter students based on selected filters
-			let filteredStudents = students.filter(s => {
-				const matchClass = !filterClass || s.class === filterClass;
-				const matchSection = !filterSection || s.section === filterSection;
-				const matchGender = !filterGender || s.gender === filterGender;
-				
-				// For subject filter, we need to check if student has marks/exams for that subject
-				let matchSubject = true;
-				if (filterSubject) {
-					// Check if student has exam marks for this subject
-					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
-					const hasSubjectMarks = examMarks.some(mark => 
-						mark.studentId === s.id && mark.subjectId === filterSubject
-					);
-					matchSubject = hasSubjectMarks;
-				}
-				
-				return matchClass && matchSection && matchSubject && matchGender;
-			});
-
-			const total = filteredStudents.length;
-			const active = filteredStudents.filter(s => s.status === 'Active').length;
-			const male = filteredStudents.filter(s => s.gender === 'Male').length;
-			const female = filteredStudents.filter(s => s.gender === 'Female').length;
-			
-			$('#statsRow').html(`
-				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">Total Students</div></div></div>
-				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div><div class="stat-value">${active}</div><div class="stat-label">Active Students</div></div></div>
-				<div class="stat-card"><div class="stat-icon purple"><i class="fas fa-male"></i></div><div><div class="stat-value">${male}</div><div class="stat-label">Male Students</div></div></div>
-				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-female"></i></div><div><div class="stat-value">${female}</div><div class="stat-label">Female Students</div></div></div>
-			`);
-		}
-
-		// Load sections dynamically based on selected class
-		function loadSectionsForClass(classVal) {
-			const sectionSelect = $('#filterSection');
-			sectionSelect.html('<option value="">All</option>');
-			
-			if (!classVal) {
-				return;
-			}
-
-			// Get unique sections for the selected class from students
-			const sections = [...new Set(students
-				.filter(s => s.class === classVal)
-				.map(s => s.section)
-				.filter(s => s && s !== '-')
-			)].sort();
-
-			sections.forEach(section => {
-				sectionSelect.append(`<option value="${section}">${section}</option>`);
-			});
-		}
-
-		// Load subjects dynamically based on selected class
-		function loadSubjectsForClass(classVal) {
-			const subjectSelect = $('#filterSubject');
-			subjectSelect.html('<option value="">All</option>');
-			
-			if (!classVal) {
-				return;
-			}
-
-			try {
-				// Get class-subject mapping
-				const mappingData = localStorage.getItem('edu_class_subject_mapping');
-				if (!mappingData) {
-					return;
-				}
-
-				const mapping = JSON.parse(mappingData);
-				const subjectIds = mapping[classVal] || [];
-
-				// Get subject master
-				const subjectMasterData = localStorage.getItem('edu_subject_master');
-				if (!subjectMasterData) {
-					return;
-				}
-
-				const subjectMaster = JSON.parse(subjectMasterData);
-				const subjectMap = {};
-				subjectMaster.forEach(s => { subjectMap[s.id] = s; });
-
-				// Add subjects to dropdown
-				subjectIds.forEach(subjectId => {
-					const subject = subjectMap[subjectId];
-					if (subject) {
-						subjectSelect.append(`<option value="${subjectId}">${subject.name}</option>`);
-					}
-				});
-			} catch (e) {
-				console.error('Error loading subjects:', e);
-			}
-		}
-
-		function renderTable() {
-			const search = $('#searchInput').val().toLowerCase();
-			const classFilter = $('#tableClassFilter').val() || $('#filterClass').val() || '';
-			const sectionFilter = $('#tableSectionFilter').val() || $('#filterSection').val() || '';
-			const statusFilter = $('#tableStatusFilter').val() || '';
-			const genderFilter = $('#tableGenderFilter').val() || $('#filterGender').val() || '';
-			const subjectFilter = $('#filterSubject').val() || '';
-
-			let filtered = students.filter(s => {
-				const matchSearch = !search || [s.id, s.name, s.parent, s.address].join(' ').toLowerCase().includes(search);
-				const matchClass = !classFilter || s.class === classFilter;
-				const matchSection = !sectionFilter || s.section === sectionFilter;
-				const matchStatus = !statusFilter || s.status === statusFilter;
-				const matchGender = !genderFilter || s.gender === genderFilter;
-				
-				// For subject filter, check if student has exam marks for that subject
-				let matchSubject = true;
-				if (subjectFilter) {
-					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
-					const hasSubjectMarks = examMarks.some(mark => 
-						mark.studentId === s.id && mark.subjectId === subjectFilter
-					);
-					matchSubject = hasSubjectMarks;
-				}
-				
-				return matchSearch && matchClass && matchSection && matchStatus && matchGender && matchSubject;
-			});
-
-			const total = filtered.length;
-			const totalPages = Math.max(1, Math.ceil(total / pageSize));
-			if (page > totalPages) page = totalPages;
-			const start = (page - 1) * pageSize;
-			const pageData = filtered.slice(start, start + pageSize);
-
-			if (pageData.length === 0) {
-				$('#tableBody').html(`<tr><td colspan="14"><div class="empty-state"><i class="fas fa-user-graduate"></i><h3>No Students Found</h3><p>Add students or adjust your search</p></div></td></tr>`);
-			} else {
-				$('#tableBody').html(pageData.map((s, idx) => {
-					const globalIdx = students.indexOf(s);
-					const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-					const genderClass = s.gender === 'Female' ? 'female' : 'male';
-					const avatarContent = s.photo ? `<img src="${s.photo}" alt="${s.name}">` : initials;
-					const removeBtn = s.photo ? `<button class="remove-photo-btn" onclick="event.stopPropagation(); removePhoto(${globalIdx})" title="Remove photo"><i class="fas fa-times"></i></button>` : '';
-					return `
-						<tr data-idx="${globalIdx}">
-							<td class="checkbox-cell"><input type="checkbox" class="custom-checkbox row-check" data-id="${s.id}" ${selected.has(s.id) ? 'checked' : ''}></td>
-							<td>
-								<div class="avatar-wrapper">
-									<div class="avatar ${genderClass}" onclick="triggerPhotoUpload(${globalIdx})" title="Click to upload photo">
-										${avatarContent}
-										<div class="upload-overlay"><i class="fas fa-camera"></i></div>
-									</div>
-									${removeBtn}
-								</div>
-							</td>
-							<td><span class="student-id">${s.id}</span></td>
-							<td><div class="editable-cell" data-field="name" data-idx="${globalIdx}">${s.name}</div></td>
-							<td><div class="editable-cell" data-field="gender" data-idx="${globalIdx}" data-type="select"><span class="gender-badge ${genderClass}">${s.gender}</span></div></td>
-							<td><div class="editable-cell" data-field="class" data-idx="${globalIdx}">${s.class}</div></td>
-							<td><div class="editable-cell" data-field="section" data-idx="${globalIdx}" data-type="select">${s.section}</div></td>
-							<td><div class="editable-cell" data-field="parent" data-idx="${globalIdx}">${s.parent || '-'}</div></td>
-							<td><div class="editable-cell" data-field="address" data-idx="${globalIdx}">${s.address || '-'}</div></td>
-							<td><div class="editable-cell" data-field="dob" data-idx="${globalIdx}" data-type="date">${s.dob || '-'}</div></td>
-							<td><div class="editable-cell" data-field="joiningDate" data-idx="${globalIdx}" data-type="date">${s.joiningDate || '-'}</div></td>
-							<td><div class="editable-cell" data-field="bloodGroup" data-idx="${globalIdx}" data-type="select">${s.bloodGroup || '-'}</div></td>
-							<td><span class="status-badge ${s.status === 'Active' ? 'active' : 'inactive'}" onclick="toggleStatus(${globalIdx})">${s.status}</span></td>
-							<td>
-								<div class="action-btns">
-									<button class="action-btn edit" title="Edit Student" onclick="openEditStudentModal(${globalIdx})"><i class="fas fa-edit"></i></button>
-									${s.documents && s.documents.length > 0 ? `<button class="action-btn view" title="View Documents (${s.documents.length})" onclick="viewStudentDocuments(${globalIdx})"><i class="fas fa-file-alt"></i></button>` : ''}
-									<button class="action-btn delete" title="Delete" onclick="deleteStudent(${globalIdx})"><i class="fas fa-trash"></i></button>
-								</div>
-					</td>
-						</tr>
-					`;
-				}).join(''));
-			}
-
-			$('#pageInfo').text(`Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} students`);
-			$('#pageNum').text(page);
-			$('#prevBtn').prop('disabled', page <= 1);
-			$('#nextBtn').prop('disabled', page >= totalPages);
-			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
-			$('#selectAll').prop('checked', pageData.length > 0 && pageData.every(s => selected.has(s.id)));
-		}
-
-		// Inline Editing
-		$(document).on('click', '#tableBody .editable-cell', function(e) {
-			const $cell = $(this);
-			if ($cell.hasClass('editing')) return;
-
-			const idx = parseInt($cell.data('idx'));
-			const field = $cell.data('field');
-			const type = $cell.data('type') || 'text';
-			const currentValue = students[idx][field] || '';
-
-			$cell.addClass('editing');
-
-			if (type === 'select' && field === 'gender') {
-				$cell.html(`<select><option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Female</option></select>`);
-			} else if (type === 'select' && field === 'section') {
-				$cell.html(`<select><option value="A" ${currentValue === 'A' ? 'selected' : ''}>A</option><option value="B" ${currentValue === 'B' ? 'selected' : ''}>B</option><option value="C" ${currentValue === 'C' ? 'selected' : ''}>C</option><option value="Science" ${currentValue === 'Science' ? 'selected' : ''}>Science</option></select>`);
-			} else if (type === 'select' && field === 'bloodGroup') {
-				const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-				const options = bloodGroups.map(bg => `<option value="${bg}" ${currentValue === bg ? 'selected' : ''}>${bg}</option>`).join('');
-				$cell.html(`<select><option value="">-</option>${options}</select>`);
-			} else if (type === 'date') {
-				const dateVal = currentValue && currentValue !== '-' ? formatDateForInput(currentValue) : '';
-				$cell.html(`<input type="date" value="${dateVal}">`);
-			} else {
-				$cell.html(`<input type="text" value="${currentValue === '-' ? '' : currentValue}">`);
-			}
-
-			const $input = $cell.find('input, select');
-			$input.focus();
-			if ($input.is('input[type="text"]')) {
-				$input.select();
-			}
-
-			function saveEdit() {
-				let newValue = $input.val().trim();
-				if (type === 'date' && newValue) {
-					newValue = formatDateForDisplay(newValue);
-				}
-				students[idx][field] = newValue || '-';
-				saveStudents();
-				renderTable();
-				renderStats();
-				notify('Saved!', 'success');
-			}
-
-			$input.off('blur keydown').on('blur', saveEdit).on('keydown', function(e) {
-				if (e.key === 'Enter') { 
-					$(this).blur(); 
-				}
-				if (e.key === 'Escape') { 
-					renderTable(); 
-				}
-			});
-		});
-
-		// Photo Upload - make globally accessible
-		window.triggerPhotoUpload = function(idx) {
-			currentUploadIdx = idx;
-			$('#photoUpload').click();
-		};
-
-		$('#photoUpload').on('change', function(e) {
-			const file = this.files[0];
-			if (!file || currentUploadIdx < 0) return;
-
-			if (file.size > 2 * 1024 * 1024) {
-				notify('Photo must be less than 2MB', 'error');
-				return;
-			}
-
-			const reader = new FileReader();
-			reader.onload = function(event) {
-				students[currentUploadIdx].photo = event.target.result;
-				saveStudents();
-				renderTable();
-				notify('Photo uploaded!', 'success');
-			};
-			reader.readAsDataURL(file);
-			$(this).val('');
-		});
-
-		// Remove Photo - make globally accessible
-		window.removePhoto = function(idx) {
-			if (!confirm('Remove this photo?')) return;
-			students[idx].photo = '';
-			saveStudents();
-			renderTable();
-			notify('Photo removed!', 'success');
-		};
-
-		function formatDateForInput(dateStr) {
-			if (!dateStr || dateStr === '-') return '';
-			const parts = dateStr.split('/');
-			if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-			return dateStr;
-		}
-
-		function formatDateForDisplay(dateStr) {
-			if (!dateStr) return '-';
-			const d = new Date(dateStr);
-			if (isNaN(d)) return dateStr;
-			return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-		}
-
-		// Make globally accessible for onclick handlers
-		window.toggleStatus = function(idx) {
-			students[idx].status = students[idx].status === 'Active' ? 'Inactive' : 'Active';
-			saveStudents();
-			renderTable();
-			renderStats();
-		};
-
-		window.deleteStudent = function(idx) {
-			const student = students[idx];
-			const studentName = student.name || 'this student';
-			const studentId = student.id || '';
-
-			const confirmMessage = `⚠️ Are you sure you want to delete "${studentName}" (${studentId})?\n\n` +
-				`This action cannot be undone and will permanently remove:\n` +
-				`• Student record\n` +
-				`• All associated data\n\n` +
-				`Click OK to confirm deletion, or Cancel to abort.`;
-
-			if (!confirm(confirmMessage)) {
-				notify('Deletion cancelled', 'info');
-				return;
-			}
-
-			// Use backend API if available
-			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
-				EduManageApp.Students.delete(studentId,
-					function(response) {
-						notify(`Student "${studentName}" deleted successfully!`, 'success');
-						loadStudents(); // Reload from backend
-					},
-					function(error) {
-						notify(error.message || 'Failed to delete student', 'error');
-					}
-				);
-			} else {
-				// Fallback to localStorage
-				students.splice(idx, 1);
-				saveStudents();
-				renderTable();
-				renderStats();
-				notify(`Student "${studentName}" deleted successfully!`, 'success');
-			}
-		};
-
-		let editingStudentIndex = -1;
-		let modalPhotoPreview = '';
-
-		// Document management
-		let documentRowCounter = 0;
-		let studentDocuments = [];
-		let documentsCache = {}; // Cache for document data to avoid escaping issues
-
-		function addDocumentRow(existingDoc = null) {
-			const docId = existingDoc ? existingDoc.id : 'doc_' + Date.now() + '_' + (documentRowCounter++);
-			const isExisting = !!existingDoc;
-			
-			const docRow = `
-				<div class="document-row ${isExisting ? 'existing' : ''}" data-doc-id="${docId}">
-					<div class="document-field">
-						<label>Document Name <span style="color:#ef4444">*</span></label>
-						<input type="text" class="doc-name-input" placeholder="e.g., Birth Certificate" 
-							value="${existingDoc ? (existingDoc.name || '') : ''}" required>
-					</div>
-					<div class="document-field">
-						<label>Document Type <span style="color:#ef4444">*</span></label>
-						<select class="doc-type-select" required>
-							<option value="">Select Type</option>
-							<option value="Birth Certificate" ${existingDoc && existingDoc.type === 'Birth Certificate' ? 'selected' : ''}>Birth Certificate</option>
-							<option value="Transfer Certificate (TC)" ${existingDoc && existingDoc.type === 'Transfer Certificate (TC)' ? 'selected' : ''}>Transfer Certificate (TC)</option>
-							<option value="Aadhaar Card" ${existingDoc && existingDoc.type === 'Aadhaar Card' ? 'selected' : ''}>Aadhaar Card</option>
-							<option value="Community Certificate" ${existingDoc && existingDoc.type === 'Community Certificate' ? 'selected' : ''}>Community Certificate</option>
-							<option value="Mark Sheet" ${existingDoc && existingDoc.type === 'Mark Sheet' ? 'selected' : ''}>Mark Sheet</option>
-							<option value="ID Proof" ${existingDoc && existingDoc.type === 'ID Proof' ? 'selected' : ''}>ID Proof</option>
-							<option value="Other" ${existingDoc && existingDoc.type === 'Other' ? 'selected' : ''}>Other</option>
-						</select>
-					</div>
-					<div class="document-field">
-						<label>File Upload</label>
-						<div class="document-file-upload">
-							<input type="file" class="document-file-input" accept=".pdf,.jpg,.jpeg,.png" 
-								data-doc-id="${docId}">
-							<button type="button" class="document-file-btn ${existingDoc && existingDoc.file ? 'has-file' : ''}" 
-								onclick="$(this).siblings('.document-file-input').click()">
-								<i class="fas fa-upload"></i> ${existingDoc && existingDoc.file ? 'Change File' : 'Upload File'}
-							</button>
-							${existingDoc && existingDoc.fileName ? `
-								<div class="document-file-name">
-									<i class="fas fa-check-circle"></i> ${existingDoc.fileName}
-								</div>
-							` : ''}
-						</div>
-					</div>
-					<div class="document-actions">
-						${isExisting && existingDoc.file ? `
-							<button type="button" class="document-action-btn view" onclick="viewDocument('${docId}')" title="View">
-								<i class="fas fa-eye"></i>
-							</button>
-							<button type="button" class="document-action-btn download" onclick="downloadDocument('${docId}')" title="Download">
-								<i class="fas fa-download"></i>
-							</button>
-						` : ''}
-						<button type="button" class="document-action-btn delete" onclick="removeDocumentRow('${docId}')" title="Remove">
-							<i class="fas fa-trash"></i>
-						</button>
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon blue"><i class="fas fa-users"></i></div>
+					<div class="stat-info">
+						<h3 id="totalStudents">0</h3>
+						<p>Total Students</p>
 					</div>
 				</div>
-			`;
-			
-			$('#documentsList').append(docRow);
-			
-			// Attach file change handler
-			$(`.document-file-input[data-doc-id="${docId}"]`).on('change', function(e) {
-				handleDocumentUpload(e, docId);
-			});
-		}
-
-		function handleDocumentUpload(event, docId) {
-			const file = event.target.files[0];
-			if (!file) return;
-
-			// Validate file type
-			const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-			if (!allowedTypes.includes(file.type)) {
-				notify('Only PDF, JPG, and PNG files are allowed', 'error');
-				event.target.value = '';
-				return;
-			}
-
-			// Validate file size (5MB max)
-			const maxSize = 5 * 1024 * 1024; // 5MB
-			if (file.size > maxSize) {
-				notify('File size must be less than 5MB', 'error');
-				event.target.value = '';
-				return;
-			}
-
-			// Read file as base64
-			const reader = new FileReader();
-			reader.onload = function(e) {
-				const fileData = e.target.result;
-				const docRow = $(`.document-row[data-doc-id="${docId}"]`);
-				
-				// Update button
-				const btn = docRow.find('.document-file-btn');
-				btn.addClass('has-file');
-				btn.html(`<i class="fas fa-check"></i> ${file.name}`);
-				
-				// Show file name
-				if (docRow.find('.document-file-name').length === 0) {
-					btn.after(`<div class="document-file-name"><i class="fas fa-check-circle"></i> ${file.name}</div>`);
-				} else {
-					docRow.find('.document-file-name').html(`<i class="fas fa-check-circle"></i> ${file.name}`);
-				}
-
-				// Store file data
-				const docIndex = studentDocuments.findIndex(d => d.id === docId);
-				if (docIndex >= 0) {
-					studentDocuments[docIndex].file = fileData;
-					studentDocuments[docIndex].fileName = file.name;
-					studentDocuments[docIndex].fileType = file.type;
-				} else {
-					studentDocuments.push({
-						id: docId,
-						file: fileData,
-						fileName: file.name,
-						fileType: file.type
-					});
-				}
-
-				notify('File uploaded successfully', 'success');
-			};
-			reader.readAsDataURL(file);
-		}
-
-		// Make document functions globally accessible
-		window.removeDocumentRow = function(docId) {
-			if (confirm('Remove this document?')) {
-				$(`.document-row[data-doc-id="${docId}"]`).remove();
-				studentDocuments = studentDocuments.filter(d => d.id !== docId);
-			}
-		};
-
-		window.viewDocument = function(docId) {
-			const doc = studentDocuments.find(d => d.id === docId);
-			if (!doc || !doc.file) {
-				// Try to get from student's documents if editing
-				if (editingStudentIndex >= 0 && students[editingStudentIndex].documents) {
-					const studentDoc = students[editingStudentIndex].documents.find(d => d.id === docId);
-					if (studentDoc && studentDoc.file) {
-						viewDocumentFromModal(docId, studentDoc.file, studentDoc.fileType || 'application/pdf');
-						return;
-					}
-				}
-				notify('Document not found', 'error');
-				return;
-			}
-
-			viewDocumentFromModal(docId, doc.file, doc.fileType || 'application/pdf');
-		}
-
-		window.downloadDocument = function(docId) {
-			const doc = studentDocuments.find(d => d.id === docId);
-			if (!doc || !doc.file) {
-				// Try to get from student's documents if editing
-				if (editingStudentIndex >= 0 && students[editingStudentIndex].documents) {
-					const studentDoc = students[editingStudentIndex].documents.find(d => d.id === docId);
-					if (studentDoc && studentDoc.file) {
-						downloadDocumentFromModal(docId, studentDoc.file, studentDoc.fileName || 'document');
-						return;
-					}
-				}
-				notify('Document not found', 'error');
-				return;
-			}
-
-			downloadDocumentFromModal(docId, doc.file, doc.fileName || 'document');
-		}
-
-		function loadStudentDocuments(student) {
-			studentDocuments = [];
-			$('#documentsList').empty();
-			
-			if (student && student.documents && student.documents.length > 0) {
-				student.documents.forEach(doc => {
-					const docData = {
-						id: doc.id || 'doc_' + Date.now() + '_' + Math.random(),
-						name: doc.name || '',
-						type: doc.type || '',
-						file: doc.file || null,
-						fileName: doc.fileName || null,
-						fileType: doc.fileType || null
-					};
-					studentDocuments.push(docData);
-					addDocumentRow(docData);
-				});
-			}
-		}
-
-		function collectDocumentsData() {
-			const docs = [];
-			$('.document-row').each(function() {
-				const docId = $(this).data('doc-id');
-				const name = $(this).find('.doc-name-input').val().trim();
-				const type = $(this).find('.doc-type-select').val();
-				const doc = studentDocuments.find(d => d.id === docId);
-				
-				// Only include documents with both name and type
-				if (name && type) {
-					// If document has file data, include it; otherwise keep existing file if editing
-					const existingDoc = editingStudentIndex >= 0 && students[editingStudentIndex].documents 
-						? students[editingStudentIndex].documents.find(d => d.id === docId) 
-						: null;
-					
-					docs.push({
-						id: docId,
-						name: name,
-						type: type,
-						file: doc && doc.file ? doc.file : (existingDoc && existingDoc.file ? existingDoc.file : null),
-						fileName: doc && doc.fileName ? doc.fileName : (existingDoc && existingDoc.fileName ? existingDoc.fileName : null),
-						fileType: doc && doc.fileType ? doc.fileType : (existingDoc && existingDoc.fileType ? existingDoc.fileType : null)
-					});
-				}
-			});
-			return docs;
-		}
-
-		function openAddStudentModal() {
-			editingStudentIndex = -1;
-			modalPhotoPreview = '';
-			studentDocuments = [];
-			$('#modalTitle').html('<i class="fas fa-user-plus"></i> Add New Student');
-			$('#studentForm')[0].reset();
-			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
-			$('#studentStatus').val('Active');
-			$('#studentBloodGroup').val('');
-			$('#documentsList').empty();
-			$('#studentModal').addClass('show');
-		}
-
-		function closeStudentModal() {
-			$('#studentModal').addClass('closing');
-			setTimeout(() => {
-				$('#studentModal').removeClass('show closing');
-				editingStudentIndex = -1;
-				modalPhotoPreview = '';
-				studentDocuments = [];
-				$('#documentsList').empty();
-			}, 350);
-		}
-
-		// Make closeStudentModal globally accessible
-		window.closeStudentModal = function() {
-			closeStudentModal();
-		};
-
-		function addNewStudent() {
-			openAddStudentModal();
-		}
-
-		// Make saveStudentFromModal globally accessible
-		window.saveStudentFromModal = function() {
-			const name = $('#studentName').val().trim();
-			const gender = $('#studentGender').val();
-			const classVal = $('#studentClass').val();
-			const section = $('#studentSection').val();
-			const parent = $('#studentParent').val().trim();
-			const contact = $('#studentContact').val().trim();
-			const email = $('#studentEmail').val().trim();
-			const address = $('#studentAddress').val().trim();
-			const dob = $('#studentDob').val();
-			const joiningDate = $('#studentJoiningDate').val();
-			const bloodGroup = $('#studentBloodGroup').val();
-			const status = $('#studentStatus').val();
-			const photo = modalPhotoPreview;
-
-			// Validate required fields
-			if (!name) {
-				notify('Please enter student name', 'error');
-				$('#studentName').focus();
-				return;
-			}
-			if (!gender) {
-				notify('Please select gender', 'error');
-				$('#studentGender').focus();
-				return;
-			}
-			if (!classVal) {
-				notify('Please select class', 'error');
-				$('#studentClass').focus();
-				return;
-			}
-			if (!section) {
-				notify('Please select section', 'error');
-				$('#studentSection').focus();
-				return;
-			}
-			if (!parent) {
-				notify('Please enter parent/guardian name', 'error');
-				$('#studentParent').focus();
-				return;
-			}
-			if (!contact) {
-				notify('Please enter contact number', 'error');
-				$('#studentContact').focus();
-				return;
-			}
-			// Validate contact number (10 digits)
-			if (!/^[0-9]{10}$/.test(contact)) {
-				notify('Please enter a valid 10-digit contact number', 'error');
-				$('#studentContact').focus();
-				return;
-			}
-			// Validate email if provided
-			if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-				notify('Please enter a valid email address', 'error');
-				$('#studentEmail').focus();
-				return;
-			}
-
-			// Validate documents
-			let hasInvalidDoc = false;
-			$('.document-row').each(function() {
-				const docName = $(this).find('.doc-name-input').val().trim();
-				const type = $(this).find('.doc-type-select').val();
-				const docId = $(this).data('doc-id');
-				const doc = studentDocuments.find(d => d.id === docId);
-
-				if (docName && !type) {
-					notify('Please select document type for: ' + docName, 'error');
-					hasInvalidDoc = true;
-					return false;
-				}
-				if (type && !docName) {
-					notify('Please enter document name', 'error');
-					hasInvalidDoc = true;
-					return false;
-				}
-				if (docName && type && !doc) {
-					notify('Please upload file for: ' + docName, 'error');
-					hasInvalidDoc = true;
-					return false;
-				}
-			});
-
-			if (hasInvalidDoc) return;
-
-			// Collect documents data
-			const documents = collectDocumentsData();
-
-			// Prepare student data for API
-			const studentData = {
-				name: name,
-				gender: gender,
-				class: classVal,
-				section: section,
-				parent_name: parent,
-				contact: contact,
-				email: email || '',
-				address: address || '',
-				dob: dob || '',
-				joining_date: joiningDate || new Date().toISOString().split('T')[0],
-				blood_group: bloodGroup || '',
-				status: status,
-				photo: photo || '',
-				documents: documents
-			};
-
-			// Use backend API if available
-			if (typeof EduManageApp !== 'undefined' && EduManageApp.Students) {
-				if (editingStudentIndex >= 0) {
-					// Update existing student
-					const studentId = students[editingStudentIndex].id;
-					studentData.id = studentId;
-
-					EduManageApp.Students.update(studentData,
-						function(response) {
-							notify('Student updated successfully!', 'success');
-							closeStudentModal();
-							loadStudents(); // Reload from backend
-						},
-						function(error) {
-							notify(error.message || 'Failed to update student', 'error');
-						}
-					);
-				} else {
-					// Create new student
-					EduManageApp.Students.create(studentData,
-						function(response) {
-							notify('New student added successfully!', 'success');
-							closeStudentModal();
-							page = 1;
-							loadStudents(); // Reload from backend
-						},
-						function(error) {
-							notify(error.message || 'Failed to create student', 'error');
-						}
-					);
-				}
-			} else {
-				// Fallback to localStorage
-				if (editingStudentIndex >= 0) {
-					// Update existing student
-					students[editingStudentIndex].name = name;
-					students[editingStudentIndex].gender = gender;
-					students[editingStudentIndex].class = classVal;
-					students[editingStudentIndex].section = section;
-					students[editingStudentIndex].parent = parent || '-';
-					students[editingStudentIndex].address = address || '-';
-					students[editingStudentIndex].dob = dob ? formatDateForDisplay(dob) : '-';
-					students[editingStudentIndex].joiningDate = joiningDate ? formatDateForDisplay(joiningDate) : '-';
-					students[editingStudentIndex].bloodGroup = bloodGroup || '-';
-					students[editingStudentIndex].status = status;
-					if (photo) students[editingStudentIndex].photo = photo;
-					students[editingStudentIndex].documents = documents;
-					notify('Student updated successfully!', 'success');
-				} else {
-					// Add new student
-					const newId = 'STU-' + new Date().getFullYear() + '-' + String(students.length + 1).padStart(3, '0');
-					students.unshift({
-						id: newId,
-						name: name,
-						gender: gender,
-						class: classVal,
-						section: section,
-						parent: parent || '-',
-						address: address || '-',
-						dob: dob ? formatDateForDisplay(dob) : '-',
-						joiningDate: joiningDate ? formatDateForDisplay(joiningDate) : '-',
-						bloodGroup: bloodGroup || '-',
-						status: status,
-						photo: photo,
-						documents: documents
-					});
-					notify('New student added successfully!', 'success');
-				}
-
-				saveStudents();
-				page = 1;
-				renderTable();
-				renderStats();
-				closeStudentModal();
-			}
-		};
-
-		function exportCSV() {
-			console.log('Export button clicked');
-			if (!students || !students.length) { 
-				notify('No students to export', 'error'); 
-				return; 
-			}
-			
-			// Get current filter values (same logic as renderTable)
-			const search = $('#searchInput').val() ? $('#searchInput').val().toLowerCase() : '';
-			const classFilter = $('#tableClassFilter').val() || $('#filterClass').val() || '';
-			const sectionFilter = $('#tableSectionFilter').val() || $('#filterSection').val() || '';
-			const statusFilter = $('#tableStatusFilter').val() || '';
-			const genderFilter = $('#tableGenderFilter').val() || $('#filterGender').val() || '';
-			const subjectFilter = $('#filterSubject').val() || '';
-			
-			console.log('Filters:', { search, classFilter, sectionFilter, statusFilter, genderFilter, subjectFilter });
-			
-			// Apply same filtering logic as renderTable
-			let filtered = students.filter(s => {
-				const matchSearch = !search || [s.id, s.name, s.parent, s.address].join(' ').toLowerCase().includes(search);
-				const matchClass = !classFilter || s.class === classFilter;
-				const matchSection = !sectionFilter || s.section === sectionFilter;
-				const matchStatus = !statusFilter || s.status === statusFilter;
-				const matchGender = !genderFilter || s.gender === genderFilter;
-				
-				// For subject filter, check if student has exam marks for that subject
-				let matchSubject = true;
-				if (subjectFilter) {
-					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
-					const hasSubjectMarks = examMarks.some(mark => 
-						mark.studentId === s.id && mark.subjectId === subjectFilter
-					);
-					matchSubject = hasSubjectMarks;
-				}
-				
-				return matchSearch && matchClass && matchSection && matchStatus && matchGender && matchSubject;
-			});
-			
-			console.log('Filtered students count:', filtered.length, 'Total students:', students.length);
-			
-			if (!filtered.length) {
-				notify('No students match the current filters', 'warning');
-				return;
-			}
-			
-			// Build filter description for filename
-			const filterParts = [];
-			if (classFilter) filterParts.push(`Class_${classFilter}`);
-			if (sectionFilter) filterParts.push(`Section_${sectionFilter}`);
-			if (statusFilter) filterParts.push(statusFilter);
-			if (genderFilter) filterParts.push(genderFilter);
-			if (subjectFilter) {
-				try {
-					const subjectMaster = JSON.parse(localStorage.getItem('edu_subject_master') || '[]');
-					const subject = subjectMaster.find(s => s.id === subjectFilter);
-					if (subject) filterParts.push(subject.name.replace(/\s+/g, '_'));
-				} catch(e) {}
-			}
-			if (search) filterParts.push('Search');
-			const filterSuffix = filterParts.length > 0 ? '_' + filterParts.join('_') : '_All';
-			
-			// Export headers including new fields
-			const headers = ['S.No', 'Student ID', 'Name', 'Gender', 'Class', 'Section', 'Parent', 'Address', 'DOB', 'Joining Date', 'Blood Group', 'Status'];
-			let csv = '\uFEFF' + headers.join(',') + '\n';
-			
-			filtered.forEach((s, i) => {
-				csv += [
-					i + 1,
-					s.id,
-					s.name,
-					s.gender,
-					s.class,
-					s.section,
-					s.parent || '-',
-					s.address || '-',
-					s.dob || '-',
-					s.joiningDate || '-',
-					s.bloodGroup || '-',
-					s.status
-				].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
-			});
-			
-			try {
-				const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
-				const link = document.createElement('a');
-				link.href = URL.createObjectURL(blob);
-				link.download = `Students${filterSuffix}_${new Date().toISOString().slice(0, 10)}.csv`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				
-				// Clean up the object URL after a delay
-				setTimeout(() => {
-					URL.revokeObjectURL(link.href);
-				}, 100);
-				
-				// Show notification with count
-				const totalCount = students.length;
-				const filteredCount = filtered.length;
-				if (filteredCount < totalCount) {
-					notify(`Exported ${filteredCount} of ${totalCount} students (filtered)`, 'success');
-				} else {
-					notify(`Exported ${filteredCount} students`, 'success');
-				}
-			} catch (error) {
-				console.error('Export error:', error);
-				notify('Export failed: ' + error.message, 'error');
-			}
-		}
-
-		// Event Listeners
-		$('#addStudentBtn').on('click', addNewStudent);
-		$('#fabAddBtn').on('click', addNewStudent);
-		$('#addDocumentBtn').on('click', function() {
-			addDocumentRow();
-		});
-		$('#exportBtn').on('click', function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			console.log('Export button event triggered');
-			exportCSV();
-		});
-		$('#importBtn').on('click', () => $('#importFile').click());
-		$('#searchInput').on('input', () => { page = 1; renderTable(); });
-		
-		// Table filter handlers
-		$('#tableClassFilter').on('change', function() {
-			const classVal = $(this).val();
-			// Sync with stats filter
-			$('#filterClass').val(classVal);
-			loadSectionsForClass(classVal);
-			loadSubjectsForClass(classVal);
-			// Update table section filter
-			loadTableSectionsForClass(classVal);
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		$('#tableSectionFilter').on('change', function() {
-			const sectionVal = $(this).val();
-			// Sync with stats filter
-			$('#filterSection').val(sectionVal);
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		$('#tableStatusFilter').on('change', function() {
-			page = 1;
-			renderTable();
-		});
-
-		$('#tableGenderFilter').on('change', function() {
-			const genderVal = $(this).val();
-			// Sync with stats filter
-			$('#filterGender').val(genderVal);
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		// Clear all filters
-		$('#clearFiltersBtn').on('click', function() {
-			$('#searchInput').val('');
-			$('#tableClassFilter').val('');
-			$('#tableSectionFilter').val('').html('<option value="">All Sections</option>');
-			$('#tableStatusFilter').val('');
-			$('#tableGenderFilter').val('');
-			$('#filterClass').val('');
-			$('#filterSection').val('').html('<option value="">All</option>');
-			$('#filterSubject').val('').html('<option value="">All</option>');
-			$('#filterGender').val('');
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		// Load sections for table filter
-		function loadTableSectionsForClass(classVal) {
-			const sectionSelect = $('#tableSectionFilter');
-			sectionSelect.html('<option value="">All Sections</option>');
-			
-			if (!classVal) {
-				return;
-			}
-
-			// Get unique sections for the selected class from students
-			const sections = [...new Set(students
-				.filter(s => s.class === classVal)
-				.map(s => s.section)
-				.filter(s => s && s !== '-')
-			)].sort();
-
-			sections.forEach(section => {
-				sectionSelect.append(`<option value="${section}">${section}</option>`);
-			});
-		}
-		$('#prevBtn').on('click', () => { if (page > 1) { page--; renderTable(); } });
-		$('#nextBtn').on('click', () => { page++; renderTable(); });
-		$('#pageSizeSelect').on('change', function() { pageSize = parseInt($(this).val()); page = 1; renderTable(); });
-
-		// Stats filter change handlers
-		$('#filterClass').on('change', function() {
-			const classVal = $(this).val();
-			// Sync with table filter
-			$('#tableClassFilter').val(classVal);
-			loadSectionsForClass(classVal);
-			loadSubjectsForClass(classVal);
-			loadTableSectionsForClass(classVal);
-			$('#filterSection').val('');
-			$('#filterSubject').val('');
-			$('#tableSectionFilter').val('');
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		$('#filterSection').on('change', function() {
-			const sectionVal = $(this).val();
-			// Sync with table filter
-			$('#tableSectionFilter').val(sectionVal);
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		$('#filterSubject').on('change', function() {
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		$('#filterGender').on('change', function() {
-			const genderVal = $(this).val();
-			// Sync with table filter
-			$('#tableGenderFilter').val(genderVal);
-			page = 1;
-			renderTable();
-			renderStats();
-		});
-
-		$('#selectAll').on('change', function() {
-			const search = $('#searchInput').val().toLowerCase();
-			const classFilter = $('#tableClassFilter').val() || $('#filterClass').val() || '';
-			const sectionFilter = $('#tableSectionFilter').val() || $('#filterSection').val() || '';
-			const statusFilter = $('#tableStatusFilter').val() || '';
-			const genderFilter = $('#tableGenderFilter').val() || $('#filterGender').val() || '';
-			const subjectFilter = $('#filterSubject').val() || '';
-			
-			let filtered = students.filter(s => {
-				const matchSearch = !search || [s.id, s.name].join(' ').toLowerCase().includes(search);
-				const matchClass = !classFilter || s.class === classFilter;
-				const matchSection = !sectionFilter || s.section === sectionFilter;
-				const matchStatus = !statusFilter || s.status === statusFilter;
-				const matchGender = !genderFilter || s.gender === genderFilter;
-				
-				let matchSubject = true;
-				if (subjectFilter) {
-					const examMarks = JSON.parse(localStorage.getItem('edu_student_exam_marks') || '[]');
-					const hasSubjectMarks = examMarks.some(mark => 
-						mark.studentId === s.id && mark.subjectId === subjectFilter
-					);
-					matchSubject = hasSubjectMarks;
-				}
-				
-				return matchSearch && matchClass && matchSection && matchStatus && matchGender && matchSubject;
-			});
-			const start = (page - 1) * pageSize;
-			const isChecked = $(this).prop('checked');
-			filtered.slice(start, start + pageSize).forEach(s => { 
-				if (isChecked) selected.add(s.id); 
-				else selected.delete(s.id); 
-			});
-			renderTable();
-		});
-
-		$(document).on('change', '#tableBody .row-check', function() {
-			const id = $(this).data('id');
-			if ($(this).prop('checked')) {
-				selected.add(id);
-			} else {
-				selected.delete(id);
-			}
-			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
-		});
-
-		$('#bulkDeleteBtn').on('click', () => {
-			if (selected.size === 0) return;
-			
-			const count = selected.size;
-			const selectedStudents = students.filter(s => selected.has(s.id));
-			const studentNames = selectedStudents.slice(0, 3).map(s => s.name).join(', ');
-			const moreText = count > 3 ? ` and ${count - 3} more` : '';
-			
-			const confirmMessage = `⚠️ Are you sure you want to delete ${count} student(s)?\n\n` +
-				`Students to be deleted:\n` +
-				`• ${studentNames}${moreText}\n\n` +
-				`⚠️ WARNING: This action cannot be undone!\n` +
-				`All student records and associated data will be permanently removed.\n\n` +
-				`Click OK to confirm deletion, or Cancel to abort.`;
-			
-			if (!confirm(confirmMessage)) {
-				notify('Bulk deletion cancelled', 'info');
-				return;
-			}
-			
-			students = students.filter(s => !selected.has(s.id));
-			selected.clear();
-			saveStudents();
-			renderTable();
-			renderStats();
-			notify(`Successfully deleted ${count} student(s)!`, 'success');
-		});
-
-		// Documents Modal - make globally accessible
-		window.viewStudentDocuments = function(idx) {
-			const student = students[idx];
-			if (!student || !student.documents || student.documents.length === 0) {
-				notify('No documents found for this student.', 'error');
-				return;
-			}
-			
-			// Clear cache and store document data
-			documentsCache = {};
-			student.documents.forEach((doc, i) => {
-				const docId = doc.id || `doc_${idx}_${i}`;
-				const fileType = doc.fileType || (doc.type && doc.type.includes('pdf') ? 'application/pdf' : 
-					(doc.type && doc.type.includes('image') ? 'image/jpeg' : 'application/pdf'));
-				const fileData = doc.file || doc.data || '';
-				const fileName = doc.fileName || doc.name || 'document';
-				
-				documentsCache[docId] = {
-					fileData: fileData,
-					fileType: fileType,
-					fileName: fileName
-				};
-			});
-			
-			$('#documentsModalTitle').text(`${student.name} - Documents (${student.documents.length})`);
-			$('#documentsModalBody').html(student.documents.map((doc, i) => {
-				const docId = doc.id || `doc_${idx}_${i}`;
-				const docName = doc.name || 'Document';
-				const docType = doc.type || 'Document';
-				const fileType = documentsCache[docId]?.fileType || 'application/pdf';
-				const isPDF = fileType.includes('pdf');
-				
-				return `
-				<div class="document-item" style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-					<div style="display:flex;align-items:center;gap:12px;flex:1;">
-						<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;">
-							<i class="fas fa-file-${isPDF ? 'pdf' : 'image'}"></i>
-						</div>
-						<div style="flex:1;">
-							<div style="font-weight:600;color:#1e293b;margin-bottom:4px;">${docName}</div>
-							<div style="font-size:12px;color:#64748b;margin-bottom:2px;">Type: ${docType}</div>
-							<div style="font-size:11px;color:#94a3b8;">File: ${documentsCache[docId]?.fileName || 'document'}</div>
-						</div>
-					</div>
-					<div style="display:flex;gap:8px;">
-						<button class="btn btn-primary btn-sm" onclick="viewDocumentFromCache('${docId}')" style="padding:8px 16px;" title="View">
-							<i class="fas fa-eye"></i> View
-						</button>
-						<button class="btn btn-success btn-sm" onclick="downloadDocumentFromCache('${docId}')" style="padding:8px 16px;" title="Download">
-							<i class="fas fa-download"></i> Download
-						</button>
+				<div class="stat-card">
+					<div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+					<div class="stat-info">
+						<h3 id="activeStudents">0</h3>
+						<p>Active Students</p>
 					</div>
 				</div>
-			`;
-			}).join(''));
-			
-			$('#documentsModal').css('display', 'flex');
-		};
-
-		// View document from cache
-		window.viewDocumentFromCache = function(docId) {
-			const doc = documentsCache[docId];
-			if (!doc || !doc.fileData) {
-				notify('Document not found', 'error');
-				return;
-			}
-			viewDocumentFromModal(docId, doc.fileData, doc.fileType);
-		};
-
-		// Download document from cache
-		window.downloadDocumentFromCache = function(docId) {
-			const doc = documentsCache[docId];
-			if (!doc || !doc.fileData) {
-				notify('Document not found', 'error');
-				return;
-			}
-			downloadDocumentFromModal(docId, doc.fileData, doc.fileName);
-		};
-
-		// View document from modal (for documents list modal)
-		window.viewDocumentFromModal = function(docId, fileData, fileType) {
-			if (!fileData || fileData === 'null' || fileData === 'undefined') {
-				notify('Document file not found', 'error');
-				return;
-			}
-
-			try {
-				const newWindow = window.open('', '_blank', 'width=1200,height=800');
-				if (!newWindow) {
-					notify('Please allow popups to view documents', 'error');
-					return;
-				}
-
-				// Ensure fileData is a proper data URL
-				let dataUrl = fileData;
-				if (!dataUrl.startsWith('data:')) {
-					// If it's base64 without data URL prefix, add it
-					if (fileType && fileType.includes('pdf')) {
-						dataUrl = 'data:application/pdf;base64,' + fileData;
-					} else if (fileType && fileType.includes('image')) {
-						dataUrl = 'data:' + fileType + ';base64,' + fileData;
-					} else {
-						dataUrl = 'data:application/octet-stream;base64,' + fileData;
-					}
-				}
-
-				const isPDF = fileType && (fileType.includes('pdf') || fileType === 'application/pdf') || dataUrl.includes('application/pdf');
-				
-				if (isPDF) {
-					newWindow.document.write(`
-						<!DOCTYPE html>
-						<html>
-						<head>
-							<title>Document Viewer</title>
-							<style>
-								body { margin: 0; padding: 0; overflow: hidden; background: #2d3748; }
-								iframe { width: 100vw; height: 100vh; border: none; }
-							</style>
-						</head>
-						<body>
-							<iframe src="${dataUrl}"></iframe>
-						</body>
-						</html>
-					`);
-				} else {
-					newWindow.document.write(`
-						<!DOCTYPE html>
-						<html>
-						<head>
-							<title>Document Viewer</title>
-							<style>
-								body { margin: 0; padding: 20px; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-								img { max-width: 100%; max-height: 100vh; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-							</style>
-						</head>
-						<body>
-							<img src="${dataUrl}" alt="Document">
-						</body>
-						</html>
-					`);
-				}
-				newWindow.document.close();
-				notify('Document opened in new window', 'success');
-			} catch (error) {
-				notify('Error opening document: ' + error.message, 'error');
-				console.error('View document error:', error);
-			}
-		};
-
-		// Download document from modal (for documents list modal)
-		window.downloadDocumentFromModal = function(docId, fileData, fileName) {
-			if (!fileData || fileData === 'null' || fileData === 'undefined') {
-				notify('Document file not found', 'error');
-				return;
-			}
-
-			try {
-				let blob;
-				let url;
-				
-				if (fileData.startsWith('data:')) {
-					// Already a data URL
-					const byteString = atob(fileData.split(',')[1]);
-					const mimeString = fileData.split(',')[0].split(':')[1].split(';')[0];
-					const ab = new ArrayBuffer(byteString.length);
-					const ia = new Uint8Array(ab);
-					for (let i = 0; i < byteString.length; i++) {
-						ia[i] = byteString.charCodeAt(i);
-					}
-					blob = new Blob([ab], { type: mimeString });
-					url = URL.createObjectURL(blob);
-				} else {
-					// Base64 string without data URL prefix
-					try {
-						const byteString = atob(fileData);
-						const ab = new ArrayBuffer(byteString.length);
-						const ia = new Uint8Array(ab);
-						for (let i = 0; i < byteString.length; i++) {
-							ia[i] = byteString.charCodeAt(i);
-						}
-						// Try to detect MIME type from file extension
-						const ext = fileName.split('.').pop().toLowerCase();
-						const mimeTypes = {
-							'pdf': 'application/pdf',
-							'jpg': 'image/jpeg',
-							'jpeg': 'image/jpeg',
-							'png': 'image/png'
-						};
-						const mimeType = mimeTypes[ext] || 'application/octet-stream';
-						blob = new Blob([ab], { type: mimeType });
-						url = URL.createObjectURL(blob);
-					} catch (e) {
-						// If base64 decode fails, try as direct data URL
-						url = fileData;
-					}
-				}
-
-				// Create download link
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = fileName || 'document';
-				link.style.display = 'none';
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				
-				// Clean up blob URL
-				if (url.startsWith('blob:')) {
-					setTimeout(() => URL.revokeObjectURL(url), 100);
-				}
-				
-				notify('Document downloaded successfully', 'success');
-			} catch (error) {
-				notify('Error downloading document: ' + error.message, 'error');
-				console.error('Download document error:', error);
-			}
-		};
-		
-		function formatFileSize(bytes) {
-			if (!bytes || bytes === 0) return '0 Bytes';
-			const k = 1024;
-			const sizes = ['Bytes', 'KB', 'MB'];
-			const i = Math.floor(Math.log(bytes) / Math.log(k));
-			return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-		}
-		
-		window.openDocument = function(data, type) {
-			const newWindow = window.open();
-			if (type === 'application/pdf') {
-				newWindow.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:none;"></iframe>`);
-			} else {
-				newWindow.document.write(`<img src="${data}" style="max-width:100%;height:auto;">`);
-			}
-		};
-
-		// Initialize data
-		loadStudents();
-		
-		// Double-check: if still no students or very few, force generate 100
-		if (!students || students.length < 10) {
-			console.log('Generating 100 demo students... Current count:', students ? students.length : 0);
-			students = generateDemoStudents();
-			saveStudents();
-			console.log('Generated', students.length, 'students successfully');
-		}
-		
-		renderStats();
-		renderTable();
-		// Function to open modal in edit mode (if needed from table)
-		window.openEditStudentModal = function(idx) {
-			try {
-				console.log('Opening edit modal for student index:', idx);
-				const student = students[idx];
-				if (!student) {
-					console.error('Student not found at index:', idx);
-					notify('Student not found', 'error');
-					return;
-				}
-				
-				console.log('Student found:', student);
-				editingStudentIndex = idx;
-				modalPhotoPreview = student.photo || '';
-				$('#modalTitle').html('<i class="fas fa-user-edit"></i> Edit Student');
-				$('#studentForm')[0].reset();
-				$('#studentName').val(student.name || '');
-				$('#studentGender').val(student.gender || '');
-				$('#studentClass').val(student.class || '');
-				$('#studentSection').val(student.section || '');
-				$('#studentParent').val(student.parent_name || student.parent || '');
-				$('#studentContact').val(student.contact || '');
-				$('#studentEmail').val(student.email || '');
-				$('#studentAddress').val(student.address || '');
-				$('#studentDob').val(student.dob && student.dob !== '-' ? formatDateForInput(student.dob) : '');
-				$('#studentJoiningDate').val(student.joining_date || student.joiningDate ? formatDateForInput(student.joining_date || student.joiningDate) : '');
-				$('#studentBloodGroup').val(student.blood_group || student.bloodGroup || '');
-				$('#studentStatus').val(student.status || 'Active');
-				
-				if (modalPhotoPreview) {
-					$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
-					$('#removePhotoBtn').show();
-				} else {
-					$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
-					$('#removePhotoBtn').hide();
-				}
-				
-				// Load documents
-				loadStudentDocuments(student);
-				
-				$('#studentModal').addClass('show');
-				console.log('Modal opened successfully');
-			} catch (error) {
-				console.error('Error opening edit modal:', error);
-				notify('Error opening edit form: ' + error.message, 'error');
-			}
-		};
-
-		}); // End of $(document).ready()
-
-		// Modal photo upload handler
-		$('#modalPhotoUpload').on('change', function(e) {
-			const file = this.files[0];
-			if (!file) return;
-
-			if (file.size > 2 * 1024 * 1024) {
-				notify('Photo must be less than 2MB', 'error');
-				return;
-			}
-
-			const reader = new FileReader();
-			reader.onload = function(event) {
-				modalPhotoPreview = event.target.result;
-				$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
-				$('#removePhotoBtn').show();
-			};
-			reader.readAsDataURL(file);
-		});
-
-		window.removeModalPhoto = function() {
-			modalPhotoPreview = '';
-			$('#modalPhotoUpload').val('');
-			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
-			$('#removePhotoBtn').hide();
-		};
-
-		// Close modal when clicking outside
-		$(document).on('click', '#studentModal', function(e) {
-			if ($(e.target).is('#studentModal')) {
-				closeStudentModal();
-			}
-		});
-
-	</script>
-
-	<!-- Add Student Modal -->
-	<div id="studentModal" class="student-modal">
-		<div class="student-modal-content">
-			<div class="modal-header">
-				<h3 id="modalTitle"><i class="fas fa-user-plus"></i> Add New Student</h3>
-				<button type="button" class="modal-close" onclick="window.closeStudentModal()"><i class="fas fa-times"></i></button>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i class="fas fa-user-clock"></i></div>
+					<div class="stat-info">
+						<h3 id="newStudents">0</h3>
+						<p>New This Month</p>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon red"><i class="fas fa-user-times"></i></div>
+					<div class="stat-info">
+						<h3 id="inactiveStudents">0</h3>
+						<p>Inactive</p>
+					</div>
+				</div>
 			</div>
-			<div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-				<form id="studentForm">
-					<!-- Row 1: Name & Gender -->
-					<div class="form-row">
-						<div class="form-group">
-							<label>Student Name <span style="color:#ef4444">*</span></label>
-							<input type="text" id="studentName" placeholder="Enter full name" required>
+
+			<div class="content-card">
+				<div class="filter-bar">
+					<div class="filter-grid">
+						<div class="filter-group">
+							<label class="filter-label">Search</label>
+							<input type="text" class="filter-input" id="searchInput" placeholder="Search by name, ID, or contact...">
 						</div>
-						<div class="form-group">
-							<label>Gender <span style="color:#ef4444">*</span></label>
-							<select id="studentGender" data-dropdown="gender" required>
-								<option value="">Select Gender</option>
+						<div class="filter-group">
+							<label class="filter-label">Class</label>
+							<select class="filter-select" id="filterClass">
+								<option value="">All Classes</option>
+								<option value="Class 1">Class 1</option>
+								<option value="Class 2">Class 2</option>
+								<option value="Class 3">Class 3</option>
+								<option value="Class 4">Class 4</option>
+								<option value="Class 5">Class 5</option>
+								<option value="Class 6">Class 6</option>
+								<option value="Class 7">Class 7</option>
+								<option value="Class 8">Class 8</option>
+								<option value="Class 9">Class 9</option>
+								<option value="Class 10">Class 10</option>
+								<option value="Class 11">Class 11</option>
+								<option value="Class 12">Class 12</option>
 							</select>
 						</div>
-					</div>
-					<!-- Row 2: Class & Section -->
-					<div class="form-row">
-						<div class="form-group">
-							<label>Class <span style="color:#ef4444">*</span></label>
-							<select id="studentClass" data-dropdown="class" required>
-								<option value="">Select Class</option>
+						<div class="filter-group">
+							<label class="filter-label">Section</label>
+							<select class="filter-select" id="filterSection">
+								<option value="">All Sections</option>
+								<option value="A">Section A</option>
+								<option value="B">Section B</option>
+								<option value="C">Section C</option>
+								<option value="D">Section D</option>
 							</select>
 						</div>
-						<div class="form-group">
-							<label>Section <span style="color:#ef4444">*</span></label>
-							<select id="studentSection" data-dropdown="section" required>
-								<option value="">Select Section</option>
-							</select>
-						</div>
-					</div>
-					<!-- Row 3: Parent Name & Contact -->
-					<div class="form-row">
-						<div class="form-group">
-							<label>Parent/Guardian Name <span style="color:#ef4444">*</span></label>
-							<input type="text" id="studentParent" placeholder="Enter parent name" required>
-						</div>
-						<div class="form-group">
-							<label>Contact Number <span style="color:#ef4444">*</span></label>
-							<input type="tel" id="studentContact" placeholder="Enter contact number" required pattern="[0-9]{10}" title="Enter 10-digit mobile number">
-						</div>
-					</div>
-					<!-- Row 4: Email & Date of Birth -->
-					<div class="form-row">
-						<div class="form-group">
-							<label>Email Address</label>
-							<input type="email" id="studentEmail" placeholder="Enter email address">
-						</div>
-						<div class="form-group">
-							<label>Date of Birth</label>
-							<input type="date" id="studentDob">
-						</div>
-					</div>
-					<!-- Row 5: Joining Date & Blood Group -->
-					<div class="form-row">
-						<div class="form-group">
-							<label>Joining Date</label>
-							<input type="date" id="studentJoiningDate">
-						</div>
-						<div class="form-group">
-							<label>Blood Group</label>
-							<select id="studentBloodGroup" data-dropdown="blood_group">
-								<option value="">Select Blood Group</option>
-							</select>
-						</div>
-					</div>
-					<!-- Row 6: Address -->
-					<div class="form-row">
-						<div class="form-group full-width">
-							<label>Address</label>
-							<input type="text" id="studentAddress" placeholder="Enter complete address">
-						</div>
-					</div>
-					<!-- Row 7: Status & Photo -->
-					<div class="form-row">
-						<div class="form-group">
-							<label>Status</label>
-							<select id="studentStatus">
+						<div class="filter-group">
+							<label class="filter-label">Status</label>
+							<select class="filter-select" id="filterStatus">
+								<option value="">All Status</option>
 								<option value="Active">Active</option>
 								<option value="Inactive">Inactive</option>
 							</select>
 						</div>
-						<div class="form-group">
-							<label>Photo</label>
-							<div class="photo-upload-area">
-								<div class="photo-preview" id="modalPhotoPreview">
-									<div class="placeholder">
-										<i class="fas fa-user"></i>
-										<div style="font-size:12px;margin-top:8px;">No Photo</div>
-									</div>
-								</div>
-								<div>
-									<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
-									<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
-										<i class="fas fa-camera"></i> Upload Photo
-									</button>
-									<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
-										<i class="fas fa-trash"></i> Remove
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Student Documents Section -->
-					<div class="documents-section">
-						<div class="documents-section-header">
-							<div class="documents-section-title">
-								<i class="fas fa-file-alt"></i>
-								<span>Student Documents</span>
-							</div>
-							<button type="button" class="btn btn-outline btn-sm" id="addDocumentBtn">
-								<i class="fas fa-plus"></i> Add Document
+						<div class="filter-group" style="justify-content: flex-end;">
+							<button class="btn-clear" onclick="clearFilters()">
+								<i class="fas fa-times"></i> Clear
 							</button>
 						</div>
-						<div class="documents-list" id="documentsList">
-							<!-- Document rows will be added here dynamically -->
+					</div>
+				</div>
+
+				<div class="table-container" id="tableContent">
+					<div class="loading">
+						<i class="fas fa-spinner fa-spin"></i>
+						<p>Loading students...</p>
+					</div>
+				</div>
+
+				<div class="pagination">
+					<div class="pagination-info">
+						Showing <span id="showingFrom">0</span>-<span id="showingTo">0</span> of <span id="totalRecords">0</span>
+					</div>
+					<div class="pagination-btns">
+						<button id="prevBtn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+						<button id="nextBtn" disabled>Next <i class="fas fa-chevron-right"></i></button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- =============== ADD/EDIT STUDENT FORM VIEW =============== -->
+		<div class="page-view" id="formView">
+			<div class="form-page-header">
+				<button class="back-button" onclick="showListView()">
+					<i class="fas fa-arrow-left"></i> Back
+				</button>
+				<div class="form-header">
+					<div class="form-header-icon">
+						<i class="fas fa-user-plus" id="formHeaderIcon"></i>
+					</div>
+					<div class="form-header-text">
+						<h1 id="formTitle">Add New Student</h1>
+						<p id="formSubtitle">Register a new student to the system</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Tabs -->
+			<div class="form-tabs">
+				<button class="form-tab active" data-tab="details" onclick="switchTab('details')">
+					<span class="tab-icon"><i class="fas fa-user"></i></span>
+					Student Details
+				</button>
+				<button class="form-tab" data-tab="documents" onclick="switchTab('documents')">
+					<span class="tab-icon"><i class="fas fa-folder-open"></i></span>
+					Documents
+					<span class="tab-badge" id="docCount">0</span>
+				</button>
+				<button class="form-tab" data-tab="academic" onclick="switchTab('academic')">
+					<span class="tab-icon"><i class="fas fa-graduation-cap"></i></span>
+					Academic Info
+				</button>
+			</div>
+
+			<form id="studentForm">
+				<input type="hidden" id="studentId">
+
+				<!-- Tab 1: Student Details -->
+				<div class="tab-content active" id="tab-details">
+					<div class="form-card">
+						<div class="form-card-body">
+							<!-- Row 1: Name, Roll, Gender, DOB -->
+							<div class="form-row">
+								<div class="form-group">
+									<label class="form-label">Full Name <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-user input-icon"></i>
+										<input type="text" class="form-control" id="studentName" placeholder="Enter full name" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Roll Number <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-hashtag input-icon"></i>
+										<input type="text" class="form-control" id="studentRoll" placeholder="Enter roll number" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Gender <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-venus-mars input-icon"></i>
+										<select class="form-control" id="studentGender" required>
+											<option value="">Select gender</option>
+											<option value="Male">Male</option>
+											<option value="Female">Female</option>
+											<option value="Other">Other</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Date of Birth <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-calendar input-icon"></i>
+										<input type="date" class="form-control" id="studentDob" required>
+									</div>
+								</div>
+							</div>
+
+							<!-- Row 2: Class, Section, Blood Group, Age -->
+							<div class="form-row">
+								<div class="form-group">
+									<label class="form-label">Class <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-school input-icon"></i>
+										<select class="form-control" id="studentClass" required>
+											<option value="">Select class</option>
+											<option value="Class 1">Class 1</option>
+											<option value="Class 2">Class 2</option>
+											<option value="Class 3">Class 3</option>
+											<option value="Class 4">Class 4</option>
+											<option value="Class 5">Class 5</option>
+											<option value="Class 6">Class 6</option>
+											<option value="Class 7">Class 7</option>
+											<option value="Class 8">Class 8</option>
+											<option value="Class 9">Class 9</option>
+											<option value="Class 10">Class 10</option>
+											<option value="Class 11">Class 11</option>
+											<option value="Class 12">Class 12</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Section <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-layer-group input-icon"></i>
+										<select class="form-control" id="studentSection" required>
+											<option value="">Select section</option>
+											<option value="A">Section A</option>
+											<option value="B">Section B</option>
+											<option value="C">Section C</option>
+											<option value="D">Section D</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Blood Group</label>
+									<div class="input-wrapper">
+										<i class="fas fa-tint input-icon"></i>
+										<select class="form-control" id="studentBlood">
+											<option value="">Select blood group</option>
+											<option value="A+">A+</option>
+											<option value="A-">A-</option>
+											<option value="B+">B+</option>
+											<option value="B-">B-</option>
+											<option value="AB+">AB+</option>
+											<option value="AB-">AB-</option>
+											<option value="O+">O+</option>
+											<option value="O-">O-</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Age</label>
+									<div class="input-wrapper">
+										<i class="fas fa-birthday-cake input-icon"></i>
+										<input type="text" class="form-control" id="studentAge" placeholder="-" readonly>
+									</div>
+								</div>
+							</div>
+
+							<!-- Row 3: Guardian, Phone, Email, Aadhaar -->
+							<div class="form-row">
+								<div class="form-group">
+									<label class="form-label">Parent/Guardian Name</label>
+									<div class="input-wrapper">
+										<i class="fas fa-user-friends input-icon"></i>
+										<input type="text" class="form-control" id="studentParent" placeholder="Enter guardian name">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Phone Number</label>
+									<div class="input-wrapper">
+										<i class="fas fa-phone input-icon"></i>
+										<input type="tel" class="form-control" id="studentContact" placeholder="Enter phone (optional)">
+									</div>
+								</div>
+						<div class="form-group">
+							<label class="form-label">
+								<i class="fab fa-whatsapp" style="color: #25D366; margin-right: 4px;"></i>
+								WhatsApp Number
+							</label>
+							<div class="input-wrapper">
+								<i class="fab fa-whatsapp input-icon" style="color: #25D366;"></i>
+								<input type="tel" class="form-control" id="studentWhatsapp" placeholder="Enter WhatsApp number (with country code)">
+							</div>
+							<small style="display: block; margin-top: 4px; color: #6b7280; font-size: 11px;">
+								<i class="fas fa-info-circle" style="color: #3b82f6;"></i> Format: +91XXXXXXXXXX (Include country code for WhatsApp)
+							</small>
+						</div>
+						<div class="form-group">
+									<label class="form-label">Email</label>
+									<div class="input-wrapper">
+										<i class="fas fa-envelope input-icon"></i>
+										<input type="email" class="form-control" id="studentEmail" placeholder="Enter email (optional)">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Aadhaar Number</label>
+									<div class="input-wrapper">
+										<i class="fas fa-id-card input-icon"></i>
+										<input type="text" class="form-control" id="studentAadhaar" placeholder="12-digit Aadhaar" maxlength="12">
+									</div>
+								</div>
+							</div>
+
+							<!-- Info Cards -->
+							<div class="info-cards">
+								<div class="info-card">
+									<div class="info-card-icon green">
+										<i class="fas fa-shield-alt"></i>
+									</div>
+									<div class="info-card-text">
+										<h4>Data Protection</h4>
+										<p>Student information is securely stored</p>
+									</div>
+								</div>
+								<div class="info-card">
+									<div class="info-card-icon orange">
+										<i class="fas fa-users"></i>
+									</div>
+									<div class="info-card-text">
+										<h4>Guardian Contact</h4>
+										<p>Used for important communications</p>
+									</div>
+								</div>
+								<div class="info-card">
+									<div class="info-card-icon purple">
+										<i class="fas fa-fingerprint"></i>
+									</div>
+									<div class="info-card-text">
+										<h4>Student ID</h4>
+										<p>Auto-generated after registration</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
-				</form>
+				</div>
+
+				<!-- Tab 2: Documents -->
+				<div class="tab-content" id="tab-documents">
+					<div class="form-card">
+						<div class="form-card-body">
+							<div class="upload-section">
+								<h3><i class="fas fa-cloud-upload-alt"></i> Upload Documents</h3>
+								<p>PDF, JPG, PNG - Max 5MB per file</p>
+
+								<div class="upload-zone" id="uploadZone">
+									<i class="fas fa-cloud-upload-alt"></i>
+									<p>Drop files here or <span class="browse-link">browse</span></p>
+								</div>
+								<input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+							</div>
+
+							<div class="documents-list" id="documentsList">
+								<h4>Uploaded Documents (<span id="uploadedCount">0</span>)</h4>
+								<div id="documentsContainer">
+									<!-- Documents will be added here dynamically -->
+								</div>
+							</div>
+
+							<div class="tip-box">
+								<i class="fas fa-lightbulb"></i>
+								<p><strong>Tip:</strong> Upload Birth Certificate, Previous School TC, Aadhaar Card, and Passport-size Photos.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Tab 3: Academic Info -->
+				<div class="tab-content" id="tab-academic">
+					<div class="form-card">
+						<div class="form-card-body">
+							<div class="form-row">
+								<div class="form-group">
+									<label class="form-label">Admission Number <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-id-badge input-icon"></i>
+										<input type="text" class="form-control" id="studentAdmission" placeholder="Enter admission number">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Admission Date</label>
+									<div class="input-wrapper">
+										<i class="fas fa-calendar-check input-icon"></i>
+										<input type="date" class="form-control" id="studentAdmissionDate">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Academic Year</label>
+									<div class="input-wrapper">
+										<i class="fas fa-calendar-alt input-icon"></i>
+										<select class="form-control" id="studentAcademicYear">
+											<option value="2024-2025">2024-2025</option>
+											<option value="2025-2026">2025-2026</option>
+											<option value="2023-2024">2023-2024</option>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="form-label">Status <span class="required">*</span></label>
+									<div class="input-wrapper">
+										<i class="fas fa-toggle-on input-icon"></i>
+										<select class="form-control" id="studentStatus">
+											<option value="Active">Active</option>
+											<option value="Inactive">Inactive</option>
+										</select>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-row two-col">
+								<div class="form-group full-width">
+									<label class="form-label">Previous School Name (Optional)</label>
+									<div class="input-wrapper">
+										<i class="fas fa-building input-icon"></i>
+										<input type="text" class="form-control" id="studentPreviousSchool" placeholder="Enter previous school name if applicable">
+									</div>
+								</div>
+							</div>
+
+							<!-- Academic Info Cards -->
+							<div class="info-cards">
+								<div class="info-card">
+									<div class="info-card-icon blue">
+										<i class="fas fa-id-badge"></i>
+									</div>
+									<div class="info-card-text">
+										<h4>Unique ID Required</h4>
+										<p>Admission number must be unique across the school</p>
+									</div>
+								</div>
+								<div class="info-card">
+									<div class="info-card-icon green">
+										<i class="fas fa-calendar-alt"></i>
+									</div>
+									<div class="info-card-text">
+										<h4>Academic Year</h4>
+										<p>Student will be enrolled for selected year</p>
+									</div>
+								</div>
+								<div class="info-card">
+									<div class="info-card-icon purple">
+										<i class="fas fa-check-circle"></i>
+									</div>
+									<div class="info-card-text">
+										<h4>Status Active</h4>
+										<p>Set to inactive to temporarily disable access</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-footer">
+							<button type="button" class="btn-cancel" onclick="showListView()">Cancel</button>
+							<button type="button" class="btn-save" onclick="saveStudent()">
+								<i class="fas fa-check"></i> Save Student
+							</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- View Modal -->
+	<div class="modal" id="viewModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3><i class="fas fa-user"></i> Student Details</h3>
+				<button class="modal-close" id="closeViewModal">&times;</button>
 			</div>
+			<div class="modal-body" id="viewModalBody"></div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" onclick="window.closeStudentModal()">Cancel</button>
-				<button type="button" class="btn btn-primary" onclick="window.saveStudentFromModal()">
-					<i class="fas fa-save"></i> Save Student
+				<button class="btn btn-secondary" id="closeViewBtn">Close</button>
+				<button class="btn btn-primary" id="editFromViewBtn" data-permission="edit">
+					<i class="fas fa-edit"></i> Edit
 				</button>
 			</div>
 		</div>
 	</div>
 
-	<!-- Documents Modal -->
-	<div id="documentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
-		<div style="background:white;border-radius:16px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-			<div style="padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
-				<h3 id="documentsModalTitle" style="margin:0;font-size:18px;font-weight:700;color:#1e293b;">Documents</h3>
-				<button onclick="$('#documentsModal').hide()" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;">&times;</button>
+	<!-- Document Name Modal -->
+	<div class="doc-name-modal" id="docNameModal">
+		<div class="doc-name-modal-content">
+			<h3><i class="fas fa-file-alt"></i> Name This Document</h3>
+			<p>Enter a custom name for this document or select from quick options below</p>
+
+			<div class="file-preview" id="docFilePreview">
+				<div class="file-preview-icon" id="docPreviewIcon">
+					<i class="fas fa-file-pdf"></i>
+				</div>
+				<div class="file-preview-info">
+					<h5 id="docFileName">document.pdf</h5>
+					<span id="docFileSize">1.2 MB</span>
+				</div>
 			</div>
-			<div id="documentsModalBody" style="padding:20px;"></div>
+
+			<input type="text" class="doc-name-input" id="docNameInput" placeholder="Enter document name (e.g., Aadhaar Card, Birth Certificate)">
+
+			<div class="quick-names">
+				<button type="button" class="quick-name-btn" onclick="setDocName('Aadhaar Card')">Aadhaar Card</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('Birth Certificate')">Birth Certificate</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('Transfer Certificate')">Transfer Certificate</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('Passport Photo')">Passport Photo</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('Mark Sheet')">Mark Sheet</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('ID Proof')">ID Proof</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('Address Proof')">Address Proof</button>
+				<button type="button" class="quick-name-btn" onclick="setDocName('Other')">Other</button>
+			</div>
+
+			<div class="modal-actions">
+				<button type="button" class="btn-skip" onclick="skipDocNaming()">Skip</button>
+				<button type="button" class="btn-add" onclick="confirmDocName()">
+					<i class="fas fa-check"></i> Add Document
+				</button>
+			</div>
 		</div>
 	</div>
+
+	<!-- Document Preview Modal -->
+	<div class="doc-preview-modal" id="docPreviewModal">
+		<div class="doc-preview-modal-content">
+			<div class="doc-preview-header">
+				<h3><i class="fas fa-eye"></i> <span id="previewDocName">Document Preview</span></h3>
+				<div class="doc-preview-actions">
+					<button type="button" class="btn-download" id="previewDownloadBtn">
+						<i class="fas fa-download"></i> Download
+					</button>
+					<button type="button" class="btn-close-preview" onclick="closeDocPreview()">
+						<i class="fas fa-times"></i> Close
+					</button>
+				</div>
+			</div>
+			<div class="doc-preview-body" id="docPreviewBody">
+				<!-- Preview content will be inserted here -->
+			</div>
+		</div>
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script>
+	(function() {
+		'use strict';
+
+		var API_BASE = '/School-Management-PhpVersion/backend/api';
+		var students = [];
+		var currentPage = 1;
+		var pageSize = 10;
+		var editingId = null;
+		var viewingStudent = null;
+		var uploadedDocuments = [];
+
+		var tableContent = document.getElementById('tableContent');
+		var searchInput = document.getElementById('searchInput');
+		var filterClass = document.getElementById('filterClass');
+		var filterSection = document.getElementById('filterSection');
+		var filterStatus = document.getElementById('filterStatus');
+		var viewModal = document.getElementById('viewModal');
+
+		// ============================================
+		// TAB SWITCHING
+		// ============================================
+		window.switchTab = function(tabId) {
+			// Update tab buttons
+			document.querySelectorAll('.form-tab').forEach(function(tab) {
+				tab.classList.remove('active');
+				if (tab.dataset.tab === tabId) {
+					tab.classList.add('active');
+				}
+			});
+
+			// Update tab content
+			document.querySelectorAll('.tab-content').forEach(function(content) {
+				content.classList.remove('active');
+			});
+			document.getElementById('tab-' + tabId).classList.add('active');
+		};
+
+		// ============================================
+		// VIEW NAVIGATION
+		// ============================================
+		window.showListView = function() {
+			document.getElementById('listView').classList.add('active');
+			document.getElementById('formView').classList.remove('active');
+			editingId = null;
+			uploadedDocuments = [];
+			updateDocumentsList();
+		};
+
+		window.showAddStudentPage = function() {
+			editingId = null;
+			document.getElementById('formTitle').textContent = 'Add New Student';
+			document.getElementById('formSubtitle').textContent = 'Register a new student to the system';
+			document.getElementById('formHeaderIcon').className = 'fas fa-user-plus';
+			clearForm();
+			switchTab('details');
+			uploadedDocuments = [];
+			updateDocumentsList();
+			document.getElementById('listView').classList.remove('active');
+			document.getElementById('formView').classList.add('active');
+		};
+
+		window.showEditStudentPage = function(id) {
+			var student = students.find(function(s) { return s.id === id; });
+			if (!student) {
+				showToast('Student not found', 'error');
+				return;
+			}
+
+			editingId = id;
+			document.getElementById('formTitle').textContent = 'Edit Student';
+			document.getElementById('formSubtitle').textContent = 'Update student information';
+			document.getElementById('formHeaderIcon').className = 'fas fa-user-edit';
+
+			// Populate form
+			document.getElementById('studentId').value = student.id;
+			document.getElementById('studentName').value = student.name || '';
+			document.getElementById('studentRoll').value = student.roll_no || '';
+			document.getElementById('studentGender').value = student.gender || '';
+			document.getElementById('studentDob').value = student.dob || '';
+			document.getElementById('studentClass').value = student.class || '';
+			document.getElementById('studentSection').value = student.section || '';
+			document.getElementById('studentBlood').value = student.blood_group || '';
+			document.getElementById('studentParent').value = student.parent_name || '';
+			document.getElementById('studentContact').value = student.contact || '';
+			document.getElementById('studentEmail').value = student.email || '';
+			document.getElementById('studentAadhaar').value = student.aadhaar || '';
+			document.getElementById('studentAdmission').value = student.admission_no || '';
+			document.getElementById('studentAdmissionDate').value = student.admission_date || '';
+			document.getElementById('studentAcademicYear').value = student.academic_year || '2024-2025';
+			document.getElementById('studentStatus').value = student.status || 'Active';
+			document.getElementById('studentPreviousSchool').value = student.previous_school || '';
+
+			calculateAge();
+			uploadedDocuments = student.documents || [];
+			updateDocumentsList();
+			switchTab('details');
+
+			document.getElementById('listView').classList.remove('active');
+			document.getElementById('formView').classList.add('active');
+		};
+
+		function clearForm() {
+			document.getElementById('studentForm').reset();
+			document.getElementById('studentId').value = '';
+			document.getElementById('studentStatus').value = 'Active';
+			document.getElementById('studentAcademicYear').value = '2024-2025';
+			document.getElementById('studentAge').value = '-';
+		}
+
+		// ============================================
+		// AGE CALCULATION
+		// ============================================
+		function calculateAge() {
+			var dob = document.getElementById('studentDob').value;
+			if (dob) {
+				var birthDate = new Date(dob);
+				var today = new Date();
+				var age = today.getFullYear() - birthDate.getFullYear();
+				var m = today.getMonth() - birthDate.getMonth();
+				if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+					age--;
+				}
+				document.getElementById('studentAge').value = age + ' years';
+			} else {
+				document.getElementById('studentAge').value = '-';
+			}
+		}
+
+		document.getElementById('studentDob').addEventListener('change', calculateAge);
+
+		// ============================================
+		// DOCUMENT UPLOAD
+		// ============================================
+		var uploadZone = document.getElementById('uploadZone');
+		var fileInput = document.getElementById('fileInput');
+		var docNameModal = document.getElementById('docNameModal');
+		var docPreviewModal = document.getElementById('docPreviewModal');
+		var pendingFiles = [];
+		var currentFileIndex = 0;
+
+		uploadZone.addEventListener('click', function() {
+			fileInput.click();
+		});
+
+		uploadZone.addEventListener('dragover', function(e) {
+			e.preventDefault();
+			uploadZone.classList.add('dragover');
+		});
+
+		uploadZone.addEventListener('dragleave', function() {
+			uploadZone.classList.remove('dragover');
+		});
+
+		uploadZone.addEventListener('drop', function(e) {
+			e.preventDefault();
+			uploadZone.classList.remove('dragover');
+			handleFiles(e.dataTransfer.files);
+		});
+
+		fileInput.addEventListener('change', function() {
+			handleFiles(fileInput.files);
+			fileInput.value = '';  // Reset input
+		});
+
+		function handleFiles(files) {
+			pendingFiles = [];
+			for (var i = 0; i < files.length; i++) {
+				var file = files[i];
+				if (file.size > 5 * 1024 * 1024) {
+					showToast('File ' + file.name + ' is too large (max 5MB)', 'error');
+					continue;
+				}
+				pendingFiles.push(file);
+			}
+			if (pendingFiles.length > 0) {
+				currentFileIndex = 0;
+				showDocNameModal(pendingFiles[0]);
+			}
+		}
+
+		function showDocNameModal(file) {
+			var isImage = file.type.startsWith('image/');
+			var iconClass = isImage ? 'image' : '';
+			var iconType = isImage ? 'fa-image' : 'fa-file-pdf';
+
+			document.getElementById('docPreviewIcon').className = 'file-preview-icon ' + iconClass;
+			document.getElementById('docPreviewIcon').innerHTML = '<i class="fas ' + iconType + '"></i>';
+			document.getElementById('docFileName').textContent = file.name;
+			document.getElementById('docFileSize').textContent = formatFileSize(file.size);
+			document.getElementById('docNameInput').value = '';
+			docNameModal.classList.add('show');
+			setTimeout(function() {
+				document.getElementById('docNameInput').focus();
+			}, 100);
+		}
+
+		window.setDocName = function(name) {
+			document.getElementById('docNameInput').value = name;
+		};
+
+		window.confirmDocName = function() {
+			var name = document.getElementById('docNameInput').value.trim();
+			if (!name) {
+				name = 'Document';
+			}
+			addCurrentFile(name);
+		};
+
+		window.skipDocNaming = function() {
+			addCurrentFile('Document');
+		};
+
+		function addCurrentFile(docName) {
+			var file = pendingFiles[currentFileIndex];
+			uploadedDocuments.push({
+				id: Date.now() + currentFileIndex,
+				name: docName,
+				filename: file.name,
+				size: formatFileSize(file.size),
+				date: new Date().toLocaleString(),
+				file: file,
+				fileUrl: URL.createObjectURL(file),
+				fileType: file.type
+			});
+
+			currentFileIndex++;
+			if (currentFileIndex < pendingFiles.length) {
+				// More files to process
+				showDocNameModal(pendingFiles[currentFileIndex]);
+			} else {
+				// All files processed
+				docNameModal.classList.remove('show');
+				updateDocumentsList();
+				showToast(pendingFiles.length + ' document(s) uploaded successfully', 'success');
+				pendingFiles = [];
+			}
+		}
+
+		// Close doc name modal on background click
+		docNameModal.addEventListener('click', function(e) {
+			if (e.target === docNameModal) {
+				skipDocNaming();
+			}
+		});
+
+		function formatFileSize(bytes) {
+			if (bytes < 1024) return bytes + ' B';
+			if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+			return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+		}
+
+		function getDocIcon(doc) {
+			if (doc.fileType && doc.fileType.startsWith('image/')) {
+				return '<i class="fas fa-image" style="color: var(--info);"></i>';
+			}
+			return '<i class="fas fa-file-pdf"></i>';
+		}
+
+		function getDocIconClass(doc) {
+			if (doc.fileType && doc.fileType.startsWith('image/')) {
+				return 'background: var(--info-light); color: var(--info);';
+			}
+			return '';
+		}
+
+		function updateDocumentsList() {
+			var container = document.getElementById('documentsContainer');
+			document.getElementById('uploadedCount').textContent = uploadedDocuments.length;
+			document.getElementById('docCount').textContent = uploadedDocuments.length;
+
+			if (uploadedDocuments.length === 0) {
+				container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">No documents uploaded yet</p>';
+				return;
+			}
+
+			container.innerHTML = uploadedDocuments.map(function(doc) {
+				return '<div class="document-item">' +
+					'<div class="document-info">' +
+						'<div class="document-icon" style="' + getDocIconClass(doc) + '">' + getDocIcon(doc) + '</div>' +
+						'<div class="document-details">' +
+							'<h5>' + doc.name + '</h5>' +
+							'<p>' + doc.filename + ' - ' + doc.size + ' - ' + doc.date + '</p>' +
+						'</div>' +
+					'</div>' +
+					'<div class="document-actions">' +
+						'<button type="button" class="doc-action-btn" title="Preview" onclick="previewDocument(' + doc.id + ')"><i class="fas fa-eye"></i></button>' +
+						'<button type="button" class="doc-action-btn" title="Download" onclick="downloadDocument(' + doc.id + ')"><i class="fas fa-download"></i></button>' +
+						'<button type="button" class="doc-action-btn delete" title="Delete" onclick="removeDocument(' + doc.id + ')"><i class="fas fa-trash"></i></button>' +
+					'</div>' +
+				'</div>';
+			}).join('');
+		}
+
+		// ============================================
+		// DOCUMENT PREVIEW
+		// ============================================
+		var currentPreviewDoc = null;
+
+		window.previewDocument = function(docId) {
+			var doc = uploadedDocuments.find(function(d) { return d.id === docId; });
+			if (!doc) {
+				showToast('Document not found', 'error');
+				return;
+			}
+
+			currentPreviewDoc = doc;
+			document.getElementById('previewDocName').textContent = doc.name;
+
+			var previewBody = document.getElementById('docPreviewBody');
+			var fileType = doc.fileType || '';
+
+			if (fileType.startsWith('image/')) {
+				// Image preview
+				previewBody.innerHTML = '<img src="' + doc.fileUrl + '" alt="' + doc.name + '">';
+			} else if (fileType === 'application/pdf') {
+				// PDF preview
+				previewBody.innerHTML = '<iframe src="' + doc.fileUrl + '#toolbar=1"></iframe>';
+			} else {
+				// No preview available
+				previewBody.innerHTML = '<div class="no-preview">' +
+					'<i class="fas fa-file-alt"></i>' +
+					'<h3>Preview not available</h3>' +
+					'<p>This file type cannot be previewed. Click Download to view the file.</p>' +
+				'</div>';
+			}
+
+			docPreviewModal.classList.add('show');
+		};
+
+		window.closeDocPreview = function() {
+			docPreviewModal.classList.remove('show');
+			document.getElementById('docPreviewBody').innerHTML = '';
+			currentPreviewDoc = null;
+		};
+
+		// Download from preview modal
+		document.getElementById('previewDownloadBtn').addEventListener('click', function() {
+			if (currentPreviewDoc) {
+				downloadDocument(currentPreviewDoc.id);
+			}
+		});
+
+		// Close preview modal on background click
+		docPreviewModal.addEventListener('click', function(e) {
+			if (e.target === docPreviewModal) {
+				closeDocPreview();
+			}
+		});
+
+		// ============================================
+		// DOCUMENT DOWNLOAD
+		// ============================================
+		window.downloadDocument = function(docId) {
+			var doc = uploadedDocuments.find(function(d) { return d.id === docId; });
+			if (!doc) {
+				showToast('Document not found', 'error');
+				return;
+			}
+
+			// Create download link
+			var a = document.createElement('a');
+			a.href = doc.fileUrl;
+			a.download = doc.filename;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			showToast('Downloading ' + doc.name, 'success');
+		};
+
+		window.removeDocument = function(docId) {
+			var doc = uploadedDocuments.find(function(d) { return d.id === docId; });
+			if (doc && doc.fileUrl) {
+				URL.revokeObjectURL(doc.fileUrl);  // Clean up object URL
+			}
+			uploadedDocuments = uploadedDocuments.filter(function(d) { return d.id !== docId; });
+			updateDocumentsList();
+			showToast('Document removed', 'success');
+		};
+
+		// ============================================
+		// UTILITY FUNCTIONS
+		// ============================================
+		function showToast(message, type) {
+			var existing = document.querySelector('.toast');
+			if (existing) existing.remove();
+
+			var toast = document.createElement('div');
+			toast.className = 'toast ' + (type || 'success');
+			toast.innerHTML = '<i class="fas fa-' + (type === 'error' ? 'exclamation-circle' : 'check-circle') + '"></i> ' + message;
+			document.body.appendChild(toast);
+
+			setTimeout(function() {
+				toast.style.opacity = '0';
+				setTimeout(function() { toast.remove(); }, 300);
+			}, 3000);
+		}
+
+		function getInitials(name) {
+			if (!name) return '?';
+			return name.split(' ').map(function(n) { return n[0]; }).join('').toUpperCase().slice(0, 2);
+		}
+
+		function getAvatarColor(name) {
+			var colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+			var hash = 0;
+			for (var i = 0; i < (name || '').length; i++) {
+				hash = name.charCodeAt(i) + ((hash << 5) - hash);
+			}
+			return colors[Math.abs(hash) % colors.length];
+		}
+
+		function generateId() {
+			return 'STU' + Date.now() + Math.random().toString(36).substr(2, 4).toUpperCase();
+		}
+
+		function generateAdmissionNo() {
+			return 'ADM' + new Date().getFullYear() + Math.floor(1000 + Math.random() * 9000);
+		}
+
+		window.clearFilters = function() {
+			searchInput.value = '';
+			filterClass.value = '';
+			filterSection.value = '';
+			filterStatus.value = '';
+			currentPage = 1;
+			renderTable();
+		};
+
+		// ============================================
+		// API & DATA FUNCTIONS
+		// ============================================
+		function loadStudents() {
+			tableContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading students...</p></div>';
+
+			$.ajax({
+				url: API_BASE + '/students.php?action=list',
+				type: 'GET',
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data) {
+						var data = response.data.students || response.data;
+						if (Array.isArray(data)) {
+							students = data;
+							renderTable();
+							updateStats();
+						} else {
+							loadFromLocalStorage();
+						}
+					} else {
+						loadFromLocalStorage();
+					}
+				},
+				error: function() {
+					loadFromLocalStorage();
+				}
+			});
+		}
+
+		function loadFromLocalStorage() {
+			try {
+				var saved = localStorage.getItem('edu_students');
+				if (saved) students = JSON.parse(saved);
+				if (!students || students.length === 0) {
+					students = generateDemoStudents();
+					saveToLocalStorage();
+				}
+				renderTable();
+				updateStats();
+			} catch (e) {
+				students = generateDemoStudents();
+				renderTable();
+				updateStats();
+			}
+		}
+
+		function saveToLocalStorage() {
+			try {
+				localStorage.setItem('edu_students', JSON.stringify(students));
+			} catch (e) {
+				console.error('Save error:', e);
+			}
+		}
+
+		function generateDemoStudents() {
+			var names = ['Aarav Sharma', 'Ananya Patel', 'Arjun Singh', 'Diya Gupta', 'Kabir Verma'];
+			var classes = ['Class 8', 'Class 9', 'Class 10'];
+			var sections = ['A', 'B', 'C'];
+			var demoStudents = [];
+
+			for (var i = 0; i < 15; i++) {
+				demoStudents.push({
+					id: 'STU' + String(i + 1).padStart(3, '0'),
+					name: names[i % names.length],
+					gender: i % 2 === 0 ? 'Male' : 'Female',
+					class: classes[i % classes.length],
+					section: sections[i % sections.length],
+					roll_no: String(i + 1),
+					admission_no: 'ADM2024' + String(i + 1).padStart(3, '0'),
+					parent_name: 'Parent ' + (i + 1),
+					contact: '98765' + String(43210 + i).padStart(5, '0'),
+					status: 'Active',
+					created_at: new Date().toISOString()
+				});
+			}
+			return demoStudents;
+		}
+
+		// ============================================
+		// RENDER FUNCTIONS
+		// ============================================
+		function getFilteredStudents() {
+			var filtered = students.slice();
+			var search = (searchInput.value || '').toLowerCase();
+			var classFilter = filterClass.value;
+			var sectionFilter = filterSection.value;
+			var statusFilter = filterStatus.value;
+
+			if (search) {
+				filtered = filtered.filter(function(s) {
+					return (s.name || '').toLowerCase().indexOf(search) > -1 ||
+						   (s.id || '').toLowerCase().indexOf(search) > -1 ||
+						   (s.contact || '').indexOf(search) > -1;
+				});
+			}
+			if (classFilter) filtered = filtered.filter(function(s) { return s.class === classFilter; });
+			if (sectionFilter) filtered = filtered.filter(function(s) { return s.section === sectionFilter; });
+			if (statusFilter) filtered = filtered.filter(function(s) { return s.status === statusFilter; });
+
+			return filtered;
+		}
+
+		function renderTable() {
+			var filtered = getFilteredStudents();
+			var total = filtered.length;
+			var totalPages = Math.ceil(total / pageSize);
+			if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+			var start = (currentPage - 1) * pageSize;
+			var pageStudents = filtered.slice(start, start + pageSize);
+
+			document.getElementById('showingFrom').textContent = total > 0 ? start + 1 : 0;
+			document.getElementById('showingTo').textContent = Math.min(start + pageSize, total);
+			document.getElementById('totalRecords').textContent = total;
+			document.getElementById('prevBtn').disabled = currentPage <= 1;
+			document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+
+			if (pageStudents.length === 0) {
+				tableContent.innerHTML = '<div class="empty-state"><i class="fas fa-user-graduate"></i><h3>No students found</h3><p>Try adjusting your filters</p></div>';
+				return;
+			}
+
+			var html = '<table class="data-table"><thead><tr>' +
+				'<th>Student</th><th>Class</th><th>Roll No</th><th>Parent</th><th>Contact</th><th>Status</th><th>Actions</th>' +
+				'</tr></thead><tbody>';
+
+			pageStudents.forEach(function(student) {
+				var initials = getInitials(student.name);
+				var color = getAvatarColor(student.name);
+				var statusClass = (student.status || 'Active').toLowerCase();
+
+				html += '<tr>' +
+					'<td><div class="student-cell">' +
+						'<div class="student-avatar" style="background: ' + color + ';">' + initials + '</div>' +
+						'<div><div class="student-name">' + (student.name || '-') + '</div>' +
+						'<div class="student-id">' + (student.admission_no || student.id) + '</div></div>' +
+					'</div></td>' +
+					'<td>' + (student.class || '-') + ' - ' + (student.section || '-') + '</td>' +
+					'<td>' + (student.roll_no || '-') + '</td>' +
+					'<td>' + (student.parent_name || '-') + '</td>' +
+					'<td>' + (student.contact || '-') + '</td>' +
+					'<td><span class="status-badge ' + statusClass + '">' + (student.status || 'Active') + '</span></td>' +
+					'<td><div class="action-buttons">' +
+						'<button class="action-btn view" onclick="viewStudent(\'' + student.id + '\')" title="View"><i class="fas fa-eye"></i></button>' +
+						(PermissionManager.hasPermission('students', 'edit') ? '<button class="action-btn edit" onclick="editStudent(\'' + student.id + '\')" title="Edit"><i class="fas fa-edit"></i></button>' : '') +
+						(PermissionManager.hasPermission('students', 'delete') ? '<button class="action-btn delete" onclick="deleteStudent(\'' + student.id + '\')" title="Delete"><i class="fas fa-trash"></i></button>' : '') +
+					'</div></td>' +
+				'</tr>';
+			});
+
+			html += '</tbody></table>';
+			tableContent.innerHTML = html;
+		}
+
+		function updateStats() {
+			var total = students.length;
+			var active = students.filter(function(s) { return (s.status || 'Active') === 'Active'; }).length;
+			document.getElementById('totalStudents').textContent = total;
+			document.getElementById('activeStudents').textContent = active;
+			document.getElementById('inactiveStudents').textContent = total - active;
+			document.getElementById('newStudents').textContent = students.filter(function(s) {
+				if (!s.created_at) return false;
+				var created = new Date(s.created_at);
+				var now = new Date();
+				return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
+			}).length;
+		}
+
+		// ============================================
+		// CRUD OPERATIONS
+		// ============================================
+		window.viewStudent = function(id) {
+			var student = students.find(function(s) { return s.id === id; });
+			if (!student) return showToast('Student not found', 'error');
+
+			viewingStudent = student;
+			document.getElementById('viewModalBody').innerHTML =
+				'<div style="text-align: center; margin-bottom: 24px;">' +
+					'<div class="student-avatar" style="width: 80px; height: 80px; font-size: 28px; margin: 0 auto 12px; background: ' + getAvatarColor(student.name) + '; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">' + getInitials(student.name) + '</div>' +
+					'<h2 style="margin: 0;">' + (student.name || '-') + '</h2>' +
+					'<p style="color: #64748b;">' + (student.admission_no || student.id) + '</p>' +
+				'</div>' +
+				'<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">' +
+					'<div><strong>Class:</strong> ' + (student.class || '-') + '</div>' +
+					'<div><strong>Section:</strong> ' + (student.section || '-') + '</div>' +
+					'<div><strong>Roll No:</strong> ' + (student.roll_no || '-') + '</div>' +
+					'<div><strong>Gender:</strong> ' + (student.gender || '-') + '</div>' +
+					'<div><strong>Parent:</strong> ' + (student.parent_name || '-') + '</div>' +
+					'<div><strong>Contact:</strong> ' + (student.contact || '-') + '</div>' +
+					'<div><strong>Status:</strong> <span class="status-badge ' + ((student.status || 'Active').toLowerCase()) + '">' + (student.status || 'Active') + '</span></div>' +
+				'</div>';
+
+			viewModal.classList.add('show');
+		};
+
+		window.editStudent = function(id) {
+			if (!PermissionManager.hasPermission('students', 'edit')) {
+				return showToast('You do not have permission to edit students', 'error');
+			}
+			showEditStudentPage(id);
+		};
+
+		window.deleteStudent = function(id) {
+			if (!PermissionManager.hasPermission('students', 'delete')) {
+				return showToast('You do not have permission to delete students', 'error');
+			}
+			if (!confirm('Are you sure you want to delete this student?')) return;
+
+			var index = students.findIndex(function(s) { return s.id === id; });
+			if (index > -1) {
+				students.splice(index, 1);
+				saveToLocalStorage();
+				renderTable();
+				updateStats();
+				showToast('Student deleted successfully', 'success');
+			}
+		};
+
+		window.saveStudent = function() {
+			var name = document.getElementById('studentName').value.trim();
+			var roll = document.getElementById('studentRoll').value.trim();
+			var gender = document.getElementById('studentGender').value;
+			var dob = document.getElementById('studentDob').value;
+			var cls = document.getElementById('studentClass').value;
+			var section = document.getElementById('studentSection').value;
+
+			if (!name || !roll || !gender || !dob || !cls || !section) {
+				showToast('Please fill all required fields', 'error');
+				switchTab('details');
+				return;
+			}
+
+			var studentData = {
+				name: name,
+				roll_no: roll,
+				gender: gender,
+				dob: dob,
+				class: cls,
+				section: section,
+				blood_group: document.getElementById('studentBlood').value,
+				parent_name: document.getElementById('studentParent').value.trim(),
+				contact: document.getElementById('studentContact').value.trim(),
+				email: document.getElementById('studentEmail').value.trim(),
+				aadhaar: document.getElementById('studentAadhaar').value.trim(),
+				admission_no: document.getElementById('studentAdmission').value.trim() || generateAdmissionNo(),
+				admission_date: document.getElementById('studentAdmissionDate').value,
+				academic_year: document.getElementById('studentAcademicYear').value,
+				status: document.getElementById('studentStatus').value,
+				previous_school: document.getElementById('studentPreviousSchool').value.trim(),
+				documents: uploadedDocuments.map(function(d) { return { id: d.id, name: d.name, filename: d.filename }; })
+			};
+
+			if (editingId) {
+				var index = students.findIndex(function(s) { return s.id === editingId; });
+				if (index > -1) {
+					studentData.id = editingId;
+					studentData.created_at = students[index].created_at;
+					students[index] = studentData;
+				}
+				showToast('Student updated successfully', 'success');
+			} else {
+				studentData.id = generateId();
+				studentData.created_at = new Date().toISOString();
+				students.unshift(studentData);
+				showToast('Student added successfully', 'success');
+			}
+
+			saveToLocalStorage();
+			renderTable();
+			updateStats();
+			showListView();
+		};
+
+		function closeViewModal() {
+			viewModal.classList.remove('show');
+			viewingStudent = null;
+		}
+
+		// ============================================
+		// EVENT LISTENERS
+		// ============================================
+		document.getElementById('addStudentBtn').addEventListener('click', showAddStudentPage);
+		document.getElementById('closeViewModal').addEventListener('click', closeViewModal);
+		document.getElementById('closeViewBtn').addEventListener('click', closeViewModal);
+		document.getElementById('editFromViewBtn').addEventListener('click', function() {
+			if (viewingStudent) {
+				closeViewModal();
+				editStudent(viewingStudent.id);
+			}
+		});
+
+		searchInput.addEventListener('input', function() { currentPage = 1; renderTable(); });
+		filterClass.addEventListener('change', function() { currentPage = 1; renderTable(); });
+		filterSection.addEventListener('change', function() { currentPage = 1; renderTable(); });
+		filterStatus.addEventListener('change', function() { currentPage = 1; renderTable(); });
+
+		document.getElementById('prevBtn').addEventListener('click', function() {
+			if (currentPage > 1) { currentPage--; renderTable(); }
+		});
+		document.getElementById('nextBtn').addEventListener('click', function() {
+			currentPage++; renderTable();
+		});
+
+		viewModal.addEventListener('click', function(e) {
+			if (e.target === viewModal) closeViewModal();
+		});
+
+		document.onkeydown = function(e) {
+			if (e.key === 'Escape') {
+				if (docPreviewModal.classList.contains('show')) closeDocPreview();
+				else if (docNameModal.classList.contains('show')) skipDocNaming();
+				else if (viewModal.classList.contains('show')) closeViewModal();
+				else if (document.getElementById('formView').classList.contains('active')) showListView();
+			}
+		};
+
+		// Enter key to confirm document name
+		document.getElementById('docNameInput').addEventListener('keydown', function(e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				confirmDocName();
+			}
+		});
+
+		document.getElementById('exportBtn').addEventListener('click', function() {
+			var csv = 'Name,Class,Section,Roll No,Admission No,Parent,Contact,Status\n';
+			students.forEach(function(s) {
+				csv += '"' + (s.name || '') + '","' + (s.class || '') + '","' + (s.section || '') + '","' +
+					   (s.roll_no || '') + '","' + (s.admission_no || '') + '","' + (s.parent_name || '') + '","' +
+					   (s.contact || '') + '","' + (s.status || '') + '"\n';
+			});
+
+			var blob = new Blob([csv], { type: 'text/csv' });
+			var url = URL.createObjectURL(blob);
+			var a = document.createElement('a');
+			a.href = url;
+			a.download = 'students_' + new Date().toISOString().split('T')[0] + '.csv';
+			a.click();
+			showToast('Exported ' + students.length + ' students', 'success');
+		});
+
+		// Initialize
+		loadStudents();
+	})();
+	</script>
 </body>
 </html>

@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Events Management - EduManage Pro</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<style>
+		:root {
+			--primary: #2563EB;
+			--primary-hover: #1D4ED8;
+			--primary-light: #DBEAFE;
+			--primary-50: #EFF6FF;
+			--secondary: #0F172A;
+			--bg-main: #F8FAFC;
+			--bg-card: #FFFFFF;
+			--bg-hover: #F1F5F9;
+			--success: #22C55E;
+			--success-light: #DCFCE7;
+			--warning: #F59E0B;
+			--warning-light: #FEF3C7;
+			--danger: #EF4444;
+			--danger-light: #FEE2E2;
+			--info: #3B82F6;
+			--info-light: #DBEAFE;
+			--purple: #7C3AED;
+			--purple-light: #EDE9FE;
+			--text-primary: #0F172A;
+			--text-secondary: #334155;
+			--text-muted: #64748B;
+			--text-light: #94A3B8;
+			--border: #E2E8F0;
+			--border-light: #F1F5F9;
+			--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+			--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+			--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+			--radius-md: 8px;
+			--radius-lg: 12px;
+			--radius-xl: 16px;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+			background: var(--bg-main);
+			min-height: 100vh;
+			color: var(--text-primary);
+			font-size: 14px;
+			line-height: 1.5;
+		}
+
+		.main-container {
+			padding: 24px;
+			max-width: 1600px;
+			margin: 0 auto;
+		}
+
+		/* Page Header */
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+		}
+
+		.page-title-section {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+
+		.page-icon {
+			width: 48px;
+			height: 48px;
+			background: var(--primary);
+			border-radius: var(--radius-lg);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 20px;
+			box-shadow: var(--shadow-md);
+		}
+
+		.page-title h1 {
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--text-primary);
+			margin-bottom: 2px;
+		}
+
+		.page-title p {
+			font-size: 14px;
+			color: var(--text-muted);
+		}
+
+		.header-actions {
+			display: flex;
+			gap: 12px;
+		}
+
+		/* Buttons */
+		.btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 10px 18px;
+			border-radius: var(--radius-md);
+			font-weight: 500;
+			font-size: 14px;
+			cursor: pointer;
+			border: none;
+			transition: all 0.2s ease;
+			font-family: inherit;
+		}
+
+		.btn-primary {
+			background: var(--primary);
+			color: white;
+			box-shadow: var(--shadow-sm);
+		}
+
+		.btn-primary:hover {
+			background: var(--primary-hover);
+			transform: translateY(-1px);
+		}
+
+		.btn-secondary {
+			background: var(--bg-card);
+			color: var(--text-secondary);
+			border: 1px solid var(--border);
+		}
+
+		.btn-secondary:hover {
+			background: var(--bg-hover);
+		}
+
+		/* Stats Grid */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+
+		.stat-card {
+			background: var(--bg-card);
+			border-radius: var(--radius-lg);
+			padding: 20px;
+			box-shadow: var(--shadow-sm);
+			border: 1px solid var(--border-light);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.stat-card::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 3px;
+		}
+
+		.stat-card.total::before { background: var(--primary); }
+		.stat-card.upcoming::before { background: var(--success); }
+		.stat-card.ongoing::before { background: var(--warning); }
+		.stat-card.completed::before { background: var(--purple); }
+
+		.stat-card-inner {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+		}
+
+		.stat-value {
+			font-size: 32px;
+			font-weight: 700;
+			line-height: 1.2;
+			margin-bottom: 4px;
+		}
+
+		.stat-card.total .stat-value { color: var(--primary); }
+		.stat-card.upcoming .stat-value { color: var(--success); }
+		.stat-card.ongoing .stat-value { color: var(--warning); }
+		.stat-card.completed .stat-value { color: var(--purple); }
+
+		.stat-label {
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--text-muted);
+		}
+
+		.stat-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: var(--radius-md);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+		}
+
+		.stat-card.total .stat-icon { background: var(--primary-light); color: var(--primary); }
+		.stat-card.upcoming .stat-icon { background: var(--success-light); color: var(--success); }
+		.stat-card.ongoing .stat-icon { background: var(--warning-light); color: var(--warning); }
+		.stat-card.completed .stat-icon { background: var(--purple-light); color: var(--purple); }
+
+		/* Content Card */
+		.content-card {
+			background: var(--bg-card);
+			border-radius: var(--radius-lg);
+			box-shadow: var(--shadow-sm);
+			border: 1px solid var(--border-light);
+			overflow: hidden;
+		}
+
+		/* Filter Bar */
+		.filter-bar {
+			padding: 16px 20px;
+			background: var(--bg-card);
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			gap: 12px;
+			align-items: center;
+			flex-wrap: wrap;
+		}
+
+		.filter-input, .filter-select {
+			padding: 9px 12px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			font-size: 13px;
+			font-family: inherit;
+			background: var(--bg-card);
+			color: var(--text-primary);
+			min-width: 150px;
+		}
+
+		.filter-input:focus, .filter-select:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
+		}
+
+		/* Events Grid */
+		.events-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+			gap: 20px;
+			padding: 20px;
+		}
+
+		.event-card {
+			background: var(--bg-card);
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			overflow: hidden;
+			transition: all 0.2s ease;
+		}
+
+		.event-card:hover {
+			box-shadow: var(--shadow-md);
+			transform: translateY(-2px);
+		}
+
+		.event-banner {
+			height: 120px;
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.event-banner.academic { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+		.event-banner.cultural { background: linear-gradient(135deg, #EC4899, #DB2777); }
+		.event-banner.sports { background: linear-gradient(135deg, #22C55E, #16A34A); }
+		.event-banner.holiday { background: linear-gradient(135deg, #F59E0B, #D97706); }
+		.event-banner.exam { background: linear-gradient(135deg, #EF4444, #DC2626); }
+		.event-banner.meeting { background: linear-gradient(135deg, #7C3AED, #6D28D9); }
+
+		.event-banner i {
+			font-size: 40px;
+			color: rgba(255,255,255,0.3);
+		}
+
+		.event-status {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			padding: 4px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+
+		.event-status.upcoming { background: var(--success); color: white; }
+		.event-status.ongoing { background: var(--warning); color: white; }
+		.event-status.completed { background: var(--text-muted); color: white; }
+
+		.event-content {
+			padding: 20px;
+		}
+
+		.event-category {
+			display: inline-block;
+			padding: 4px 10px;
+			border-radius: 20px;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+			margin-bottom: 12px;
+		}
+
+		.event-category.academic { background: var(--info-light); color: var(--info); }
+		.event-category.cultural { background: #FCE7F3; color: #DB2777; }
+		.event-category.sports { background: var(--success-light); color: var(--success); }
+		.event-category.holiday { background: var(--warning-light); color: #B45309; }
+		.event-category.exam { background: var(--danger-light); color: var(--danger); }
+		.event-category.meeting { background: var(--purple-light); color: var(--purple); }
+
+		.event-title {
+			font-size: 18px;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 8px;
+		}
+
+		.event-description {
+			font-size: 13px;
+			color: var(--text-muted);
+			margin-bottom: 16px;
+			line-height: 1.5;
+		}
+
+		.event-meta {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			padding-top: 16px;
+			border-top: 1px solid var(--border-light);
+		}
+
+		.event-meta-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 13px;
+			color: var(--text-secondary);
+		}
+
+		.event-meta-item i {
+			width: 16px;
+			color: var(--text-muted);
+		}
+
+		.event-actions {
+			display: flex;
+			gap: 8px;
+			padding: 16px 20px;
+			background: var(--bg-main);
+			border-top: 1px solid var(--border-light);
+		}
+
+		.event-actions .btn {
+			flex: 1;
+			justify-content: center;
+			padding: 8px 12px;
+			font-size: 13px;
+		}
+
+		/* Modal */
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(15, 23, 42, 0.6);
+			backdrop-filter: blur(4px);
+			z-index: 10000;
+			align-items: center;
+			justify-content: center;
+			padding: 24px;
+		}
+
+		.modal-overlay.active { display: flex; }
+
+		.modal-container {
+			background: var(--bg-card);
+			border-radius: var(--radius-xl);
+			width: 100%;
+			max-width: 600px;
+			max-height: 90vh;
+			overflow: hidden;
+			box-shadow: var(--shadow-lg);
+			animation: modalSlideIn 0.3s ease;
+		}
+
+		@keyframes modalSlideIn {
+			from { opacity: 0; transform: scale(0.95) translateY(10px); }
+			to { opacity: 1; transform: scale(1) translateY(0); }
+		}
+
+		.modal-header {
+			padding: 20px 24px;
+			background: var(--secondary);
+			color: white;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.modal-title {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			font-size: 18px;
+			font-weight: 600;
+		}
+
+		.modal-close {
+			width: 36px;
+			height: 36px;
+			border-radius: var(--radius-md);
+			border: none;
+			background: rgba(255,255,255,0.1);
+			color: white;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.modal-close:hover { background: rgba(255,255,255,0.2); }
+
+		.modal-body {
+			padding: 24px;
+			max-height: 60vh;
+			overflow-y: auto;
+		}
+
+		.form-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 16px;
+		}
+
+		.form-group {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.form-group.full-width {
+			grid-column: span 2;
+		}
+
+		.form-label {
+			font-size: 13px;
+			font-weight: 500;
+			color: var(--text-secondary);
+		}
+
+		.form-label .required { color: var(--danger); }
+
+		.form-control {
+			padding: 10px 14px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			font-size: 14px;
+			font-family: inherit;
+			background: var(--bg-card);
+			color: var(--text-primary);
+			transition: all 0.2s ease;
+		}
+
+		.form-control:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
+		}
+
+		textarea.form-control {
+			min-height: 100px;
+			resize: vertical;
+		}
+
+		.modal-footer {
+			padding: 16px 24px;
+			background: var(--bg-main);
+			border-top: 1px solid var(--border);
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+
+		/* Toast */
+		.toast-container {
+			position: fixed;
+			top: 20px;
+			right: 20px;
+			z-index: 99999;
+		}
+
+		.toast {
+			padding: 14px 20px;
+			border-radius: var(--radius-md);
+			color: white;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			box-shadow: var(--shadow-lg);
+			animation: toastSlide 0.3s ease;
+			margin-bottom: 10px;
+		}
+
+		.toast.success { background: var(--success); }
+		.toast.error { background: var(--danger); }
+		.toast.info { background: var(--primary); }
+
+		@keyframes toastSlide {
+			from { transform: translateX(100%); opacity: 0; }
+			to { transform: translateX(0); opacity: 1; }
+		}
+
+		/* Empty State */
+		.empty-state {
+			text-align: center;
+			padding: 60px 40px;
+		}
+
+		.empty-state i {
+			font-size: 48px;
+			color: var(--text-light);
+			margin-bottom: 16px;
+		}
+
+		.empty-state h3 {
+			font-size: 18px;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 8px;
+		}
+
+		.empty-state p {
+			color: var(--text-muted);
+		}
+
+		@media (max-width: 992px) {
+			.stats-grid { grid-template-columns: repeat(2, 1fr); }
+			.events-grid { grid-template-columns: 1fr; }
+		}
+
+		@media (max-width: 768px) {
+			.main-container { padding: 16px; }
+			.page-header { flex-direction: column; gap: 16px; align-items: flex-start; }
+			.stats-grid { grid-template-columns: 1fr; }
+			.form-grid { grid-template-columns: 1fr; }
+			.form-group.full-width { grid-column: span 1; }
+		}
+	</style>
+</head>
+<body>
+	<div class="toast-container" id="toastContainer"></div>
+
+	<div class="main-container">
+		<!-- Page Header -->
+		<div class="page-header">
+			<div class="page-title-section">
+				<div class="page-icon">
+					<i class="fas fa-calendar-check"></i>
+				</div>
+				<div class="page-title">
+					<h1>Events Management</h1>
+					<p>Manage school events, activities, and schedules</p>
+				</div>
+			</div>
+			<div class="header-actions">
+				<button class="btn btn-secondary" onclick="exportEvents()">
+					<i class="fas fa-download"></i> Export
+				</button>
+				<button class="btn btn-primary" onclick="openAddModal()">
+					<i class="fas fa-plus"></i> Add Event
+				</button>
+			</div>
+		</div>
+
+		<!-- Stats Grid -->
+		<div class="stats-grid">
+			<div class="stat-card total">
+				<div class="stat-card-inner">
+					<div class="stat-content">
+						<div class="stat-value" id="statTotal">0</div>
+						<div class="stat-label">Total Events</div>
+					</div>
+					<div class="stat-icon"><i class="fas fa-calendar"></i></div>
+				</div>
+			</div>
+			<div class="stat-card upcoming">
+				<div class="stat-card-inner">
+					<div class="stat-content">
+						<div class="stat-value" id="statUpcoming">0</div>
+						<div class="stat-label">Upcoming</div>
+					</div>
+					<div class="stat-icon"><i class="fas fa-clock"></i></div>
+				</div>
+			</div>
+			<div class="stat-card ongoing">
+				<div class="stat-card-inner">
+					<div class="stat-content">
+						<div class="stat-value" id="statOngoing">0</div>
+						<div class="stat-label">Ongoing</div>
+					</div>
+					<div class="stat-icon"><i class="fas fa-play-circle"></i></div>
+				</div>
+			</div>
+			<div class="stat-card completed">
+				<div class="stat-card-inner">
+					<div class="stat-content">
+						<div class="stat-value" id="statCompleted">0</div>
+						<div class="stat-label">Completed</div>
+					</div>
+					<div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Content Card -->
+		<div class="content-card">
+			<div class="filter-bar">
+				<input type="text" class="filter-input" id="filterSearch" placeholder="Search events...">
+				<select class="filter-select" id="filterCategory">
+					<option value="">All Categories</option>
+					<option value="academic">Academic</option>
+					<option value="cultural">Cultural</option>
+					<option value="sports">Sports</option>
+					<option value="holiday">Holiday</option>
+					<option value="exam">Exam</option>
+					<option value="meeting">Meeting</option>
+				</select>
+				<select class="filter-select" id="filterStatus">
+					<option value="">All Status</option>
+					<option value="upcoming">Upcoming</option>
+					<option value="ongoing">Ongoing</option>
+					<option value="completed">Completed</option>
+				</select>
+				<button class="btn btn-secondary" onclick="clearFilters()">
+					<i class="fas fa-times"></i> Clear
+				</button>
+			</div>
+
+			<div class="events-grid" id="eventsGrid">
+				<!-- Events will be rendered here -->
+			</div>
+		</div>
+	</div>
+
+	<!-- Add/Edit Modal -->
+	<div class="modal-overlay" id="eventModal">
+		<div class="modal-container">
+			<div class="modal-header">
+				<div class="modal-title">
+					<i class="fas fa-calendar-plus"></i>
+					<span id="modalTitle">Add New Event</span>
+				</div>
+				<button class="modal-close" onclick="closeModal()">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-grid">
+					<div class="form-group full-width">
+						<label class="form-label">Event Title <span class="required">*</span></label>
+						<input type="text" class="form-control" id="eventTitle" placeholder="Enter event title">
+					</div>
+					<div class="form-group">
+						<label class="form-label">Category <span class="required">*</span></label>
+						<select class="form-control" id="eventCategory">
+							<option value="">Select category</option>
+							<option value="academic">Academic</option>
+							<option value="cultural">Cultural</option>
+							<option value="sports">Sports</option>
+							<option value="holiday">Holiday</option>
+							<option value="exam">Exam</option>
+							<option value="meeting">Meeting</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Status</label>
+						<select class="form-control" id="eventStatus">
+							<option value="upcoming">Upcoming</option>
+							<option value="ongoing">Ongoing</option>
+							<option value="completed">Completed</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Start Date <span class="required">*</span></label>
+						<input type="date" class="form-control" id="eventStartDate">
+					</div>
+					<div class="form-group">
+						<label class="form-label">End Date</label>
+						<input type="date" class="form-control" id="eventEndDate">
+					</div>
+					<div class="form-group">
+						<label class="form-label">Time</label>
+						<input type="time" class="form-control" id="eventTime">
+					</div>
+					<div class="form-group">
+						<label class="form-label">Venue</label>
+						<input type="text" class="form-control" id="eventVenue" placeholder="Enter venue">
+					</div>
+					<div class="form-group full-width">
+						<label class="form-label">Description</label>
+						<textarea class="form-control" id="eventDescription" placeholder="Enter event description"></textarea>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveEvent()">
+					<i class="fas fa-save"></i> Save Event
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const CATEGORY_ICONS = {
+			academic: 'fa-graduation-cap',
+			cultural: 'fa-music',
+			sports: 'fa-futbol',
+			holiday: 'fa-umbrella-beach',
+			exam: 'fa-file-alt',
+			meeting: 'fa-users'
+		};
+
+		let events = [];
+		let editingId = null;
+
+		$(document).ready(function() {
+			loadEvents();
+			setupFilters();
+		});
+
+		function setupFilters() {
+			$('#filterSearch').on('input', applyFilters);
+			$('#filterCategory, #filterStatus').on('change', applyFilters);
+		}
+
+		function applyFilters() {
+			const search = $('#filterSearch').val().toLowerCase();
+			const category = $('#filterCategory').val();
+			const status = $('#filterStatus').val();
+
+			const filtered = events.filter(e => {
+				if (search && !e.title.toLowerCase().includes(search) && !e.description.toLowerCase().includes(search)) return false;
+				if (category && e.category !== category) return false;
+				if (status && e.status !== status) return false;
+				return true;
+			});
+			renderEvents(filtered);
+		}
+
+		function clearFilters() {
+			$('#filterSearch').val('');
+			$('#filterCategory').val('');
+			$('#filterStatus').val('');
+			renderEvents();
+		}
+
+		function loadEvents() {
+			const saved = localStorage.getItem('edumanage_events');
+			if (saved) {
+				events = JSON.parse(saved);
+			} else {
+				// Sample events
+				events = [
+					{ id: 1, title: 'Annual Sports Day', category: 'sports', status: 'upcoming', startDate: '2025-01-15', endDate: '2025-01-15', time: '09:00', venue: 'School Ground', description: 'Annual inter-house sports competition with various athletic events.' },
+					{ id: 2, title: 'Parent-Teacher Meeting', category: 'meeting', status: 'upcoming', startDate: '2025-01-10', endDate: '', time: '14:00', venue: 'Main Hall', description: 'Quarterly parent-teacher meeting to discuss student progress.' },
+					{ id: 3, title: 'Science Exhibition', category: 'academic', status: 'upcoming', startDate: '2025-01-20', endDate: '2025-01-21', time: '10:00', venue: 'Science Block', description: 'Students showcase their science projects and innovations.' },
+					{ id: 4, title: 'Republic Day Celebration', category: 'cultural', status: 'upcoming', startDate: '2025-01-26', endDate: '', time: '08:00', venue: 'Assembly Ground', description: 'Flag hoisting and cultural programs for Republic Day.' },
+					{ id: 5, title: 'Mid-Term Examinations', category: 'exam', status: 'upcoming', startDate: '2025-02-01', endDate: '2025-02-10', time: '09:00', venue: 'Examination Halls', description: 'Mid-term examinations for all classes.' },
+					{ id: 6, title: 'Winter Break', category: 'holiday', status: 'completed', startDate: '2024-12-20', endDate: '2025-01-01', time: '', venue: '', description: 'Winter vacation for all students and staff.' }
+				];
+				saveEvents();
+			}
+			renderEvents();
+			updateStats();
+		}
+
+		function saveEvents() {
+			localStorage.setItem('edumanage_events', JSON.stringify(events));
+		}
+
+		function renderEvents(list = null) {
+			const data = list || events;
+			const grid = $('#eventsGrid');
+
+			if (!data.length) {
+				grid.html(`
+					<div class="empty-state" style="grid-column: 1 / -1;">
+						<i class="fas fa-calendar-times"></i>
+						<h3>No Events Found</h3>
+						<p>Click "Add Event" to create your first event</p>
+					</div>
+				`);
+				return;
+			}
+
+			grid.html(data.map(e => `
+				<div class="event-card">
+					<div class="event-banner ${e.category}">
+						<i class="fas ${CATEGORY_ICONS[e.category] || 'fa-calendar'}"></i>
+						<span class="event-status ${e.status}">${e.status}</span>
+					</div>
+					<div class="event-content">
+						<span class="event-category ${e.category}">${e.category}</span>
+						<h3 class="event-title">${e.title}</h3>
+						<p class="event-description">${e.description || 'No description provided.'}</p>
+						<div class="event-meta">
+							<div class="event-meta-item">
+								<i class="fas fa-calendar-day"></i>
+								<span>${formatDate(e.startDate)}${e.endDate ? ' - ' + formatDate(e.endDate) : ''}</span>
+							</div>
+							${e.time ? `<div class="event-meta-item"><i class="fas fa-clock"></i><span>${formatTime(e.time)}</span></div>` : ''}
+							${e.venue ? `<div class="event-meta-item"><i class="fas fa-map-marker-alt"></i><span>${e.venue}</span></div>` : ''}
+						</div>
+					</div>
+					<div class="event-actions">
+						<button class="btn btn-secondary" onclick="editEvent(${e.id})"><i class="fas fa-edit"></i> Edit</button>
+						<button class="btn btn-secondary" onclick="deleteEvent(${e.id})" style="color: var(--danger);"><i class="fas fa-trash"></i> Delete</button>
+					</div>
+				</div>
+			`).join(''));
+		}
+
+		function formatDate(dateStr) {
+			if (!dateStr) return '';
+			const date = new Date(dateStr);
+			return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+		}
+
+		function formatTime(timeStr) {
+			if (!timeStr) return '';
+			const [h, m] = timeStr.split(':');
+			const hour = parseInt(h);
+			const ampm = hour >= 12 ? 'PM' : 'AM';
+			const hour12 = hour % 12 || 12;
+			return `${hour12}:${m} ${ampm}`;
+		}
+
+		function updateStats() {
+			$('#statTotal').text(events.length);
+			$('#statUpcoming').text(events.filter(e => e.status === 'upcoming').length);
+			$('#statOngoing').text(events.filter(e => e.status === 'ongoing').length);
+			$('#statCompleted').text(events.filter(e => e.status === 'completed').length);
+		}
+
+		function openAddModal() {
+			editingId = null;
+			$('#modalTitle').text('Add New Event');
+			$('#eventTitle, #eventDescription, #eventVenue').val('');
+			$('#eventCategory, #eventStatus').val('');
+			$('#eventStatus').val('upcoming');
+			$('#eventStartDate, #eventEndDate, #eventTime').val('');
+			$('#eventModal').addClass('active');
+		}
+
+		function editEvent(id) {
+			const event = events.find(e => e.id === id);
+			if (!event) return;
+
+			editingId = id;
+			$('#modalTitle').text('Edit Event');
+			$('#eventTitle').val(event.title);
+			$('#eventCategory').val(event.category);
+			$('#eventStatus').val(event.status);
+			$('#eventStartDate').val(event.startDate);
+			$('#eventEndDate').val(event.endDate || '');
+			$('#eventTime').val(event.time || '');
+			$('#eventVenue').val(event.venue || '');
+			$('#eventDescription').val(event.description || '');
+			$('#eventModal').addClass('active');
+		}
+
+		function closeModal() {
+			$('#eventModal').removeClass('active');
+		}
+
+		function saveEvent() {
+			const title = $('#eventTitle').val().trim();
+			const category = $('#eventCategory').val();
+			const status = $('#eventStatus').val();
+			const startDate = $('#eventStartDate').val();
+			const endDate = $('#eventEndDate').val();
+			const time = $('#eventTime').val();
+			const venue = $('#eventVenue').val().trim();
+			const description = $('#eventDescription').val().trim();
+
+			if (!title || !category || !startDate) {
+				showToast('Please fill all required fields', 'error');
+				return;
+			}
+
+			if (editingId) {
+				const event = events.find(e => e.id === editingId);
+				if (event) {
+					Object.assign(event, { title, category, status, startDate, endDate, time, venue, description });
+				}
+				showToast('Event updated successfully', 'success');
+			} else {
+				events.push({
+					id: Date.now(),
+					title, category, status, startDate, endDate, time, venue, description
+				});
+				showToast('Event created successfully', 'success');
+			}
+
+			saveEvents();
+			renderEvents();
+			updateStats();
+			closeModal();
+		}
+
+		function deleteEvent(id) {
+			if (!confirm('Are you sure you want to delete this event?')) return;
+			events = events.filter(e => e.id !== id);
+			saveEvents();
+			renderEvents();
+			updateStats();
+			showToast('Event deleted successfully', 'success');
+		}
+
+		function exportEvents() {
+			const csv = [
+				'Title,Category,Status,Start Date,End Date,Time,Venue,Description',
+				...events.map(e => `"${e.title}","${e.category}","${e.status}","${e.startDate}","${e.endDate || ''}","${e.time || ''}","${e.venue || ''}","${e.description || ''}"`)
+			].join('\n');
+			const blob = new Blob([csv], { type: 'text/csv' });
+			const a = document.createElement('a');
+			a.href = URL.createObjectURL(blob);
+			a.download = 'events_export.csv';
+			a.click();
+			showToast('Events exported successfully', 'success');
+		}
+
+		function showToast(msg, type = 'info') {
+			const toast = $(`<div class="toast ${type}"><i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>${msg}</div>`);
+			$('#toastContainer').append(toast);
+			setTimeout(() => toast.remove(), 3500);
+		}
+
+		$('#eventModal').on('click', function(e) {
+			if (e.target.id === 'eventModal') closeModal();
+		});
+
+		$(document).on('keydown', function(e) {
+			if (e.key === 'Escape') closeModal();
+		});
+	</script>
+	<script src="../assets/js/responsive.js"></script>
+</body>
+</html>

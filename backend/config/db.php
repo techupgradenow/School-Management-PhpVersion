@@ -11,7 +11,7 @@ define('DB_PASS', '');
 define('DB_NAME', 'edumanage_pro');
 define('DB_CHARSET', 'utf8mb4');
 
-// Create database connection class
+// Create database connection class with performance optimizations
 class Database {
     private static $instance = null;
     private $connection;
@@ -29,10 +29,16 @@ class Database {
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->charset}"
+                PDO::ATTR_PERSISTENT => true, // Enable persistent connections for better performance
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->charset}",
+                PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+                PDO::ATTR_TIMEOUT => 30 // Connection timeout
             ];
 
             $this->connection = new PDO($dsn, $this->user, $this->pass, $options);
+
+            // Set MySQL session variables for performance
+            $this->connection->exec("SET SESSION sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO'");
         } catch (PDOException $e) {
             // Log error and throw exception
             error_log("Database Connection Error: " . $e->getMessage());
@@ -83,7 +89,7 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
 header('Content-Type: application/json; charset=utf-8');
 
 // Handle preflight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }

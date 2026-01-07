@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>User Management - EduManage Pro</title>
+	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="../assets/js/responsive.js"></script>
+	<script src="../assets/js/permissions.js"></script>
 	<style>
 		/* ========== ENTERPRISE DESIGN SYSTEM ========== */
 		:root {
@@ -90,6 +93,46 @@
 			margin: 0 auto;
 		}
 
+		/* ========== PAGE VIEWS ========== */
+		.page-view {
+			display: none;
+		}
+
+		.page-view.active {
+			display: block;
+		}
+
+		/* ========== BREADCRUMB ========== */
+		.breadcrumb {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 11px;
+			margin-bottom: 0;
+		}
+
+		.breadcrumb a {
+			color: var(--text-muted);
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			gap: var(--space-2);
+			transition: color 0.2s;
+		}
+
+		.breadcrumb a:hover {
+			color: var(--primary);
+		}
+
+		.breadcrumb-separator {
+			color: var(--text-light);
+		}
+
+		.breadcrumb-current {
+			color: var(--text-primary);
+			font-weight: 500;
+		}
+
 		/* ========== PAGE HEADER ========== */
 		.page-header {
 			display: flex;
@@ -171,6 +214,17 @@
 		.btn-secondary:hover {
 			background: var(--bg-hover);
 			border-color: var(--text-light);
+		}
+
+		.btn-success {
+			background: var(--success);
+			color: white;
+			box-shadow: var(--shadow-sm);
+		}
+
+		.btn-success:hover {
+			background: #16A34A;
+			box-shadow: var(--shadow-md);
 		}
 
 		/* ========== STATS GRID ========== */
@@ -379,7 +433,6 @@
 			transition: background 0.15s ease;
 		}
 
-		/* Zebra striping */
 		.data-table tbody tr:nth-child(even) {
 			background: var(--bg-main);
 		}
@@ -559,7 +612,6 @@
 			color: var(--danger);
 		}
 
-		/* Tooltip */
 		.action-btn::after {
 			content: attr(title);
 			position: absolute;
@@ -583,122 +635,172 @@
 			visibility: visible;
 		}
 
-		/* ========== MODAL ========== */
-		.modal-overlay {
-			display: none;
-			position: fixed;
-			inset: 0;
-			background: rgba(15, 23, 42, 0.6);
-			backdrop-filter: blur(4px);
-			z-index: 10000;
-			align-items: center;
-			justify-content: center;
-			padding: var(--space-6);
-		}
-
-		.modal-overlay.active {
-			display: flex;
-		}
-
-		.modal-container {
-			background: var(--bg-card);
-			border-radius: var(--radius-xl);
-			width: 100%;
-			max-width: 860px;
-			max-height: 90vh;
+		/* ========== FULL PAGE FORM ========== */
+		.form-page {
+			height: 100%;
+			min-height: calc(100vh - 60px);
 			display: flex;
 			flex-direction: column;
-			box-shadow: var(--shadow-lg);
-			animation: modalSlideIn 0.3s ease;
 			overflow: hidden;
+			position: relative;
 		}
 
-		@keyframes modalSlideIn {
-			from { opacity: 0; transform: scale(0.95) translateY(10px); }
-			to { opacity: 1; transform: scale(1) translateY(0); }
-		}
-
-		.modal-header {
-			padding: var(--space-5) var(--space-6);
-			background: var(--secondary);
-			color: white;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		.modal-title {
-			display: flex;
-			align-items: center;
-			gap: var(--space-3);
-			font-size: 18px;
-			font-weight: 600;
-		}
-
-		.modal-title i {
-			font-size: 20px;
-			opacity: 0.9;
-		}
-
-		.modal-close {
-			width: 36px;
-			height: 36px;
-			border-radius: var(--radius-md);
-			border: none;
-			background: rgba(255,255,255,0.1);
-			color: white;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-size: 16px;
-			transition: all 0.2s ease;
-		}
-
-		.modal-close:hover {
-			background: rgba(255,255,255,0.2);
-		}
-
-		/* ========== MODAL TABS ========== */
-		.modal-tabs {
-			display: flex;
-			background: var(--bg-main);
+		.form-page-header {
+			background: var(--bg-card);
 			border-bottom: 1px solid var(--border);
+			padding: 8px var(--space-5);
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 		}
 
-		.modal-tab {
+		.form-page-title {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.form-page-title .page-icon {
+			width: 32px;
+			height: 32px;
+			font-size: 14px;
+		}
+
+		.form-page-title h1 {
+			font-size: 16px;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 0;
+		}
+
+		.form-page-title p {
+			font-size: 11px;
+			color: var(--text-muted);
+			display: none;
+		}
+
+		/* ========== STEPPER TABS ========== */
+		.stepper-container {
+			background: var(--bg-card);
+			border-bottom: 1px solid var(--border);
+			padding: 0 var(--space-5);
+			flex-shrink: 0;
+		}
+
+		.stepper-tabs {
+			display: flex;
+			max-width: 700px;
+			margin: 0 auto;
+		}
+
+		.stepper-tab {
 			flex: 1;
-			padding: 14px 16px;
+			padding: 8px var(--space-3);
 			border: none;
 			background: transparent;
-			font-size: 13px;
+			font-size: 12px;
 			font-weight: 500;
 			color: var(--text-muted);
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			gap: var(--space-2);
+			gap: 6px;
 			transition: all 0.2s ease;
-			border-bottom: 2px solid transparent;
+			border-bottom: 3px solid transparent;
 			font-family: inherit;
+			position: relative;
 		}
 
-		.modal-tab:hover {
+		.stepper-tab:hover {
 			color: var(--primary);
-			background: var(--bg-card);
+			background: var(--primary-50);
 		}
 
-		.modal-tab.active {
+		.stepper-tab.active {
 			color: var(--primary);
-			background: var(--bg-card);
 			border-bottom-color: var(--primary);
+			background: var(--primary-50);
 		}
 
-		.modal-body {
+		.stepper-tab.completed {
+			color: var(--success);
+		}
+
+		.stepper-tab.completed .step-number {
+			background: var(--success);
+			border-color: var(--success);
+		}
+
+		.step-number {
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: var(--bg-hover);
+			border: 2px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 10px;
+			font-weight: 600;
+			transition: all 0.2s;
+		}
+
+		.stepper-tab.active .step-number {
+			background: var(--primary);
+			border-color: var(--primary);
+			color: white;
+		}
+
+		.step-label {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			text-align: left;
+		}
+
+		.step-title {
+			font-weight: 600;
+			font-size: 12px;
+		}
+
+		.step-desc {
+			font-size: 9px;
+			color: var(--text-light);
+			margin-top: 0;
+			display: none;
+		}
+
+		/* Arrow connector between steps */
+		.stepper-tab:not(:last-child)::after {
+			content: '';
+			position: absolute;
+			right: -10px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 0;
+			height: 0;
+			border-top: 8px solid transparent;
+			border-bottom: 8px solid transparent;
+			border-left: 10px solid var(--border);
+			z-index: 1;
+		}
+
+		/* ========== FORM CONTENT ========== */
+		.form-content {
 			flex: 1;
+			padding: 12px 16px;
+			padding-bottom: 16px;
+			background: var(--bg-main);
 			overflow-y: auto;
-			padding: var(--space-6);
+			min-height: 0;
+		}
+
+		.form-content-inner {
+			max-width: 1100px;
+			margin: 0 auto;
+			padding-bottom: 8px;
 		}
 
 		.tab-panel {
@@ -713,62 +815,70 @@
 		.section-header {
 			display: flex;
 			align-items: center;
-			gap: var(--space-4);
-			margin-bottom: var(--space-5);
-			padding-bottom: var(--space-4);
+			gap: 10px;
+			margin-bottom: 10px;
+			padding-bottom: 8px;
 			border-bottom: 1px solid var(--border);
 		}
 
 		.section-icon {
-			width: 44px;
-			height: 44px;
-			border-radius: var(--radius-md);
+			width: 32px;
+			height: 32px;
+			border-radius: var(--radius-sm);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 18px;
+			font-size: 14px;
 			color: white;
 		}
 
 		.section-title h3 {
-			font-size: 16px;
+			font-size: 14px;
 			font-weight: 600;
 			color: var(--text-primary);
-			margin-bottom: 2px;
+			margin-bottom: 0;
 		}
 
 		.section-title p {
-			font-size: 13px;
+			font-size: 11px;
 			color: var(--text-muted);
+			display: none;
 		}
 
 		/* ========== FORM STYLES ========== */
 		.form-container {
-			background: var(--bg-main);
-			border-radius: var(--radius-lg);
-			padding: var(--space-5);
+			background: var(--bg-card);
+			border-radius: var(--radius-md);
+			padding: 12px 16px;
 			border: 1px solid var(--border);
+			box-shadow: var(--shadow-sm);
 		}
 
 		.form-grid {
 			display: grid;
 			grid-template-columns: repeat(2, 1fr);
-			gap: var(--space-4);
+			gap: 12px 16px;
 		}
 
 		.form-group {
 			display: flex;
 			flex-direction: column;
-			gap: var(--space-2);
+			gap: 4px;
+		}
+
+		.form-group.full-width {
+			grid-column: span 2;
 		}
 
 		.form-label {
 			display: flex;
 			align-items: center;
-			gap: var(--space-2);
-			font-size: 13px;
-			font-weight: 500;
+			gap: var(--space-1);
+			font-size: 11px;
+			font-weight: 600;
 			color: var(--text-secondary);
+			text-transform: uppercase;
+			letter-spacing: 0.3px;
 		}
 
 		.form-label .required {
@@ -776,10 +886,10 @@
 		}
 
 		.form-control {
-			padding: 10px 14px;
+			padding: 8px 10px;
 			border: 1px solid var(--border);
-			border-radius: var(--radius-md);
-			font-size: 14px;
+			border-radius: var(--radius-sm);
+			font-size: 13px;
 			font-family: inherit;
 			background: var(--bg-card);
 			color: var(--text-primary);
@@ -820,35 +930,40 @@
 		.form-note {
 			display: flex;
 			align-items: center;
-			gap: var(--space-3);
-			padding: var(--space-3) var(--space-4);
+			gap: 8px;
+			padding: 8px 12px;
 			background: var(--primary-light);
-			border-radius: var(--radius-md);
-			font-size: 13px;
+			border-radius: var(--radius-sm);
+			font-size: 11px;
 			color: var(--primary);
-			margin-top: var(--space-4);
+			margin-top: 10px;
 			border: 1px solid #BFDBFE;
+		}
+
+		.form-note i {
+			font-size: 14px;
 		}
 
 		/* ========== MODULE CARDS ========== */
 		.modules-grid {
 			display: grid;
 			grid-template-columns: repeat(4, 1fr);
-			gap: var(--space-4);
+			gap: var(--space-3);
 		}
 
 		.module-card {
 			background: var(--bg-card);
-			border: 1px solid var(--border);
-			border-radius: var(--radius-lg);
-			padding: var(--space-4);
+			border: 2px solid var(--border);
+			border-radius: var(--radius-md);
+			padding: var(--space-3);
 			cursor: pointer;
 			transition: all 0.2s ease;
 		}
 
 		.module-card:hover {
 			border-color: var(--primary);
-			box-shadow: var(--shadow-sm);
+			box-shadow: var(--shadow-md);
+			transform: translateY(-2px);
 		}
 
 		.module-card.selected {
@@ -869,23 +984,23 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: flex-start;
-			margin-bottom: var(--space-3);
+			margin-bottom: var(--space-2);
 		}
 
 		.module-icon {
-			width: 40px;
-			height: 40px;
-			border-radius: var(--radius-md);
+			width: 36px;
+			height: 36px;
+			border-radius: var(--radius-sm);
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 16px;
+			font-size: 15px;
 			color: white;
 		}
 
 		.module-check {
-			width: 22px;
-			height: 22px;
+			width: 20px;
+			height: 20px;
 			border: 2px solid var(--border);
 			border-radius: var(--radius-sm);
 			display: flex;
@@ -897,17 +1012,17 @@
 
 		.module-check i {
 			color: white;
-			font-size: 11px;
+			font-size: 10px;
 			opacity: 0;
 		}
 
 		.module-info {
-			margin-top: var(--space-2);
+			margin-top: 0;
 		}
 
 		.module-name {
 			display: block;
-			font-size: 14px;
+			font-size: 13px;
 			font-weight: 600;
 			color: var(--text-primary);
 			margin-bottom: 2px;
@@ -915,29 +1030,58 @@
 
 		.module-desc {
 			display: block;
-			font-size: 12px;
+			font-size: 11px;
 			color: var(--text-muted);
+		}
+
+		.module-card.readonly {
+			cursor: not-allowed;
+			opacity: 0.8;
+		}
+
+		.module-card.readonly:hover {
+			transform: none;
+			box-shadow: none;
+		}
+
+		.superadmin-notice {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 14px;
+			background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+			border: 1px solid #F59E0B;
+			border-radius: var(--radius-md);
+			margin-bottom: 12px;
+			font-size: 12px;
+			color: #92400E;
+		}
+
+		.superadmin-notice i {
+			font-size: 16px;
+			color: #F59E0B;
 		}
 
 		/* ========== PERMISSIONS TABLE ========== */
 		.perm-actions {
 			display: flex;
-			gap: var(--space-3);
-			margin-bottom: var(--space-4);
+			gap: 6px;
+			margin-bottom: 8px;
+			flex-wrap: wrap;
 		}
 
 		.perm-btn {
-			padding: 8px 16px;
+			padding: 5px 10px;
 			border: 1px solid var(--border);
-			border-radius: var(--radius-md);
+			border-radius: var(--radius-sm);
 			background: var(--bg-card);
 			color: var(--text-secondary);
 			font-weight: 500;
-			font-size: 13px;
+			font-size: 11px;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
-			gap: var(--space-2);
+			gap: 4px;
 			transition: all 0.2s ease;
 			font-family: inherit;
 		}
@@ -950,9 +1094,10 @@
 
 		.perm-table-wrapper {
 			background: var(--bg-card);
-			border-radius: var(--radius-lg);
+			border-radius: var(--radius-md);
 			border: 1px solid var(--border);
 			overflow: hidden;
+			box-shadow: var(--shadow-sm);
 		}
 
 		.perm-table {
@@ -965,18 +1110,18 @@
 		}
 
 		.perm-table th {
-			padding: 12px 16px;
-			font-size: 11px;
+			padding: 6px 8px;
+			font-size: 10px;
 			font-weight: 600;
 			color: white;
 			text-transform: uppercase;
-			letter-spacing: 0.5px;
+			letter-spacing: 0.3px;
 			text-align: center;
 		}
 
 		.perm-table th:first-child {
 			text-align: left;
-			width: 200px;
+			width: 160px;
 		}
 
 		.perm-table tbody tr {
@@ -988,7 +1133,7 @@
 		}
 
 		.perm-table td {
-			padding: 12px 16px;
+			padding: 4px 8px;
 			text-align: center;
 		}
 
@@ -999,47 +1144,55 @@
 		.perm-module-cell {
 			display: flex;
 			align-items: center;
-			gap: var(--space-3);
+			gap: 6px;
 			font-weight: 500;
+			font-size: 12px;
 			color: var(--text-primary);
 		}
 
 		.perm-module-icon {
-			width: 32px;
-			height: 32px;
-			border-radius: var(--radius-sm);
+			width: 22px;
+			height: 22px;
+			border-radius: 4px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 14px;
+			font-size: 10px;
 			color: white;
 		}
 
 		.perm-checkbox {
-			width: 18px;
-			height: 18px;
+			width: 16px;
+			height: 16px;
 			cursor: pointer;
 			accent-color: var(--primary);
 		}
 
-		/* ========== MODAL FOOTER ========== */
-		.modal-footer {
-			padding: var(--space-4) var(--space-6);
-			background: var(--bg-main);
+		/* ========== FORM FOOTER ========== */
+		.form-footer {
+			background: var(--bg-card);
 			border-top: 1px solid var(--border);
+			padding: 12px 24px;
 			display: flex;
 			justify-content: flex-end;
-			gap: var(--space-3);
+			gap: 12px;
+			flex-shrink: 0;
+			position: sticky;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: 100;
+			box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
 		}
 
 		.btn-cancel {
-			padding: 10px 20px;
+			padding: 8px 16px;
 			background: var(--bg-card);
 			border: 1px solid var(--border);
-			border-radius: var(--radius-md);
+			border-radius: var(--radius-sm);
 			color: var(--text-secondary);
 			font-weight: 500;
-			font-size: 14px;
+			font-size: 12px;
 			cursor: pointer;
 			transition: all 0.2s ease;
 			font-family: inherit;
@@ -1047,26 +1200,49 @@
 
 		.btn-cancel:hover {
 			background: var(--bg-hover);
+			border-color: var(--text-light);
 		}
 
 		.btn-save {
-			padding: 10px 20px;
+			padding: 8px 16px;
 			background: var(--primary);
 			border: none;
-			border-radius: var(--radius-md);
+			border-radius: var(--radius-sm);
 			color: white;
 			font-weight: 500;
-			font-size: 14px;
+			font-size: 12px;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
-			gap: var(--space-2);
+			gap: 6px;
 			transition: all 0.2s ease;
 			font-family: inherit;
 		}
 
 		.btn-save:hover {
 			background: var(--primary-hover);
+			box-shadow: var(--shadow-md);
+		}
+
+		.btn-save-new {
+			padding: 8px 16px;
+			background: var(--success);
+			border: none;
+			border-radius: var(--radius-sm);
+			color: white;
+			font-weight: 500;
+			font-size: 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			transition: all 0.2s ease;
+			font-family: inherit;
+		}
+
+		.btn-save-new:hover {
+			background: #16A34A;
+			box-shadow: var(--shadow-md);
 		}
 
 		/* ========== TOAST ========== */
@@ -1141,6 +1317,8 @@
 			.filter-grid { grid-template-columns: repeat(2, 1fr); }
 			.stats-grid { grid-template-columns: repeat(2, 1fr); }
 			.modules-grid { grid-template-columns: repeat(2, 1fr); }
+			.stepper-tabs { flex-direction: column; }
+			.stepper-tab::after { display: none; }
 		}
 
 		@media (max-width: 768px) {
@@ -1149,7 +1327,12 @@
 			.filter-grid { grid-template-columns: 1fr; }
 			.stats-grid { grid-template-columns: 1fr; }
 			.form-grid { grid-template-columns: 1fr; }
+			.form-group.full-width { grid-column: span 1; }
 			.modules-grid { grid-template-columns: 1fr; }
+			.form-footer { flex-wrap: wrap; }
+			.form-footer .btn-cancel,
+			.form-footer .btn-save,
+			.form-footer .btn-save-new { flex: 1; min-width: 140px; justify-content: center; }
 		}
 	</style>
 </head>
@@ -1157,328 +1340,354 @@
 	<div class="toast-container" id="toastContainer"></div>
 
 	<div class="main-container">
-		<!-- Page Header -->
-		<div class="page-header">
-			<div class="page-title-section">
-				<div class="page-icon">
-					<i class="fas fa-users-cog"></i>
+		<!-- =============== USER LIST VIEW =============== -->
+		<div class="page-view active" id="listView">
+			<!-- Page Header -->
+			<div class="page-header">
+				<div class="page-title-section">
+					<div class="page-icon">
+						<i class="fas fa-users-cog"></i>
+					</div>
+					<div class="page-title">
+						<h1>User Management</h1>
+						<p>Manage system users, roles, and permissions</p>
+					</div>
 				</div>
-				<div class="page-title">
-					<h1>User Management</h1>
-					<p>Manage system users, roles, and permissions</p>
+				<div class="header-actions">
+					<button class="btn btn-secondary" onclick="exportUsers()" data-permission="users:export">
+						<i class="fas fa-download"></i> Export
+					</button>
+					<button class="btn btn-primary" onclick="showAddUserPage()" data-permission="users:create">
+						<i class="fas fa-plus"></i> Add User
+					</button>
 				</div>
 			</div>
-			<div class="header-actions">
-				<button class="btn btn-secondary" onclick="exportUsers()">
-					<i class="fas fa-download"></i> Export
-				</button>
-				<button class="btn btn-primary" onclick="openAddModal()">
-					<i class="fas fa-plus"></i> Add User
-				</button>
+
+			<!-- Stats Grid -->
+			<div class="stats-grid">
+				<div class="stat-card total">
+					<div class="stat-card-inner">
+						<div class="stat-content">
+							<div class="stat-value" id="statTotal">0</div>
+							<div class="stat-label">Total Users</div>
+						</div>
+						<div class="stat-icon"><i class="fas fa-users"></i></div>
+					</div>
+				</div>
+				<div class="stat-card students">
+					<div class="stat-card-inner">
+						<div class="stat-content">
+							<div class="stat-value" id="statStudents">0</div>
+							<div class="stat-label">Students</div>
+						</div>
+						<div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+					</div>
+				</div>
+				<div class="stat-card admins">
+					<div class="stat-card-inner">
+						<div class="stat-content">
+							<div class="stat-value" id="statAdmins">0</div>
+							<div class="stat-label">Administrators</div>
+						</div>
+						<div class="stat-icon"><i class="fas fa-user-shield"></i></div>
+					</div>
+				</div>
+				<div class="stat-card teachers">
+					<div class="stat-card-inner">
+						<div class="stat-content">
+							<div class="stat-value" id="statTeachers">0</div>
+							<div class="stat-label">Teachers</div>
+						</div>
+						<div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+					</div>
+				</div>
+				<div class="stat-card staff">
+					<div class="stat-card-inner">
+						<div class="stat-content">
+							<div class="stat-value" id="statStaff">0</div>
+							<div class="stat-label">Staff</div>
+						</div>
+						<div class="stat-icon"><i class="fas fa-id-badge"></i></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main Content Card -->
+			<div class="content-card">
+				<!-- Filter Bar -->
+				<div class="filter-bar">
+					<div class="filter-grid">
+						<div class="filter-group">
+							<label class="filter-label">User ID</label>
+							<input type="text" class="filter-input" id="filterUserId" placeholder="Search...">
+						</div>
+						<div class="filter-group">
+							<label class="filter-label">Username</label>
+							<input type="text" class="filter-input" id="filterUsername" placeholder="Search...">
+						</div>
+						<div class="filter-group">
+							<label class="filter-label">Name</label>
+							<input type="text" class="filter-input" id="filterName" placeholder="Search...">
+						</div>
+						<div class="filter-group">
+							<label class="filter-label">Email</label>
+							<input type="text" class="filter-input" id="filterEmail" placeholder="Search...">
+						</div>
+						<div class="filter-group">
+							<label class="filter-label">Role</label>
+							<select class="filter-select" id="filterRole">
+								<option value="">All Roles</option>
+								<option value="superadmin">Super Admin</option>
+								<option value="admin">Admin</option>
+								<option value="teacher">Teacher</option>
+								<option value="staff">Staff</option>
+								<option value="student">Student</option>
+							</select>
+						</div>
+						<div class="filter-group">
+							<label class="filter-label">Status</label>
+							<select class="filter-select" id="filterStatus">
+								<option value="">All Status</option>
+								<option value="active">Active</option>
+								<option value="inactive">Inactive</option>
+							</select>
+						</div>
+						<div class="filter-group">
+							<label class="filter-label">Last Login</label>
+							<input type="text" class="filter-input" id="filterLastLogin" placeholder="Search...">
+						</div>
+						<div class="filter-group" style="justify-content: flex-end;">
+							<button class="btn-clear" onclick="clearFilters()">
+								<i class="fas fa-times"></i> Clear
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Data Table -->
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>User ID</th>
+								<th>Username</th>
+								<th>Name</th>
+								<th>Email</th>
+								<th>Role</th>
+								<th>Status</th>
+								<th>Last Login</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody id="usersTableBody"></tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 
-		<!-- Stats Grid -->
-		<div class="stats-grid">
-			<div class="stat-card total">
-				<div class="stat-card-inner">
-					<div class="stat-content">
-						<div class="stat-value" id="statTotal">0</div>
-						<div class="stat-label">Total Users</div>
+		<!-- =============== ADD/EDIT USER PAGE =============== -->
+		<div class="page-view" id="formView">
+			<div class="form-page">
+				<!-- Combined Header with Breadcrumb and Title -->
+				<div class="form-page-header">
+					<div style="display: flex; align-items: center; gap: 16px;">
+						<div class="breadcrumb">
+							<a href="javascript:void(0)" onclick="showListView()">
+								<i class="fas fa-users-cog"></i> User Management
+							</a>
+							<span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+							<span class="breadcrumb-current" id="breadcrumbTitle">Add New User</span>
+						</div>
 					</div>
-					<div class="stat-icon"><i class="fas fa-users"></i></div>
-				</div>
-			</div>
-			<div class="stat-card students">
-				<div class="stat-card-inner">
-					<div class="stat-content">
-						<div class="stat-value" id="statStudents">0</div>
-						<div class="stat-label">Students</div>
+					<div class="form-page-title">
+						<div class="page-icon">
+							<i class="fas fa-user-plus" id="formPageIcon"></i>
+						</div>
+						<h1 id="formPageTitle">Add New User</h1>
 					</div>
-					<div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
 				</div>
-			</div>
-			<div class="stat-card admins">
-				<div class="stat-card-inner">
-					<div class="stat-content">
-						<div class="stat-value" id="statAdmins">0</div>
-						<div class="stat-label">Administrators</div>
-					</div>
-					<div class="stat-icon"><i class="fas fa-user-shield"></i></div>
-				</div>
-			</div>
-			<div class="stat-card teachers">
-				<div class="stat-card-inner">
-					<div class="stat-content">
-						<div class="stat-value" id="statTeachers">0</div>
-						<div class="stat-label">Teachers</div>
-					</div>
-					<div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-				</div>
-			</div>
-			<div class="stat-card staff">
-				<div class="stat-card-inner">
-					<div class="stat-content">
-						<div class="stat-value" id="statStaff">0</div>
-						<div class="stat-label">Staff</div>
-					</div>
-					<div class="stat-icon"><i class="fas fa-id-badge"></i></div>
-				</div>
-			</div>
-		</div>
 
-		<!-- Main Content Card -->
-		<div class="content-card">
-			<!-- Filter Bar -->
-			<div class="filter-bar">
-				<div class="filter-grid">
-					<div class="filter-group">
-						<label class="filter-label">User ID</label>
-						<input type="text" class="filter-input" id="filterUserId" placeholder="Search...">
-					</div>
-					<div class="filter-group">
-						<label class="filter-label">Username</label>
-						<input type="text" class="filter-input" id="filterUsername" placeholder="Search...">
-					</div>
-					<div class="filter-group">
-						<label class="filter-label">Name</label>
-						<input type="text" class="filter-input" id="filterName" placeholder="Search...">
-					</div>
-					<div class="filter-group">
-						<label class="filter-label">Email</label>
-						<input type="text" class="filter-input" id="filterEmail" placeholder="Search...">
-					</div>
-					<div class="filter-group">
-						<label class="filter-label">Role</label>
-						<select class="filter-select" id="filterRole">
-							<option value="">All Roles</option>
-							<option value="superadmin">Super Admin</option>
-							<option value="admin">Admin</option>
-							<option value="teacher">Teacher</option>
-							<option value="staff">Staff</option>
-							<option value="student">Student</option>
-						</select>
-					</div>
-					<div class="filter-group">
-						<label class="filter-label">Status</label>
-						<select class="filter-select" id="filterStatus">
-							<option value="">All Status</option>
-							<option value="active">Active</option>
-							<option value="inactive">Inactive</option>
-						</select>
-					</div>
-					<div class="filter-group">
-						<label class="filter-label">Last Login</label>
-						<input type="text" class="filter-input" id="filterLastLogin" placeholder="Search...">
-					</div>
-					<div class="filter-group" style="justify-content: flex-end;">
-						<button class="btn-clear" onclick="clearFilters()">
-							<i class="fas fa-times"></i> Clear
+				<!-- Stepper Tabs -->
+				<div class="stepper-container">
+					<div class="stepper-tabs">
+						<button class="stepper-tab active" data-tab="details">
+							<div class="step-number">1</div>
+							<div class="step-label">
+								<span class="step-title"><i class="fas fa-user"></i> User Details</span>
+								<span class="step-desc">Basic information</span>
+							</div>
+						</button>
+						<button class="stepper-tab" data-tab="modules">
+							<div class="step-number">2</div>
+							<div class="step-label">
+								<span class="step-title"><i class="fas fa-cubes"></i> Module Access</span>
+								<span class="step-desc">Select modules</span>
+							</div>
+						</button>
+						<button class="stepper-tab" data-tab="permissions">
+							<div class="step-number">3</div>
+							<div class="step-label">
+								<span class="step-title"><i class="fas fa-shield-alt"></i> Permissions</span>
+								<span class="step-desc">Fine-grained control</span>
+							</div>
 						</button>
 					</div>
 				</div>
-			</div>
 
-			<!-- Data Table -->
-			<div class="table-container">
-				<table class="data-table">
-					<thead>
-						<tr>
-							<th>User ID</th>
-							<th>Username</th>
-							<th>Name</th>
-							<th>Email</th>
-							<th>Role</th>
-							<th>Status</th>
-							<th>Last Login</th>
-							<th>Actions</th>
-						</tr>
-					</thead>
-					<tbody id="usersTableBody"></tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-
-	<!-- Modal -->
-	<div class="modal-overlay" id="userModal">
-		<div class="modal-container">
-			<div class="modal-header">
-				<div class="modal-title">
-					<i class="fas fa-user-plus"></i>
-					<span id="modalTitle">Add New User</span>
-				</div>
-				<button class="modal-close" onclick="closeModal()">
-					<i class="fas fa-times"></i>
-				</button>
-			</div>
-
-			<div class="modal-tabs">
-				<button class="modal-tab active" data-tab="details">
-					<i class="fas fa-user"></i> User Details
-				</button>
-				<button class="modal-tab" data-tab="modules">
-					<i class="fas fa-cubes"></i> Module Access
-				</button>
-				<button class="modal-tab" data-tab="permissions">
-					<i class="fas fa-shield-alt"></i> Permissions
-				</button>
-			</div>
-
-			<div class="modal-body">
-				<!-- User Details Tab -->
-				<div class="tab-panel active" id="detailsPanel">
-					<div class="section-header">
-						<div class="section-icon" style="background: var(--primary);">
-							<i class="fas fa-user-edit"></i>
-						</div>
-						<div class="section-title">
-							<h3>User Information</h3>
-							<p>Enter the basic details for this user account</p>
-						</div>
-					</div>
-
-					<div class="form-container">
-						<div class="form-grid">
-							<div class="form-group">
-								<label class="form-label">
-									Full Name <span class="required">*</span>
-								</label>
-								<input type="text" class="form-control" id="userFullName" placeholder="Enter full name">
-							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Username <span class="required">*</span>
-								</label>
-								<input type="text" class="form-control" id="userUsername" placeholder="Enter username">
-							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Email <span class="required">*</span>
-								</label>
-								<input type="email" class="form-control" id="userEmail" placeholder="Enter email address">
-							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Phone
-								</label>
-								<input type="tel" class="form-control" id="userPhone" placeholder="Enter phone number">
-							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Role <span class="required">*</span>
-								</label>
-								<select class="form-control" id="userRole">
-									<option value="">Select role</option>
-									<option value="superadmin">Super Admin</option>
-									<option value="admin">Administrator</option>
-									<option value="teacher">Teacher</option>
-									<option value="staff">Staff</option>
-									<option value="student">Student</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Status <span class="required">*</span>
-								</label>
-								<select class="form-control" id="userStatus">
-									<option value="active">Active</option>
-									<option value="inactive">Inactive</option>
-								</select>
-							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Password <span class="required">*</span>
-								</label>
-								<div class="password-field">
-									<input type="password" class="form-control" id="userPassword" placeholder="Enter password">
-									<button type="button" class="password-toggle" onclick="togglePassword('userPassword')">
-										<i class="fas fa-eye"></i>
-									</button>
+				<!-- Form Content -->
+				<div class="form-content">
+					<div class="form-content-inner">
+						<!-- User Details Tab -->
+						<div class="tab-panel active" id="detailsPanel">
+							<div class="section-header">
+								<div class="section-icon" style="background: var(--primary);">
+									<i class="fas fa-user-edit"></i>
+								</div>
+								<div class="section-title">
+									<h3>User Information</h3>
+									<p>Enter the basic details for this user account</p>
 								</div>
 							</div>
-							<div class="form-group">
-								<label class="form-label">
-									Confirm Password <span class="required">*</span>
-								</label>
-								<div class="password-field">
-									<input type="password" class="form-control" id="userConfirmPassword" placeholder="Confirm password">
-									<button type="button" class="password-toggle" onclick="togglePassword('userConfirmPassword')">
-										<i class="fas fa-eye"></i>
-									</button>
+
+							<div class="form-container">
+								<div class="form-grid">
+									<div class="form-group">
+										<label class="form-label">
+											Full Name <span class="required">*</span>
+										</label>
+										<input type="text" class="form-control" id="userFullName" placeholder="Enter full name">
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Username <span class="required">*</span>
+										</label>
+										<input type="text" class="form-control" id="userUsername" placeholder="Enter username">
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Email <span class="required">*</span>
+										</label>
+										<input type="email" class="form-control" id="userEmail" placeholder="Enter email address">
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Phone
+										</label>
+										<input type="tel" class="form-control" id="userPhone" placeholder="Enter phone number">
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Role <span class="required">*</span>
+										</label>
+										<select class="form-control" id="userRole">
+											<option value="">Select role</option>
+											<option value="superadmin">Super Admin</option>
+											<option value="admin">Administrator</option>
+											<option value="teacher">Teacher</option>
+											<option value="staff">Staff</option>
+											<option value="student">Student</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Status <span class="required">*</span>
+										</label>
+										<select class="form-control" id="userStatus">
+											<option value="active">Active</option>
+											<option value="inactive">Inactive</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Password <span class="required" id="passwordRequired">*</span>
+										</label>
+										<div class="password-field">
+											<input type="password" class="form-control" id="userPassword" placeholder="Enter password">
+											<button type="button" class="password-toggle" onclick="togglePassword('userPassword')">
+												<i class="fas fa-eye"></i>
+											</button>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="form-label">
+											Confirm Password <span class="required" id="confirmPasswordRequired">*</span>
+										</label>
+										<div class="password-field">
+											<input type="password" class="form-control" id="userConfirmPassword" placeholder="Confirm password">
+											<button type="button" class="password-toggle" onclick="togglePassword('userConfirmPassword')">
+												<i class="fas fa-eye"></i>
+											</button>
+										</div>
+									</div>
+								</div>
+								<div class="form-note">
+									<i class="fas fa-info-circle"></i>
+									<span>Fields marked with <span class="required">*</span> are required. Password must be at least 8 characters.</span>
 								</div>
 							</div>
 						</div>
-						<div class="form-note">
-							<i class="fas fa-info-circle"></i>
-							Fields marked with <span class="required">*</span> are required. Password must be at least 8 characters.
+
+						<!-- Module Access Tab -->
+						<div class="tab-panel" id="modulesPanel">
+							<div class="section-header">
+								<div class="section-icon" style="background: #7C3AED;">
+									<i class="fas fa-cubes"></i>
+								</div>
+								<div class="section-title">
+									<h3>Module Access</h3>
+									<p>Select which modules this user can access</p>
+								</div>
+							</div>
+							<div class="form-container">
+								<div class="modules-grid" id="modulesGrid"></div>
+							</div>
+						</div>
+
+						<!-- Permissions Tab -->
+						<div class="tab-panel" id="permissionsPanel">
+							<div class="perm-actions">
+								<button class="perm-btn" onclick="applyRoleDefaults()">
+									<i class="fas fa-magic"></i> Apply Role Defaults
+								</button>
+								<button class="perm-btn" onclick="selectAllPerms()">
+									<i class="fas fa-check-double"></i> Select All
+								</button>
+								<button class="perm-btn" onclick="clearAllPerms()">
+									<i class="fas fa-times"></i> Clear All
+								</button>
+							</div>
+
+							<div class="perm-table-wrapper">
+								<table class="perm-table">
+									<thead>
+										<tr>
+											<th>Module</th>
+											<th>View</th>
+											<th>Create</th>
+											<th>Edit</th>
+											<th>Delete</th>
+											<th>Export</th>
+										</tr>
+									</thead>
+									<tbody id="permissionsBody"></tbody>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- Module Access Tab -->
-				<div class="tab-panel" id="modulesPanel">
-					<div class="section-header">
-						<div class="section-icon" style="background: #7C3AED;">
-							<i class="fas fa-cubes"></i>
-						</div>
-						<div class="section-title">
-							<h3>Module Access</h3>
-							<p>Select which modules this user can access</p>
-						</div>
-					</div>
-					<div class="modules-grid" id="modulesGrid"></div>
+				<!-- Form Footer -->
+				<div class="form-footer">
+					<button class="btn-cancel" onclick="showListView()">
+						<i class="fas fa-arrow-left"></i> Cancel
+					</button>
+					<button class="btn-save-new" onclick="saveUserAndNew()">
+						<i class="fas fa-plus"></i> Save & Add New
+					</button>
+					<button class="btn-save" onclick="saveUser()">
+						<i class="fas fa-save"></i> Save User
+					</button>
 				</div>
-
-				<!-- Permissions Tab -->
-				<div class="tab-panel" id="permissionsPanel">
-					<div class="section-header">
-						<div class="section-icon" style="background: var(--warning);">
-							<i class="fas fa-shield-alt"></i>
-						</div>
-						<div class="section-title">
-							<h3>Permissions Matrix</h3>
-							<p>Configure detailed permissions for each module</p>
-						</div>
-					</div>
-
-					<div class="perm-actions">
-						<button class="perm-btn" onclick="applyRoleDefaults()">
-							<i class="fas fa-magic"></i> Apply Role Defaults
-						</button>
-						<button class="perm-btn" onclick="selectAllPerms()">
-							<i class="fas fa-check-double"></i> Select All
-						</button>
-						<button class="perm-btn" onclick="clearAllPerms()">
-							<i class="fas fa-times"></i> Clear All
-						</button>
-					</div>
-
-					<div class="perm-table-wrapper">
-						<table class="perm-table">
-							<thead>
-								<tr>
-									<th>Module</th>
-									<th>View</th>
-									<th>Create</th>
-									<th>Edit</th>
-									<th>Delete</th>
-									<th>Export</th>
-								</tr>
-							</thead>
-							<tbody id="permissionsBody"></tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-
-			<div class="modal-footer">
-				<button class="btn-cancel" onclick="closeModal()">
-					Cancel
-				</button>
-				<button class="btn-save" onclick="saveUser()">
-					<i class="fas fa-save"></i> Save User
-				</button>
 			</div>
 		</div>
 	</div>
@@ -1503,7 +1712,7 @@
 		let editingId = null;
 		let selectedModules = [];
 		let permissions = {};
-		let counter = 2;
+		let saveAndAddNew = false;
 
 		$(document).ready(function() {
 			loadUsers();
@@ -1513,6 +1722,72 @@
 			setupFilters();
 		});
 
+		// ========== VIEW NAVIGATION ==========
+		function showListView() {
+			document.getElementById('listView').classList.add('active');
+			document.getElementById('formView').classList.remove('active');
+			editingId = null;
+		}
+
+		function showAddUserPage() {
+			editingId = null;
+			document.getElementById('formPageTitle').textContent = 'Add New User';
+			document.getElementById('formPageIcon').className = 'fas fa-user-plus';
+			document.getElementById('breadcrumbTitle').textContent = 'Add New User';
+			document.getElementById('passwordRequired').style.display = 'inline';
+			document.getElementById('confirmPasswordRequired').style.display = 'inline';
+
+			clearForm();
+			selectedModules = [];
+			permissions = {};
+			renderModules();
+			renderPermissions();
+			resetTabs();
+
+			document.getElementById('listView').classList.remove('active');
+			document.getElementById('formView').classList.add('active');
+		}
+
+		function showEditUserPage(userId) {
+			const user = users.find(u => u.id === userId);
+			if (!user) return;
+
+			editingId = user.id;
+			document.getElementById('formPageTitle').textContent = 'Edit User';
+			document.getElementById('formPageIcon').className = 'fas fa-user-edit';
+			document.getElementById('breadcrumbTitle').textContent = 'Edit User';
+			document.getElementById('passwordRequired').style.display = 'none';
+			document.getElementById('confirmPasswordRequired').style.display = 'none';
+
+			document.getElementById('userFullName').value = user.fullName;
+			document.getElementById('userUsername').value = user.username;
+			document.getElementById('userEmail').value = user.email;
+			document.getElementById('userPhone').value = user.phone || '';
+			document.getElementById('userRole').value = user.role;
+			document.getElementById('userStatus').value = user.status;
+			document.getElementById('userPassword').value = '';
+			document.getElementById('userConfirmPassword').value = '';
+
+			permissions = user.permissions || {};
+			selectedModules = [];
+			if (Object.keys(permissions).length > 0) {
+				Object.keys(permissions).forEach(moduleId => {
+					const perm = permissions[moduleId];
+					if (perm && (perm.view || perm.create || perm.edit || perm.delete || perm.export)) {
+						selectedModules.push(moduleId);
+					}
+				});
+			}
+
+			renderModules();
+			renderPermissions();
+			resetTabs();
+
+			document.getElementById('listView').classList.remove('active');
+			document.getElementById('formView').classList.add('active');
+		}
+
+		// ========== FILTERS ==========
 		function setupFilters() {
 			['filterUserId', 'filterUsername', 'filterName', 'filterEmail', 'filterLastLogin'].forEach(id => {
 				document.getElementById(id).addEventListener('input', applyFilters);
@@ -1555,10 +1830,11 @@
 			renderTable();
 		}
 
+		// ========== TABS ==========
 		function setupTabs() {
-			document.querySelectorAll('.modal-tab').forEach(tab => {
+			document.querySelectorAll('.stepper-tab').forEach(tab => {
 				tab.onclick = function() {
-					document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+					document.querySelectorAll('.stepper-tab').forEach(t => t.classList.remove('active'));
 					document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
 					this.classList.add('active');
 					document.getElementById(this.dataset.tab + 'Panel').classList.add('active');
@@ -1566,10 +1842,23 @@
 			});
 		}
 
+		function resetTabs() {
+			document.querySelectorAll('.stepper-tab').forEach(t => t.classList.remove('active', 'completed'));
+			document.querySelector('.stepper-tab[data-tab="details"]').classList.add('active');
+			document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+			document.getElementById('detailsPanel').classList.add('active');
+		}
+
+		// ========== MODULES ==========
 		function renderModules() {
 			const grid = document.getElementById('modulesGrid');
+			// Check if Super Admin role - make modules read-only
+			const isSuperAdmin = document.getElementById('userRole').value === 'superadmin';
+			const readOnlyClass = isSuperAdmin ? 'readonly' : '';
+			const clickHandler = isSuperAdmin ? '' : `onclick="toggleModule('`;
+
 			grid.innerHTML = MODULES.map(m => `
-				<div class="module-card ${selectedModules.includes(m.id) ? 'selected' : ''}" onclick="toggleModule('${m.id}')">
+				<div class="module-card ${selectedModules.includes(m.id) ? 'selected' : ''} ${readOnlyClass}" ${isSuperAdmin ? '' : `onclick="toggleModule('${m.id}')"`}>
 					<div class="module-header">
 						<div class="module-icon" style="background: ${m.color};">
 							<i class="fas ${m.icon}"></i>
@@ -1582,23 +1871,70 @@
 					</div>
 				</div>
 			`).join('');
+
+			// Show info banner for Super Admin
+			if (isSuperAdmin) {
+				grid.insertAdjacentHTML('beforebegin', `
+					<div class="superadmin-notice" id="superadminModuleNotice">
+						<i class="fas fa-shield-alt"></i>
+						<span>Super Admin has access to all modules with full permissions. Module selection is read-only.</span>
+					</div>
+				`);
+			} else {
+				const notice = document.getElementById('superadminModuleNotice');
+				if (notice) notice.remove();
+			}
 		}
 
 		function toggleModule(id) {
+			// Prevent toggling for Super Admin
+			if (document.getElementById('userRole').value === 'superadmin') {
+				showToast('Super Admin modules cannot be modified', 'info');
+				return;
+			}
+
 			const idx = selectedModules.indexOf(id);
-			if (idx > -1) selectedModules.splice(idx, 1);
-			else selectedModules.push(id);
-			renderModules();
-			if (selectedModules.includes(id) && !permissions[id]) {
+			if (idx > -1) {
+				// Module is being deselected - remove from array and clear its permissions
+				selectedModules.splice(idx, 1);
+				delete permissions[id];
+			} else {
+				// Module is being selected - add to array and set default permissions
+				selectedModules.push(id);
 				permissions[id] = { view: true, create: false, edit: false, delete: false, export: false };
 			}
+			renderModules();
 			renderPermissions();
 		}
 
+		// ========== PERMISSIONS ==========
 		function renderPermissions() {
 			const tbody = document.getElementById('permissionsBody');
-			tbody.innerHTML = MODULES.map(m => {
+			// Only show modules that are selected in Module Access tab
+			const selectedModulesData = MODULES.filter(m => selectedModules.includes(m.id));
+
+			// Check if Super Admin role - make permissions read-only
+			const isSuperAdmin = document.getElementById('userRole').value === 'superadmin';
+
+			if (selectedModulesData.length === 0) {
+				tbody.innerHTML = `
+					<tr>
+						<td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+							<i class="fas fa-info-circle" style="font-size: 24px; margin-bottom: 10px; display: block; color: var(--primary);"></i>
+							<p style="margin: 0; font-size: 13px;">No modules selected. Please go to <strong>Module Access</strong> tab and select modules first.</p>
+						</td>
+					</tr>
+				`;
+				return;
+			}
+
+			tbody.innerHTML = selectedModulesData.map(m => {
 				const p = permissions[m.id] || { view: false, create: false, edit: false, delete: false, export: false };
+				// If view is false, disable all other permissions
+				const viewDisabled = !p.view;
+				const readOnly = isSuperAdmin ? 'disabled' : '';
+				const otherDisabled = (viewDisabled && !isSuperAdmin) ? 'disabled' : readOnly;
+
 				return `
 					<tr>
 						<td>
@@ -1609,11 +1945,11 @@
 								${m.name}
 							</div>
 						</td>
-						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="view" ${p.view ? 'checked' : ''} onchange="updatePerm(this)"></td>
-						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="create" ${p.create ? 'checked' : ''} onchange="updatePerm(this)"></td>
-						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="edit" ${p.edit ? 'checked' : ''} onchange="updatePerm(this)"></td>
-						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="delete" ${p.delete ? 'checked' : ''} onchange="updatePerm(this)"></td>
-						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="export" ${p.export ? 'checked' : ''} onchange="updatePerm(this)"></td>
+						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="view" ${p.view ? 'checked' : ''} ${readOnly} onchange="updatePerm(this)"></td>
+						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="create" ${p.create ? 'checked' : ''} ${otherDisabled} onchange="updatePerm(this)"></td>
+						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="edit" ${p.edit ? 'checked' : ''} ${otherDisabled} onchange="updatePerm(this)"></td>
+						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="delete" ${p.delete ? 'checked' : ''} ${otherDisabled} onchange="updatePerm(this)"></td>
+						<td><input type="checkbox" class="perm-checkbox" data-mod="${m.id}" data-perm="export" ${p.export ? 'checked' : ''} ${otherDisabled} onchange="updatePerm(this)"></td>
 					</tr>
 				`;
 			}).join('');
@@ -1623,6 +1959,16 @@
 			const mod = el.dataset.mod, perm = el.dataset.perm;
 			if (!permissions[mod]) permissions[mod] = { view: false, create: false, edit: false, delete: false, export: false };
 			permissions[mod][perm] = el.checked;
+
+			// If View is unchecked, disable and uncheck all other permissions
+			if (perm === 'view' && !el.checked) {
+				permissions[mod] = { view: false, create: false, edit: false, delete: false, export: false };
+				renderPermissions(); // Re-render to update disabled states
+			}
+			// If View is checked, re-render to enable other checkboxes
+			if (perm === 'view' && el.checked) {
+				renderPermissions();
+			}
 		}
 
 		function applyRoleDefaults() {
@@ -1649,65 +1995,42 @@
 		}
 
 		function selectAllPerms() {
-			MODULES.forEach(m => permissions[m.id] = { view: true, create: true, edit: true, delete: true, export: true });
-			selectedModules = MODULES.map(m => m.id);
-			renderModules();
+			// Block for Super Admin
+			if (document.getElementById('userRole').value === 'superadmin') {
+				showToast('Super Admin permissions cannot be modified', 'info');
+				return;
+			}
+			// Only select all permissions for currently selected modules
+			if (selectedModules.length === 0) {
+				showToast('Please select modules first in Module Access tab', 'error');
+				return;
+			}
+			selectedModules.forEach(id => {
+				permissions[id] = { view: true, create: true, edit: true, delete: true, export: true };
+			});
 			renderPermissions();
-			showToast('All permissions selected', 'success');
+			showToast('All permissions selected for selected modules', 'success');
 		}
 
 		function clearAllPerms() {
-			permissions = {};
-			selectedModules = [];
-			renderModules();
+			// Block for Super Admin
+			if (document.getElementById('userRole').value === 'superadmin') {
+				showToast('Super Admin permissions cannot be modified', 'info');
+				return;
+			}
+			// Only clear permissions for currently selected modules
+			if (selectedModules.length === 0) {
+				showToast('No modules selected', 'info');
+				return;
+			}
+			selectedModules.forEach(id => {
+				permissions[id] = { view: false, create: false, edit: false, delete: false, export: false };
+			});
 			renderPermissions();
-			showToast('All permissions cleared', 'info');
+			showToast('All permissions cleared for selected modules', 'info');
 		}
 
-		function openAddModal() {
-			editingId = null;
-			document.getElementById('modalTitle').textContent = 'Add New User';
-			clearForm();
-			selectedModules = [];
-			permissions = {};
-			renderModules();
-			renderPermissions();
-			resetTabs();
-			document.getElementById('userModal').classList.add('active');
-		}
-
-		function openEditModal(visId) {
-			const user = users.find(u => u.visibleId === visId);
-			if (!user) return;
-			editingId = user.id;
-			document.getElementById('modalTitle').textContent = 'Edit User';
-			document.getElementById('userFullName').value = user.fullName;
-			document.getElementById('userUsername').value = user.username;
-			document.getElementById('userEmail').value = user.email;
-			document.getElementById('userPhone').value = user.phone || '';
-			document.getElementById('userRole').value = user.role;
-			document.getElementById('userStatus').value = user.status;
-			document.getElementById('userPassword').value = '';
-			document.getElementById('userConfirmPassword').value = '';
-			selectedModules = user.modules || [];
-			permissions = user.permissions || {};
-			renderModules();
-			renderPermissions();
-			resetTabs();
-			document.getElementById('userModal').classList.add('active');
-		}
-
-		function resetTabs() {
-			document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-			document.querySelector('.modal-tab[data-tab="details"]').classList.add('active');
-			document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-			document.getElementById('detailsPanel').classList.add('active');
-		}
-
-		function closeModal() {
-			document.getElementById('userModal').classList.remove('active');
-		}
-
+		// ========== FORM ==========
 		function clearForm() {
 			['userFullName', 'userUsername', 'userEmail', 'userPhone', 'userPassword', 'userConfirmPassword'].forEach(id => {
 				document.getElementById(id).value = '';
@@ -1728,7 +2051,18 @@
 			}
 		}
 
-		function saveUser() {
+		// ========== SAVE USER ==========
+		async function saveUser() {
+			saveAndAddNew = false;
+			await performSave();
+		}
+
+		async function saveUserAndNew() {
+			saveAndAddNew = true;
+			await performSave();
+		}
+
+		async function performSave() {
 			const fullName = document.getElementById('userFullName').value.trim();
 			const username = document.getElementById('userUsername').value.trim();
 			const email = document.getElementById('userEmail').value.trim();
@@ -1751,39 +2085,124 @@
 				return;
 			}
 
-			if (editingId) {
-				const user = users.find(u => u.id === editingId);
-				if (user) {
-					Object.assign(user, { fullName, username, email, phone, role, status, modules: selectedModules, permissions });
+			const roleMap = {
+				'superadmin': 'SuperAdmin',
+				'admin': 'Admin',
+				'teacher': 'Teacher',
+				'staff': 'Staff',
+				'student': 'Student'
+			};
+			const dbRole = roleMap[role] || role;
+			const dbStatus = status === 'active' ? 'Active' : 'Inactive';
+
+			// Only include permissions for modules that are actually selected
+			// This ensures deselected modules don't have permissions saved
+			const filteredPermissions = {};
+			selectedModules.forEach(moduleId => {
+				if (permissions[moduleId]) {
+					filteredPermissions[moduleId] = permissions[moduleId];
+				} else {
+					// Default permission for selected module (at minimum view access)
+					filteredPermissions[moduleId] = { view: true, create: false, edit: false, delete: false, export: false };
 				}
-				showToast('User updated successfully', 'success');
-			} else {
-				users.push({
-					id: Date.now(),
-					visibleId: 'USR' + String(counter++).padStart(3, '0'),
-					fullName, username, email, phone, role, status,
-					modules: selectedModules,
-					permissions,
-					lastLogin: '-'
-				});
-				showToast('User created successfully', 'success');
+			});
+			const permissionsData = Object.keys(filteredPermissions).length > 0 ? filteredPermissions : null;
+
+			try {
+				let response;
+				if (editingId) {
+					response = await fetch('/School-Management-PhpVersion/backend/api/users.php', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							action: 'update',
+							id: editingId,
+							name: fullName,
+							username: username,
+							email: email,
+							role: dbRole,
+							status: dbStatus,
+							password: password || undefined,
+							permissions: permissionsData,
+							modules: selectedModules
+						})
+					});
+				} else {
+					response = await fetch('/School-Management-PhpVersion/backend/api/users.php', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							action: 'create',
+							name: fullName,
+							username: username,
+							email: email,
+							password: password,
+							role: dbRole,
+							status: dbStatus,
+							permissions: permissionsData,
+							modules: selectedModules
+						})
+					});
+				}
+
+				const result = await response.json();
+				if (result.success) {
+					showToast(editingId ? 'User updated successfully' : 'User created successfully', 'success');
+					loadUsers();
+
+					if (saveAndAddNew) {
+						// Reset form for new entry
+						editingId = null;
+						clearForm();
+						selectedModules = [];
+						permissions = {};
+						renderModules();
+						renderPermissions();
+						resetTabs();
+						document.getElementById('formPageTitle').textContent = 'Add New User';
+						document.getElementById('formPageDesc').textContent = 'Create a new user account with role-based permissions';
+						document.getElementById('passwordRequired').style.display = 'inline';
+						document.getElementById('confirmPasswordRequired').style.display = 'inline';
+					} else {
+						showListView();
+					}
+				} else {
+					showToast(result.message || 'Error saving user', 'error');
+				}
+			} catch (error) {
+				console.error('Error:', error);
+				showToast('Error connecting to server', 'error');
 			}
-
-			saveUsers();
-			renderTable();
-			updateStats();
-			closeModal();
 		}
 
-		function deleteUser(visId) {
+		// ========== DELETE USER ==========
+		async function deleteUser(userId) {
 			if (!confirm('Are you sure you want to delete this user?')) return;
-			users = users.filter(u => u.visibleId !== visId);
-			saveUsers();
-			renderTable();
-			updateStats();
-			showToast('User deleted successfully', 'success');
+
+			try {
+				const response = await fetch('/School-Management-PhpVersion/backend/api/users.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						action: 'delete',
+						id: userId
+					})
+				});
+
+				const result = await response.json();
+				if (result.success) {
+					showToast('User deleted successfully', 'success');
+					loadUsers();
+				} else {
+					showToast(result.message || 'Error deleting user', 'error');
+				}
+			} catch (error) {
+				console.error('Error:', error);
+				showToast('Error connecting to server', 'error');
+			}
 		}
 
+		// ========== TABLE ==========
 		function renderTable(data = null) {
 			const tbody = document.getElementById('usersTableBody');
 			const list = data || users;
@@ -1819,7 +2238,7 @@
 						<td>
 							<div class="user-cell">
 								<div class="user-avatar" style="background: ${color};">${initials}</div>
-								<span class="user-id">${u.visibleId}</span>
+								<span class="user-id">${u.id}</span>
 							</div>
 						</td>
 						<td class="cell-text">${u.username}</td>
@@ -1830,9 +2249,9 @@
 						<td>${u.lastLogin}</td>
 						<td>
 							<div class="action-buttons">
-								<button class="action-btn view" title="View" onclick="openEditModal('${u.visibleId}')"><i class="fas fa-eye"></i></button>
-								<button class="action-btn edit" title="Edit" onclick="openEditModal('${u.visibleId}')"><i class="fas fa-edit"></i></button>
-								<button class="action-btn delete" title="Delete" onclick="deleteUser('${u.visibleId}')"><i class="fas fa-trash"></i></button>
+								<button class="action-btn view" title="View" onclick="showEditUserPage('${u.id}')"><i class="fas fa-eye"></i></button>
+								${PermissionManager.hasPermission('users', 'edit') ? `<button class="action-btn edit" title="Edit" onclick="showEditUserPage('${u.id}')"><i class="fas fa-edit"></i></button>` : ''}
+								${PermissionManager.hasPermission('users', 'delete') ? `<button class="action-btn delete" title="Delete" onclick="deleteUser('${u.id}')"><i class="fas fa-trash"></i></button>` : ''}
 							</div>
 						</td>
 					</tr>
@@ -1848,28 +2267,49 @@
 			document.getElementById('statStaff').textContent = users.filter(u => u.role === 'staff').length;
 		}
 
-		function loadUsers() {
-			const saved = localStorage.getItem('um_users_v4');
-			if (saved) {
-				const data = JSON.parse(saved);
-				users = data.users || [];
-				counter = data.counter || 2;
-			} else {
-				users = [
-					{ id: 1, visibleId: 'USR000', fullName: 'Super Admin', username: 'superadmin', email: 'superadmin@edumanage.edu', phone: '', role: 'superadmin', status: 'active', modules: MODULES.map(m => m.id), permissions: {}, lastLogin: 'Today' },
-					{ id: 2, visibleId: 'USR001', fullName: 'School Admin', username: 'admin', email: 'admin@edumanage.edu', phone: '', role: 'admin', status: 'active', modules: ['dashboard', 'students', 'teachers'], permissions: {}, lastLogin: 'Yesterday' }
-				];
-				counter = 2;
-				saveUsers();
+		// ========== LOAD USERS ==========
+		async function loadUsers() {
+			try {
+				const response = await fetch('/School-Management-PhpVersion/backend/api/users.php?action=list');
+				const result = await response.json();
+
+				if (result.success) {
+					users = result.data.map(u => ({
+						id: u.id,
+						visibleId: u.id,
+						fullName: u.name,
+						username: u.username,
+						email: u.email,
+						phone: u.phone || '',
+						role: u.role.toLowerCase(),
+						status: u.status.toLowerCase(),
+						lastLogin: u.last_login ? formatLastLogin(u.last_login) : '-',
+						modules: [],
+						permissions: u.permissions ? (typeof u.permissions === 'string' ? JSON.parse(u.permissions) : u.permissions) : {}
+					}));
+					renderTable();
+					updateStats();
+				} else {
+					showToast('Error loading users', 'error');
+				}
+			} catch (error) {
+				console.error('Error:', error);
+				showToast('Error connecting to server', 'error');
 			}
-			renderTable();
-			updateStats();
 		}
 
-		function saveUsers() {
-			localStorage.setItem('um_users_v4', JSON.stringify({ users, counter }));
+		function formatLastLogin(dateStr) {
+			if (!dateStr) return '-';
+			const date = new Date(dateStr);
+			const now = new Date();
+			const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+			if (diffDays === 0) return 'Today';
+			if (diffDays === 1) return 'Yesterday';
+			if (diffDays < 7) return `${diffDays} days ago`;
+			return date.toLocaleDateString();
 		}
 
+		// ========== EXPORT ==========
 		function exportUsers() {
 			const csv = [
 				'User ID,Full Name,Username,Email,Phone,Role,Status,Last Login',
@@ -1883,6 +2323,7 @@
 			showToast('Users exported successfully', 'success');
 		}
 
+		// ========== TOAST ==========
 		function showToast(msg, type = 'info') {
 			const toast = document.createElement('div');
 			toast.className = `toast ${type}`;
@@ -1891,8 +2332,12 @@
 			setTimeout(() => toast.remove(), 3500);
 		}
 
-		document.getElementById('userModal').onclick = e => { if (e.target.id === 'userModal') closeModal(); };
-		document.onkeydown = e => { if (e.key === 'Escape') closeModal(); };
+		// ========== KEYBOARD SHORTCUTS ==========
+		document.onkeydown = e => {
+			if (e.key === 'Escape' && document.getElementById('formView').classList.contains('active')) {
+				showListView();
+			}
+		};
 	</script>
 </body>
 </html>

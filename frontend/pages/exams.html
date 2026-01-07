@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Exams & Grades</title>
 	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="../assets/js/app.js"></script>
 	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<script src="../assets/js/permissions.js"></script>
 	<style>
 		* { box-sizing: border-box; margin: 0; padding: 0; }
 		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
@@ -1841,9 +1843,9 @@
 			</div>
 			<div class="header-actions">
 				<input type="file" id="importFile" accept=".csv" style="display: none;">
-				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
-				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
-			<button class="btn btn-primary" id="addExamBtn"><i class="fas fa-plus"></i> Add Exam</button>
+				<button class="btn btn-outline" id="importBtn" data-permission="exams:create"><i class="fas fa-file-import"></i> Import</button>
+				<button class="btn btn-success" id="exportBtn" data-permission="exams:export"><i class="fas fa-file-export"></i> Export</button>
+			<button class="btn btn-primary" id="addExamBtn" data-permission="exams:create"><i class="fas fa-plus"></i> Add Exam</button>
 		</div>
 		</div>
 
@@ -5019,5 +5021,6 @@ TOP PERFORMER: ${stats.topPerformer.name} (${stats.topPerformer.marks} marks)
 			};
 		}
 	</script>
+	<script src="../assets/js/responsive.js"></script>
 </body>
 </html>

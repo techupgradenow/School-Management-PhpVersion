@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Login - EduManage Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet" href="assets/css/responsive.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -511,9 +512,13 @@
                         localStorage.setItem('edu_user', JSON.stringify(response.data.user));
                         localStorage.setItem('edu_logged_in', 'true');
 
-                        // Redirect to dashboard after short delay
+                        // Store user info and permissions for permission enforcement
+                        localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+                        localStorage.setItem('userPermissions', JSON.stringify(response.data.user.permissions || {}));
+
+                        // Redirect to main app (index.html) after short delay
                         setTimeout(function() {
-                            window.location.href = 'pages/dashboard.html';
+                            window.location.href = 'index.html';
                         }, 1000);
                     } else {
                         showError(response.message || 'Login failed. Please try again.');
@@ -534,12 +539,13 @@
                 type: 'GET',
                 success: function(response) {
                     if (response.success) {
-                        // Already logged in, redirect to dashboard
-                        window.location.href = 'pages/dashboard.html';
+                        // Already logged in, redirect to main app
+                        window.location.href = 'index.html';
                     }
                 }
             });
         });
     </script>
+	<script src="assets/js/responsive.js"></script>
 </body>
 </html>

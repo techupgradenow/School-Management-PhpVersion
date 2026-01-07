@@ -87,9 +87,9 @@ function handleLogin($db, $data) {
         $password = $data['password']; // Don't sanitize password
         $rememberMe = isset($data['remember_me']) && $data['remember_me'] === true;
 
-        // Find user - use positional parameters for PDO compatibility
+        // Find user - include uuid for permissions lookup (uuid never exposed)
         $stmt = $db->prepare("
-            SELECT id, name, username, email, password, role, status, permissions
+            SELECT id, uuid, name, username, email, password, role, status
             FROM users
             WHERE username = ? OR email = ?
             LIMIT 1
@@ -136,19 +136,22 @@ function handleLogin($db, $data) {
         $updateStmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
         $updateStmt->execute([$user['id']]);
 
+        // Get permissions from user_permissions table using uuid
+        $permissions = getPermissionsFromTable($db, $user['uuid']);
+
         // Set session variables
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['user_role'] = $user['role'];
-        $_SESSION['permissions'] = $user['permissions'] ? json_decode($user['permissions'], true) : [];
+        $_SESSION['permissions'] = $permissions;
         $_SESSION['logged_in'] = true;
 
         // Log activity
         logActivity($db, $user['id'], 'User logged in', 'Authentication', ['username' => $username]);
 
-        // Prepare response
+        // Prepare response (never expose uuid)
         $response = [
             'user' => [
                 'id' => $user['id'],
@@ -156,7 +159,7 @@ function handleLogin($db, $data) {
                 'username' => $user['username'],
                 'email' => $user['email'],
                 'role' => $user['role'],
-                'permissions' => $_SESSION['permissions']
+                'permissions' => $permissions
             ]
         ];
 
@@ -165,6 +168,31 @@ function handleLogin($db, $data) {
     } catch (Exception $e) {
         sendResponse(false, 'Error during login', null, ['error' => $e->getMessage(), 'line' => $e->getLine(), 'trace' => $e->getTraceAsString()]);
     }
+}
+
+/**
+ * Get permissions from user_permissions table as associative array
+ */
+function getPermissionsFromTable($db, $userUuid) {
+    $stmt = $db->prepare("
+        SELECT module, can_view, can_create, can_edit, can_delete, can_export
+        FROM user_permissions
+        WHERE user_uuid = ?
+    ");
+    $stmt->execute([$userUuid]);
+    $rows = $stmt->fetchAll();
+
+    $permissions = [];
+    foreach ($rows as $row) {
+        $permissions[$row['module']] = [
+            'view' => (bool) $row['can_view'],
+            'create' => (bool) $row['can_create'],
+            'edit' => (bool) $row['can_edit'],
+            'delete' => (bool) $row['can_delete'],
+            'export' => (bool) $row['can_export']
+        ];
+    }
+    return $permissions;
 }
 
 /**

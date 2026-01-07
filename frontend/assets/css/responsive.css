@@ -1,0 +1,894 @@
+/**
+ * Responsive Design CSS
+ * EduManage Pro - School Management System
+ *
+ * Breakpoints:
+ * - Mobile: < 768px
+ * - Tablet: 768px - 1024px
+ * - Desktop: > 1024px
+ */
+
+/* ========================================
+   MOBILE NAVIGATION
+   ======================================== */
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+	display: none;
+	position: fixed;
+	top: 15px;
+	left: 15px;
+	z-index: 1100;
+	background: var(--primary, #3498db);
+	color: white;
+	border: none;
+	width: 45px;
+	height: 45px;
+	border-radius: 8px;
+	cursor: pointer;
+	box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+	transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:active {
+	transform: scale(0.95);
+}
+
+.mobile-menu-toggle i {
+	font-size: 20px;
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 999;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.mobile-overlay.active {
+	opacity: 1;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+	/* Stats Grid */
+	.stats-row,
+	.stats-grid {
+		grid-template-columns: repeat(2, 1fr) !important;
+		gap: 15px;
+	}
+
+	/* Cards */
+	.card-grid {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
+
+	/* Table Adjustments */
+	.data-table {
+		font-size: 13px;
+	}
+
+	.data-table th,
+	.data-table td {
+		padding: 12px 15px;
+	}
+
+	/* Search Box */
+	.search-box input {
+		width: 200px !important;
+	}
+
+	.search-box input:focus {
+		width: 250px !important;
+	}
+
+	/* Header */
+	.header {
+		padding: 0 15px;
+	}
+
+	/* Content Padding */
+	.content {
+		padding: 15px;
+	}
+
+	/* Filters */
+	.filters-card {
+		gap: 12px;
+	}
+
+	.filter-input,
+	.filter-select {
+		min-width: 120px;
+	}
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 768px) {
+	/* ========== LAYOUT ========== */
+
+	/* Hide Desktop Sidebar */
+	.sidebar {
+		transform: translateX(-100%);
+		width: 280px !important;
+		height: 100vh;
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 1001;
+		transition: transform 0.3s ease;
+	}
+
+	.sidebar.mobile-active {
+		transform: translateX(0);
+	}
+
+	.sidebar.collapsed {
+		width: 280px !important;
+	}
+
+	/* Main Content Full Width on Mobile */
+	.main-content {
+		margin-left: 0 !important;
+		width: 100%;
+	}
+
+	.sidebar.collapsed ~ .main-content {
+		margin-left: 0 !important;
+	}
+
+	/* Show Mobile Menu Toggle */
+	.mobile-menu-toggle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Show Mobile Overlay */
+	body.sidebar-open .mobile-overlay {
+		display: block;
+	}
+
+	/* Adjust Content for Mobile Menu */
+	.content {
+		padding: 15px 10px;
+		padding-top: 70px; /* Space for mobile menu button */
+	}
+
+	/* ========== HEADER ========== */
+
+	.header {
+		flex-wrap: wrap;
+		height: auto;
+		padding: 10px 15px;
+		padding-left: 65px; /* Space for mobile menu button */
+	}
+
+	.header-left {
+		flex: 1;
+		min-width: 0;
+	}
+
+	/* Hide Toggle Sidebar on Mobile */
+	.toggle-sidebar {
+		display: none;
+	}
+
+	/* Search Box */
+	.search-box {
+		width: 100%;
+		max-width: 300px;
+	}
+
+	.search-box input {
+		width: 100% !important;
+		padding: 8px 15px 8px 35px;
+	}
+
+	.search-box input:focus {
+		width: 100% !important;
+	}
+
+	/* Header Right */
+	.header-right {
+		gap: 15px;
+		flex-shrink: 0;
+	}
+
+	/* User Profile - Compact */
+	.user-info {
+		display: none !important;
+	}
+
+	.user-profile {
+		padding: 5px;
+	}
+
+	.user-avatar {
+		width: 35px;
+		height: 35px;
+		font-size: 14px;
+	}
+
+	/* ========== STATS & CARDS ========== */
+
+	.stats-row,
+	.stats-grid {
+		grid-template-columns: 1fr !important;
+		gap: 12px;
+	}
+
+	.stat-card {
+		padding: 15px;
+	}
+
+	.stat-icon {
+		width: 48px !important;
+		height: 48px !important;
+		font-size: 20px !important;
+	}
+
+	.stat-value {
+		font-size: 24px !important;
+	}
+
+	.stat-label {
+		font-size: 12px !important;
+	}
+
+	.card-grid {
+		grid-template-columns: 1fr !important;
+	}
+
+	/* ========== PAGE HEADER ========== */
+
+	.page-header {
+		flex-direction: column;
+		align-items: flex-start !important;
+		gap: 12px;
+	}
+
+	.page-title-section h1 {
+		font-size: 20px !important;
+	}
+
+	.page-title-section p {
+		font-size: 13px !important;
+	}
+
+	.header-actions {
+		width: 100%;
+		justify-content: stretch;
+	}
+
+	.header-actions .btn {
+		flex: 1;
+		justify-content: center;
+		padding: 10px 15px;
+		font-size: 13px;
+	}
+
+	/* ========== FILTERS ========== */
+
+	.filters-card {
+		flex-direction: column;
+		align-items: stretch !important;
+		padding: 15px;
+	}
+
+	.filter-group {
+		width: 100%;
+	}
+
+	.filter-input,
+	.filter-select {
+		width: 100% !important;
+		min-width: 100%;
+		height: 42px;
+	}
+
+	.filter-group[style*="margin-left"] {
+		margin-left: 0 !important;
+	}
+
+	.filter-group > div {
+		flex-wrap: wrap;
+	}
+
+	.filter-group .btn-sm {
+		flex: 1;
+		min-width: calc(50% - 5px);
+	}
+
+	/* ========== TABLES ========== */
+
+	.table-card {
+		border-radius: 12px;
+		overflow-x: auto;
+	}
+
+	.data-table {
+		min-width: 600px;
+		font-size: 12px;
+	}
+
+	.data-table th,
+	.data-table td {
+		padding: 10px 12px;
+		white-space: nowrap;
+	}
+
+	.data-table th:first-child,
+	.data-table td:first-child {
+		padding-left: 15px;
+	}
+
+	/* Student Info */
+	.student-info {
+		gap: 10px;
+	}
+
+	.avatar {
+		width: 36px !important;
+		height: 36px !important;
+		font-size: 14px !important;
+	}
+
+	.student-name {
+		font-size: 13px !important;
+	}
+
+	/* Attendance Buttons */
+	.attendance-btn {
+		width: 38px !important;
+		height: 38px !important;
+		font-size: 16px !important;
+	}
+
+	.attendance-actions {
+		gap: 6px !important;
+	}
+
+	/* Table Footer */
+	.table-footer {
+		flex-direction: column;
+		gap: 12px;
+		align-items: flex-start !important;
+		padding: 12px 15px;
+	}
+
+	.summary-stats {
+		flex-wrap: wrap;
+		gap: 15px;
+		width: 100%;
+	}
+
+	.summary-item {
+		font-size: 13px;
+	}
+
+	/* Table Toolbar */
+	.table-toolbar {
+		flex-direction: column;
+		align-items: flex-start !important;
+		padding: 15px;
+	}
+
+	.toolbar-title {
+		font-size: 16px !important;
+	}
+
+	.toolbar-actions {
+		width: 100%;
+	}
+
+	/* ========== MODALS ========== */
+
+	.modal {
+		padding: 10px;
+	}
+
+	.modal-content {
+		width: 95% !important;
+		max-width: 95%;
+		margin: 20px auto;
+		max-height: 90vh;
+		overflow-y: auto;
+	}
+
+	.modal-header {
+		padding: 15px;
+	}
+
+	.modal-title {
+		font-size: 18px !important;
+	}
+
+	.modal-body {
+		padding: 15px;
+	}
+
+	.modal-footer {
+		padding: 15px;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	.modal-footer .btn {
+		flex: 1;
+		min-width: calc(50% - 5px);
+	}
+
+	/* Modal Tabs */
+	.modal-tabs {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.modal-tab {
+		padding: 10px 15px !important;
+		font-size: 13px !important;
+		white-space: nowrap;
+	}
+
+	/* Form Groups */
+	.form-row {
+		grid-template-columns: 1fr !important;
+		gap: 15px;
+	}
+
+	.form-group {
+		margin-bottom: 15px;
+	}
+
+	.form-input,
+	.form-select,
+	.form-textarea {
+		font-size: 14px;
+		padding: 10px 12px;
+	}
+
+	/* ========== MODULES GRID ========== */
+
+	.modules-grid {
+		grid-template-columns: repeat(2, 1fr) !important;
+		gap: 12px;
+	}
+
+	.module-card {
+		padding: 12px !important;
+	}
+
+	.module-icon {
+		width: 35px !important;
+		height: 35px !important;
+		font-size: 14px !important;
+	}
+
+	.module-name {
+		font-size: 12px !important;
+	}
+
+	/* ========== PERMISSIONS TABLE ========== */
+
+	.permissions-table-container {
+		overflow-x: auto;
+	}
+
+	.permissions-table {
+		min-width: 500px;
+		font-size: 12px;
+	}
+
+	.permissions-table th,
+	.permissions-table td {
+		padding: 8px 10px;
+	}
+
+	/* ========== BUTTONS ========== */
+
+	.btn {
+		padding: 10px 16px;
+		font-size: 13px;
+	}
+
+	.btn-sm {
+		padding: 7px 12px;
+		font-size: 12px;
+	}
+
+	.btn i {
+		font-size: 14px;
+	}
+
+	/* ========== DASHBOARD SPECIFIC ========== */
+
+	/* Dashboard Grid */
+	.dashboard {
+		grid-template-columns: 1fr !important;
+		gap: 15px !important;
+	}
+
+	/* Dashboard Cards */
+	.card {
+		padding: 15px !important;
+		margin-bottom: 15px;
+	}
+
+	.card-header {
+		flex-direction: row !important;
+		align-items: center !important;
+		margin-bottom: 12px !important;
+		padding-bottom: 10px;
+	}
+
+	.card-header h3 {
+		font-size: 16px !important;
+	}
+
+	.card-header .btn {
+		padding: 6px 12px !important;
+		font-size: 12px !important;
+	}
+
+	/* Stats Cards */
+	.stat-card,
+	.stats-card {
+		padding: 15px !important;
+	}
+
+	.stat-number,
+	.stats-number {
+		font-size: 24px !important;
+	}
+
+	.stat-label,
+	.stats-label {
+		font-size: 12px !important;
+	}
+
+	/* Recent Activity */
+	.recent-activity,
+	.recent-students,
+	.upcoming-exams {
+		margin-bottom: 15px;
+	}
+
+	.activity-item,
+	.student-item,
+	.exam-item,
+	.recent-item {
+		padding: 12px !important;
+		font-size: 13px;
+		flex-direction: column !important;
+		align-items: flex-start !important;
+		gap: 8px;
+	}
+
+	.student-item .avatar,
+	.activity-item .icon {
+		width: 35px !important;
+		height: 35px !important;
+		font-size: 14px !important;
+	}
+
+	/* Charts */
+	.chart-container {
+		height: 250px !important;
+		margin: 10px 0;
+	}
+
+	/* Quick Stats Grid */
+	.quick-stats,
+	.stats-overview {
+		grid-template-columns: 1fr !important;
+		gap: 12px;
+	}
+
+	/* Two column to single column */
+	.two-column-layout,
+	.dashboard-row {
+		grid-template-columns: 1fr !important;
+	}
+
+	/* ========== EMPTY STATES ========== */
+
+	.empty-state {
+		padding: 40px 15px !important;
+	}
+
+	.empty-state i {
+		font-size: 48px !important;
+	}
+
+	.empty-state h3 {
+		font-size: 16px !important;
+	}
+
+	.empty-state p {
+		font-size: 13px !important;
+	}
+
+	/* ========== NOTIFICATIONS ========== */
+
+	.toast {
+		bottom: 20px !important;
+		right: 20px !important;
+		left: 20px !important;
+		width: auto !important;
+		padding: 12px 16px !important;
+		font-size: 13px !important;
+	}
+
+	/* ========== SIDEBAR (Mobile Active) ========== */
+
+	.sidebar.mobile-active .sidebar-header {
+		padding: 20px;
+	}
+
+	.sidebar.mobile-active .sidebar-header h3 {
+		display: block;
+	}
+
+	.sidebar.mobile-active .sidebar-menu li {
+		padding: 12px 20px;
+		justify-content: flex-start;
+	}
+
+	.sidebar.mobile-active .sidebar-menu span {
+		display: inline;
+	}
+
+	/* Close button in sidebar for mobile */
+	.sidebar-close {
+		display: none;
+		position: absolute;
+		top: 20px;
+		right: 20px;
+		background: rgba(255, 255, 255, 0.2);
+		border: none;
+		color: white;
+		width: 35px;
+		height: 35px;
+		border-radius: 6px;
+		cursor: pointer;
+		font-size: 18px;
+	}
+
+	.sidebar.mobile-active .sidebar-close {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* ========== UTILITIES ========== */
+
+	/* Hide on mobile */
+	.hide-mobile {
+		display: none !important;
+	}
+
+	/* Show only on mobile */
+	.show-mobile {
+		display: block !important;
+	}
+
+	/* Text sizes */
+	h1 { font-size: 22px !important; }
+	h2 { font-size: 20px !important; }
+	h3 { font-size: 18px !important; }
+	h4 { font-size: 16px !important; }
+	h5 { font-size: 14px !important; }
+	h6 { font-size: 13px !important; }
+
+	/* Spacing */
+	.mb-4 { margin-bottom: 15px !important; }
+	.mt-4 { margin-top: 15px !important; }
+	.p-4 { padding: 15px !important; }
+}
+
+/* Extra Small Mobile (< 480px) */
+@media (max-width: 480px) {
+	/* Stack all buttons vertically */
+	.header-actions,
+	.toolbar-actions,
+	.filter-group > div {
+		flex-direction: column;
+	}
+
+	.header-actions .btn,
+	.toolbar-actions .btn,
+	.filter-group .btn-sm {
+		width: 100%;
+		min-width: 100%;
+	}
+
+	/* Modules Grid Single Column */
+	.modules-grid {
+		grid-template-columns: 1fr !important;
+	}
+
+	/* Smaller Stats */
+	.stat-value {
+		font-size: 20px !important;
+	}
+
+	.stat-icon {
+		width: 40px !important;
+		height: 40px !important;
+	}
+
+	/* Compact Table */
+	.data-table {
+		font-size: 11px;
+	}
+
+	.data-table th,
+	.data-table td {
+		padding: 8px 10px;
+	}
+
+	/* Modal Full Screen */
+	.modal-content {
+		width: 100% !important;
+		height: 100vh;
+		margin: 0;
+		border-radius: 0;
+		max-height: 100vh;
+	}
+
+	/* Search Box Full Width */
+	.search-box {
+		max-width: 100%;
+	}
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+	.sidebar {
+		width: 250px !important;
+	}
+
+	.modal-content {
+		max-height: 85vh;
+	}
+
+	.stat-card {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	.stats-row {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
+}
+
+/* Print Styles */
+@media print {
+	.sidebar,
+	.header,
+	.mobile-menu-toggle,
+	.mobile-overlay,
+	.btn,
+	.header-actions,
+	.toolbar-actions,
+	.filters-card,
+	.modal-footer {
+		display: none !important;
+	}
+
+	.main-content {
+		margin-left: 0 !important;
+		width: 100%;
+	}
+
+	.content {
+		padding: 0;
+	}
+
+	.data-table {
+		font-size: 10px;
+	}
+
+	.data-table th,
+	.data-table td {
+		padding: 5px;
+	}
+}
+
+/* Dark Mode Support (Optional) */
+@media (prefers-color-scheme: dark) {
+	/* Add dark mode styles here if needed */
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+	.btn {
+		border: 2px solid currentColor;
+	}
+
+	.data-table {
+		border: 2px solid #000;
+	}
+
+	.data-table th,
+	.data-table td {
+		border: 1px solid #000;
+	}
+}
+
+/* ========== DASHBOARD COLUMNAR LAYOUT (ALL SCREENS) ========== */
+/* Force columnar layout for Recent Students and Upcoming Exams */
+.recent-item {
+	flex-direction: column !important;
+	align-items: flex-start !important;
+	gap: 6px !important;
+}
+
+.recent-item-left {
+	width: 100%;
+	margin-bottom: 4px;
+}
+
+.recent-avatar {
+	display: none !important; /* Hide avatars for cleaner columnar look */
+}
+
+.recent-name {
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	color: #1e293b !important;
+}
+
+.recent-detail {
+	font-size: 12px !important;
+	color: #64748b !important;
+	margin-top: 2px;
+}
+
+.recent-badge {
+	font-size: 11px !important;
+	padding: 4px 10px !important;
+}
+
+/* Calendar responsive adjustments */
+@media (max-width: 768px) {
+	#dashboardCalendar {
+		padding: 12px !important;
+	}
+
+	.calendar-day {
+		font-size: 12px !important;
+	}
+
+	.calendar-month {
+		font-size: 14px !important;
+	}
+
+	.calendar-event-item {
+		font-size: 11px !important;
+		padding: 6px 10px !important;
+	}
+}

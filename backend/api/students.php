@@ -3,11 +3,19 @@
  * Students API Endpoint
  * EduManage Pro - School Management System
  *
- * Handles all CRUD operations for students
+ * Handles all CRUD operations for students with activity history tracking
+ * Protected by Permission Guard - enforces strict RBAC
  */
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/functions.php';
+require_once __DIR__ . '/../helpers/ActivityLogger.php';
+require_once __DIR__ . '/../helpers/permission_guard.php';
+
+// Start session for permission checks
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Get request method
 $method = $_SERVER['REQUEST_METHOD'];
@@ -19,26 +27,45 @@ $data = json_decode($input, true);
 // Get database connection
 try {
     $db = getDB();
+    $activityLogger = new ActivityLogger($db);
 } catch (Exception $e) {
     sendResponse(false, 'Database connection failed', null, ['database' => $e->getMessage()]);
 }
 
+// ============================================
+// PERMISSION ENFORCEMENT
+// ============================================
+
+// Require authentication for all requests
+requireAuth();
+
+// Require module access - user must have access to students module
+requireModuleAccess('students');
+
 // Route requests based on method and action
 switch ($method) {
     case 'GET':
+        // View permission required for GET requests
+        requirePermission('students', 'view');
         handleGet($db, $_GET);
         break;
 
     case 'POST':
-        handlePost($db, $data);
+        // Create permission required for POST requests
+        requirePermission('students', 'create');
+        handlePost($db, $data, $activityLogger);
         break;
 
     case 'PUT':
-        handlePut($db, $data);
+        // Edit permission required for PUT requests
+        requirePermission('students', 'edit');
+        handlePut($db, $data, $activityLogger);
         break;
 
     case 'DELETE':
-        handleDelete($db, $_GET);
+        // Delete permission required for DELETE requests
+        requirePermission('students', 'delete');
+        handleDelete($db, $_GET, $activityLogger);
         break;
 
     default:
@@ -67,6 +94,10 @@ function handleGet($db, $params) {
 
             case 'search':
                 searchStudents($db, $params);
+                break;
+
+            case 'history':
+                getStudentHistory($db, $params);
                 break;
 
             default:
@@ -213,7 +244,7 @@ function getStudentsStats($db, $params) {
     $totalStmt->execute($bindings);
     $total = $totalStmt->fetch()['total'];
 
-    // Active students - use hardcoded value in query directly
+    // Active students
     $activeWhere = $where;
     $activeWhere[] = "status = 'Active'";
     $activeWhereClause = 'WHERE ' . implode(' AND ', $activeWhere);
@@ -288,9 +319,25 @@ function searchStudents($db, $params) {
 }
 
 /**
- * Handle POST requests - Create student
+ * Get student activity history
  */
-function handlePost($db, $data) {
+function getStudentHistory($db, $params) {
+    global $activityLogger;
+
+    if (empty($params['id'])) {
+        sendResponse(false, 'Student ID is required', null, ['id' => 'Missing']);
+    }
+
+    $limit = isset($params['limit']) ? (int)$params['limit'] : 50;
+    $history = $activityLogger->getEntityHistory('students', $params['id'], $limit);
+
+    sendResponse(true, 'History fetched successfully', $history);
+}
+
+/**
+ * Handle POST requests - Create student with history tracking
+ */
+function handlePost($db, $data, $activityLogger) {
     try {
         // Validate required fields
         $required = ['name', 'gender', 'class', 'section', 'parent_name', 'contact'];
@@ -314,6 +361,7 @@ function handlePost($db, $data) {
         $bloodGroup = isset($data['blood_group']) ? sanitizeInput($data['blood_group']) : null;
         $photo = isset($data['photo']) ? $data['photo'] : null;
         $status = isset($data['status']) ? sanitizeInput($data['status']) : 'Active';
+        $rollNo = isset($data['roll_no']) ? sanitizeInput($data['roll_no']) : null;
 
         // Validate email if provided
         if ($email && !validateEmail($email)) {
@@ -326,73 +374,98 @@ function handlePost($db, $data) {
         // Generate admission number
         $admissionNo = generateAdmissionNo('ADM');
 
-        // Begin transaction
-        $db->beginTransaction();
+        // Prepare new student data for history
+        $newStudentData = [
+            'id' => $studentId,
+            'name' => $name,
+            'gender' => $gender,
+            'class' => $class,
+            'section' => $section,
+            'parent_name' => $parentName,
+            'contact' => $contact,
+            'email' => $email,
+            'address' => $address,
+            'dob' => $dob,
+            'joining_date' => $joiningDate,
+            'blood_group' => $bloodGroup,
+            'status' => $status,
+            'admission_no' => $admissionNo,
+            'roll_no' => $rollNo
+        ];
 
-        // Insert student
-        $stmt = $db->prepare("
-            INSERT INTO students (id, name, gender, class, section, parent_name, contact, email, address, dob, joining_date, blood_group, photo, status, admission_no)
-            VALUES (:id, :name, :gender, :class, :section, :parent_name, :contact, :email, :address, :dob, :joining_date, :blood_group, :photo, :status, :admission_no)
-        ");
-
-        $stmt->execute([
-            ':id' => $studentId,
-            ':name' => $name,
-            ':gender' => $gender,
-            ':class' => $class,
-            ':section' => $section,
-            ':parent_name' => $parentName,
-            ':contact' => $contact,
-            ':email' => $email,
-            ':address' => $address,
-            ':dob' => $dob,
-            ':joining_date' => $joiningDate,
-            ':blood_group' => $bloodGroup,
-            ':photo' => $photo,
-            ':status' => $status,
-            ':admission_no' => $admissionNo
-        ]);
-
-        // Insert documents if provided
-        if (isset($data['documents']) && is_array($data['documents'])) {
-            foreach ($data['documents'] as $doc) {
-                $docStmt = $db->prepare("
-                    INSERT INTO student_documents (student_id, name, type, file_name, file_type, file_data)
-                    VALUES (:student_id, :name, :type, :file_name, :file_type, :file_data)
+        // Use transaction with history logging
+        $result = $activityLogger->logWithTransaction(
+            'students',
+            $studentId,
+            'ADD',
+            null,
+            $newStudentData,
+            function($pdo) use ($studentId, $name, $gender, $class, $section, $parentName, $contact, $email, $address, $dob, $joiningDate, $bloodGroup, $photo, $status, $admissionNo, $rollNo, $data) {
+                // Insert student
+                $stmt = $pdo->prepare("
+                    INSERT INTO students (id, name, gender, class, section, parent_name, contact, email, address, dob, joining_date, blood_group, photo, status, admission_no, roll_no)
+                    VALUES (:id, :name, :gender, :class, :section, :parent_name, :contact, :email, :address, :dob, :joining_date, :blood_group, :photo, :status, :admission_no, :roll_no)
                 ");
 
-                $docStmt->execute([
-                    ':student_id' => $studentId,
-                    ':name' => sanitizeInput($doc['name']),
-                    ':type' => sanitizeInput($doc['type']),
-                    ':file_name' => sanitizeInput($doc['fileName']),
-                    ':file_type' => sanitizeInput($doc['fileType']),
-                    ':file_data' => $doc['file']
+                $stmt->execute([
+                    ':id' => $studentId,
+                    ':name' => $name,
+                    ':gender' => $gender,
+                    ':class' => $class,
+                    ':section' => $section,
+                    ':parent_name' => $parentName,
+                    ':contact' => $contact,
+                    ':email' => $email,
+                    ':address' => $address,
+                    ':dob' => $dob,
+                    ':joining_date' => $joiningDate,
+                    ':blood_group' => $bloodGroup,
+                    ':photo' => $photo,
+                    ':status' => $status,
+                    ':admission_no' => $admissionNo,
+                    ':roll_no' => $rollNo
                 ]);
-            }
+
+                // Insert documents if provided
+                if (isset($data['documents']) && is_array($data['documents'])) {
+                    foreach ($data['documents'] as $doc) {
+                        $docStmt = $pdo->prepare("
+                            INSERT INTO student_documents (student_id, name, type, file_name, file_type, file_data)
+                            VALUES (:student_id, :name, :type, :file_name, :file_type, :file_data)
+                        ");
+
+                        $docStmt->execute([
+                            ':student_id' => $studentId,
+                            ':name' => sanitizeInput($doc['name']),
+                            ':type' => sanitizeInput($doc['type']),
+                            ':file_name' => sanitizeInput($doc['fileName']),
+                            ':file_type' => sanitizeInput($doc['fileType']),
+                            ':file_data' => $doc['file']
+                        ]);
+                    }
+                }
+
+                return ['id' => $studentId, 'admission_no' => $admissionNo];
+            },
+            "Added new student: {$name}",
+            $name
+        );
+
+        if ($result['success']) {
+            sendResponse(true, 'Student created successfully', $result['data']);
+        } else {
+            sendResponse(false, 'Error creating student', null, ['error' => $result['error']]);
         }
-
-        // Commit transaction
-        $db->commit();
-
-        // Log activity
-        logActivity($db, getCurrentUserId(), 'Created student', 'Students', ['student_id' => $studentId, 'name' => $name]);
-
-        sendResponse(true, 'Student created successfully', ['id' => $studentId, 'admission_no' => $admissionNo]);
 
     } catch (Exception $e) {
-        // Rollback on error
-        if ($db->inTransaction()) {
-            $db->rollBack();
-        }
         sendResponse(false, 'Error creating student', null, ['error' => $e->getMessage()]);
     }
 }
 
 /**
- * Handle PUT requests - Update student
+ * Handle PUT requests - Update student with history tracking
  */
-function handlePut($db, $data) {
+function handlePut($db, $data, $activityLogger) {
     try {
         // Validate ID
         if (empty($data['id'])) {
@@ -401,34 +474,36 @@ function handlePut($db, $data) {
 
         $studentId = sanitizeInput($data['id']);
 
-        // Check if student exists
-        $checkStmt = $db->prepare("SELECT id FROM students WHERE id = :id");
-        $checkStmt->execute([':id' => $studentId]);
+        // Get existing student data (for history comparison)
+        $stmt = $db->prepare("SELECT * FROM students WHERE id = :id");
+        $stmt->execute([':id' => $studentId]);
+        $oldStudent = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$checkStmt->fetch()) {
+        if (!$oldStudent) {
             sendResponse(false, 'Student not found', null, ['id' => 'Invalid']);
         }
 
         // Build update query
         $fields = [];
         $bindings = [':id' => $studentId];
+        $newStudentData = $oldStudent; // Start with old data
 
         $updateableFields = ['name', 'gender', 'class', 'section', 'parent_name', 'contact', 'email', 'address', 'dob', 'joining_date', 'blood_group', 'photo', 'status', 'roll_no'];
 
         foreach ($updateableFields as $field) {
             if (isset($data[$field])) {
                 $dbField = $field;
-                if ($field === 'parent_name') $dbField = 'parent_name';
-                if ($field === 'joining_date') $dbField = 'joining_date';
-                if ($field === 'blood_group') $dbField = 'blood_group';
-                if ($field === 'roll_no') $dbField = 'roll_no';
 
                 if (in_array($field, ['dob', 'joining_date'])) {
                     $fields[] = "$dbField = :$field";
-                    $bindings[":$field"] = formatDateForDB($data[$field]);
+                    $value = formatDateForDB($data[$field]);
+                    $bindings[":$field"] = $value;
+                    $newStudentData[$field] = $value;
                 } else {
                     $fields[] = "$dbField = :$field";
-                    $bindings[":$field"] = sanitizeInput($data[$field]);
+                    $value = sanitizeInput($data[$field]);
+                    $bindings[":$field"] = $value;
+                    $newStudentData[$field] = $value;
                 }
             }
         }
@@ -437,76 +512,99 @@ function handlePut($db, $data) {
             sendResponse(false, 'No fields to update', null, ['fields' => 'Empty']);
         }
 
-        // Begin transaction
-        $db->beginTransaction();
+        // Use transaction with history logging
+        $result = $activityLogger->logWithTransaction(
+            'students',
+            $studentId,
+            'UPDATE',
+            $oldStudent,
+            $newStudentData,
+            function($pdo) use ($fields, $bindings, $studentId, $data) {
+                // Update student
+                $query = "UPDATE students SET " . implode(', ', $fields) . " WHERE id = :id";
+                $stmt = $pdo->prepare($query);
+                $stmt->execute($bindings);
 
-        // Update student
-        $query = "UPDATE students SET " . implode(', ', $fields) . " WHERE id = :id";
-        $stmt = $db->prepare($query);
-        $stmt->execute($bindings);
+                // Update documents if provided
+                if (isset($data['documents']) && is_array($data['documents'])) {
+                    // Delete existing documents
+                    $deleteStmt = $pdo->prepare("DELETE FROM student_documents WHERE student_id = :student_id");
+                    $deleteStmt->execute([':student_id' => $studentId]);
 
-        // Update documents if provided
-        if (isset($data['documents']) && is_array($data['documents'])) {
-            // Delete existing documents
-            $deleteStmt = $db->prepare("DELETE FROM student_documents WHERE student_id = :student_id");
-            $deleteStmt->execute([':student_id' => $studentId]);
+                    // Insert new documents
+                    foreach ($data['documents'] as $doc) {
+                        if (isset($doc['file']) && !empty($doc['file'])) {
+                            $docStmt = $pdo->prepare("
+                                INSERT INTO student_documents (student_id, name, type, file_name, file_type, file_data)
+                                VALUES (:student_id, :name, :type, :file_name, :file_type, :file_data)
+                            ");
 
-            // Insert new documents
-            foreach ($data['documents'] as $doc) {
-                if (isset($doc['file']) && !empty($doc['file'])) {
-                    $docStmt = $db->prepare("
-                        INSERT INTO student_documents (student_id, name, type, file_name, file_type, file_data)
-                        VALUES (:student_id, :name, :type, :file_name, :file_type, :file_data)
-                    ");
-
-                    $docStmt->execute([
-                        ':student_id' => $studentId,
-                        ':name' => sanitizeInput($doc['name']),
-                        ':type' => sanitizeInput($doc['type']),
-                        ':file_name' => sanitizeInput($doc['fileName']),
-                        ':file_type' => sanitizeInput($doc['fileType']),
-                        ':file_data' => $doc['file']
-                    ]);
+                            $docStmt->execute([
+                                ':student_id' => $studentId,
+                                ':name' => sanitizeInput($doc['name']),
+                                ':type' => sanitizeInput($doc['type']),
+                                ':file_name' => sanitizeInput($doc['fileName']),
+                                ':file_type' => sanitizeInput($doc['fileType']),
+                                ':file_data' => $doc['file']
+                            ]);
+                        }
+                    }
                 }
-            }
+
+                return ['id' => $studentId];
+            },
+            "Updated student: {$oldStudent['name']}",
+            $oldStudent['name']
+        );
+
+        if ($result['success']) {
+            sendResponse(true, 'Student updated successfully', $result['data']);
+        } else {
+            sendResponse(false, 'Error updating student', null, ['error' => $result['error']]);
         }
-
-        // Commit transaction
-        $db->commit();
-
-        // Log activity
-        logActivity($db, getCurrentUserId(), 'Updated student', 'Students', ['student_id' => $studentId]);
-
-        sendResponse(true, 'Student updated successfully', ['id' => $studentId]);
 
     } catch (Exception $e) {
-        // Rollback on error
-        if ($db->inTransaction()) {
-            $db->rollBack();
-        }
         sendResponse(false, 'Error updating student', null, ['error' => $e->getMessage()]);
     }
 }
 
 /**
- * Handle DELETE requests - Delete student
+ * Handle DELETE requests - Delete student with history tracking (soft delete preferred)
  */
-function handleDelete($db, $params) {
+function handleDelete($db, $params, $activityLogger) {
     try {
         // Check for single ID or bulk delete
         if (isset($params['ids']) && !empty($params['ids'])) {
             // Bulk delete
             $ids = explode(',', $params['ids']);
             $ids = array_map('sanitizeInput', $ids);
+            $deletedCount = 0;
 
-            $placeholders = implode(',', array_fill(0, count($ids), '?'));
-            $stmt = $db->prepare("DELETE FROM students WHERE id IN ($placeholders)");
-            $stmt->execute($ids);
+            $db->beginTransaction();
 
-            $deletedCount = $stmt->rowCount();
+            foreach ($ids as $studentId) {
+                // Get student data before deletion
+                $stmt = $db->prepare("SELECT * FROM students WHERE id = :id");
+                $stmt->execute([':id' => $studentId]);
+                $oldStudent = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Log activity
-            logActivity($db, getCurrentUserId(), 'Bulk deleted students', 'Students', ['count' => $deletedCount, 'ids' => $ids]);
+                if ($oldStudent) {
+                    // Delete student
+                    $deleteStmt = $db->prepare("DELETE FROM students WHERE id = :id");
+                    $deleteStmt->execute([':id' => $studentId]);
+
+                    // Delete related documents
+                    $deleteDocsStmt = $db->prepare("DELETE FROM student_documents WHERE student_id = :student_id");
+                    $deleteDocsStmt->execute([':student_id' => $studentId]);
+
+                    // Log deletion
+                    $activityLogger->logDelete('students', $studentId, $oldStudent, $oldStudent['name']);
+
+                    $deletedCount++;
+                }
+            }
+
+            $db->commit();
 
             sendResponse(true, "$deletedCount student(s) deleted successfully", ['count' => $deletedCount]);
 
@@ -514,23 +612,51 @@ function handleDelete($db, $params) {
             // Single delete
             $studentId = sanitizeInput($params['id']);
 
-            $stmt = $db->prepare("DELETE FROM students WHERE id = :id");
+            // Get student data before deletion
+            $stmt = $db->prepare("SELECT * FROM students WHERE id = :id");
             $stmt->execute([':id' => $studentId]);
+            $oldStudent = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($stmt->rowCount() === 0) {
+            if (!$oldStudent) {
                 sendResponse(false, 'Student not found', null, ['id' => 'Invalid']);
             }
 
-            // Log activity
-            logActivity($db, getCurrentUserId(), 'Deleted student', 'Students', ['student_id' => $studentId]);
+            // Use transaction with history logging
+            $result = $activityLogger->logWithTransaction(
+                'students',
+                $studentId,
+                'DELETE',
+                $oldStudent,
+                null,
+                function($pdo) use ($studentId) {
+                    // Delete student documents first
+                    $deleteDocsStmt = $pdo->prepare("DELETE FROM student_documents WHERE student_id = :student_id");
+                    $deleteDocsStmt->execute([':student_id' => $studentId]);
 
-            sendResponse(true, 'Student deleted successfully', ['id' => $studentId]);
+                    // Delete student
+                    $stmt = $pdo->prepare("DELETE FROM students WHERE id = :id");
+                    $stmt->execute([':id' => $studentId]);
+
+                    return $stmt->rowCount() > 0;
+                },
+                "Deleted student: {$oldStudent['name']}",
+                $oldStudent['name']
+            );
+
+            if ($result['success']) {
+                sendResponse(true, 'Student deleted successfully', ['id' => $studentId]);
+            } else {
+                sendResponse(false, 'Error deleting student', null, ['error' => $result['error']]);
+            }
 
         } else {
             sendResponse(false, 'Student ID is required', null, ['id' => 'Missing']);
         }
 
     } catch (Exception $e) {
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
         sendResponse(false, 'Error deleting student', null, ['error' => $e->getMessage()]);
     }
 }

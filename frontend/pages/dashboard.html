@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Dashboard</title>
 	<link rel="stylesheet" href="../assets/css/style.css?v=2">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="../assets/js/app.js"></script>
 	<script src="../assets/js/dynamic-dropdown.js"></script>
+	<script src="../assets/js/permissions.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 	<style>
 		/* Base reset and font */
@@ -1106,7 +1108,132 @@
 			background: #ef4444;
 			color: white;
 		}
-		
+
+		/* Calendar Styles */
+		#dashboardCalendar {
+			background: #f8fafc;
+			border-radius: 12px;
+			padding: 16px;
+		}
+		.calendar-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 16px;
+			padding-bottom: 12px;
+			border-bottom: 2px solid #e2e8f0;
+		}
+		.calendar-month {
+			font-size: 16px;
+			font-weight: 700;
+			color: #1e293b;
+		}
+		.calendar-nav {
+			display: flex;
+			gap: 8px;
+		}
+		.calendar-nav-btn {
+			width: 32px;
+			height: 32px;
+			border: none;
+			background: white;
+			border-radius: 8px;
+			color: #64748b;
+			cursor: pointer;
+			transition: all 0.2s;
+			box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+		}
+		.calendar-nav-btn:hover {
+			background: #3b82f6;
+			color: white;
+		}
+		.calendar-weekdays {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 4px;
+			margin-bottom: 8px;
+		}
+		.calendar-weekday {
+			text-align: center;
+			font-size: 11px;
+			font-weight: 700;
+			color: #64748b;
+			padding: 8px 0;
+			text-transform: uppercase;
+		}
+		.calendar-days {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 4px;
+		}
+		.calendar-day {
+			aspect-ratio: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 13px;
+			font-weight: 500;
+			color: #1e293b;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.2s;
+			position: relative;
+		}
+		.calendar-day:hover {
+			background: white;
+			box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+		}
+		.calendar-day.other-month {
+			color: #cbd5e1;
+		}
+		.calendar-day.today {
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
+			color: white;
+			font-weight: 700;
+		}
+		.calendar-day.today:hover {
+			background: linear-gradient(135deg, #2563eb, #1d4ed8);
+		}
+		.calendar-day.has-event::after {
+			content: '';
+			position: absolute;
+			bottom: 4px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 4px;
+			height: 4px;
+			background: #f59e0b;
+			border-radius: 50%;
+		}
+		.calendar-day.today.has-event::after {
+			background: white;
+		}
+		.calendar-events {
+			margin-top: 12px;
+			padding-top: 12px;
+			border-top: 2px solid #e2e8f0;
+		}
+		.calendar-event-item {
+			padding: 8px 12px;
+			background: white;
+			border-radius: 8px;
+			margin-bottom: 6px;
+			font-size: 12px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			border-left: 3px solid #3b82f6;
+		}
+		.calendar-event-item i {
+			color: #3b82f6;
+		}
+		.calendar-event-item.exam {
+			border-left-color: #22c55e;
+		}
+		.calendar-event-item.exam i {
+			color: #22c55e;
+		}
+
 		/* Edit Modal */
 		.edit-modal {
 			position: fixed;
@@ -1389,6 +1516,13 @@
 				<div class="action-title">Generate Report</div>
 				<div class="action-hint">Export analytics</div>
 			</div>
+			<div class="action-card" data-action="viewCalendar" title="View Calendar">
+				<div class="action-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+					<i class="fas fa-calendar-alt"></i>
+				</div>
+				<div class="action-title">View Calendar</div>
+				<div class="action-hint">Events & schedule</div>
+			</div>
 		</div>
 
 		<!-- Quick Action Modal -->
@@ -1646,7 +1780,8 @@
 			</h3>
 			<span style="font-size: 12px; color: #64748b;">Click to edit • Double-click for details</span>
 		</div>
-		<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px;">
+		<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+			<!-- Recent Students Card -->
 			<div class="recent-section">
 				<div class="section-header">
 					<div class="section-title"><i class="fas fa-user-graduate" style="color: #3b82f6;"></i> Recent Students</div>
@@ -1655,12 +1790,22 @@
 				<div class="recent-list" id="recentStudents"></div>
 			</div>
 
+			<!-- Upcoming Exams Card -->
 			<div class="recent-section">
 				<div class="section-header">
 					<div class="section-title"><i class="fas fa-calendar-check" style="color: #22c55e;"></i> Upcoming Exams</div>
 					<button class="section-btn" onclick="addQuickExam()" title="Add Exam"><i class="fas fa-plus"></i></button>
 				</div>
 				<div class="recent-list" id="upcomingExams"></div>
+			</div>
+
+			<!-- Calendar Card -->
+			<div class="recent-section">
+				<div class="section-header">
+					<div class="section-title"><i class="fas fa-calendar-alt" style="color: #f59e0b;"></i> Calendar</div>
+					<button class="section-btn" onclick="goToToday()" title="Today"><i class="fas fa-calendar-day"></i></button>
+				</div>
+				<div id="dashboardCalendar"></div>
 			</div>
 		</div>
 
@@ -2039,84 +2184,90 @@
 		// ==================== RENDER CHARTS ====================
 		function renderCharts() {
 			const students = loadStudents();
-			const metric = document.getElementById('performanceMetric').value;
+			const metricEl = document.getElementById('performanceMetric');
+			const metric = metricEl ? metricEl.value : 'Subject-wise';
 
-			// Performance Chart
+			// Performance Chart - only render if canvas element exists
 			const perfCtx = document.getElementById('performanceChart');
-			if (window.performanceChart) window.performanceChart.destroy();
+			if (perfCtx) {
+				if (window.performanceChart) window.performanceChart.destroy();
 
-			let labels, data, chartType = 'bar';
+				let labels, data, chartType = 'bar';
 				if (metric === 'Subject-wise') {
-				labels = ['Math', 'Science', 'English', 'Physics', 'Chemistry'];
-				data = [85, 78, 82, 75, 80];
+					labels = ['Math', 'Science', 'English', 'Physics', 'Chemistry'];
+					data = [85, 78, 82, 75, 80];
 				} else if (metric === 'Class-wise') {
 					labels = ['Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12'];
-				data = [74, 79, 81, 77, 83];
+					data = [74, 79, 81, 77, 83];
 				} else {
-				labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-				data = [72, 78, 75, 82, 85, 88];
-				chartType = 'line';
+					labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+					data = [72, 78, 75, 82, 85, 88];
+					chartType = 'line';
 				}
-				
+
 				window.performanceChart = new Chart(perfCtx, {
 					type: chartType,
-				data: {
-					labels,
-					datasets: [{
-						label: 'Performance %',
-						data,
-						backgroundColor: chartType === 'line' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.7)',
-						borderColor: '#3b82f6',
-						borderWidth: 2,
-						borderRadius: 8,
-						fill: chartType === 'line',
-						tension: 0.4
-					}]
-				},
+					data: {
+						labels,
+						datasets: [{
+							label: 'Performance %',
+							data,
+							backgroundColor: chartType === 'line' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.7)',
+							borderColor: '#3b82f6',
+							borderWidth: 2,
+							borderRadius: 8,
+							fill: chartType === 'line',
+							tension: 0.4
+						}]
+					},
 					options: {
 						responsive: true,
-					maintainAspectRatio: false,
-					plugins: { legend: { display: false } },
-					scales: { y: { beginAtZero: true, max: 100 } }
-				}
-			});
-
-			// Fee Chart
-			const feeCtx = document.getElementById('feeChart');
-			if (window.feeChart) window.feeChart.destroy();
-
-			const feeMetric = document.getElementById('feeMetric').value;
-			const feeLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-			let feeData, feeLabel;
-
-			if (feeMetric === 'Amount Collected') {
-				feeData = [250000, 320000, 450000, 380000, 520000, 580000];
-				feeLabel = 'Amount (₹)';
-			} else {
-				feeData = [65, 72, 85, 78, 88, 92];
-				feeLabel = 'Collection Rate %';
+						maintainAspectRatio: false,
+						plugins: { legend: { display: false } },
+						scales: { y: { beginAtZero: true, max: 100 } }
+					}
+				});
 			}
 
-			window.feeChart = new Chart(feeCtx, {
-				type: 'bar',
-				data: {
-					labels: feeLabels,
-					datasets: [{
-						label: feeLabel,
-						data: feeData,
-						backgroundColor: 'rgba(34, 197, 94, 0.7)',
-						borderColor: '#22c55e',
-						borderWidth: 2,
-						borderRadius: 8
-					}]
-				},
-				options: {
-					responsive: true,
-					maintainAspectRatio: false,
-					plugins: { legend: { display: false } },
-					scales: { y: { beginAtZero: true } }
+			// Fee Chart - only render if canvas element exists
+			const feeCtx = document.getElementById('feeChart');
+			if (feeCtx) {
+				if (window.feeChart) window.feeChart.destroy();
+
+				const feeMetricEl = document.getElementById('feeMetric');
+				const feeMetric = feeMetricEl ? feeMetricEl.value : 'Amount Collected';
+				const feeLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+				let feeData, feeLabel;
+
+				if (feeMetric === 'Amount Collected') {
+					feeData = [250000, 320000, 450000, 380000, 520000, 580000];
+					feeLabel = 'Amount (₹)';
+				} else {
+					feeData = [65, 72, 85, 78, 88, 92];
+					feeLabel = 'Collection Rate %';
 				}
-			});
+
+				window.feeChart = new Chart(feeCtx, {
+					type: 'bar',
+					data: {
+						labels: feeLabels,
+						datasets: [{
+							label: feeLabel,
+							data: feeData,
+							backgroundColor: 'rgba(34, 197, 94, 0.7)',
+							borderColor: '#22c55e',
+							borderWidth: 2,
+							borderRadius: 8
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: { legend: { display: false } },
+						scales: { y: { beginAtZero: true } }
+					}
+				});
+			}
 		}
 
 		// ==================== DETAIL MODAL FUNCTIONS ====================
@@ -2380,6 +2531,20 @@
 		let currentQuickAction = '';
 
 		function showQuickActionModal(action) {
+			// Handle View Calendar - scroll to calendar instead of modal
+			if (action === 'viewCalendar') {
+				const calendarSection = document.getElementById('dashboardCalendar');
+				if (calendarSection) {
+					calendarSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					// Highlight calendar briefly
+					calendarSection.style.boxShadow = '0 0 0 3px #f59e0b';
+					setTimeout(() => {
+						calendarSection.style.boxShadow = '';
+					}, 2000);
+				}
+				return;
+			}
+
 			currentQuickAction = action;
 			quickActionHeader.className = 'quick-action-modal-header ' + action;
 			
@@ -3397,6 +3562,112 @@
 			});
 		}
 
+		// ==================== CALENDAR FUNCTIONS ====================
+		let currentCalendarDate = new Date();
+
+		function renderCalendar(date = new Date()) {
+			const year = date.getFullYear();
+			const month = date.getMonth();
+			const today = new Date();
+			const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+				'July', 'August', 'September', 'October', 'November', 'December'];
+
+			// Get first day of month and number of days
+			const firstDay = new Date(year, month, 1).getDay();
+			const daysInMonth = new Date(year, month + 1, 0).getDate();
+			const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+			// Get events for this month (from exams)
+			const events = JSON.parse(localStorage.getItem('exams') || '[]')
+				.filter(exam => {
+					const examDate = new Date(exam.date);
+					return examDate.getMonth() === month && examDate.getFullYear() === year;
+				});
+
+			let calendarHTML = `
+				<div class="calendar-header">
+					<div class="calendar-month">${monthNames[month]} ${year}</div>
+					<div class="calendar-nav">
+						<button class="calendar-nav-btn" onclick="prevMonth()">
+							<i class="fas fa-chevron-left"></i>
+						</button>
+						<button class="calendar-nav-btn" onclick="nextMonth()">
+							<i class="fas fa-chevron-right"></i>
+						</button>
+					</div>
+				</div>
+				<div class="calendar-weekdays">
+					<div class="calendar-weekday">Sun</div>
+					<div class="calendar-weekday">Mon</div>
+					<div class="calendar-weekday">Tue</div>
+					<div class="calendar-weekday">Wed</div>
+					<div class="calendar-weekday">Thu</div>
+					<div class="calendar-weekday">Fri</div>
+					<div class="calendar-weekday">Sat</div>
+				</div>
+				<div class="calendar-days">
+			`;
+
+			// Previous month days
+			for (let i = firstDay - 1; i >= 0; i--) {
+				calendarHTML += `<div class="calendar-day other-month">${daysInPrevMonth - i}</div>`;
+			}
+
+			// Current month days
+			for (let day = 1; day <= daysInMonth; day++) {
+				const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+				const hasEvent = events.some(e => new Date(e.date).getDate() === day);
+				const classes = ['calendar-day'];
+				if (isToday) classes.push('today');
+				if (hasEvent) classes.push('has-event');
+
+				calendarHTML += `<div class="${classes.join(' ')}" data-day="${day}">${day}</div>`;
+			}
+
+			// Next month days
+			const totalCells = firstDay + daysInMonth;
+			const remainingCells = 7 - (totalCells % 7);
+			if (remainingCells < 7) {
+				for (let i = 1; i <= remainingCells; i++) {
+					calendarHTML += `<div class="calendar-day other-month">${i}</div>`;
+				}
+			}
+
+			calendarHTML += '</div>';
+
+			// Add today's events
+			const todayEvents = events.filter(e => new Date(e.date).getDate() === today.getDate());
+			if (todayEvents.length > 0) {
+				calendarHTML += '<div class="calendar-events">';
+				todayEvents.forEach(event => {
+					calendarHTML += `
+						<div class="calendar-event-item exam">
+							<i class="fas fa-graduation-cap"></i>
+							<span>${event.name} - ${event.class}</span>
+						</div>
+					`;
+				});
+				calendarHTML += '</div>';
+			}
+
+			document.getElementById('dashboardCalendar').innerHTML = calendarHTML;
+		}
+
+		function prevMonth() {
+			currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+			renderCalendar(new Date(currentCalendarDate));
+		}
+
+		function nextMonth() {
+			currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+			renderCalendar(new Date(currentCalendarDate));
+		}
+
+		function goToToday() {
+			currentCalendarDate = new Date();
+			renderCalendar(currentCalendarDate);
+		}
+
 		// ==================== INITIALIZE ====================
 		document.addEventListener('DOMContentLoaded', () => {
 			// Load institution settings first
@@ -3412,6 +3683,7 @@
 			renderCharts();
 			updateChartStats();
 			loadChartStats();
+			renderCalendar(); // Initialize calendar
 
 			// Then fetch fresh data from API
 			loadDashboardFromAPI();
@@ -3531,5 +3803,6 @@
 		setTimeout(loadDashboardFromAPI, 200);
 		setTimeout(loadRecentDataFromAPI, 300);
 	</script>
+	<script src="../assets/js/responsive.js"></script>
 </body>
 </html>

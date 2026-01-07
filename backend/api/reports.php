@@ -2,10 +2,17 @@
 /**
  * Reports API Endpoint
  * EduManage Pro - School Management System
+ * Protected by Permission Guard - enforces strict RBAC
  */
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/functions.php';
+require_once __DIR__ . '/../helpers/permission_guard.php';
+
+// Start session for permission checks
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 $input = file_get_contents('php://input');
@@ -17,8 +24,13 @@ try {
     sendResponse(false, 'Database connection failed', null, ['database' => $e->getMessage()]);
 }
 
+// Require authentication and module access for ALL requests
+requireAuth();
+requireModuleAccess('reports');
+
 switch ($method) {
     case 'GET':
+        requirePermission('reports', 'view');
         handleGet($db, $_GET);
         break;
     default:

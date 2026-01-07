@@ -157,7 +157,9 @@ function formatCurrency($amount, $currency = 'INR', $symbol = '₹') {
  * Check if user is authenticated
  */
 function isAuthenticated() {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
@@ -183,27 +185,31 @@ function getCurrentUserRole() {
 
 /**
  * Check if user has permission
+ * Note: This function is also defined in permission_guard.php
+ * Using function_exists to avoid redeclaration error
  */
-function hasPermission($module, $action = 'view') {
-    if (!isAuthenticated()) {
+if (!function_exists('hasPermission')) {
+    function hasPermission($module, $action = 'view') {
+        if (!isAuthenticated()) {
+            return false;
+        }
+
+        $role = getCurrentUserRole();
+
+        // SuperAdmin and Admin have all permissions
+        if (in_array($role, ['SuperAdmin', 'Admin'])) {
+            return true;
+        }
+
+        // Check specific permissions from session
+        $permissions = $_SESSION['permissions'] ?? [];
+
+        if (isset($permissions[$module])) {
+            return isset($permissions[$module][$action]) && $permissions[$module][$action] === true;
+        }
+
         return false;
     }
-
-    $role = getCurrentUserRole();
-
-    // SuperAdmin and Admin have all permissions
-    if (in_array($role, ['SuperAdmin', 'Admin'])) {
-        return true;
-    }
-
-    // Check specific permissions from session
-    $permissions = $_SESSION['permissions'] ?? [];
-
-    if (isset($permissions[$module])) {
-        return isset($permissions[$module][$action]) && $permissions[$module][$action] === true;
-    }
-
-    return false;
 }
 
 /**

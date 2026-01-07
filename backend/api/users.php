@@ -4,6 +4,13 @@
  * EduManage Pro - School/College Management System
  *
  * Handles CRUD operations for users, roles, and permissions
+ * Protected by Permission Guard - enforces strict RBAC
+ *
+ * Architecture:
+ * - Users identified internally by UUID (never exposed)
+ * - Display ID (USR001, etc.) used in all API responses
+ * - Permissions stored in separate user_permissions table
+ * - Foreign key CASCADE ensures data integrity
  */
 
 header('Content-Type: application/json');
@@ -13,6 +20,15 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
+}
+
+// Include helpers
+require_once __DIR__ . '/../helpers/cache.php';
+require_once __DIR__ . '/../helpers/permission_guard.php';
+
+// Start session for permission checks
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
 // Database configuration
@@ -47,58 +63,204 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $input['action'] ?? '';
 }
 
-// Route to appropriate handler
+// Require authentication and module access for ALL requests
+requireAuth();
+requireModuleAccess('users');
+
+// Route to appropriate handler with permission checks
 switch ($action) {
     case 'list':
+        requirePermission('users', 'view');
         listUsers($pdo);
         break;
     case 'get':
+        requirePermission('users', 'view');
         getUser($pdo, $_GET['id'] ?? ($input['id'] ?? ''));
         break;
     case 'create':
+        requirePermission('users', 'create');
         createUser($pdo, $input);
         break;
     case 'update':
+        requirePermission('users', 'edit');
         updateUser($pdo, $input);
         break;
     case 'update_status':
+        requirePermission('users', 'edit');
         updateUserStatus($pdo, $input);
         break;
     case 'reset_password':
+        requirePermission('users', 'edit');
         resetPassword($pdo, $input);
         break;
     case 'delete':
+        requirePermission('users', 'delete');
         deleteUser($pdo, $input);
         break;
     case 'get_stats':
+        requirePermission('users', 'view');
         getUserStats($pdo);
         break;
     case 'get_permissions':
+        requirePermission('users', 'view');
         getPermissions($pdo, $_GET['role'] ?? ($input['role'] ?? ''));
         break;
     case 'save_permissions':
+        requirePermission('users', 'edit');
         savePermissions($pdo, $input);
         break;
     case 'get_activity':
+        requirePermission('users', 'view');
         getLoginActivity($pdo);
         break;
     case 'get_logs':
+        requirePermission('users', 'view');
         getAccessLogs($pdo);
         break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
 }
 
+// ============================================
+// Helper Functions for UUID and Permissions
+// ============================================
+
+/**
+ * Get user UUID by display ID (internal use only)
+ */
+function getUserUuidById($pdo, $displayId) {
+    $stmt = $pdo->prepare("SELECT uuid FROM users WHERE id = ?");
+    $stmt->execute([$displayId]);
+    $result = $stmt->fetch();
+    return $result ? $result['uuid'] : null;
+}
+
+/**
+ * Get permissions from user_permissions table as associative array
+ */
+function getPermissionsFromTable($pdo, $userUuid) {
+    $stmt = $pdo->prepare("
+        SELECT module, can_view, can_create, can_edit, can_delete, can_export
+        FROM user_permissions
+        WHERE user_uuid = ?
+    ");
+    $stmt->execute([$userUuid]);
+    $rows = $stmt->fetchAll();
+
+    $permissions = [];
+    foreach ($rows as $row) {
+        $permissions[$row['module']] = [
+            'view' => (bool) $row['can_view'],
+            'create' => (bool) $row['can_create'],
+            'edit' => (bool) $row['can_edit'],
+            'delete' => (bool) $row['can_delete'],
+            'export' => (bool) $row['can_export']
+        ];
+    }
+    return $permissions;
+}
+
+/**
+ * Get permissions for multiple users in a single query (batch loading)
+ * Prevents N+1 query problem when listing users
+ */
+function getBatchPermissions($pdo, $userUuids) {
+    if (empty($userUuids)) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($userUuids), '?'));
+    $stmt = $pdo->prepare("
+        SELECT user_uuid, module, can_view, can_create, can_edit, can_delete, can_export
+        FROM user_permissions
+        WHERE user_uuid IN ($placeholders)
+    ");
+    $stmt->execute($userUuids);
+    $rows = $stmt->fetchAll();
+
+    // Group permissions by user_uuid
+    $permissionsByUser = [];
+    foreach ($rows as $row) {
+        $uuid = $row['user_uuid'];
+        if (!isset($permissionsByUser[$uuid])) {
+            $permissionsByUser[$uuid] = [];
+        }
+        $permissionsByUser[$uuid][$row['module']] = [
+            'view' => (bool) $row['can_view'],
+            'create' => (bool) $row['can_create'],
+            'edit' => (bool) $row['can_edit'],
+            'delete' => (bool) $row['can_delete'],
+            'export' => (bool) $row['can_export']
+        ];
+    }
+
+    return $permissionsByUser;
+}
+
+/**
+ * Save permissions to user_permissions table
+ */
+function savePermissionsToTable($pdo, $userUuid, $permissions) {
+    if (!$permissions || !is_array($permissions)) {
+        return;
+    }
+
+    // Delete existing permissions for this user
+    $stmt = $pdo->prepare("DELETE FROM user_permissions WHERE user_uuid = ?");
+    $stmt->execute([$userUuid]);
+
+    // Insert new permissions
+    $insertStmt = $pdo->prepare("
+        INSERT INTO user_permissions (user_uuid, module, can_view, can_create, can_edit, can_delete, can_export)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    foreach ($permissions as $module => $perms) {
+        $canView = isset($perms['view']) ? ($perms['view'] ? 1 : 0) : 0;
+        $canCreate = isset($perms['create']) ? ($perms['create'] ? 1 : 0) : 0;
+        $canEdit = isset($perms['edit']) ? ($perms['edit'] ? 1 : 0) : 0;
+        $canDelete = isset($perms['delete']) ? ($perms['delete'] ? 1 : 0) : 0;
+        $canExport = isset($perms['export']) ? ($perms['export'] ? 1 : 0) : 0;
+
+        $insertStmt->execute([
+            $userUuid,
+            $module,
+            $canView,
+            $canCreate,
+            $canEdit,
+            $canDelete,
+            $canExport
+        ]);
+    }
+}
+
+/**
+ * Delete all permissions for a user
+ */
+function deleteUserPermissions($pdo, $userUuid) {
+    $stmt = $pdo->prepare("DELETE FROM user_permissions WHERE user_uuid = ?");
+    $stmt->execute([$userUuid]);
+}
+
+// ============================================
+// Main API Functions
+// ============================================
+
 /**
  * List all users with optional filtering
+ * Returns permissions from user_permissions table
+ * Optimized: Uses batch loading to prevent N+1 query problem
  */
 function listUsers($pdo) {
     try {
         $role = $_GET['role'] ?? '';
         $status = $_GET['status'] ?? '';
         $search = $_GET['search'] ?? '';
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 100;
+        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 
-        $sql = "SELECT id, name, username, email, role, status, last_login, created_at, updated_at FROM users WHERE 1=1";
+        // Select users with pagination for better performance
+        $sql = "SELECT id, uuid, name, username, email, role, status, last_login, created_at, updated_at FROM users WHERE 1=1";
         $params = [];
 
         if ($role) {
@@ -115,16 +277,51 @@ function listUsers($pdo) {
             $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
         }
 
-        $sql .= " ORDER BY created_at DESC";
+        $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+        $params[] = $limit;
+        $params[] = $offset;
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         $users = $stmt->fetchAll();
 
+        // Batch load permissions in a single query (prevents N+1 problem)
+        $uuids = array_column($users, 'uuid');
+        $permissionsByUser = getBatchPermissions($pdo, $uuids);
+
+        // Map permissions to users and remove uuid
+        foreach ($users as &$user) {
+            $user['permissions'] = $permissionsByUser[$user['uuid']] ?? [];
+            unset($user['uuid']);
+        }
+
+        // Get total count for pagination
+        $countSql = "SELECT COUNT(*) FROM users WHERE 1=1";
+        $countParams = [];
+        if ($role) {
+            $countSql .= " AND role = ?";
+            $countParams[] = $role;
+        }
+        if ($status) {
+            $countSql .= " AND status = ?";
+            $countParams[] = $status;
+        }
+        if ($search) {
+            $countSql .= " AND (name LIKE ? OR username LIKE ? OR email LIKE ? OR id LIKE ?)";
+            $searchTerm = "%$search%";
+            $countParams = array_merge($countParams, [$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
+        }
+        $countStmt = $pdo->prepare($countSql);
+        $countStmt->execute($countParams);
+        $totalCount = $countStmt->fetchColumn();
+
         echo json_encode([
             'success' => true,
             'data' => $users,
-            'count' => count($users)
+            'count' => count($users),
+            'total' => (int)$totalCount,
+            'limit' => $limit,
+            'offset' => $offset
         ]);
     } catch (PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Error fetching users: ' . $e->getMessage()]);
@@ -141,14 +338,16 @@ function getUser($pdo, $id) {
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT id, name, username, email, role, status, permissions, last_login, created_at FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT id, uuid, name, username, email, role, status, last_login, created_at FROM users WHERE id = ?");
         $stmt->execute([$id]);
         $user = $stmt->fetch();
 
         if ($user) {
-            if ($user['permissions']) {
-                $user['permissions'] = json_decode($user['permissions'], true);
-            }
+            // Get permissions from user_permissions table
+            $user['permissions'] = getPermissionsFromTable($pdo, $user['uuid']);
+            // Remove uuid from response (never expose)
+            unset($user['uuid']);
+
             echo json_encode(['success' => true, 'data' => $user]);
         } else {
             echo json_encode(['success' => false, 'message' => 'User not found']);
@@ -159,7 +358,7 @@ function getUser($pdo, $id) {
 }
 
 /**
- * Create new user
+ * Create new user with UUID
  */
 function createUser($pdo, $input) {
     $required = ['name', 'username', 'email', 'password', 'role'];
@@ -171,31 +370,39 @@ function createUser($pdo, $input) {
     }
 
     try {
+        $pdo->beginTransaction();
+
         // Check if username or email already exists
         $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
         $stmt->execute([$input['username'], $input['email']]);
         if ($stmt->fetch()) {
+            $pdo->rollBack();
             echo json_encode(['success' => false, 'message' => 'Username or email already exists']);
             return;
         }
 
-        // Generate user ID
+        // Generate display ID (USR001, USR002, etc.)
         $stmt = $pdo->query("SELECT MAX(CAST(SUBSTRING(id, 4) AS UNSIGNED)) as max_num FROM users WHERE id LIKE 'USR%'");
         $result = $stmt->fetch();
         $nextNum = ($result['max_num'] ?? 0) + 1;
         $userId = 'USR' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
 
-        // Hash password
+        // Generate UUID (internal key, never exposed)
+        $uuid = generateUUID();
+
+        // Hash password using PASSWORD_DEFAULT (bcrypt)
         $hashedPassword = password_hash($input['password'], PASSWORD_DEFAULT);
 
         $status = $input['status'] ?? 'Active';
 
+        // Insert user with UUID
         $stmt = $pdo->prepare("
-            INSERT INTO users (id, name, username, email, password, role, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users (id, uuid, name, username, email, password, role, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $userId,
+            $uuid,
             $input['name'],
             $input['username'],
             $input['email'],
@@ -203,6 +410,16 @@ function createUser($pdo, $input) {
             $input['role'],
             $status
         ]);
+
+        // Save permissions to user_permissions table if provided
+        if (isset($input['permissions']) && !empty($input['permissions'])) {
+            savePermissionsToTable($pdo, $uuid, $input['permissions']);
+        }
+
+        $pdo->commit();
+
+        // Invalidate cache
+        Cache::clear('users_');
 
         // Log the action
         logAction($pdo, 'create', 'users', $userId, "Created user: {$input['name']}");
@@ -213,6 +430,7 @@ function createUser($pdo, $input) {
             'data' => ['id' => $userId]
         ]);
     } catch (PDOException $e) {
+        $pdo->rollBack();
         echo json_encode(['success' => false, 'message' => 'Error creating user: ' . $e->getMessage()]);
     }
 }
@@ -227,6 +445,16 @@ function updateUser($pdo, $input) {
     }
 
     try {
+        $pdo->beginTransaction();
+
+        // Get user UUID for permissions update
+        $userUuid = getUserUuidById($pdo, $input['id']);
+        if (!$userUuid) {
+            $pdo->rollBack();
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
+
         // Build update query dynamically
         $updates = [];
         $params = [];
@@ -245,21 +473,34 @@ function updateUser($pdo, $input) {
             $params[] = password_hash($input['password'], PASSWORD_DEFAULT);
         }
 
-        if (empty($updates)) {
-            echo json_encode(['success' => false, 'message' => 'No fields to update']);
-            return;
+        // Update user fields if any
+        if (!empty($updates)) {
+            $params[] = $input['id'];
+            $sql = "UPDATE users SET " . implode(', ', $updates) . " WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
         }
 
-        $params[] = $input['id'];
-        $sql = "UPDATE users SET " . implode(', ', $updates) . " WHERE id = ?";
+        // Update permissions in user_permissions table if provided
+        if (isset($input['permissions'])) {
+            if (!empty($input['permissions'])) {
+                savePermissionsToTable($pdo, $userUuid, $input['permissions']);
+            } else {
+                // Clear all permissions if empty
+                deleteUserPermissions($pdo, $userUuid);
+            }
+        }
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        $pdo->commit();
+
+        // Invalidate cache
+        Cache::invalidateUser($input['id']);
 
         logAction($pdo, 'update', 'users', $input['id'], "Updated user: {$input['id']}");
 
         echo json_encode(['success' => true, 'message' => 'User updated successfully']);
     } catch (PDOException $e) {
+        $pdo->rollBack();
         echo json_encode(['success' => false, 'message' => 'Error updating user: ' . $e->getMessage()]);
     }
 }
@@ -308,7 +549,7 @@ function resetPassword($pdo, $input) {
 }
 
 /**
- * Delete user
+ * Delete user (CASCADE will delete permissions automatically)
  */
 function deleteUser($pdo, $input) {
     if (empty($input['id'])) {
@@ -327,8 +568,12 @@ function deleteUser($pdo, $input) {
             return;
         }
 
+        // Delete user (CASCADE will delete related permissions automatically)
         $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
         $stmt->execute([$input['id']]);
+
+        // Invalidate cache
+        Cache::invalidateUser($input['id']);
 
         logAction($pdo, 'delete', 'users', $input['id'], "Deleted user");
 
@@ -550,6 +795,20 @@ function logAction($pdo, $action, $module, $targetId, $details) {
     } catch (PDOException $e) {
         // Silently fail - logging should not break main operation
     }
+}
+
+/**
+ * Generate UUID v4
+ */
+function generateUUID() {
+    return sprintf(
+        '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0xffff),
+        mt_rand(0, 0x0fff) | 0x4000,
+        mt_rand(0, 0x3fff) | 0x8000,
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
 }
 
 /**
