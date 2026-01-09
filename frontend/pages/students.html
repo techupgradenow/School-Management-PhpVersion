@@ -230,6 +230,17 @@
 			color: white; font-weight: 700; font-size: 14px;
 		}
 		.student-name { font-weight: 600; color: var(--text-primary); }
+		.student-name-link {
+			font-weight: 600;
+			color: #2563eb;
+			text-decoration: none;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+		.student-name-link:hover {
+			color: #1d4ed8;
+			text-decoration: underline;
+		}
 		.student-id { font-size: 12px; color: var(--text-light); }
 
 		.status-badge {
@@ -1001,6 +1012,198 @@
 			.form-footer { flex-wrap: wrap; }
 			.form-footer button { flex: 1; justify-content: center; }
 		}
+
+		/* ============ PHOTO UPLOAD ============ */
+		.photo-upload-section {
+			display: flex;
+			gap: 24px;
+			margin-bottom: 24px;
+			padding: 20px;
+			background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+			border-radius: 12px;
+			border: 1px solid var(--border);
+		}
+
+		.photo-upload-container {
+			flex-shrink: 0;
+		}
+
+		.photo-preview-wrapper {
+			position: relative;
+			width: 140px;
+			height: 140px;
+		}
+
+		.photo-preview {
+			width: 140px;
+			height: 140px;
+			border-radius: 12px;
+			border: 3px dashed var(--border);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background: #ffffff;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.photo-preview:hover {
+			border-color: var(--primary);
+			background: rgba(76, 175, 80, 0.05);
+		}
+
+		.photo-preview.has-image {
+			border-style: solid;
+			border-color: var(--primary);
+		}
+
+		.photo-preview img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.photo-placeholder {
+			text-align: center;
+			color: var(--text-muted);
+		}
+
+		.photo-placeholder i {
+			font-size: 36px;
+			margin-bottom: 8px;
+			color: var(--border);
+		}
+
+		.photo-placeholder span {
+			font-size: 12px;
+			font-weight: 500;
+			display: block;
+		}
+
+		.photo-preview.has-image .photo-placeholder {
+			display: none;
+		}
+
+		.photo-actions {
+			position: absolute;
+			bottom: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			gap: 8px;
+			opacity: 0;
+			transition: all 0.3s ease;
+		}
+
+		.photo-preview-wrapper:hover .photo-actions {
+			opacity: 1;
+			bottom: 10px;
+		}
+
+		.photo-action-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 12px;
+			transition: all 0.2s;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+		}
+
+		.photo-action-btn.upload-btn {
+			background: var(--primary);
+			color: white;
+		}
+
+		.photo-action-btn.upload-btn:hover {
+			background: var(--primary-hover);
+			transform: scale(1.1);
+		}
+
+		.photo-action-btn.remove-btn {
+			background: #ef4444;
+			color: white;
+		}
+
+		.photo-action-btn.remove-btn:hover {
+			background: #dc2626;
+			transform: scale(1.1);
+		}
+
+		.photo-info {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+		}
+
+		.photo-info h4 {
+			font-size: 15px;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 6px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.photo-info h4 i {
+			color: var(--primary);
+		}
+
+		.photo-info > p {
+			font-size: 13px;
+			color: var(--text-muted);
+			margin-bottom: 12px;
+		}
+
+		.photo-requirements {
+			padding: 12px;
+			background: rgba(76, 175, 80, 0.08);
+			border-radius: 8px;
+			list-style: none;
+			margin: 0;
+		}
+
+		.photo-requirements li {
+			font-size: 12px;
+			color: var(--text-secondary);
+			margin-bottom: 6px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.photo-requirements li:last-child {
+			margin-bottom: 0;
+		}
+
+		.photo-requirements li i {
+			color: var(--primary);
+			font-size: 10px;
+		}
+
+		.photo-input {
+			display: none;
+		}
+
+		@media (max-width: 768px) {
+			.photo-upload-section {
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+			}
+			.photo-info {
+				align-items: center;
+			}
+		}
 	</style>
 </head>
 <body>
@@ -1169,6 +1372,41 @@
 				<div class="tab-content active" id="tab-details">
 					<div class="form-card">
 						<div class="form-card-body">
+							<!-- Photo Upload Section -->
+							<div class="photo-upload-section">
+								<div class="photo-upload-container">
+									<div class="photo-preview-wrapper">
+										<div class="photo-preview" id="studentPhotoPreview" onclick="document.getElementById('studentPhoto').click()">
+											<div class="photo-placeholder">
+												<i class="fas fa-camera"></i>
+												<span>Upload Photo</span>
+											</div>
+											<img id="studentPhotoPreviewImg" src="" alt="Student Photo" style="display: none;">
+										</div>
+										<div class="photo-actions">
+											<button type="button" class="photo-action-btn upload-btn" onclick="document.getElementById('studentPhoto').click()" title="Upload Photo">
+												<i class="fas fa-camera"></i>
+											</button>
+											<button type="button" class="photo-action-btn remove-btn" id="removeStudentPhotoBtn" onclick="removeStudentPhoto()" title="Remove Photo" style="display: none;">
+												<i class="fas fa-trash"></i>
+											</button>
+										</div>
+									</div>
+									<input type="file" id="studentPhoto" class="photo-input" accept="image/jpeg,image/png,image/jpg" onchange="handleStudentPhotoUpload(event)">
+									<input type="hidden" id="studentPhotoBase64" name="photo">
+								</div>
+								<div class="photo-info">
+									<h4><i class="fas fa-image"></i>Student Photo</h4>
+									<p>Upload a clear passport-size photograph of the student.</p>
+									<ul class="photo-requirements">
+										<li><i class="fas fa-check-circle"></i> Accepted formats: JPG, JPEG, PNG</li>
+										<li><i class="fas fa-check-circle"></i> Maximum file size: 2MB</li>
+										<li><i class="fas fa-check-circle"></i> Recommended: 300x300 pixels</li>
+										<li><i class="fas fa-check-circle"></i> Recent photograph with clear face</li>
+									</ul>
+								</div>
+							</div>
+
 							<!-- Row 1: Name, Roll, Gender, DOB -->
 							<div class="form-row">
 								<div class="form-group">
@@ -1642,6 +1880,9 @@
 			document.getElementById('studentStatus').value = student.status || 'Active';
 			document.getElementById('studentPreviousSchool').value = student.previous_school || '';
 
+			// Load student photo
+			loadStudentPhoto(student.photo);
+
 			calculateAge();
 			uploadedDocuments = student.documents || [];
 			updateDocumentsList();
@@ -1657,6 +1898,100 @@
 			document.getElementById('studentStatus').value = 'Active';
 			document.getElementById('studentAcademicYear').value = '2024-2025';
 			document.getElementById('studentAge').value = '-';
+			// Reset photo upload
+			resetStudentPhotoUpload();
+		}
+
+		// ============================================
+		// PHOTO UPLOAD FUNCTIONS
+		// ============================================
+
+		// Handle photo upload
+		window.handleStudentPhotoUpload = function(event) {
+			var file = event.target.files[0];
+			if (!file) return;
+
+			// Validate file type
+			var validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+			if (validTypes.indexOf(file.type) === -1) {
+				showToast('Please upload a JPG or PNG image', 'error');
+				event.target.value = '';
+				return;
+			}
+
+			// Validate file size (max 2MB)
+			if (file.size > 2 * 1024 * 1024) {
+				showToast('Photo must be less than 2MB', 'error');
+				event.target.value = '';
+				return;
+			}
+
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				var imgData = e.target.result;
+
+				// Update preview
+				var previewImg = document.getElementById('studentPhotoPreviewImg');
+				var previewContainer = document.getElementById('studentPhotoPreview');
+				var removeBtn = document.getElementById('removeStudentPhotoBtn');
+				var base64Input = document.getElementById('studentPhotoBase64');
+
+				previewImg.src = imgData;
+				previewImg.style.display = 'block';
+				previewContainer.classList.add('has-image');
+				base64Input.value = imgData;
+				removeBtn.style.display = 'flex';
+
+				showToast('Photo uploaded successfully', 'success');
+			};
+			reader.readAsDataURL(file);
+		};
+
+		// Remove photo
+		window.removeStudentPhoto = function() {
+			document.getElementById('studentPhoto').value = '';
+			document.getElementById('studentPhotoBase64').value = '';
+			document.getElementById('studentPhotoPreviewImg').src = '';
+			document.getElementById('studentPhotoPreviewImg').style.display = 'none';
+			document.getElementById('studentPhotoPreview').classList.remove('has-image');
+			document.getElementById('removeStudentPhotoBtn').style.display = 'none';
+			showToast('Photo removed', 'info');
+		};
+
+		// Reset photo upload section
+		function resetStudentPhotoUpload() {
+			var photoInput = document.getElementById('studentPhoto');
+			var base64Input = document.getElementById('studentPhotoBase64');
+			var previewImg = document.getElementById('studentPhotoPreviewImg');
+			var previewContainer = document.getElementById('studentPhotoPreview');
+			var removeBtn = document.getElementById('removeStudentPhotoBtn');
+
+			if (photoInput) photoInput.value = '';
+			if (base64Input) base64Input.value = '';
+			if (previewImg) {
+				previewImg.src = '';
+				previewImg.style.display = 'none';
+			}
+			if (previewContainer) previewContainer.classList.remove('has-image');
+			if (removeBtn) removeBtn.style.display = 'none';
+		}
+
+		// Load existing photo when editing
+		function loadStudentPhoto(photoUrl) {
+			if (photoUrl && photoUrl.trim() !== '') {
+				var previewImg = document.getElementById('studentPhotoPreviewImg');
+				var previewContainer = document.getElementById('studentPhotoPreview');
+				var removeBtn = document.getElementById('removeStudentPhotoBtn');
+				var base64Input = document.getElementById('studentPhotoBase64');
+
+				previewImg.src = photoUrl;
+				previewImg.style.display = 'block';
+				previewContainer.classList.add('has-image');
+				base64Input.value = photoUrl;
+				removeBtn.style.display = 'flex';
+			} else {
+				resetStudentPhotoUpload();
+			}
 		}
 
 		// ============================================
@@ -1993,6 +2328,8 @@
 						var data = response.data.students || response.data;
 						if (Array.isArray(data)) {
 							students = data;
+							// Save to localStorage for use by other pages (e.g., student-detail.html)
+							saveToLocalStorage();
 							renderTable();
 							updateStats();
 						} else {
@@ -2113,7 +2450,7 @@
 				html += '<tr>' +
 					'<td><div class="student-cell">' +
 						'<div class="student-avatar" style="background: ' + color + ';">' + initials + '</div>' +
-						'<div><div class="student-name">' + (student.name || '-') + '</div>' +
+						'<div><a href="student-detail.html?id=' + student.id + '" class="student-name-link">' + (student.name || '-') + '</a>' +
 						'<div class="student-id">' + (student.admission_no || student.id) + '</div></div>' +
 					'</div></td>' +
 					'<td>' + (student.class || '-') + ' - ' + (student.section || '-') + '</td>' +
@@ -2122,7 +2459,7 @@
 					'<td>' + (student.contact || '-') + '</td>' +
 					'<td><span class="status-badge ' + statusClass + '">' + (student.status || 'Active') + '</span></td>' +
 					'<td><div class="action-buttons">' +
-						'<button class="action-btn view" onclick="viewStudent(\'' + student.id + '\')" title="View"><i class="fas fa-eye"></i></button>' +
+						'<button class="action-btn view" onclick="goToStudentDetail(\'' + student.id + '\')" title="View Details"><i class="fas fa-eye"></i></button>' +
 						(PermissionManager.hasPermission('students', 'edit') ? '<button class="action-btn edit" onclick="editStudent(\'' + student.id + '\')" title="Edit"><i class="fas fa-edit"></i></button>' : '') +
 						(PermissionManager.hasPermission('students', 'delete') ? '<button class="action-btn delete" onclick="deleteStudent(\'' + student.id + '\')" title="Delete"><i class="fas fa-trash"></i></button>' : '') +
 					'</div></td>' +
@@ -2150,6 +2487,12 @@
 		// ============================================
 		// CRUD OPERATIONS
 		// ============================================
+
+		// Navigate to student detail page
+		window.goToStudentDetail = function(id) {
+			window.location.href = 'student-detail.html?id=' + id;
+		};
+
 		window.viewStudent = function(id) {
 			var student = students.find(function(s) { return s.id === id; });
 			if (!student) return showToast('Student not found', 'error');
@@ -2205,9 +2548,25 @@
 			var cls = document.getElementById('studentClass').value;
 			var section = document.getElementById('studentSection').value;
 
-			if (!name || !roll || !gender || !dob || !cls || !section) {
-				showToast('Please fill all required fields', 'error');
+			// Validate required fields and collect missing field names
+			var missingFields = [];
+			if (!name) missingFields.push('Full Name');
+			if (!roll) missingFields.push('Roll Number');
+			if (!gender) missingFields.push('Gender');
+			if (!dob) missingFields.push('Date of Birth');
+			if (!cls) missingFields.push('Class');
+			if (!section) missingFields.push('Section');
+
+			if (missingFields.length > 0) {
+				showToast('Please fill required fields: ' + missingFields.join(', '), 'error');
 				switchTab('details');
+				// Highlight the first missing field
+				if (!name) document.getElementById('studentName').focus();
+				else if (!roll) document.getElementById('studentRoll').focus();
+				else if (!gender) document.getElementById('studentGender').focus();
+				else if (!dob) document.getElementById('studentDob').focus();
+				else if (!cls) document.getElementById('studentClass').focus();
+				else if (!section) document.getElementById('studentSection').focus();
 				return;
 			}
 
@@ -2228,6 +2587,7 @@
 				academic_year: document.getElementById('studentAcademicYear').value,
 				status: document.getElementById('studentStatus').value,
 				previous_school: document.getElementById('studentPreviousSchool').value.trim(),
+				photo: document.getElementById('studentPhotoBase64').value || '',
 				documents: uploadedDocuments.map(function(d) { return { id: d.id, name: d.name, filename: d.filename }; })
 			};
 

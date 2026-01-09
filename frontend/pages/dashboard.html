@@ -1046,6 +1046,15 @@
 		}
 		.recent-badge.new { background: #dcfce7; color: #16a34a; }
 		.recent-badge.pending { background: #fef3c7; color: #d97706; }
+
+		/* Recent Status - inline text style matching screenshot */
+		.recent-status {
+			font-size: 12px;
+			font-weight: 500;
+			margin-top: 4px;
+		}
+		.recent-status.new { color: #16a34a; }
+		.recent-status.pending { color: #d97706; }
 		
 		/* Section Button */
 		.section-btn {
@@ -2125,24 +2134,20 @@
 
 			let html = '';
 			students.forEach(function(s) {
-				const initials = s.name.split(' ').map(function(n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
-				const colors = ['#3b82f6', '#8b5cf6', '#22c55e', '#f59e0b', '#ef4444'];
-				const color = colors[Math.abs(s.name.charCodeAt(0)) % colors.length];
+				const studentId = s.admission_no || 'STU' + s.id;
 				const statusClass = s.status === 'Active' ? 'new' : 'pending';
 				html += '<div class="recent-item" onclick="editStudent(\'' + s.id + '\')" title="Click to edit">';
 				html += '<div class="recent-item-left">';
-				html += '<div class="recent-avatar" style="background: ' + color + ';">' + initials + '</div>';
+				html += '<i class="fas fa-user-graduate" style="font-size: 20px; color: #64748b; margin-right: 12px;"></i>';
 				html += '<div>';
 				html += '<div class="recent-name">' + s.name + '</div>';
-				html += '<div class="recent-detail">Class ' + s.class + ' - ' + s.section + '</div>';
+				html += '<div class="recent-detail">Class ' + s.class + ' | ' + studentId + '</div>';
+				html += '<div class="recent-status ' + statusClass + '">' + (s.status || 'Active') + '</div>';
 				html += '</div>';
 				html += '</div>';
-				html += '<div style="display:flex;align-items:center;gap:10px;">';
-				html += '<span class="recent-badge ' + statusClass + '">' + (s.status || 'Active') + '</span>';
 				html += '<div class="recent-item-actions">';
 				html += '<button class="recent-action-btn edit" onclick="event.stopPropagation(); editStudent(\'' + s.id + '\');" title="Edit"><i class="fas fa-pen"></i></button>';
 				html += '<button class="recent-action-btn delete" onclick="event.stopPropagation(); quickDeleteStudent(\'' + s.id + '\');" title="Delete"><i class="fas fa-trash"></i></button>';
-				html += '</div>';
 				html += '</div>';
 				html += '</div>';
 			});
@@ -2161,20 +2166,21 @@
 
 			let html = '';
 			exams.forEach(function(e) {
+				// Format date nicely
+				const examDate = e.date ? new Date(e.date) : null;
+				const formattedDate = examDate ? examDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'TBD';
 				html += '<div class="recent-item" onclick="editExam(\'' + e.id + '\')" title="Click to edit">';
 				html += '<div class="recent-item-left">';
-				html += '<div class="recent-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fas fa-file-alt"></i></div>';
+				html += '<i class="fas fa-file-alt" style="font-size: 20px; color: #64748b; margin-right: 12px;"></i>';
 				html += '<div>';
 				html += '<div class="recent-name">' + e.name + '</div>';
-				html += '<div class="recent-detail">' + e.subject + ' - Class ' + e.class + '</div>';
+				html += '<div class="recent-detail">Class ' + e.class + ' | ' + formattedDate + '</div>';
+				html += '<div class="recent-status pending">' + (e.status || 'Scheduled') + '</div>';
 				html += '</div>';
 				html += '</div>';
-				html += '<div style="display:flex;align-items:center;gap:10px;">';
-				html += '<span class="recent-badge pending">' + e.date + '</span>';
 				html += '<div class="recent-item-actions">';
 				html += '<button class="recent-action-btn edit" onclick="event.stopPropagation(); editExam(\'' + e.id + '\');" title="Edit"><i class="fas fa-pen"></i></button>';
 				html += '<button class="recent-action-btn delete" onclick="event.stopPropagation(); quickDeleteExam(\'' + e.id + '\');" title="Delete"><i class="fas fa-trash"></i></button>';
-				html += '</div>';
 				html += '</div>';
 				html += '</div>';
 			});

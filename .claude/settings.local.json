@@ -33,7 +33,9 @@
       "Bash(tasklist:*)",
       "Bash(copy /Y \"C:\\\\Users\\\\admin\\\\Documents\\\\GitHub\\\\School-Management-PhpVersion\\\\frontend\\\\pages\\\\attendance.html\" \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\frontend\\\\pages\\\\attendance.html\")",
       "Bash(Copy-Item 'C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\frontend\\\\pages\\\\attendance.html' 'C:\\\\Users\\\\admin\\\\Documents\\\\GitHub\\\\School-Management-PhpVersion\\\\frontend\\\\pages\\\\attendance.html' -Force)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(copy /Y \"C:\\\\Users\\\\admin\\\\Documents\\\\GitHub\\\\School-Management-PhpVersion\\\\frontend\\\\pages\\\\students.html\" \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\frontend\\\\pages\\\\students.html\")",
+      "Bash(copy:*)"
     ]
   }
 }

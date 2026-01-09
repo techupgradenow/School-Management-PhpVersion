@@ -1,0 +1,3633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Student Details - EduManage Pro</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<style>
+		:root {
+			--primary: #3b82f6;
+			--primary-hover: #2563eb;
+			--primary-light: #dbeafe;
+			--primary-50: #eff6ff;
+			--secondary: #1e3a5f;
+			--bg-main: #f1f5f9;
+			--bg-card: #ffffff;
+			--bg-hover: #f8fafc;
+			--success: #22c55e;
+			--success-light: #dcfce7;
+			--warning: #f59e0b;
+			--warning-light: #fef3c7;
+			--danger: #ef4444;
+			--danger-light: #fee2e2;
+			--info: #3b82f6;
+			--info-light: #dbeafe;
+			--purple: #8b5cf6;
+			--purple-light: #ede9fe;
+			--teal: #14b8a6;
+			--teal-light: #ccfbf1;
+			--text-primary: #0f172a;
+			--text-secondary: #334155;
+			--text-muted: #64748b;
+			--text-light: #94a3b8;
+			--border: #e2e8f0;
+			--border-light: #f1f5f9;
+			--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+			--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+			--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+			--radius-sm: 6px;
+			--radius-md: 8px;
+			--radius-lg: 12px;
+			--radius-xl: 16px;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body {
+			font-family: 'Inter', 'Segoe UI', sans-serif;
+			background: var(--bg-main);
+			min-height: 100vh;
+			color: var(--text-primary);
+			font-size: 14px;
+		}
+
+		.main-container {
+			padding: 24px;
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		/* Breadcrumb */
+		.breadcrumb {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			margin-bottom: 20px;
+			font-size: 14px;
+			color: var(--text-muted);
+		}
+		.breadcrumb a {
+			color: var(--primary);
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			transition: color 0.2s;
+		}
+		.breadcrumb a:hover { color: var(--primary-hover); text-decoration: underline; }
+		.breadcrumb i.separator { font-size: 10px; color: var(--text-light); }
+		.breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+
+		/* Page Header */
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section { display: flex; align-items: center; gap: 16px; }
+		.back-btn {
+			width: 44px; height: 44px;
+			background: white;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-lg);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--text-secondary);
+			cursor: pointer;
+			transition: all 0.2s;
+			text-decoration: none;
+		}
+		.back-btn:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+		.page-title h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+		.page-title p { font-size: 13px; color: var(--text-muted); }
+
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn {
+			padding: 10px 18px;
+			border-radius: var(--radius-md);
+			font-weight: 500;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+			font-family: inherit;
+			text-decoration: none;
+		}
+		.btn-primary { background: var(--primary); color: white; }
+		.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+		.btn-secondary { background: white; color: var(--text-secondary); border: 1px solid var(--border); }
+		.btn-secondary:hover { background: var(--bg-hover); }
+		.btn-success { background: var(--success); color: white; }
+		.btn-success:hover { background: #16a34a; }
+		.btn-warning { background: var(--warning); color: white; }
+		.btn-warning:hover { background: #d97706; }
+		.btn-danger { background: var(--danger); color: white; }
+		.btn-danger:hover { background: #dc2626; }
+		.btn-info { background: var(--info); color: white; }
+		.btn-info:hover { background: #2563eb; }
+		.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+		/* Student Header Card */
+		.student-header-card {
+			background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+			border-radius: var(--radius-xl);
+			padding: 28px;
+			margin-bottom: 24px;
+			box-shadow: var(--shadow-lg);
+			display: flex;
+			align-items: center;
+			gap: 28px;
+			flex-wrap: wrap;
+			color: white;
+			position: relative;
+			overflow: hidden;
+		}
+		.student-header-card::before {
+			content: '';
+			position: absolute;
+			top: -50%;
+			right: -10%;
+			width: 300px;
+			height: 300px;
+			background: rgba(255,255,255,0.05);
+			border-radius: 50%;
+		}
+		.student-photo {
+			width: 120px;
+			height: 120px;
+			border-radius: var(--radius-xl);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 42px;
+			font-weight: 700;
+			color: white;
+			flex-shrink: 0;
+			overflow: hidden;
+			background: rgba(255,255,255,0.2);
+			border: 4px solid rgba(255,255,255,0.3);
+			position: relative;
+			z-index: 1;
+		}
+		.student-photo img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.student-header-info { flex: 1; min-width: 250px; position: relative; z-index: 1; }
+		.student-header-info h2 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+		.student-header-info .admission-no {
+			font-size: 14px;
+			opacity: 0.8;
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.admission-no i { font-size: 12px; }
+		.student-meta {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px;
+		}
+		.meta-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 14px;
+			opacity: 0.9;
+		}
+		.meta-item i { opacity: 0.7; width: 18px; }
+		.student-header-stats {
+			display: flex;
+			gap: 16px;
+			flex-wrap: wrap;
+			position: relative;
+			z-index: 1;
+		}
+		.header-stat {
+			background: rgba(255,255,255,0.15);
+			backdrop-filter: blur(10px);
+			padding: 18px 24px;
+			border-radius: var(--radius-lg);
+			text-align: center;
+			min-width: 110px;
+			border: 1px solid rgba(255,255,255,0.1);
+		}
+		.header-stat-value { font-size: 26px; font-weight: 700; }
+		.header-stat-label { font-size: 12px; opacity: 0.8; margin-top: 4px; text-transform: uppercase; }
+		.header-stat.green .header-stat-value { color: #86efac; }
+		.header-stat.yellow .header-stat-value { color: #fde047; }
+		.header-stat.red .header-stat-value { color: #fca5a5; }
+
+		/* Status Badge */
+		.status-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+		.status-badge.active { background: var(--success); color: white; }
+		.status-badge.inactive { background: var(--danger); color: white; }
+		.status-badge.paid { background: var(--success-light); color: var(--success); }
+		.status-badge.partial { background: var(--warning-light); color: var(--warning); }
+		.status-badge.unpaid, .status-badge.pending { background: var(--danger-light); color: var(--danger); }
+		.status-badge.pass { background: var(--success-light); color: var(--success); }
+		.status-badge.fail { background: var(--danger-light); color: var(--danger); }
+		.status-badge.present { background: var(--success-light); color: var(--success); }
+		.status-badge.absent { background: var(--danger-light); color: var(--danger); }
+		.status-badge.late { background: var(--warning-light); color: var(--warning); }
+		.status-badge.holiday { background: var(--purple-light); color: var(--purple); }
+
+		/* Tabs Navigation */
+		.tabs-container {
+			background: white;
+			border-radius: var(--radius-xl);
+			box-shadow: var(--shadow-sm);
+			border: 1px solid var(--border-light);
+			overflow: hidden;
+		}
+		.tabs-nav {
+			display: flex;
+			border-bottom: 2px solid var(--border);
+			background: var(--bg-main);
+			overflow-x: auto;
+			position: sticky;
+			top: 0;
+			z-index: 10;
+		}
+		.tabs-nav::-webkit-scrollbar { height: 0; }
+		.tab-btn {
+			padding: 18px 28px;
+			background: transparent;
+			border: none;
+			font-size: 14px;
+			font-weight: 500;
+			color: var(--text-muted);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			transition: all 0.2s;
+			border-bottom: 3px solid transparent;
+			margin-bottom: -2px;
+			white-space: nowrap;
+			font-family: inherit;
+		}
+		.tab-btn:hover { color: var(--primary); background: white; }
+		.tab-btn.active {
+			color: var(--primary);
+			background: white;
+			border-bottom-color: var(--primary);
+			font-weight: 600;
+		}
+		.tab-btn i { font-size: 16px; }
+		.tab-btn .tab-badge {
+			background: var(--danger);
+			color: white;
+			font-size: 10px;
+			padding: 2px 6px;
+			border-radius: 10px;
+			font-weight: 600;
+		}
+
+		.tab-content { display: none; padding: 28px; }
+		.tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+		@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+		/* Section Title */
+		.section-title {
+			font-size: 18px;
+			font-weight: 600;
+			margin-bottom: 20px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: var(--text-primary);
+		}
+		.section-title i { color: var(--primary); }
+
+		/* Profile Grid */
+		.profile-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+			gap: 24px;
+		}
+		.profile-section {
+			background: var(--bg-main);
+			border-radius: var(--radius-lg);
+			padding: 24px;
+			border: 1px solid var(--border-light);
+		}
+		.profile-section-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--secondary);
+			text-transform: uppercase;
+			margin-bottom: 20px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding-bottom: 12px;
+			border-bottom: 2px solid var(--primary-light);
+		}
+		.profile-section-title i { color: var(--primary); font-size: 16px; }
+		.profile-item {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 14px 0;
+			border-bottom: 1px dashed var(--border);
+		}
+		.profile-item:last-child { border-bottom: none; }
+		.profile-label { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+		.profile-label i { color: var(--text-light); width: 16px; font-size: 12px; }
+		.profile-value { font-weight: 600; color: var(--text-primary); text-align: right; max-width: 60%; }
+
+		/* Stats Cards */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 20px;
+			margin-bottom: 28px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: var(--radius-lg);
+			padding: 24px;
+			border: 1px solid var(--border-light);
+			display: flex;
+			align-items: center;
+			gap: 18px;
+			transition: all 0.2s;
+		}
+		.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: var(--radius-lg);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 22px;
+			color: white;
+		}
+		.stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+		.stat-icon.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+		.stat-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+		.stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+		.stat-icon.teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+		.stat-info h3 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+		.stat-info p { font-size: 13px; color: var(--text-muted); }
+
+		/* Data Table */
+		.table-wrapper {
+			background: white;
+			border-radius: var(--radius-lg);
+			border: 1px solid var(--border-light);
+			overflow: hidden;
+		}
+		.table-header {
+			padding: 16px 20px;
+			background: var(--bg-main);
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 12px;
+		}
+		.table-title { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+		.table-title i { color: var(--primary); }
+		.table-container { overflow-x: auto; }
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { background: var(--secondary); }
+		.data-table th {
+			padding: 14px 16px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 12px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.data-table tbody tr { border-bottom: 1px solid var(--border-light); transition: background 0.15s; }
+		.data-table tbody tr:nth-child(even) { background: var(--bg-main); }
+		.data-table tbody tr:hover { background: var(--primary-50); }
+		.data-table td { padding: 14px 16px; font-size: 14px; color: var(--text-secondary); }
+		.data-table td:first-child { font-weight: 500; }
+
+		/* Action Buttons */
+		.action-btn {
+			width: 34px;
+			height: 34px;
+			border: none;
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+			font-size: 14px;
+		}
+		.action-btn.view { background: var(--info-light); color: var(--info); }
+		.action-btn.download { background: var(--success-light); color: var(--success); }
+		.action-btn.print { background: var(--purple-light); color: var(--purple); }
+		.action-btn.edit { background: var(--warning-light); color: var(--warning); }
+		.action-btn.delete { background: var(--danger-light); color: var(--danger); }
+		.action-btn:hover { transform: scale(1.1); box-shadow: var(--shadow-sm); }
+		.action-buttons { display: flex; gap: 8px; }
+
+		/* Filter Bar */
+		.filter-bar {
+			display: flex;
+			gap: 12px;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+		.filter-group { display: flex; flex-direction: column; gap: 4px; }
+		.filter-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+		.filter-select, .filter-input {
+			padding: 10px 14px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			font-size: 13px;
+			min-width: 160px;
+			background: white;
+			font-family: inherit;
+		}
+		.filter-select:focus, .filter-input:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
+		}
+
+		/* Progress Bar */
+		.progress-container { margin-bottom: 24px; }
+		.progress-header {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 10px;
+			font-size: 14px;
+		}
+		.progress-label { color: var(--text-muted); }
+		.progress-value { font-weight: 600; color: var(--text-primary); }
+		.progress-bar {
+			height: 12px;
+			background: var(--border);
+			border-radius: 6px;
+			overflow: hidden;
+		}
+		.progress-fill {
+			height: 100%;
+			border-radius: 6px;
+			transition: width 0.8s ease;
+			background: linear-gradient(90deg, var(--success), #34d399);
+		}
+		.progress-fill.warning { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+		.progress-fill.danger { background: linear-gradient(90deg, var(--danger), #f87171); }
+
+		/* Fee Categories Section */
+		.fee-categories-section { margin-bottom: 24px; }
+		.section-title {
+			font-size: 16px;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.section-title i { color: var(--primary); }
+		.fee-categories-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 16px;
+		}
+		.fee-category-card {
+			background: white;
+			border-radius: var(--radius-lg);
+			padding: 20px;
+			border: 1px solid var(--border-light);
+			transition: all 0.3s ease;
+			cursor: pointer;
+		}
+		.fee-category-card:hover {
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-md);
+		}
+		.fee-category-card.fully-paid { border-left: 4px solid var(--success); }
+		.fee-category-card.partial { border-left: 4px solid var(--warning); }
+		.fee-category-card.unpaid { border-left: 4px solid var(--danger); }
+		.fee-category-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			margin-bottom: 12px;
+		}
+		.fee-category-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: var(--radius-md);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+		}
+		.fee-category-icon.tuition { background: var(--primary-light); color: var(--primary); }
+		.fee-category-icon.bus { background: var(--teal-light); color: var(--teal); }
+		.fee-category-icon.hostel { background: var(--purple-light); color: var(--purple); }
+		.fee-category-icon.lab { background: var(--info-light); color: var(--info); }
+		.fee-category-icon.library { background: var(--warning-light); color: var(--warning); }
+		.fee-category-icon.sports { background: var(--success-light); color: var(--success); }
+		.fee-category-icon.exam { background: var(--danger-light); color: var(--danger); }
+		.fee-category-icon.other { background: var(--bg-main); color: var(--text-muted); }
+		.fee-category-name {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 4px;
+		}
+		.fee-category-amount {
+			font-size: 20px;
+			font-weight: 700;
+			color: var(--text-primary);
+		}
+		.fee-category-details {
+			display: flex;
+			justify-content: space-between;
+			font-size: 12px;
+			color: var(--text-muted);
+			margin-top: 8px;
+			padding-top: 12px;
+			border-top: 1px dashed var(--border);
+		}
+		.fee-category-paid { color: var(--success); font-weight: 600; }
+		.fee-category-pending { color: var(--warning); font-weight: 600; }
+		.fee-category-progress {
+			height: 6px;
+			background: var(--border);
+			border-radius: 3px;
+			margin-top: 12px;
+			overflow: hidden;
+		}
+		.fee-category-progress-fill {
+			height: 100%;
+			border-radius: 3px;
+			transition: width 0.5s ease;
+		}
+		.fee-category-progress-fill.success { background: var(--success); }
+		.fee-category-progress-fill.warning { background: var(--warning); }
+		.fee-category-progress-fill.danger { background: var(--danger); }
+
+		/* Transport/Bus Details Card */
+		.transport-details-section, .hostel-details-section { margin-bottom: 24px; }
+		.detail-card {
+			background: white;
+			border-radius: var(--radius-lg);
+			border: 1px solid var(--border-light);
+			overflow: hidden;
+		}
+		.detail-card-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 16px 20px;
+			border-bottom: 1px solid var(--border-light);
+		}
+		.transport-card .detail-card-header { background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%); color: white; }
+		.hostel-card .detail-card-header { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: white; }
+		.detail-card-header h3 {
+			font-size: 16px;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.detail-card-header .status-badge {
+			background: rgba(255,255,255,0.2);
+			color: white;
+			font-size: 11px;
+			padding: 4px 10px;
+		}
+		.detail-card-body { padding: 20px; }
+		.transport-info-grid, .hostel-info-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+		.transport-info-item, .hostel-info-item {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+		.info-label {
+			font-size: 11px;
+			text-transform: uppercase;
+			color: var(--text-muted);
+			font-weight: 600;
+		}
+		.info-value {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+		.bus-fee-breakdown h4, .hostel-fee-breakdown h4 {
+			font-size: 14px;
+			font-weight: 600;
+			margin-bottom: 12px;
+			padding-top: 16px;
+			border-top: 1px solid var(--border-light);
+		}
+		.monthly-fees-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+			gap: 10px;
+		}
+		.monthly-fee-item {
+			background: var(--bg-main);
+			border-radius: var(--radius-md);
+			padding: 12px;
+			text-align: center;
+			border: 1px solid var(--border-light);
+		}
+		.monthly-fee-item.paid { background: var(--success-light); border-color: var(--success); }
+		.monthly-fee-item.pending { background: var(--warning-light); border-color: var(--warning); }
+		.monthly-fee-item.overdue { background: var(--danger-light); border-color: var(--danger); }
+		.monthly-fee-month {
+			font-size: 11px;
+			font-weight: 600;
+			color: var(--text-muted);
+			text-transform: uppercase;
+		}
+		.monthly-fee-amount {
+			font-size: 14px;
+			font-weight: 700;
+			margin-top: 4px;
+		}
+		.monthly-fee-item.paid .monthly-fee-amount { color: var(--success); }
+		.monthly-fee-item.pending .monthly-fee-amount { color: var(--warning); }
+		.monthly-fee-item.overdue .monthly-fee-amount { color: var(--danger); }
+		.monthly-fee-status {
+			font-size: 9px;
+			margin-top: 4px;
+			text-transform: uppercase;
+			font-weight: 600;
+		}
+
+		/* Hostel Components */
+		.hostel-components-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 12px;
+		}
+		.hostel-component {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 12px 16px;
+			background: var(--bg-main);
+			border-radius: var(--radius-md);
+			border: 1px solid var(--border-light);
+		}
+		.hostel-component-name {
+			font-size: 13px;
+			color: var(--text-secondary);
+		}
+		.hostel-component-amount {
+			font-size: 14px;
+			font-weight: 700;
+			color: var(--text-primary);
+		}
+		.hostel-component-status {
+			font-size: 10px;
+			padding: 2px 8px;
+			border-radius: 4px;
+			margin-left: 8px;
+		}
+		.hostel-component-status.paid { background: var(--success-light); color: var(--success); }
+		.hostel-component-status.pending { background: var(--warning-light); color: var(--warning); }
+
+		/* Upcoming Dues */
+		.upcoming-dues-section { margin-top: 24px; }
+		.upcoming-dues-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 16px;
+		}
+		.due-card {
+			background: white;
+			border-radius: var(--radius-lg);
+			padding: 16px;
+			border: 1px solid var(--border-light);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.due-card.urgent { border-left: 4px solid var(--danger); background: var(--danger-light); }
+		.due-card.warning { border-left: 4px solid var(--warning); }
+		.due-card.normal { border-left: 4px solid var(--primary); }
+		.due-date-box {
+			width: 60px;
+			height: 60px;
+			border-radius: var(--radius-md);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+		.due-card.urgent .due-date-box { background: var(--danger); color: white; }
+		.due-card.warning .due-date-box { background: var(--warning); color: white; }
+		.due-card.normal .due-date-box { background: var(--primary-light); color: var(--primary); }
+		.due-date-day { font-size: 22px; font-weight: 700; line-height: 1; }
+		.due-date-month { font-size: 10px; text-transform: uppercase; font-weight: 600; }
+		.due-info { flex: 1; }
+		.due-type { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+		.due-amount { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+		.due-days { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+		.due-card.urgent .due-days { color: var(--danger); font-weight: 600; }
+
+		/* Fee Table Enhancements */
+		.overdue-row { background: var(--danger-light) !important; }
+		.receipt-no { font-family: 'Monaco', 'Consolas', monospace; font-size: 12px; color: var(--primary); }
+		.fee-type-badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			padding: 4px 10px;
+			background: var(--bg-main);
+			border-radius: 20px;
+			white-space: nowrap;
+		}
+		.fee-type-badge i { font-size: 11px; color: var(--primary); }
+		.description-cell {
+			font-size: 12px;
+			color: var(--text-secondary);
+			max-width: 150px;
+		}
+		.amount { color: var(--text-primary); }
+		.due-date-label {
+			font-size: 11px;
+			color: var(--danger);
+			font-weight: 500;
+		}
+		.status-badge.overdue {
+			background: var(--danger);
+			color: white;
+			animation: pulse 2s infinite;
+		}
+		@keyframes pulse {
+			0%, 100% { opacity: 1; }
+			50% { opacity: 0.7; }
+		}
+
+		/* Grade Badge */
+		.grade-badge {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			font-weight: 700;
+			font-size: 14px;
+		}
+		.grade-badge.a-plus, .grade-badge.a { background: var(--success-light); color: var(--success); }
+		.grade-badge.b-plus, .grade-badge.b { background: var(--info-light); color: var(--info); }
+		.grade-badge.c-plus, .grade-badge.c { background: var(--warning-light); color: var(--warning); }
+		.grade-badge.d, .grade-badge.e { background: var(--danger-light); color: var(--danger); }
+		.grade-badge.f { background: #1a1a2e; color: white; }
+
+		/* Charts */
+		.charts-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+			gap: 24px;
+		}
+		.chart-card {
+			background: white;
+			border-radius: var(--radius-lg);
+			padding: 24px;
+			border: 1px solid var(--border-light);
+		}
+		.chart-title {
+			font-size: 16px;
+			font-weight: 600;
+			margin-bottom: 20px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: var(--text-primary);
+		}
+		.chart-title i { color: var(--primary); }
+		.chart-container { position: relative; height: 300px; }
+
+		/* Attendance Calendar */
+		.calendar-wrapper {
+			background: white;
+			border-radius: var(--radius-lg);
+			padding: 24px;
+			border: 1px solid var(--border-light);
+			margin-bottom: 24px;
+		}
+		.calendar-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+		.calendar-title { font-size: 18px; font-weight: 600; }
+		.calendar-nav { display: flex; gap: 8px; }
+		.calendar-nav button {
+			width: 36px;
+			height: 36px;
+			border: 1px solid var(--border);
+			background: white;
+			border-radius: var(--radius-md);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+		.calendar-nav button:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+		.attendance-calendar {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 8px;
+		}
+		.calendar-day-header {
+			text-align: center;
+			font-weight: 600;
+			font-size: 12px;
+			color: var(--text-muted);
+			padding: 10px;
+			text-transform: uppercase;
+		}
+		.calendar-day {
+			aspect-ratio: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			border-radius: var(--radius-md);
+			font-size: 14px;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.2s;
+			border: 1px solid transparent;
+		}
+		.calendar-day:hover:not(.empty):not(.future) { transform: scale(1.05); box-shadow: var(--shadow-sm); }
+		.calendar-day.present { background: var(--success-light); color: var(--success); border-color: var(--success); }
+		.calendar-day.absent { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+		.calendar-day.late { background: var(--warning-light); color: var(--warning); border-color: var(--warning); }
+		.calendar-day.holiday { background: var(--purple-light); color: var(--purple); }
+		.calendar-day.empty { background: transparent; cursor: default; }
+		.calendar-day.future { background: var(--bg-main); color: var(--text-light); cursor: default; }
+		.calendar-day.today { border: 2px solid var(--primary); font-weight: 700; }
+		.calendar-day .day-status { font-size: 8px; margin-top: 2px; text-transform: uppercase; }
+
+		/* Legend */
+		.legend {
+			display: flex;
+			gap: 20px;
+			flex-wrap: wrap;
+			padding: 16px;
+			background: var(--bg-main);
+			border-radius: var(--radius-md);
+			margin-top: 16px;
+		}
+		.legend-item {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			font-size: 13px;
+			color: var(--text-secondary);
+		}
+		.legend-color {
+			width: 16px;
+			height: 16px;
+			border-radius: 4px;
+		}
+		.legend-color.present { background: var(--success-light); border: 1px solid var(--success); }
+		.legend-color.absent { background: var(--danger-light); border: 1px solid var(--danger); }
+		.legend-color.late { background: var(--warning-light); border: 1px solid var(--warning); }
+		.legend-color.holiday { background: var(--purple-light); border: 1px solid var(--purple); }
+
+		/* Month Summary */
+		.month-summary {
+			display: flex;
+			gap: 16px;
+			justify-content: center;
+			flex-wrap: wrap;
+			padding: 20px;
+			background: linear-gradient(135deg, var(--bg-main) 0%, white 100%);
+			border-radius: var(--radius-lg);
+			margin: 16px 0;
+			border: 1px solid var(--border-light);
+		}
+		.month-stat {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 12px 24px;
+			background: white;
+			border-radius: var(--radius-md);
+			box-shadow: var(--shadow-sm);
+			min-width: 90px;
+		}
+		.month-stat-value {
+			font-size: 24px;
+			font-weight: 700;
+			line-height: 1;
+		}
+		.month-stat-value.present { color: var(--success); }
+		.month-stat-value.absent { color: var(--danger); }
+		.month-stat-value.late { color: var(--warning); }
+		.month-stat-value.total { color: var(--primary); }
+		.month-stat-label {
+			font-size: 11px;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			margin-top: 6px;
+			font-weight: 500;
+		}
+
+		/* Attendance Table Enhancements */
+		.today-row { background: var(--primary-50) !important; }
+		.today-row:hover { background: var(--primary-light) !important; }
+		.today-badge {
+			font-size: 10px;
+			background: var(--primary);
+			color: white;
+			padding: 2px 6px;
+			border-radius: 4px;
+			margin-left: 8px;
+			text-transform: uppercase;
+			font-weight: 600;
+		}
+		.date-cell { display: flex; align-items: center; }
+		.day-name {
+			color: var(--text-secondary);
+			font-weight: 500;
+		}
+		.time-cell { font-family: 'Monaco', 'Consolas', monospace; font-size: 12px; }
+		.time-cell.na { color: var(--text-light); }
+		.remarks-cell { max-width: 200px; }
+		.remarks-cell .na { color: var(--text-light); }
+		.record-count {
+			font-size: 12px;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.record-count i { color: var(--primary); }
+
+		/* Empty State */
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: var(--text-muted);
+		}
+		.empty-state i { font-size: 56px; margin-bottom: 20px; color: var(--text-light); }
+		.empty-state h3 { font-size: 20px; margin-bottom: 10px; color: var(--text-primary); }
+		.empty-state p { font-size: 14px; margin-bottom: 20px; }
+
+		/* Loading State */
+		.loading-state {
+			text-align: center;
+			padding: 80px 20px;
+		}
+		.loading-spinner {
+			width: 50px;
+			height: 50px;
+			border: 4px solid var(--border);
+			border-top-color: var(--primary);
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+			margin: 0 auto 20px;
+		}
+		@keyframes spin { to { transform: rotate(360deg); } }
+
+		/* Toast */
+		.toast-container {
+			position: fixed;
+			top: 24px;
+			right: 24px;
+			z-index: 9999;
+		}
+		.toast {
+			padding: 16px 24px;
+			border-radius: var(--radius-md);
+			color: white;
+			font-weight: 500;
+			margin-bottom: 12px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			animation: slideIn 0.3s ease;
+			box-shadow: var(--shadow-lg);
+			max-width: 400px;
+		}
+		.toast.success { background: var(--success); }
+		.toast.error { background: var(--danger); }
+		.toast.warning { background: var(--warning); }
+		.toast.info { background: var(--info); }
+		@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+		/* Modal */
+		.modal-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: rgba(0,0,0,0.5);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.3s;
+		}
+		.modal-overlay.show { opacity: 1; visibility: visible; }
+		.modal {
+			background: white;
+			border-radius: var(--radius-xl);
+			width: 90%;
+			max-width: 600px;
+			max-height: 90vh;
+			overflow: hidden;
+			transform: scale(0.9);
+			transition: transform 0.3s;
+		}
+		.modal-overlay.show .modal { transform: scale(1); }
+		.modal-header {
+			padding: 20px 24px;
+			background: var(--secondary);
+			color: white;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.modal-header h3 { font-size: 18px; font-weight: 600; }
+		.modal-close {
+			background: none;
+			border: none;
+			color: white;
+			font-size: 20px;
+			cursor: pointer;
+			opacity: 0.8;
+		}
+		.modal-close:hover { opacity: 1; }
+		.modal-body { padding: 24px; max-height: 60vh; overflow-y: auto; }
+		.modal-footer {
+			padding: 16px 24px;
+			border-top: 1px solid var(--border);
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+
+		/* Form */
+		.form-group { margin-bottom: 20px; }
+		.form-label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; }
+		.form-input, .form-select, .form-textarea {
+			width: 100%;
+			padding: 12px 16px;
+			border: 1px solid var(--border);
+			border-radius: var(--radius-md);
+			font-size: 14px;
+			font-family: inherit;
+			transition: all 0.2s;
+		}
+		.form-input:focus, .form-select:focus, .form-textarea:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px var(--primary-light);
+		}
+		.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+		/* Print Styles */
+		@media print {
+			.tabs-nav, .header-actions, .back-btn, .filter-bar, .action-buttons, .btn { display: none !important; }
+			.tab-content { display: block !important; }
+			.main-container { padding: 0; }
+		}
+
+		/* Responsive */
+		@media (max-width: 992px) {
+			.charts-grid { grid-template-columns: 1fr; }
+		}
+		@media (max-width: 768px) {
+			.main-container { padding: 16px; }
+			.page-header { flex-direction: column; align-items: flex-start; }
+			.student-header-card { flex-direction: column; text-align: center; padding: 24px; }
+			.student-header-stats { justify-content: center; width: 100%; }
+			.student-meta { justify-content: center; }
+			.header-stat { min-width: 90px; padding: 14px 18px; }
+			.tabs-nav { justify-content: flex-start; }
+			.tab-btn { padding: 14px 18px; font-size: 13px; }
+			.profile-grid { grid-template-columns: 1fr; }
+			.stats-grid { grid-template-columns: repeat(2, 1fr); }
+			.form-row { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<div class="main-container">
+		<!-- Breadcrumb -->
+		<div class="breadcrumb">
+			<a href="students.html"><i class="fas fa-users"></i> Students</a>
+			<i class="fas fa-chevron-right separator"></i>
+			<span class="current" id="breadcrumbName">Student Details</span>
+		</div>
+
+		<!-- Page Header -->
+		<div class="page-header">
+			<div class="page-title-section">
+				<a href="students.html" class="back-btn" title="Back to Students">
+					<i class="fas fa-arrow-left"></i>
+				</a>
+				<div class="page-title">
+					<h1 id="pageTitle">Student Details</h1>
+					<p id="pageSubtitle">View complete student information</p>
+				</div>
+			</div>
+			<div class="header-actions">
+				<button class="btn btn-secondary" onclick="window.print()">
+					<i class="fas fa-print"></i> Print
+				</button>
+				<button class="btn btn-info" onclick="exportStudentData()">
+					<i class="fas fa-download"></i> Export
+				</button>
+				<button class="btn btn-primary" onclick="editStudent()">
+					<i class="fas fa-edit"></i> Edit Student
+				</button>
+			</div>
+		</div>
+
+		<!-- Student Header Card -->
+		<div class="student-header-card" id="studentHeaderCard">
+			<div class="student-photo" id="studentPhoto">
+				<span id="studentInitials">--</span>
+			</div>
+			<div class="student-header-info">
+				<h2 id="studentName">Loading...</h2>
+				<p class="admission-no">
+					<i class="fas fa-id-card"></i>
+					<span id="admissionNo">--</span>
+				</p>
+				<div class="student-meta">
+					<span class="meta-item"><i class="fas fa-graduation-cap"></i> <span id="metaClass">--</span></span>
+					<span class="meta-item"><i class="fas fa-list-ol"></i> Roll: <span id="metaRoll">--</span></span>
+					<span class="meta-item"><i class="fas fa-venus-mars"></i> <span id="metaGender">--</span></span>
+					<span class="meta-item" id="metaStatusContainer">
+						<span class="status-badge active" id="metaStatus">Active</span>
+					</span>
+				</div>
+			</div>
+			<div class="student-header-stats">
+				<div class="header-stat green">
+					<div class="header-stat-value" id="headerAttendance">--%</div>
+					<div class="header-stat-label">Attendance</div>
+				</div>
+				<div class="header-stat">
+					<div class="header-stat-value" id="headerGrade">--</div>
+					<div class="header-stat-label">Grade</div>
+				</div>
+				<div class="header-stat yellow">
+					<div class="header-stat-value" id="headerFeeStatus">--</div>
+					<div class="header-stat-label">Fee Status</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tabs Container -->
+		<div class="tabs-container">
+			<div class="tabs-nav">
+				<button class="tab-btn active" data-tab="profile" onclick="switchTab('profile')">
+					<i class="fas fa-user"></i> Student Profile
+				</button>
+				<button class="tab-btn" data-tab="fees" onclick="switchTab('fees')">
+					<i class="fas fa-rupee-sign"></i> Fee Payment
+					<span class="tab-badge" id="pendingFeeBadge" style="display: none;">!</span>
+				</button>
+				<button class="tab-btn" data-tab="marks" onclick="switchTab('marks')">
+					<i class="fas fa-chart-bar"></i> Marks / Exams
+				</button>
+				<button class="tab-btn" data-tab="attendance" onclick="switchTab('attendance')">
+					<i class="fas fa-calendar-check"></i> Attendance
+				</button>
+				<button class="tab-btn" data-tab="activity" onclick="switchTab('activity')">
+					<i class="fas fa-chart-line"></i> Activity Report
+				</button>
+			</div>
+
+			<!-- Tab 1: Student Profile -->
+			<div class="tab-content active" id="tab-profile">
+				<div class="profile-grid">
+					<!-- Personal Information -->
+					<div class="profile-section">
+						<h3 class="profile-section-title"><i class="fas fa-user"></i> Personal Information</h3>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-user"></i> Full Name</span>
+							<span class="profile-value" id="profileName">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-venus-mars"></i> Gender</span>
+							<span class="profile-value" id="profileGender">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-birthday-cake"></i> Date of Birth</span>
+							<span class="profile-value" id="profileDOB">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-tint"></i> Blood Group</span>
+							<span class="profile-value" id="profileBlood">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-pray"></i> Religion</span>
+							<span class="profile-value" id="profileReligion">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-tags"></i> Category</span>
+							<span class="profile-value" id="profileCategory">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-globe"></i> Nationality</span>
+							<span class="profile-value" id="profileNationality">--</span>
+						</div>
+					</div>
+
+					<!-- Academic Information -->
+					<div class="profile-section">
+						<h3 class="profile-section-title"><i class="fas fa-graduation-cap"></i> Academic Information</h3>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-id-card"></i> Admission Number</span>
+							<span class="profile-value" id="profileAdmNo">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-chalkboard"></i> Class</span>
+							<span class="profile-value" id="profileClass">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-layer-group"></i> Section</span>
+							<span class="profile-value" id="profileSection">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-sort-numeric-up"></i> Roll Number</span>
+							<span class="profile-value" id="profileRoll">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-calendar-plus"></i> Admission Date</span>
+							<span class="profile-value" id="profileAdmDate">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-book"></i> Previous School</span>
+							<span class="profile-value" id="profilePrevSchool">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-toggle-on"></i> Status</span>
+							<span class="profile-value" id="profileStatus">--</span>
+						</div>
+					</div>
+
+					<!-- Parent/Guardian Information -->
+					<div class="profile-section">
+						<h3 class="profile-section-title"><i class="fas fa-users"></i> Parent/Guardian Information</h3>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-male"></i> Father's Name</span>
+							<span class="profile-value" id="profileFather">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-briefcase"></i> Father's Occupation</span>
+							<span class="profile-value" id="profileFatherOcc">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-female"></i> Mother's Name</span>
+							<span class="profile-value" id="profileMother">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-briefcase"></i> Mother's Occupation</span>
+							<span class="profile-value" id="profileMotherOcc">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-user-shield"></i> Guardian Name</span>
+							<span class="profile-value" id="profileGuardian">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-link"></i> Relation</span>
+							<span class="profile-value" id="profileRelation">--</span>
+						</div>
+					</div>
+
+					<!-- Contact Information -->
+					<div class="profile-section">
+						<h3 class="profile-section-title"><i class="fas fa-address-book"></i> Contact Information</h3>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-phone"></i> Phone Number</span>
+							<span class="profile-value" id="profilePhone">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fab fa-whatsapp"></i> WhatsApp</span>
+							<span class="profile-value" id="profileWhatsapp">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-envelope"></i> Email</span>
+							<span class="profile-value" id="profileEmail">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-phone-alt"></i> Emergency Contact</span>
+							<span class="profile-value" id="profileEmergency">--</span>
+						</div>
+					</div>
+
+					<!-- Address Information -->
+					<div class="profile-section">
+						<h3 class="profile-section-title"><i class="fas fa-map-marker-alt"></i> Address Information</h3>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-home"></i> Current Address</span>
+							<span class="profile-value" id="profileAddress">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-city"></i> City</span>
+							<span class="profile-value" id="profileCity">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-map"></i> State</span>
+							<span class="profile-value" id="profileState">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-map-pin"></i> PIN Code</span>
+							<span class="profile-value" id="profilePIN">--</span>
+						</div>
+					</div>
+
+					<!-- Transport Information -->
+					<div class="profile-section">
+						<h3 class="profile-section-title"><i class="fas fa-bus"></i> Transport Information</h3>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-bus-alt"></i> Transport Mode</span>
+							<span class="profile-value" id="profileTransport">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-route"></i> Route</span>
+							<span class="profile-value" id="profileRoute">--</span>
+						</div>
+						<div class="profile-item">
+							<span class="profile-label"><i class="fas fa-map-signs"></i> Pickup Point</span>
+							<span class="profile-value" id="profilePickup">--</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Tab 2: Fee Payment -->
+			<div class="tab-content" id="tab-fees">
+				<!-- Overall Fee Stats -->
+				<div class="stats-grid">
+					<div class="stat-card">
+						<div class="stat-icon blue"><i class="fas fa-rupee-sign"></i></div>
+						<div class="stat-info">
+							<h3 id="totalFee">₹0</h3>
+							<p>Total Annual Fee</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+						<div class="stat-info">
+							<h3 id="paidAmount">₹0</h3>
+							<p>Paid Amount</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+						<div class="stat-info">
+							<h3 id="pendingAmount">₹0</h3>
+							<p>Pending Amount</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+						<div class="stat-info">
+							<h3 id="overdueAmount">₹0</h3>
+							<p>Overdue</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Progress Bar -->
+				<div class="progress-container">
+					<div class="progress-header">
+						<span class="progress-label">Overall Payment Progress</span>
+						<span class="progress-value" id="progressPercent">0%</span>
+					</div>
+					<div class="progress-bar">
+						<div class="progress-fill" id="feeProgressBar" style="width: 0%;"></div>
+					</div>
+				</div>
+
+				<!-- Fee Category Breakdown -->
+				<div class="fee-categories-section">
+					<h3 class="section-title"><i class="fas fa-layer-group"></i> Fee Breakdown by Category</h3>
+					<div class="fee-categories-grid" id="feeCategoriesGrid">
+						<!-- Dynamic fee category cards -->
+					</div>
+				</div>
+
+				<!-- Bus Fee Details (if applicable) -->
+				<div class="transport-details-section" id="busFeesSection" style="display: none;">
+					<div class="detail-card transport-card">
+						<div class="detail-card-header">
+							<h3><i class="fas fa-bus"></i> Bus/Transport Fee Details</h3>
+							<span class="status-badge" id="busPaymentStatus">--</span>
+						</div>
+						<div class="detail-card-body">
+							<div class="transport-info-grid">
+								<div class="transport-info-item">
+									<span class="info-label">Route Number</span>
+									<span class="info-value" id="busRouteNo">--</span>
+								</div>
+								<div class="transport-info-item">
+									<span class="info-label">Route Name</span>
+									<span class="info-value" id="busRouteName">--</span>
+								</div>
+								<div class="transport-info-item">
+									<span class="info-label">Pickup Point</span>
+									<span class="info-value" id="busPickupPoint">--</span>
+								</div>
+								<div class="transport-info-item">
+									<span class="info-label">Pickup Time</span>
+									<span class="info-value" id="busPickupTime">--</span>
+								</div>
+								<div class="transport-info-item">
+									<span class="info-label">Drop Time</span>
+									<span class="info-value" id="busDropTime">--</span>
+								</div>
+								<div class="transport-info-item">
+									<span class="info-label">Distance</span>
+									<span class="info-value" id="busDistance">--</span>
+								</div>
+							</div>
+							<div class="bus-fee-breakdown">
+								<h4>Monthly Breakdown</h4>
+								<div class="monthly-fees-grid" id="busMonthlyBreakdown">
+									<!-- Monthly bus fee cards -->
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Hostel Fee Details (if applicable) -->
+				<div class="hostel-details-section" id="hostelFeesSection" style="display: none;">
+					<div class="detail-card hostel-card">
+						<div class="detail-card-header">
+							<h3><i class="fas fa-building"></i> Hostel Fee Details</h3>
+							<span class="status-badge" id="hostelPaymentStatus">--</span>
+						</div>
+						<div class="detail-card-body">
+							<div class="hostel-info-grid">
+								<div class="hostel-info-item">
+									<span class="info-label">Hostel Name</span>
+									<span class="info-value" id="hostelName">--</span>
+								</div>
+								<div class="hostel-info-item">
+									<span class="info-label">Room Number</span>
+									<span class="info-value" id="hostelRoomNo">--</span>
+								</div>
+								<div class="hostel-info-item">
+									<span class="info-label">Room Type</span>
+									<span class="info-value" id="hostelRoomType">--</span>
+								</div>
+								<div class="hostel-info-item">
+									<span class="info-label">Bed Number</span>
+									<span class="info-value" id="hostelBedNo">--</span>
+								</div>
+								<div class="hostel-info-item">
+									<span class="info-label">Floor</span>
+									<span class="info-value" id="hostelFloor">--</span>
+								</div>
+								<div class="hostel-info-item">
+									<span class="info-label">Warden</span>
+									<span class="info-value" id="hostelWarden">--</span>
+								</div>
+							</div>
+							<div class="hostel-fee-breakdown">
+								<h4>Fee Components</h4>
+								<div class="hostel-components-grid" id="hostelComponentsGrid">
+									<!-- Hostel fee components -->
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Payment History Table -->
+				<div class="table-wrapper">
+					<div class="table-header">
+						<span class="table-title"><i class="fas fa-history"></i> Payment History</span>
+						<div style="display: flex; gap: 12px; align-items: center;">
+							<select class="filter-select" id="feeTypeFilter" onchange="renderFeeTable()">
+								<option value="">All Fee Types</option>
+								<option value="Tuition">Tuition Fee</option>
+								<option value="Bus">Bus/Transport Fee</option>
+								<option value="Hostel">Hostel Fee</option>
+								<option value="Lab">Lab Fee</option>
+								<option value="Library">Library Fee</option>
+								<option value="Sports">Sports Fee</option>
+								<option value="Exam">Exam Fee</option>
+								<option value="Other">Other Fees</option>
+							</select>
+							<select class="filter-select" id="feeYearFilter" onchange="renderFeeTable()">
+								<option value="">All Years</option>
+								<option value="2025-26" selected>2025-26</option>
+								<option value="2024-25">2024-25</option>
+							</select>
+							<button class="btn btn-success btn-sm" onclick="openPaymentModal()">
+								<i class="fas fa-plus"></i> Add Payment
+							</button>
+						</div>
+					</div>
+					<div class="table-container">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>Receipt No</th>
+									<th>Date</th>
+									<th>Fee Type</th>
+									<th>Description</th>
+									<th>Amount</th>
+									<th>Mode</th>
+									<th>Status</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+							<tbody id="feeTableBody">
+								<!-- Dynamic content -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Upcoming Due Dates -->
+				<div class="upcoming-dues-section">
+					<h3 class="section-title"><i class="fas fa-calendar-alt"></i> Upcoming Due Dates</h3>
+					<div class="upcoming-dues-grid" id="upcomingDuesGrid">
+						<!-- Upcoming payment cards -->
+					</div>
+				</div>
+			</div>
+
+			<!-- Tab 3: Marks / Exams -->
+			<div class="tab-content" id="tab-marks">
+				<!-- Exam Stats -->
+				<div class="stats-grid">
+					<div class="stat-card">
+						<div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+						<div class="stat-info">
+							<h3 id="totalExams">0</h3>
+							<p>Total Exams</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon green"><i class="fas fa-trophy"></i></div>
+						<div class="stat-info">
+							<h3 id="avgPercentage">0%</h3>
+							<p>Average Score</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange"><i class="fas fa-medal"></i></div>
+						<div class="stat-info">
+							<h3 id="classRank">--</h3>
+							<p>Class Rank</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon purple"><i class="fas fa-star"></i></div>
+						<div class="stat-info">
+							<h3 id="overallGrade">--</h3>
+							<p>Overall Grade</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Marks Table -->
+				<div class="table-wrapper">
+					<div class="table-header">
+						<span class="table-title"><i class="fas fa-chart-bar"></i> Exam Results</span>
+						<div style="display: flex; gap: 12px;">
+							<select class="filter-select" id="examFilter" onchange="renderMarksTable()">
+								<option value="">All Exams</option>
+								<option value="Unit Test 1">Unit Test 1</option>
+								<option value="Unit Test 2">Unit Test 2</option>
+								<option value="Half Yearly">Half Yearly</option>
+								<option value="Final Exam">Final Exam</option>
+							</select>
+							<button class="btn btn-info btn-sm" onclick="downloadMarksheet()">
+								<i class="fas fa-download"></i> Download Marksheet
+							</button>
+						</div>
+					</div>
+					<div class="table-container">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>Exam</th>
+									<th>Subject</th>
+									<th>Max Marks</th>
+									<th>Obtained</th>
+									<th>Percentage</th>
+									<th>Grade</th>
+									<th>Result</th>
+								</tr>
+							</thead>
+							<tbody id="marksTableBody">
+								<!-- Dynamic content -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Exam Summary by Subject -->
+				<div style="margin-top: 24px;">
+					<h3 class="section-title"><i class="fas fa-book"></i> Subject-wise Summary</h3>
+					<div id="subjectSummary" class="stats-grid">
+						<!-- Dynamic content -->
+					</div>
+				</div>
+			</div>
+
+			<!-- Tab 4: Attendance -->
+			<div class="tab-content" id="tab-attendance">
+				<!-- Attendance Stats -->
+				<div class="stats-grid">
+					<div class="stat-card">
+						<div class="stat-icon blue"><i class="fas fa-calendar"></i></div>
+						<div class="stat-info">
+							<h3 id="workingDays">0</h3>
+							<p>Working Days</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon green"><i class="fas fa-check"></i></div>
+						<div class="stat-info">
+							<h3 id="presentDays">0</h3>
+							<p>Days Present</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon red"><i class="fas fa-times"></i></div>
+						<div class="stat-info">
+							<h3 id="absentDays">0</h3>
+							<p>Days Absent</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+						<div class="stat-info">
+							<h3 id="lateDays">0</h3>
+							<p>Late Arrivals</p>
+						</div>
+					</div>
+					<div class="stat-card">
+						<div class="stat-icon purple"><i class="fas fa-percentage"></i></div>
+						<div class="stat-info">
+							<h3 id="attendancePercent">0%</h3>
+							<p>Attendance %</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Calendar -->
+				<div class="calendar-wrapper">
+					<div class="calendar-header">
+						<h3 class="calendar-title" id="calendarTitle">January 2026</h3>
+						<div class="calendar-nav">
+							<button onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+							<button onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+						</div>
+					</div>
+					<div class="attendance-calendar" id="attendanceCalendar">
+						<!-- Dynamic calendar -->
+					</div>
+					<div class="legend">
+						<span class="legend-item"><span class="legend-color present"></span> Present</span>
+						<span class="legend-item"><span class="legend-color absent"></span> Absent</span>
+						<span class="legend-item"><span class="legend-color late"></span> Late</span>
+						<span class="legend-item"><span class="legend-color holiday"></span> Holiday</span>
+					</div>
+				</div>
+
+				<!-- Attendance History -->
+				<div class="table-wrapper">
+					<div class="table-header">
+						<span class="table-title"><i class="fas fa-history"></i> Attendance History</span>
+						<select class="filter-select" id="attendanceMonthFilter" onchange="renderAttendanceTable()">
+							<option value="">All Months</option>
+							<option value="1">January</option>
+							<option value="2">February</option>
+							<option value="3">March</option>
+							<option value="4">April</option>
+							<option value="5">May</option>
+							<option value="6">June</option>
+							<option value="7">July</option>
+							<option value="8">August</option>
+							<option value="9">September</option>
+							<option value="10">October</option>
+							<option value="11">November</option>
+							<option value="12">December</option>
+						</select>
+					</div>
+					<div class="table-container">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Day</th>
+									<th>Status</th>
+									<th>Check In</th>
+									<th>Check Out</th>
+									<th>Remarks</th>
+								</tr>
+							</thead>
+							<tbody id="attendanceTableBody">
+								<!-- Dynamic content -->
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<!-- Tab 5: Activity Report -->
+			<div class="tab-content" id="tab-activity">
+				<div class="charts-grid">
+					<!-- Attendance Trend -->
+					<div class="chart-card">
+						<h3 class="chart-title"><i class="fas fa-calendar-check"></i> Attendance Trend (Monthly)</h3>
+						<div class="chart-container">
+							<canvas id="attendanceChart"></canvas>
+						</div>
+					</div>
+
+					<!-- Fee Payment Progress -->
+					<div class="chart-card">
+						<h3 class="chart-title"><i class="fas fa-rupee-sign"></i> Fee Payment Status</h3>
+						<div class="chart-container">
+							<canvas id="feeChart"></canvas>
+						</div>
+					</div>
+
+					<!-- Exam Performance -->
+					<div class="chart-card">
+						<h3 class="chart-title"><i class="fas fa-chart-bar"></i> Exam Performance</h3>
+						<div class="chart-container">
+							<canvas id="examChart"></canvas>
+						</div>
+					</div>
+
+					<!-- Subject-wise Performance -->
+					<div class="chart-card">
+						<h3 class="chart-title"><i class="fas fa-book"></i> Subject-wise Analysis</h3>
+						<div class="chart-container">
+							<canvas id="subjectChart"></canvas>
+						</div>
+					</div>
+				</div>
+
+				<!-- Performance Summary -->
+				<div style="margin-top: 24px;">
+					<h3 class="section-title"><i class="fas fa-clipboard-check"></i> Performance Summary</h3>
+					<div class="profile-grid">
+						<div class="profile-section">
+							<h3 class="profile-section-title"><i class="fas fa-award"></i> Achievements</h3>
+							<div id="achievementsList">
+								<div class="profile-item">
+									<span class="profile-label"><i class="fas fa-trophy"></i> Best Attendance</span>
+									<span class="profile-value">April 2025 (100%)</span>
+								</div>
+								<div class="profile-item">
+									<span class="profile-label"><i class="fas fa-star"></i> Highest Score</span>
+									<span class="profile-value">Mathematics - 98%</span>
+								</div>
+								<div class="profile-item">
+									<span class="profile-label"><i class="fas fa-medal"></i> Class Rank</span>
+									<span class="profile-value">5th out of 45</span>
+								</div>
+							</div>
+						</div>
+						<div class="profile-section">
+							<h3 class="profile-section-title"><i class="fas fa-exclamation-circle"></i> Areas for Improvement</h3>
+							<div id="improvementsList">
+								<div class="profile-item">
+									<span class="profile-label"><i class="fas fa-book"></i> Lowest Subject</span>
+									<span class="profile-value">Hindi - 72%</span>
+								</div>
+								<div class="profile-item">
+									<span class="profile-label"><i class="fas fa-calendar-times"></i> Absent Days</span>
+									<span class="profile-value">8 days this year</span>
+								</div>
+								<div class="profile-item">
+									<span class="profile-label"><i class="fas fa-rupee-sign"></i> Pending Fees</span>
+									<span class="profile-value">₹12,000</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Payment Modal -->
+	<div class="modal-overlay" id="paymentModal">
+		<div class="modal">
+			<div class="modal-header">
+				<h3><i class="fas fa-plus"></i> Add New Payment</h3>
+				<button class="modal-close" onclick="closePaymentModal()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-row">
+					<div class="form-group">
+						<label class="form-label">Fee Type *</label>
+						<select class="form-select" id="paymentFeeType">
+							<option value="">Select Fee Type</option>
+							<option value="Tuition Fee">Tuition Fee</option>
+							<option value="Transport Fee">Transport Fee</option>
+							<option value="Library Fee">Library Fee</option>
+							<option value="Lab Fee">Lab Fee</option>
+							<option value="Exam Fee">Exam Fee</option>
+							<option value="Sports Fee">Sports Fee</option>
+							<option value="Other">Other</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Amount *</label>
+						<input type="number" class="form-input" id="paymentAmount" placeholder="Enter amount">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label class="form-label">Payment Mode *</label>
+						<select class="form-select" id="paymentMode">
+							<option value="">Select Mode</option>
+							<option value="Cash">Cash</option>
+							<option value="Online">Online</option>
+							<option value="UPI">UPI</option>
+							<option value="Bank Transfer">Bank Transfer</option>
+							<option value="Cheque">Cheque</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Payment Date *</label>
+						<input type="date" class="form-input" id="paymentDate">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="form-label">Transaction Reference</label>
+					<input type="text" class="form-input" id="paymentRef" placeholder="Transaction ID / Cheque No">
+				</div>
+				<div class="form-group">
+					<label class="form-label">Remarks</label>
+					<textarea class="form-textarea" id="paymentRemarks" rows="3" placeholder="Any additional notes..."></textarea>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+				<button class="btn btn-success" onclick="savePayment()">
+					<i class="fas fa-save"></i> Save Payment
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Toast Container -->
+	<div class="toast-container" id="toastContainer"></div>
+
+	<script>
+		// ============================================
+		// GLOBAL VARIABLES
+		// ============================================
+		let studentId = null;
+		let studentData = null;
+		let feePayments = [];
+		let examResults = [];
+		let attendanceRecords = [];
+		let charts = {};
+		let currentMonth = new Date().getMonth();
+		let currentYear = new Date().getFullYear();
+
+		// ============================================
+		// INITIALIZATION
+		// ============================================
+		document.addEventListener('DOMContentLoaded', function() {
+			// Get student ID from URL (works both in iframe and standalone)
+			const urlParams = new URLSearchParams(window.location.search);
+			studentId = urlParams.get('id');
+
+			console.log('=== STUDENT DETAIL PAGE INIT ===');
+			console.log('Full URL:', window.location.href);
+			console.log('Search params:', window.location.search);
+			console.log('Student ID from URL:', studentId);
+
+			if (!studentId) {
+				showToast('Student ID not found in URL', 'error');
+				console.log('No student ID - page loaded without ID parameter');
+				// Don't auto-redirect, just show the error
+				return;
+			}
+
+			loadStudentData();
+		});
+
+		// ============================================
+		// DATA LOADING
+		// ============================================
+		// Use same API path format as students.html for consistency
+		const API_BASE = '/School-Management-PhpVersion/backend/api';
+
+		function loadStudentData() {
+			console.log('=== LOADING STUDENT DATA ===');
+			console.log('Student ID:', studentId);
+
+			// First try to load single student from API (with credentials for auth)
+			fetch(API_BASE + '/students.php?action=single&id=' + encodeURIComponent(studentId), {
+				credentials: 'include' // Send session cookies for authentication
+			})
+				.then(response => response.json())
+				.then(data => {
+					console.log('Single student API response:', data);
+					if (data.success && data.data) {
+						studentData = data.data;
+						onStudentDataLoaded();
+					} else {
+						// Try loading all students from API
+						loadAllStudentsFromAPI();
+					}
+				})
+				.catch(error => {
+					console.log('Single student API error:', error);
+					// Try loading all students from API
+					loadAllStudentsFromAPI();
+				});
+		}
+
+		function loadAllStudentsFromAPI() {
+			console.log('Trying to load all students from API...');
+			fetch(API_BASE + '/students.php?action=list', {
+				credentials: 'include' // Send session cookies for authentication
+			})
+				.then(response => response.json())
+				.then(data => {
+					console.log('All students API response:', data);
+					if (data.success && data.data) {
+						const students = data.data.students || data.data;
+						if (Array.isArray(students) && students.length > 0) {
+							// Save to localStorage for future use
+							localStorage.setItem('edu_students', JSON.stringify(students));
+							findStudentInList(students);
+						} else {
+							loadFromLocalStorage();
+						}
+					} else {
+						loadFromLocalStorage();
+					}
+				})
+				.catch(error => {
+					console.log('All students API error:', error);
+					loadFromLocalStorage();
+				});
+		}
+
+		function loadFromLocalStorage() {
+			console.log('=== LOADING FROM LOCALSTORAGE ===');
+
+			// Try multiple localStorage keys (different pages use different keys)
+			let students = null;
+
+			// Try 'edu_students' first (used by students.html)
+			let studentsData = localStorage.getItem('edu_students');
+			console.log('edu_students data exists:', !!studentsData);
+
+			if (studentsData) {
+				try {
+					students = JSON.parse(studentsData);
+					console.log('Loaded from edu_students:', students.length, 'students');
+				} catch (e) {
+					console.log('Error parsing edu_students:', e);
+				}
+			}
+
+			// Try 'students' as fallback
+			if (!students || students.length === 0) {
+				studentsData = localStorage.getItem('students');
+				console.log('students data exists:', !!studentsData);
+
+				if (studentsData) {
+					try {
+						students = JSON.parse(studentsData);
+						console.log('Loaded from students:', students.length, 'students');
+					} catch (e) {
+						console.log('Error parsing students:', e);
+					}
+				}
+			}
+
+			// If still no data, generate demo students and save
+			if (!students || students.length === 0) {
+				console.log('No students found in localStorage, generating demo data');
+				students = generateDemoStudents();
+				localStorage.setItem('edu_students', JSON.stringify(students));
+				showToast('Demo student data generated', 'info');
+			}
+
+			findStudentInList(students);
+		}
+
+		function findStudentInList(students) {
+			console.log('=== FINDING STUDENT IN LIST ===');
+			console.log('Looking for student ID:', studentId);
+			console.log('Available students:', students.map(s => ({ id: s.id, admission_no: s.admission_no, name: s.name })));
+
+			// Find student by ID (handle various ID formats)
+			studentData = students.find(s => {
+				const sId = String(s.id || '').toLowerCase().trim();
+				const sAdmNo = String(s.admission_no || '').toLowerCase().trim();
+				const searchId = String(studentId || '').toLowerCase().trim();
+
+				return sId === searchId ||
+					   sAdmNo === searchId ||
+					   sId.includes(searchId) ||
+					   searchId.includes(sId);
+			});
+
+			if (!studentData) {
+				// If exact match failed, try partial match
+				studentData = students.find(s => {
+					const sId = String(s.id || '');
+					return sId.endsWith(studentId) || studentId.endsWith(sId);
+				});
+			}
+
+			if (!studentData) {
+				showToast('Student not found with ID: ' + studentId, 'error');
+				console.log('Student not found. Available IDs:', students.map(s => s.id));
+				console.log('Available admission numbers:', students.map(s => s.admission_no));
+				return;
+			}
+
+			console.log('Found student:', studentData);
+			onStudentDataLoaded();
+		}
+
+		function generateDemoStudents() {
+			const names = ['Aarav Sharma', 'Ananya Patel', 'Arjun Singh', 'Diya Gupta', 'Kabir Verma',
+						   'Ishaan Kumar', 'Priya Reddy', 'Rohan Joshi', 'Sneha Nair', 'Vikram Mehta'];
+			const classes = ['Class 8', 'Class 9', 'Class 10'];
+			const sections = ['A', 'B', 'C'];
+			const demoStudents = [];
+
+			for (let i = 0; i < 10; i++) {
+				demoStudents.push({
+					id: 'STU' + String(i + 1).padStart(3, '0'),
+					name: names[i],
+					gender: i % 2 === 0 ? 'Male' : 'Female',
+					dob: '2010-0' + ((i % 9) + 1) + '-15',
+					class: classes[i % classes.length],
+					section: sections[i % sections.length],
+					roll_no: String(i + 1),
+					admission_no: 'ADM2020' + String(i + 1).padStart(3, '0'),
+					admission_date: '2020-04-01',
+					parent_name: 'Mr. ' + names[i].split(' ')[1],
+					father_name: 'Mr. ' + names[i].split(' ')[1],
+					mother_name: 'Mrs. ' + names[i].split(' ')[1],
+					contact: '98765' + String(43210 + i).padStart(5, '0'),
+					email: names[i].toLowerCase().replace(' ', '.') + '@email.com',
+					address: 'House No. ' + (i + 1) + ', Main Street',
+					city: 'Mumbai',
+					state: 'Maharashtra',
+					pincode: '400' + String(i + 1).padStart(3, '0'),
+					blood_group: ['A+', 'B+', 'O+', 'AB+'][i % 4],
+					religion: 'Hindu',
+					category: 'General',
+					status: 'Active',
+					created_at: new Date().toISOString()
+				});
+			}
+			return demoStudents;
+		}
+
+		function onStudentDataLoaded() {
+			console.log('Student data loaded:', studentData);
+
+			// Update page with student data
+			renderStudentHeader();
+			renderProfileTab();
+			loadFeeData();
+			loadExamData();
+			loadAttendanceData();
+
+			// Initialize charts after a small delay
+			setTimeout(initializeCharts, 500);
+
+			showToast('Student data loaded successfully', 'success');
+		}
+
+		// ============================================
+		// RENDER STUDENT HEADER
+		// ============================================
+		function renderStudentHeader() {
+			const initials = getInitials(studentData.name);
+			const color = getAvatarColor(studentData.name);
+
+			// Update header elements
+			document.getElementById('breadcrumbName').textContent = studentData.name || 'Student Details';
+			document.getElementById('pageTitle').textContent = studentData.name || 'Student Details';
+			document.getElementById('pageSubtitle').textContent = 'ID: ' + (studentData.admission_no || studentData.id);
+
+			// Student photo/avatar
+			const photoEl = document.getElementById('studentPhoto');
+			const initialsEl = document.getElementById('studentInitials');
+
+			if (studentData.photo && studentData.photo !== '') {
+				photoEl.innerHTML = '<img src="' + studentData.photo + '" alt="' + studentData.name + '">';
+			} else {
+				photoEl.style.background = 'rgba(255,255,255,0.2)';
+				initialsEl.textContent = initials;
+			}
+
+			// Header info
+			document.getElementById('studentName').textContent = studentData.name || 'N/A';
+			document.getElementById('admissionNo').textContent = studentData.admission_no || studentData.id || 'N/A';
+			document.getElementById('metaClass').textContent = (studentData.class || '--') + ' - ' + (studentData.section || '--');
+			document.getElementById('metaRoll').textContent = studentData.roll_no || '--';
+			document.getElementById('metaGender').textContent = studentData.gender || '--';
+
+			// Status
+			const status = studentData.status || 'Active';
+			const statusEl = document.getElementById('metaStatus');
+			statusEl.textContent = status;
+			statusEl.className = 'status-badge ' + status.toLowerCase();
+
+			// Calculate and update header stats
+			updateHeaderStats();
+		}
+
+		function updateHeaderStats() {
+			// Attendance percentage
+			const attendancePercent = calculateAttendancePercent();
+			document.getElementById('headerAttendance').textContent = attendancePercent + '%';
+
+			// Overall grade
+			const overallGrade = calculateOverallGrade();
+			document.getElementById('headerGrade').textContent = overallGrade;
+
+			// Fee status
+			const feeStatus = calculateFeeStatus();
+			document.getElementById('headerFeeStatus').textContent = feeStatus;
+		}
+
+		function calculateAttendancePercent() {
+			// Will be calculated based on actual data
+			return 92;
+		}
+
+		function calculateOverallGrade() {
+			// Will be calculated based on exam results
+			return 'A';
+		}
+
+		function calculateFeeStatus() {
+			// Will be calculated based on fee data
+			return '85%';
+		}
+
+		// ============================================
+		// RENDER PROFILE TAB
+		// ============================================
+		function renderProfileTab() {
+			// Personal Information
+			document.getElementById('profileName').textContent = studentData.name || '--';
+			document.getElementById('profileGender').textContent = studentData.gender || '--';
+			document.getElementById('profileDOB').textContent = formatDate(studentData.dob || studentData.date_of_birth) || '--';
+			document.getElementById('profileBlood').textContent = studentData.blood_group || '--';
+			document.getElementById('profileReligion').textContent = studentData.religion || '--';
+			document.getElementById('profileCategory').textContent = studentData.category || '--';
+			document.getElementById('profileNationality').textContent = studentData.nationality || 'Indian';
+
+			// Academic Information
+			document.getElementById('profileAdmNo').textContent = studentData.admission_no || studentData.id || '--';
+			document.getElementById('profileClass').textContent = studentData.class || '--';
+			document.getElementById('profileSection').textContent = studentData.section || '--';
+			document.getElementById('profileRoll').textContent = studentData.roll_no || '--';
+			document.getElementById('profileAdmDate').textContent = formatDate(studentData.admission_date) || '--';
+			document.getElementById('profilePrevSchool').textContent = studentData.previous_school || '--';
+
+			const status = studentData.status || 'Active';
+			document.getElementById('profileStatus').innerHTML = '<span class="status-badge ' + status.toLowerCase() + '">' + status + '</span>';
+
+			// Parent Information
+			document.getElementById('profileFather').textContent = studentData.father_name || studentData.parent_name || '--';
+			document.getElementById('profileFatherOcc').textContent = studentData.father_occupation || '--';
+			document.getElementById('profileMother').textContent = studentData.mother_name || '--';
+			document.getElementById('profileMotherOcc').textContent = studentData.mother_occupation || '--';
+			document.getElementById('profileGuardian').textContent = studentData.guardian_name || studentData.parent_name || '--';
+			document.getElementById('profileRelation').textContent = studentData.guardian_relation || 'Parent';
+
+			// Contact Information
+			document.getElementById('profilePhone').textContent = studentData.contact || studentData.phone || '--';
+			document.getElementById('profileWhatsapp').textContent = studentData.whatsapp_number || studentData.whatsapp || '--';
+			document.getElementById('profileEmail').textContent = studentData.email || '--';
+			document.getElementById('profileEmergency').textContent = studentData.emergency_contact || studentData.contact || '--';
+
+			// Address Information
+			document.getElementById('profileAddress').textContent = studentData.address || '--';
+			document.getElementById('profileCity').textContent = studentData.city || '--';
+			document.getElementById('profileState').textContent = studentData.state || '--';
+			document.getElementById('profilePIN').textContent = studentData.pincode || studentData.pin || '--';
+
+			// Transport Information
+			document.getElementById('profileTransport').textContent = studentData.transport_mode || 'School Bus';
+			document.getElementById('profileRoute').textContent = studentData.route || '--';
+			document.getElementById('profilePickup').textContent = studentData.pickup_point || '--';
+		}
+
+		// ============================================
+		// FEE TAB
+		// ============================================
+		// Fee structure with categories
+		let feeStructure = {
+			tuition: { name: 'Tuition Fee', icon: 'fas fa-graduation-cap', total: 60000, paid: 0, items: [] },
+			bus: { name: 'Bus/Transport Fee', icon: 'fas fa-bus', total: 0, paid: 0, items: [], details: null },
+			hostel: { name: 'Hostel Fee', icon: 'fas fa-building', total: 0, paid: 0, items: [], details: null },
+			lab: { name: 'Lab Fee', icon: 'fas fa-flask', total: 5000, paid: 0, items: [] },
+			library: { name: 'Library Fee', icon: 'fas fa-book', total: 2000, paid: 0, items: [] },
+			sports: { name: 'Sports Fee', icon: 'fas fa-futbol', total: 3000, paid: 0, items: [] },
+			exam: { name: 'Exam Fee', icon: 'fas fa-file-alt', total: 4000, paid: 0, items: [] },
+			other: { name: 'Other Fees', icon: 'fas fa-ellipsis-h', total: 0, paid: 0, items: [] }
+		};
+
+		function loadFeeData() {
+			// Clear old data for fresh demo (remove this line in production)
+			// localStorage.removeItem('studentFeeStructure_' + studentId);
+
+			const storedFeeStructure = localStorage.getItem('studentFeeStructure_' + studentId);
+			const storedFees = localStorage.getItem('studentFees_' + studentId);
+
+			if (storedFeeStructure) {
+				feeStructure = JSON.parse(storedFeeStructure);
+			} else {
+				// Generate comprehensive fee structure
+				generateFeeStructure();
+				localStorage.setItem('studentFeeStructure_' + studentId, JSON.stringify(feeStructure));
+			}
+
+			if (storedFees) {
+				feePayments = JSON.parse(storedFees);
+			} else {
+				// Generate payment history from fee structure
+				generatePaymentHistory();
+				localStorage.setItem('studentFees_' + studentId, JSON.stringify(feePayments));
+			}
+
+			// Calculate totals from all categories
+			let totalFee = 0, paidAmount = 0, pendingAmount = 0, overdueAmount = 0;
+
+			Object.values(feeStructure).forEach(cat => {
+				totalFee += cat.total;
+				paidAmount += cat.paid;
+			});
+
+			// Calculate pending and overdue from payments
+			feePayments.forEach(f => {
+				if (f.status === 'Pending') pendingAmount += f.amount;
+				if (f.status === 'Overdue') overdueAmount += f.amount;
+			});
+
+			const progress = totalFee > 0 ? Math.round((paidAmount / totalFee) * 100) : 0;
+
+			document.getElementById('totalFee').textContent = '₹' + totalFee.toLocaleString('en-IN');
+			document.getElementById('paidAmount').textContent = '₹' + paidAmount.toLocaleString('en-IN');
+			document.getElementById('pendingAmount').textContent = '₹' + pendingAmount.toLocaleString('en-IN');
+			document.getElementById('overdueAmount').textContent = '₹' + overdueAmount.toLocaleString('en-IN');
+			document.getElementById('progressPercent').textContent = progress + '%';
+
+			const progressBar = document.getElementById('feeProgressBar');
+			progressBar.style.width = progress + '%';
+			progressBar.classList.remove('danger', 'warning');
+			if (progress < 50) progressBar.classList.add('danger');
+			else if (progress < 80) progressBar.classList.add('warning');
+
+			// Update header fee status
+			const headerFeeStatus = document.getElementById('headerFeeStatus');
+			if (headerFeeStatus) headerFeeStatus.textContent = progress + '%';
+
+			// Show pending badge
+			const pendingBadge = document.getElementById('pendingFeeBadge');
+			if (pendingBadge && (pendingAmount + overdueAmount > 0)) {
+				pendingBadge.style.display = 'inline';
+			}
+
+			// Render all fee sections
+			renderFeeCategories();
+			renderBusFeesSection();
+			renderHostelFeesSection();
+			renderFeeTable();
+			renderUpcomingDues();
+		}
+
+		function generateFeeStructure() {
+			// Tuition Fee - Quarterly payments
+			feeStructure.tuition = {
+				name: 'Tuition Fee',
+				icon: 'fas fa-graduation-cap',
+				total: 60000,
+				paid: 45000,
+				items: [
+					{ period: 'Q1 (Apr-Jun)', amount: 15000, status: 'Paid', date: '2025-04-05' },
+					{ period: 'Q2 (Jul-Sep)', amount: 15000, status: 'Paid', date: '2025-07-10' },
+					{ period: 'Q3 (Oct-Dec)', amount: 15000, status: 'Paid', date: '2025-10-15' },
+					{ period: 'Q4 (Jan-Mar)', amount: 15000, status: 'Pending', dueDate: '2026-01-15' }
+				]
+			};
+
+			// Bus Fee - Monthly payments (if student uses transport)
+			const usesTransport = true; // This would come from student data
+			if (usesTransport) {
+				feeStructure.bus = {
+					name: 'Bus/Transport Fee',
+					icon: 'fas fa-bus',
+					total: 24000, // ₹2000/month for 12 months
+					paid: 18000,
+					details: {
+						routeNo: 'R-05',
+						routeName: 'Sector 15 - School Campus',
+						pickupPoint: 'Sector 15 Market, Near SBI Bank',
+						pickupTime: '7:15 AM',
+						dropTime: '3:45 PM',
+						distance: '8.5 KM',
+						vehicleNo: 'DL-5C-AB-1234',
+						driverName: 'Ramesh Kumar',
+						driverContact: '+91 98765 43210'
+					},
+					items: [
+						{ month: 'Apr', amount: 2000, status: 'Paid', date: '2025-04-05' },
+						{ month: 'May', amount: 2000, status: 'Paid', date: '2025-05-05' },
+						{ month: 'Jun', amount: 2000, status: 'Paid', date: '2025-06-05' },
+						{ month: 'Jul', amount: 2000, status: 'Paid', date: '2025-07-05' },
+						{ month: 'Aug', amount: 2000, status: 'Paid', date: '2025-08-05' },
+						{ month: 'Sep', amount: 2000, status: 'Paid', date: '2025-09-05' },
+						{ month: 'Oct', amount: 2000, status: 'Paid', date: '2025-10-05' },
+						{ month: 'Nov', amount: 2000, status: 'Paid', date: '2025-11-05' },
+						{ month: 'Dec', amount: 2000, status: 'Paid', date: '2025-12-05' },
+						{ month: 'Jan', amount: 2000, status: 'Pending', dueDate: '2026-01-10' },
+						{ month: 'Feb', amount: 2000, status: 'Pending', dueDate: '2026-02-10' },
+						{ month: 'Mar', amount: 2000, status: 'Pending', dueDate: '2026-03-10' }
+					]
+				};
+			}
+
+			// Hostel Fee (if student is hosteler)
+			const isHosteler = true; // This would come from student data
+			if (isHosteler) {
+				feeStructure.hostel = {
+					name: 'Hostel Fee',
+					icon: 'fas fa-building',
+					total: 72000, // ₹6000/month for 12 months
+					paid: 54000,
+					details: {
+						hostelName: 'Boys Hostel - Block A',
+						roomNo: 'A-204',
+						roomType: 'Double Sharing (AC)',
+						bedNo: 'Bed 1',
+						floor: '2nd Floor',
+						warden: 'Mr. Suresh Sharma',
+						wardenContact: '+91 98765 12345',
+						messType: 'Vegetarian',
+						laundryIncluded: true
+					},
+					components: [
+						{ name: 'Room Rent', amount: 36000, paid: 27000, perMonth: 3000 },
+						{ name: 'Mess Charges', amount: 30000, paid: 22500, perMonth: 2500 },
+						{ name: 'Electricity', amount: 3600, paid: 2700, perMonth: 300 },
+						{ name: 'Laundry', amount: 2400, paid: 1800, perMonth: 200 }
+					],
+					items: [
+						{ month: 'Apr', amount: 6000, status: 'Paid', date: '2025-04-01' },
+						{ month: 'May', amount: 6000, status: 'Paid', date: '2025-05-01' },
+						{ month: 'Jun', amount: 6000, status: 'Paid', date: '2025-06-01' },
+						{ month: 'Jul', amount: 6000, status: 'Paid', date: '2025-07-01' },
+						{ month: 'Aug', amount: 6000, status: 'Paid', date: '2025-08-01' },
+						{ month: 'Sep', amount: 6000, status: 'Paid', date: '2025-09-01' },
+						{ month: 'Oct', amount: 6000, status: 'Paid', date: '2025-10-01' },
+						{ month: 'Nov', amount: 6000, status: 'Paid', date: '2025-11-01' },
+						{ month: 'Dec', amount: 6000, status: 'Paid', date: '2025-12-01' },
+						{ month: 'Jan', amount: 6000, status: 'Pending', dueDate: '2026-01-05' },
+						{ month: 'Feb', amount: 6000, status: 'Pending', dueDate: '2026-02-05' },
+						{ month: 'Mar', amount: 6000, status: 'Pending', dueDate: '2026-03-05' }
+					]
+				};
+			}
+
+			// Lab Fee - Annual
+			feeStructure.lab = {
+				name: 'Lab Fee',
+				icon: 'fas fa-flask',
+				total: 5000,
+				paid: 5000,
+				items: [{ period: 'Annual', amount: 5000, status: 'Paid', date: '2025-04-10' }]
+			};
+
+			// Library Fee - Annual
+			feeStructure.library = {
+				name: 'Library Fee',
+				icon: 'fas fa-book',
+				total: 2000,
+				paid: 2000,
+				items: [{ period: 'Annual', amount: 2000, status: 'Paid', date: '2025-04-10' }]
+			};
+
+			// Sports Fee - Annual
+			feeStructure.sports = {
+				name: 'Sports Fee',
+				icon: 'fas fa-futbol',
+				total: 3000,
+				paid: 0,
+				items: [{ period: 'Annual', amount: 3000, status: 'Pending', dueDate: '2026-01-31' }]
+			};
+
+			// Exam Fee - Per exam
+			feeStructure.exam = {
+				name: 'Exam Fee',
+				icon: 'fas fa-file-alt',
+				total: 4000,
+				paid: 2000,
+				items: [
+					{ period: 'Half Yearly Exam', amount: 2000, status: 'Paid', date: '2025-09-15' },
+					{ period: 'Annual Exam', amount: 2000, status: 'Overdue', dueDate: '2025-12-31' }
+				]
+			};
+		}
+
+		function generatePaymentHistory() {
+			feePayments = [];
+			let id = 1;
+
+			// Generate payment records from fee structure
+			Object.entries(feeStructure).forEach(([category, data]) => {
+				if (data.total === 0) return;
+
+				data.items.forEach(item => {
+					if (item.status === 'Paid') {
+						feePayments.push({
+							id: id++,
+							receipt: 'RCP-' + item.date.substring(0, 4) + '-' + String(id).padStart(3, '0'),
+							date: item.date,
+							type: data.name,
+							category: category,
+							description: item.period || item.month + ' ' + new Date().getFullYear(),
+							amount: item.amount,
+							mode: ['Cash', 'UPI', 'Online', 'Bank Transfer'][Math.floor(Math.random() * 4)],
+							status: 'Paid',
+							ref: 'TXN' + Math.random().toString(36).substr(2, 8).toUpperCase()
+						});
+					} else {
+						feePayments.push({
+							id: id++,
+							receipt: '--',
+							date: '',
+							type: data.name,
+							category: category,
+							description: item.period || item.month + ' 2026',
+							amount: item.amount,
+							mode: '',
+							status: item.status,
+							dueDate: item.dueDate,
+							ref: ''
+						});
+					}
+				});
+			});
+
+			// Sort by date (paid first, then pending)
+			feePayments.sort((a, b) => {
+				if (a.status === 'Paid' && b.status !== 'Paid') return -1;
+				if (a.status !== 'Paid' && b.status === 'Paid') return 1;
+				return new Date(b.date || b.dueDate) - new Date(a.date || a.dueDate);
+			});
+		}
+
+		function renderFeeCategories() {
+			const grid = document.getElementById('feeCategoriesGrid');
+			if (!grid) return;
+
+			const categoryIcons = {
+				tuition: 'tuition',
+				bus: 'bus',
+				hostel: 'hostel',
+				lab: 'lab',
+				library: 'library',
+				sports: 'sports',
+				exam: 'exam',
+				other: 'other'
+			};
+
+			let html = '';
+			Object.entries(feeStructure).forEach(([key, cat]) => {
+				if (cat.total === 0) return;
+
+				const progress = Math.round((cat.paid / cat.total) * 100);
+				const pending = cat.total - cat.paid;
+				let statusClass = progress >= 100 ? 'fully-paid' : (progress > 0 ? 'partial' : 'unpaid');
+				let progressClass = progress >= 100 ? 'success' : (progress >= 50 ? 'warning' : 'danger');
+
+				html += `
+					<div class="fee-category-card ${statusClass}" onclick="showCategoryDetails('${key}')">
+						<div class="fee-category-header">
+							<div class="fee-category-icon ${categoryIcons[key]}">
+								<i class="${cat.icon}"></i>
+							</div>
+							<div style="text-align: right;">
+								<div class="fee-category-name">${cat.name}</div>
+								<div class="fee-category-amount">₹${cat.total.toLocaleString('en-IN')}</div>
+							</div>
+						</div>
+						<div class="fee-category-progress">
+							<div class="fee-category-progress-fill ${progressClass}" style="width: ${progress}%"></div>
+						</div>
+						<div class="fee-category-details">
+							<span>Paid: <span class="fee-category-paid">₹${cat.paid.toLocaleString('en-IN')}</span></span>
+							<span>Pending: <span class="fee-category-pending">₹${pending.toLocaleString('en-IN')}</span></span>
+						</div>
+					</div>
+				`;
+			});
+
+			grid.innerHTML = html;
+		}
+
+		function renderBusFeesSection() {
+			const section = document.getElementById('busFeesSection');
+			if (!section || !feeStructure.bus || feeStructure.bus.total === 0) {
+				if (section) section.style.display = 'none';
+				return;
+			}
+
+			section.style.display = 'block';
+			const details = feeStructure.bus.details;
+			const progress = Math.round((feeStructure.bus.paid / feeStructure.bus.total) * 100);
+
+			// Update bus details
+			document.getElementById('busRouteNo').textContent = details.routeNo;
+			document.getElementById('busRouteName').textContent = details.routeName;
+			document.getElementById('busPickupPoint').textContent = details.pickupPoint;
+			document.getElementById('busPickupTime').textContent = details.pickupTime;
+			document.getElementById('busDropTime').textContent = details.dropTime;
+			document.getElementById('busDistance').textContent = details.distance;
+
+			// Update payment status badge
+			const statusBadge = document.getElementById('busPaymentStatus');
+			statusBadge.textContent = progress + '% Paid';
+			statusBadge.className = 'status-badge ' + (progress >= 100 ? 'paid' : (progress > 50 ? 'partial' : 'pending'));
+
+			// Render monthly breakdown
+			const monthlyGrid = document.getElementById('busMonthlyBreakdown');
+			monthlyGrid.innerHTML = feeStructure.bus.items.map(item => `
+				<div class="monthly-fee-item ${item.status.toLowerCase()}">
+					<div class="monthly-fee-month">${item.month}</div>
+					<div class="monthly-fee-amount">₹${item.amount.toLocaleString('en-IN')}</div>
+					<div class="monthly-fee-status">${item.status}</div>
+				</div>
+			`).join('');
+		}
+
+		function renderHostelFeesSection() {
+			const section = document.getElementById('hostelFeesSection');
+			if (!section || !feeStructure.hostel || feeStructure.hostel.total === 0) {
+				if (section) section.style.display = 'none';
+				return;
+			}
+
+			section.style.display = 'block';
+			const details = feeStructure.hostel.details;
+			const progress = Math.round((feeStructure.hostel.paid / feeStructure.hostel.total) * 100);
+
+			// Update hostel details
+			document.getElementById('hostelName').textContent = details.hostelName;
+			document.getElementById('hostelRoomNo').textContent = details.roomNo;
+			document.getElementById('hostelRoomType').textContent = details.roomType;
+			document.getElementById('hostelBedNo').textContent = details.bedNo;
+			document.getElementById('hostelFloor').textContent = details.floor;
+			document.getElementById('hostelWarden').textContent = details.warden;
+
+			// Update payment status badge
+			const statusBadge = document.getElementById('hostelPaymentStatus');
+			statusBadge.textContent = progress + '% Paid';
+			statusBadge.className = 'status-badge ' + (progress >= 100 ? 'paid' : (progress > 50 ? 'partial' : 'pending'));
+
+			// Render fee components
+			const componentsGrid = document.getElementById('hostelComponentsGrid');
+			componentsGrid.innerHTML = feeStructure.hostel.components.map(comp => {
+				const compProgress = Math.round((comp.paid / comp.amount) * 100);
+				return `
+					<div class="hostel-component">
+						<div>
+							<div class="hostel-component-name">${comp.name}</div>
+							<div style="font-size: 11px; color: var(--text-muted);">₹${comp.perMonth}/month</div>
+						</div>
+						<div style="text-align: right;">
+							<span class="hostel-component-amount">₹${comp.amount.toLocaleString('en-IN')}</span>
+							<span class="hostel-component-status ${compProgress >= 100 ? 'paid' : 'pending'}">${compProgress}%</span>
+						</div>
+					</div>
+				`;
+			}).join('');
+		}
+
+		function renderUpcomingDues() {
+			const grid = document.getElementById('upcomingDuesGrid');
+			if (!grid) return;
+
+			const today = new Date();
+			const upcomingDues = feePayments
+				.filter(f => f.status !== 'Paid' && f.dueDate)
+				.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+				.slice(0, 4);
+
+			if (upcomingDues.length === 0) {
+				grid.innerHTML = '<div class="empty-state" style="padding: 30px;"><i class="fas fa-check-circle" style="color: var(--success);"></i><h3>All Caught Up!</h3><p>No upcoming dues at the moment.</p></div>';
+				return;
+			}
+
+			grid.innerHTML = upcomingDues.map(due => {
+				const dueDate = new Date(due.dueDate);
+				const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+				let urgencyClass = 'normal';
+				let daysText = daysUntil + ' days left';
+
+				if (daysUntil < 0) {
+					urgencyClass = 'urgent';
+					daysText = Math.abs(daysUntil) + ' days overdue!';
+				} else if (daysUntil <= 7) {
+					urgencyClass = 'warning';
+					daysText = daysUntil === 0 ? 'Due Today!' : daysUntil + ' days left';
+				}
+
+				return `
+					<div class="due-card ${urgencyClass}">
+						<div class="due-date-box">
+							<span class="due-date-day">${dueDate.getDate()}</span>
+							<span class="due-date-month">${dueDate.toLocaleString('default', { month: 'short' })}</span>
+						</div>
+						<div class="due-info">
+							<div class="due-type">${due.type}</div>
+							<div class="due-amount">₹${due.amount.toLocaleString('en-IN')}</div>
+							<div class="due-days"><i class="fas fa-clock"></i> ${daysText}</div>
+						</div>
+						<button class="btn btn-success btn-sm" onclick="payNow(${due.id})">Pay</button>
+					</div>
+				`;
+			}).join('');
+		}
+
+		function showCategoryDetails(category) {
+			const cat = feeStructure[category];
+			if (!cat) return;
+
+			// Scroll to relevant section
+			if (category === 'bus' && feeStructure.bus.total > 0) {
+				document.getElementById('busFeesSection').scrollIntoView({ behavior: 'smooth' });
+			} else if (category === 'hostel' && feeStructure.hostel.total > 0) {
+				document.getElementById('hostelFeesSection').scrollIntoView({ behavior: 'smooth' });
+			} else {
+				// Filter table to show only this category
+				document.getElementById('feeTypeFilter').value = category.charAt(0).toUpperCase() + category.slice(1);
+				renderFeeTable();
+				document.querySelector('#tab-fees .table-wrapper').scrollIntoView({ behavior: 'smooth' });
+			}
+		}
+
+		function renderFeeTable() {
+			const tbody = document.getElementById('feeTableBody');
+			const yearFilter = document.getElementById('feeYearFilter').value;
+			const typeFilterEl = document.getElementById('feeTypeFilter');
+			const typeFilter = typeFilterEl ? typeFilterEl.value : '';
+
+			let filtered = [...feePayments];
+
+			// Apply type filter
+			if (typeFilter) {
+				filtered = filtered.filter(f => {
+					const feeType = f.type.toLowerCase();
+					const filterType = typeFilter.toLowerCase();
+					return feeType.includes(filterType) || (f.category && f.category.toLowerCase().includes(filterType));
+				});
+			}
+
+			// Apply year filter
+			if (yearFilter) {
+				filtered = filtered.filter(f => {
+					const date = f.date || f.dueDate;
+					if (!date) return false;
+					const year = new Date(date).getFullYear();
+					const month = new Date(date).getMonth();
+					// Academic year: Apr 2025 - Mar 2026 = "2025-26"
+					const academicYear = month >= 3 ? `${year}-${(year + 1).toString().slice(2)}` : `${year - 1}-${year.toString().slice(2)}`;
+					return academicYear === yearFilter;
+				});
+			}
+
+			if (filtered.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-receipt"></i><h3>No fee records found</h3><p>Try changing the filter options</p></td></tr>';
+				return;
+			}
+
+			// Fee type icons
+			const feeTypeIcons = {
+				'Tuition Fee': 'fas fa-graduation-cap',
+				'Bus/Transport Fee': 'fas fa-bus',
+				'Hostel Fee': 'fas fa-building',
+				'Lab Fee': 'fas fa-flask',
+				'Library Fee': 'fas fa-book',
+				'Sports Fee': 'fas fa-futbol',
+				'Exam Fee': 'fas fa-file-alt',
+				'Other Fees': 'fas fa-ellipsis-h'
+			};
+
+			tbody.innerHTML = filtered.map(fee => {
+				const icon = feeTypeIcons[fee.type] || 'fas fa-receipt';
+				const dueDateStr = fee.dueDate ? `<span class="due-date-label">Due: ${formatDate(fee.dueDate)}</span>` : '';
+
+				return `
+					<tr class="${fee.status === 'Overdue' ? 'overdue-row' : ''}">
+						<td><strong class="receipt-no">${fee.receipt || '--'}</strong></td>
+						<td>
+							${fee.date ? formatDate(fee.date) : dueDateStr || '--'}
+						</td>
+						<td>
+							<span class="fee-type-badge">
+								<i class="${icon}"></i> ${fee.type}
+							</span>
+						</td>
+						<td class="description-cell">${fee.description || '--'}</td>
+						<td><strong class="amount">₹${fee.amount.toLocaleString('en-IN')}</strong></td>
+						<td>${fee.mode || '--'}</td>
+						<td><span class="status-badge ${fee.status.toLowerCase()}">${fee.status}</span></td>
+						<td>
+							<div class="action-buttons">
+								${fee.status === 'Paid' ? `
+									<button class="action-btn view" title="View Receipt" onclick="viewReceipt('${fee.receipt}')"><i class="fas fa-eye"></i></button>
+									<button class="action-btn download" title="Download" onclick="downloadReceipt('${fee.receipt}')"><i class="fas fa-download"></i></button>
+									<button class="action-btn print" title="Print" onclick="printReceipt('${fee.receipt}')"><i class="fas fa-print"></i></button>
+								` : `
+									<button class="btn btn-success btn-sm" onclick="payNow(${fee.id})">Pay Now</button>
+								`}
+							</div>
+						</td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function openPaymentModal() {
+			document.getElementById('paymentModal').classList.add('show');
+			document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+		}
+
+		function closePaymentModal() {
+			document.getElementById('paymentModal').classList.remove('show');
+		}
+
+		function savePayment() {
+			const feeType = document.getElementById('paymentFeeType').value;
+			const amount = parseFloat(document.getElementById('paymentAmount').value);
+			const mode = document.getElementById('paymentMode').value;
+			const date = document.getElementById('paymentDate').value;
+			const ref = document.getElementById('paymentRef').value;
+
+			if (!feeType || !amount || !mode || !date) {
+				showToast('Please fill all required fields', 'error');
+				return;
+			}
+
+			// Generate receipt number
+			const receipt = 'RCP-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+
+			const newPayment = {
+				id: feePayments.length + 1,
+				receipt: receipt,
+				date: date,
+				type: feeType,
+				amount: amount,
+				mode: mode,
+				status: 'Paid',
+				ref: ref
+			};
+
+			feePayments.push(newPayment);
+			localStorage.setItem('studentFees_' + studentId, JSON.stringify(feePayments));
+
+			closePaymentModal();
+			loadFeeData();
+			showToast('Payment recorded successfully! Receipt: ' + receipt, 'success');
+		}
+
+		function payNow(feeId) {
+			const fee = feePayments.find(f => f.id === feeId);
+			if (fee) {
+				document.getElementById('paymentFeeType').value = fee.type;
+				document.getElementById('paymentAmount').value = fee.amount;
+				openPaymentModal();
+			}
+		}
+
+		function viewReceipt(receiptNo) {
+			showToast('Viewing receipt: ' + receiptNo, 'info');
+		}
+
+		function downloadReceipt(receiptNo) {
+			showToast('Downloading receipt: ' + receiptNo, 'success');
+		}
+
+		function printReceipt(receiptNo) {
+			showToast('Printing receipt: ' + receiptNo, 'info');
+		}
+
+		// ============================================
+		// MARKS TAB
+		// ============================================
+		function loadExamData() {
+			// Load exam data from localStorage or generate sample data
+			const storedExams = localStorage.getItem('studentExams_' + studentId);
+
+			if (storedExams) {
+				examResults = JSON.parse(storedExams);
+			} else {
+				// Generate sample exam data
+				examResults = [
+					{ exam: 'Unit Test 1', subject: 'Mathematics', max: 100, obtained: 92, grade: 'A+', result: 'Pass' },
+					{ exam: 'Unit Test 1', subject: 'Science', max: 100, obtained: 88, grade: 'A', result: 'Pass' },
+					{ exam: 'Unit Test 1', subject: 'English', max: 100, obtained: 85, grade: 'A', result: 'Pass' },
+					{ exam: 'Unit Test 1', subject: 'Hindi', max: 100, obtained: 72, grade: 'B', result: 'Pass' },
+					{ exam: 'Unit Test 1', subject: 'Social Science', max: 100, obtained: 82, grade: 'A', result: 'Pass' },
+					{ exam: 'Half Yearly', subject: 'Mathematics', max: 100, obtained: 89, grade: 'A', result: 'Pass' },
+					{ exam: 'Half Yearly', subject: 'Science', max: 100, obtained: 91, grade: 'A+', result: 'Pass' },
+					{ exam: 'Half Yearly', subject: 'English', max: 100, obtained: 83, grade: 'A', result: 'Pass' },
+					{ exam: 'Half Yearly', subject: 'Hindi', max: 100, obtained: 75, grade: 'B+', result: 'Pass' },
+					{ exam: 'Half Yearly', subject: 'Social Science', max: 100, obtained: 80, grade: 'A', result: 'Pass' }
+				];
+				localStorage.setItem('studentExams_' + studentId, JSON.stringify(examResults));
+			}
+
+			// Calculate stats
+			const exams = [...new Set(examResults.map(e => e.exam))];
+			const totalObtained = examResults.reduce((sum, e) => sum + e.obtained, 0);
+			const totalMax = examResults.reduce((sum, e) => sum + e.max, 0);
+			const avgPercentage = Math.round((totalObtained / totalMax) * 100);
+
+			document.getElementById('totalExams').textContent = exams.length;
+			document.getElementById('avgPercentage').textContent = avgPercentage + '%';
+			document.getElementById('classRank').textContent = '5th';
+			document.getElementById('overallGrade').textContent = getGrade(avgPercentage);
+
+			renderMarksTable();
+			renderSubjectSummary();
+		}
+
+		function renderMarksTable() {
+			const tbody = document.getElementById('marksTableBody');
+			const filter = document.getElementById('examFilter').value;
+
+			let filtered = examResults;
+			if (filter) {
+				filtered = examResults.filter(e => e.exam === filter);
+			}
+
+			if (filtered.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-chart-bar"></i><h3>No exam records found</h3></td></tr>';
+				return;
+			}
+
+			tbody.innerHTML = filtered.map(exam => {
+				const percentage = Math.round((exam.obtained / exam.max) * 100);
+				const gradeClass = exam.grade.toLowerCase().replace('+', '-plus');
+				return `
+					<tr>
+						<td><strong>${exam.exam}</strong></td>
+						<td>${exam.subject}</td>
+						<td>${exam.max}</td>
+						<td><strong>${exam.obtained}</strong></td>
+						<td>${percentage}%</td>
+						<td><span class="grade-badge ${gradeClass}">${exam.grade}</span></td>
+						<td><span class="status-badge ${exam.result.toLowerCase()}">${exam.result}</span></td>
+					</tr>
+				`;
+			}).join('');
+		}
+
+		function renderSubjectSummary() {
+			const subjects = [...new Set(examResults.map(e => e.subject))];
+			const container = document.getElementById('subjectSummary');
+
+			const colors = ['blue', 'green', 'orange', 'purple', 'teal'];
+
+			container.innerHTML = subjects.map((subject, index) => {
+				const subjectResults = examResults.filter(e => e.subject === subject);
+				const avgScore = Math.round(subjectResults.reduce((sum, e) => sum + e.obtained, 0) / subjectResults.length);
+				const color = colors[index % colors.length];
+
+				return `
+					<div class="stat-card">
+						<div class="stat-icon ${color}"><i class="fas fa-book"></i></div>
+						<div class="stat-info">
+							<h3>${avgScore}%</h3>
+							<p>${subject}</p>
+						</div>
+					</div>
+				`;
+			}).join('');
+		}
+
+		function getGrade(percentage) {
+			if (percentage >= 90) return 'A+';
+			if (percentage >= 80) return 'A';
+			if (percentage >= 70) return 'B+';
+			if (percentage >= 60) return 'B';
+			if (percentage >= 50) return 'C';
+			if (percentage >= 40) return 'D';
+			return 'F';
+		}
+
+		function downloadMarksheet() {
+			showToast('Downloading marksheet...', 'info');
+		}
+
+		// ============================================
+		// ATTENDANCE TAB
+		// ============================================
+		function loadAttendanceData() {
+			// Clear old data and regenerate for fresh demo
+			// To test with fresh data, uncomment next line:
+			// localStorage.removeItem('studentAttendance_' + studentId);
+
+			// Load attendance data from localStorage or generate sample data
+			const storedAttendance = localStorage.getItem('studentAttendance_' + studentId);
+
+			if (storedAttendance) {
+				try {
+					attendanceRecords = JSON.parse(storedAttendance);
+					// Validate data has records
+					if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
+						throw new Error('Empty attendance data');
+					}
+				} catch (e) {
+					console.log('Regenerating attendance data:', e);
+					attendanceRecords = generateAttendanceData();
+					localStorage.setItem('studentAttendance_' + studentId, JSON.stringify(attendanceRecords));
+				}
+			} else {
+				// Generate sample attendance data for the current academic year
+				attendanceRecords = generateAttendanceData();
+				localStorage.setItem('studentAttendance_' + studentId, JSON.stringify(attendanceRecords));
+			}
+
+			console.log('Loaded attendance records:', attendanceRecords.length);
+
+			// Calculate stats
+			const workingDays = attendanceRecords.length;
+			const presentDays = attendanceRecords.filter(a => a.status === 'Present').length;
+			const absentDays = attendanceRecords.filter(a => a.status === 'Absent').length;
+			const lateDays = attendanceRecords.filter(a => a.status === 'Late').length;
+			const percentage = workingDays > 0 ? Math.round(((presentDays + lateDays) / workingDays) * 100) : 0;
+
+			document.getElementById('workingDays').textContent = workingDays;
+			document.getElementById('presentDays').textContent = presentDays;
+			document.getElementById('absentDays').textContent = absentDays;
+			document.getElementById('lateDays').textContent = lateDays;
+			document.getElementById('attendancePercent').textContent = percentage + '%';
+
+			// Update header stat
+			document.getElementById('headerAttendance').textContent = percentage + '%';
+
+			// Set color based on attendance percentage
+			const attendanceEl = document.getElementById('headerAttendance');
+			if (percentage >= 90) {
+				attendanceEl.style.color = 'var(--success)';
+			} else if (percentage >= 75) {
+				attendanceEl.style.color = 'var(--warning)';
+			} else {
+				attendanceEl.style.color = 'var(--danger)';
+			}
+
+			renderAttendanceCalendar();
+			renderAttendanceTable();
+		}
+
+		function generateAttendanceData() {
+			const records = [];
+			const today = new Date();
+
+			// Academic year: April to March
+			// If current month is Jan-Mar, academic year started previous year
+			// If current month is Apr-Dec, academic year started this year
+			let academicYearStart;
+			if (today.getMonth() < 3) { // Jan, Feb, Mar (0, 1, 2)
+				academicYearStart = new Date(today.getFullYear() - 1, 3, 1); // April 1st of previous year
+			} else {
+				academicYearStart = new Date(today.getFullYear(), 3, 1); // April 1st of current year
+			}
+
+			// Define holidays (customize as needed)
+			const holidays = [
+				'2025-08-15', // Independence Day
+				'2025-10-02', // Gandhi Jayanti
+				'2025-10-12', // Dussehra
+				'2025-10-31', // Diwali
+				'2025-11-01', // Diwali
+				'2025-12-25', // Christmas
+				'2026-01-01', // New Year
+				'2026-01-26', // Republic Day
+			];
+
+			// Generate realistic check-in times
+			function getCheckInTime(status) {
+				if (status === 'Absent') return '--';
+				if (status === 'Late') {
+					const lateMinutes = [15, 20, 25, 30, 45];
+					return `09:${String(lateMinutes[Math.floor(Math.random() * lateMinutes.length)]).padStart(2, '0')} AM`;
+				}
+				// Present - arrive between 8:30 and 8:55 AM
+				const minutes = 30 + Math.floor(Math.random() * 25);
+				return `08:${String(minutes).padStart(2, '0')} AM`;
+			}
+
+			// Generate realistic check-out times
+			function getCheckOutTime(status) {
+				if (status === 'Absent') return '--';
+				// Leave between 3:15 and 3:45 PM
+				const minutes = 15 + Math.floor(Math.random() * 30);
+				return `03:${String(minutes).padStart(2, '0')} PM`;
+			}
+
+			// Generate remarks
+			function getRemarks(status, date) {
+				if (status === 'Present') return '';
+				if (status === 'Late') {
+					const reasons = ['Traffic delay', 'Arrived late', 'Bus delay', 'Minor delay', 'Parent informed'];
+					return reasons[Math.floor(Math.random() * reasons.length)];
+				}
+				if (status === 'Absent') {
+					const reasons = ['Medical leave', 'Sick leave', 'Family emergency', 'Prior permission', 'Not well'];
+					return reasons[Math.floor(Math.random() * reasons.length)];
+				}
+				return '';
+			}
+
+			// Use seeded random for consistency per student
+			let seed = studentId ? studentId.charCodeAt(0) * 1000 : 12345;
+			function seededRandom() {
+				seed = (seed * 9301 + 49297) % 233280;
+				return seed / 233280;
+			}
+
+			for (let d = new Date(academicYearStart); d <= today; d.setDate(d.getDate() + 1)) {
+				const dayOfWeek = d.getDay();
+				const dateStr = d.toISOString().split('T')[0];
+
+				// Skip Sundays
+				if (dayOfWeek === 0) continue;
+
+				// Skip 2nd and 4th Saturdays (common school pattern)
+				if (dayOfWeek === 6) {
+					const weekOfMonth = Math.ceil(d.getDate() / 7);
+					if (weekOfMonth === 2 || weekOfMonth === 4) continue;
+				}
+
+				// Skip holidays
+				if (holidays.includes(dateStr)) continue;
+
+				// Determine status with realistic distribution
+				const rand = seededRandom();
+				let status = 'Present';
+				if (rand > 0.92) status = 'Absent';       // ~8% absent
+				else if (rand > 0.85) status = 'Late';   // ~7% late
+
+				records.push({
+					date: dateStr,
+					day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayOfWeek],
+					status: status,
+					checkIn: getCheckInTime(status),
+					checkOut: getCheckOutTime(status),
+					remarks: getRemarks(status, dateStr)
+				});
+			}
+
+			return records;
+		}
+
+		function renderAttendanceCalendar() {
+			const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+							   'July', 'August', 'September', 'October', 'November', 'December'];
+
+			document.getElementById('calendarTitle').textContent = monthNames[currentMonth] + ' ' + currentYear;
+
+			const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+			const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+			const today = new Date();
+
+			// Calculate monthly stats
+			const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+			const monthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+			const monthRecords = attendanceRecords.filter(a => a.date >= monthStart && a.date <= monthEnd);
+			const monthPresent = monthRecords.filter(a => a.status === 'Present').length;
+			const monthAbsent = monthRecords.filter(a => a.status === 'Absent').length;
+			const monthLate = monthRecords.filter(a => a.status === 'Late').length;
+			const monthTotal = monthRecords.length;
+			const monthPercent = monthTotal > 0 ? Math.round(((monthPresent + monthLate) / monthTotal) * 100) : 0;
+
+			let html = `
+				<div class="calendar-day-header">Sun</div>
+				<div class="calendar-day-header">Mon</div>
+				<div class="calendar-day-header">Tue</div>
+				<div class="calendar-day-header">Wed</div>
+				<div class="calendar-day-header">Thu</div>
+				<div class="calendar-day-header">Fri</div>
+				<div class="calendar-day-header">Sat</div>
+			`;
+
+			// Empty cells before first day
+			for (let i = 0; i < firstDay; i++) {
+				html += '<div class="calendar-day empty"></div>';
+			}
+
+			// Days of month
+			for (let day = 1; day <= daysInMonth; day++) {
+				const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+				const record = attendanceRecords.find(a => a.date === dateStr);
+				const dayOfWeek = new Date(currentYear, currentMonth, day).getDay();
+				const isToday = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+				const isFuture = new Date(currentYear, currentMonth, day) > today;
+
+				let statusClass = '';
+				let statusText = '';
+				let tooltipText = '';
+
+				if (dayOfWeek === 0) {
+					statusClass = 'holiday';
+					statusText = 'H';
+					tooltipText = 'Sunday - Holiday';
+				} else if (isFuture) {
+					statusClass = 'future';
+					tooltipText = 'Upcoming';
+				} else if (record) {
+					statusClass = record.status.toLowerCase();
+					statusText = record.status.charAt(0);
+					tooltipText = `${record.status}`;
+					if (record.checkIn !== '--') tooltipText += ` | In: ${record.checkIn}`;
+					if (record.checkOut !== '--') tooltipText += ` | Out: ${record.checkOut}`;
+					if (record.remarks) tooltipText += ` | ${record.remarks}`;
+				} else {
+					// Check if it's a 2nd or 4th Saturday (non-working day)
+					if (dayOfWeek === 6) {
+						const weekOfMonth = Math.ceil(day / 7);
+						if (weekOfMonth === 2 || weekOfMonth === 4) {
+							statusClass = 'holiday';
+							statusText = 'H';
+							tooltipText = '2nd/4th Saturday - Holiday';
+						}
+					}
+				}
+
+				html += `
+					<div class="calendar-day ${statusClass} ${isToday ? 'today' : ''}"
+						 title="${tooltipText}"
+						 onclick="showDayDetails('${dateStr}', ${record ? JSON.stringify(record).replace(/"/g, '&quot;') : 'null'})">
+						${day}
+						${statusText && !isFuture ? `<span class="day-status">${statusText}</span>` : ''}
+					</div>
+				`;
+			}
+
+			document.getElementById('attendanceCalendar').innerHTML = html;
+
+			// Update month summary below calendar
+			updateMonthSummary(monthPresent, monthAbsent, monthLate, monthTotal, monthPercent);
+		}
+
+		function updateMonthSummary(present, absent, late, total, percent) {
+			// Check if month summary element exists, if not create it
+			let summaryEl = document.getElementById('monthSummary');
+			if (!summaryEl) {
+				const legendEl = document.querySelector('.calendar-wrapper .legend');
+				if (legendEl) {
+					summaryEl = document.createElement('div');
+					summaryEl.id = 'monthSummary';
+					summaryEl.className = 'month-summary';
+					legendEl.parentNode.insertBefore(summaryEl, legendEl);
+				}
+			}
+
+			if (summaryEl) {
+				summaryEl.innerHTML = `
+					<div class="month-stat">
+						<span class="month-stat-value present">${present}</span>
+						<span class="month-stat-label">Present</span>
+					</div>
+					<div class="month-stat">
+						<span class="month-stat-value absent">${absent}</span>
+						<span class="month-stat-label">Absent</span>
+					</div>
+					<div class="month-stat">
+						<span class="month-stat-value late">${late}</span>
+						<span class="month-stat-label">Late</span>
+					</div>
+					<div class="month-stat">
+						<span class="month-stat-value total">${total}</span>
+						<span class="month-stat-label">Working Days</span>
+					</div>
+					<div class="month-stat">
+						<span class="month-stat-value ${percent >= 90 ? 'present' : (percent >= 75 ? 'late' : 'absent')}">${percent}%</span>
+						<span class="month-stat-label">This Month</span>
+					</div>
+				`;
+			}
+		}
+
+		function showDayDetails(dateStr, record) {
+			if (!record) return;
+
+			const date = new Date(dateStr);
+			const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			const formattedDate = date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+
+			let message = `📅 ${dayNames[date.getDay()]}, ${formattedDate}\n\n`;
+			message += `Status: ${record.status}\n`;
+			if (record.checkIn !== '--') message += `Check In: ${record.checkIn}\n`;
+			if (record.checkOut !== '--') message += `Check Out: ${record.checkOut}\n`;
+			if (record.remarks) message += `Remarks: ${record.remarks}`;
+
+			showToast(message.trim(), record.status.toLowerCase() === 'present' ? 'success' : (record.status.toLowerCase() === 'late' ? 'warning' : 'error'));
+		}
+
+		function changeMonth(delta) {
+			currentMonth += delta;
+			if (currentMonth < 0) {
+				currentMonth = 11;
+				currentYear--;
+			} else if (currentMonth > 11) {
+				currentMonth = 0;
+				currentYear++;
+			}
+			renderAttendanceCalendar();
+		}
+
+		function renderAttendanceTable() {
+			const tbody = document.getElementById('attendanceTableBody');
+			const monthFilter = document.getElementById('attendanceMonthFilter').value;
+
+			let filtered = [...attendanceRecords].reverse();
+
+			if (monthFilter) {
+				filtered = filtered.filter(a => {
+					const month = new Date(a.date).getMonth() + 1;
+					return month === parseInt(monthFilter);
+				});
+			}
+
+			// Show last 30 records (increased from 20)
+			const totalRecords = filtered.length;
+			filtered = filtered.slice(0, 30);
+
+			if (filtered.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-calendar"></i><h3>No attendance records found</h3><p>Select a different month or check back later</p></td></tr>';
+				return;
+			}
+
+			// Add status icon mapping
+			const statusIcons = {
+				'Present': '<i class="fas fa-check-circle" style="color: var(--success);"></i>',
+				'Absent': '<i class="fas fa-times-circle" style="color: var(--danger);"></i>',
+				'Late': '<i class="fas fa-clock" style="color: var(--warning);"></i>'
+			};
+
+			tbody.innerHTML = filtered.map(record => {
+				const dateObj = new Date(record.date);
+				const isToday = dateObj.toDateString() === new Date().toDateString();
+				return `
+					<tr class="${isToday ? 'today-row' : ''}">
+						<td>
+							<div class="date-cell">
+								<strong>${formatDate(record.date)}</strong>
+								${isToday ? '<span class="today-badge">Today</span>' : ''}
+							</div>
+						</td>
+						<td><span class="day-name">${record.day}</span></td>
+						<td>
+							<span class="status-badge ${record.status.toLowerCase()}">
+								${statusIcons[record.status] || ''} ${record.status}
+							</span>
+						</td>
+						<td class="time-cell ${record.checkIn === '--' ? 'na' : ''}">${record.checkIn}</td>
+						<td class="time-cell ${record.checkOut === '--' ? 'na' : ''}">${record.checkOut}</td>
+						<td class="remarks-cell">${record.remarks || '<span class="na">--</span>'}</td>
+					</tr>
+				`;
+			}).join('');
+
+			// Add record count info
+			const tableHeader = document.querySelector('#tab-attendance .table-header');
+			let countEl = tableHeader.querySelector('.record-count');
+			if (!countEl) {
+				countEl = document.createElement('span');
+				countEl.className = 'record-count';
+				tableHeader.appendChild(countEl);
+			}
+			countEl.innerHTML = `<i class="fas fa-info-circle"></i> Showing ${filtered.length} of ${totalRecords} records`;
+		}
+
+		// ============================================
+		// CHARTS (Activity Tab)
+		// ============================================
+		function initializeCharts() {
+			// Destroy existing charts
+			Object.values(charts).forEach(chart => {
+				if (chart) chart.destroy();
+			});
+
+			// Attendance Trend Chart
+			const attendanceCtx = document.getElementById('attendanceChart');
+			if (attendanceCtx) {
+				const monthlyAttendance = calculateMonthlyAttendance();
+				charts.attendance = new Chart(attendanceCtx, {
+					type: 'line',
+					data: {
+						labels: monthlyAttendance.labels,
+						datasets: [{
+							label: 'Attendance %',
+							data: monthlyAttendance.data,
+							borderColor: '#22c55e',
+							backgroundColor: 'rgba(34, 197, 94, 0.1)',
+							fill: true,
+							tension: 0.4,
+							pointBackgroundColor: '#22c55e',
+							pointBorderColor: '#fff',
+							pointBorderWidth: 2,
+							pointRadius: 5
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: { display: false }
+						},
+						scales: {
+							y: {
+								beginAtZero: false,
+								min: 70,
+								max: 100,
+								grid: { color: 'rgba(0,0,0,0.05)' }
+							},
+							x: {
+								grid: { display: false }
+							}
+						}
+					}
+				});
+			}
+
+			// Fee Payment Chart
+			const feeCtx = document.getElementById('feeChart');
+			if (feeCtx) {
+				const paidAmount = feePayments.filter(f => f.status === 'Paid').reduce((sum, f) => sum + f.amount, 0);
+				const pendingAmount = feePayments.filter(f => f.status === 'Pending').reduce((sum, f) => sum + f.amount, 0);
+				const overdueAmount = feePayments.filter(f => f.status === 'Overdue').reduce((sum, f) => sum + f.amount, 0);
+
+				charts.fee = new Chart(feeCtx, {
+					type: 'doughnut',
+					data: {
+						labels: ['Paid', 'Pending', 'Overdue'],
+						datasets: [{
+							data: [paidAmount, pendingAmount, overdueAmount],
+							backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+							borderWidth: 0,
+							hoverOffset: 10
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: {
+							legend: {
+								position: 'bottom',
+								labels: { padding: 20 }
+							}
+						},
+						cutout: '60%'
+					}
+				});
+			}
+
+			// Exam Performance Chart
+			const examCtx = document.getElementById('examChart');
+			if (examCtx) {
+				const exams = [...new Set(examResults.map(e => e.exam))];
+				const examScores = exams.map(exam => {
+					const results = examResults.filter(e => e.exam === exam);
+					const total = results.reduce((sum, e) => sum + e.obtained, 0);
+					const max = results.reduce((sum, e) => sum + e.max, 0);
+					return Math.round((total / max) * 100);
+				});
+
+				charts.exam = new Chart(examCtx, {
+					type: 'bar',
+					data: {
+						labels: exams,
+						datasets: [{
+							label: 'Score %',
+							data: examScores,
+							backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#22c55e'],
+							borderRadius: 8,
+							barThickness: 50
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						plugins: { legend: { display: false } },
+						scales: {
+							y: {
+								beginAtZero: true,
+								max: 100,
+								grid: { color: 'rgba(0,0,0,0.05)' }
+							},
+							x: {
+								grid: { display: false }
+							}
+						}
+					}
+				});
+			}
+
+			// Subject Performance Chart
+			const subjectCtx = document.getElementById('subjectChart');
+			if (subjectCtx) {
+				const subjects = [...new Set(examResults.map(e => e.subject))];
+				const subjectScores = subjects.map(subject => {
+					const results = examResults.filter(e => e.subject === subject);
+					return Math.round(results.reduce((sum, e) => sum + e.obtained, 0) / results.length);
+				});
+
+				charts.subject = new Chart(subjectCtx, {
+					type: 'radar',
+					data: {
+						labels: subjects,
+						datasets: [{
+							label: 'Average Score',
+							data: subjectScores,
+							backgroundColor: 'rgba(59, 130, 246, 0.2)',
+							borderColor: '#3b82f6',
+							pointBackgroundColor: '#3b82f6',
+							pointBorderColor: '#fff',
+							pointBorderWidth: 2
+						}]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: false,
+						scales: {
+							r: {
+								beginAtZero: true,
+								max: 100,
+								ticks: { stepSize: 20 }
+							}
+						}
+					}
+				});
+			}
+		}
+
+		function calculateMonthlyAttendance() {
+			const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
+			const data = [];
+
+			months.forEach((month, index) => {
+				const monthNum = index < 9 ? index + 4 : index - 8;
+				const year = index < 9 ? currentYear : currentYear + 1;
+
+				const monthRecords = attendanceRecords.filter(a => {
+					const d = new Date(a.date);
+					return d.getMonth() + 1 === monthNum && d.getFullYear() === year;
+				});
+
+				if (monthRecords.length > 0) {
+					const present = monthRecords.filter(a => a.status === 'Present' || a.status === 'Late').length;
+					data.push(Math.round((present / monthRecords.length) * 100));
+				} else {
+					data.push(null);
+				}
+			});
+
+			return { labels: months, data: data };
+		}
+
+		// ============================================
+		// TAB SWITCHING
+		// ============================================
+		function switchTab(tabId) {
+			// Update tab buttons
+			document.querySelectorAll('.tab-btn').forEach(btn => {
+				btn.classList.toggle('active', btn.dataset.tab === tabId);
+			});
+
+			// Update tab content
+			document.querySelectorAll('.tab-content').forEach(content => {
+				content.classList.toggle('active', content.id === 'tab-' + tabId);
+			});
+
+			// Reinitialize charts if switching to activity tab
+			if (tabId === 'activity') {
+				setTimeout(initializeCharts, 100);
+			}
+		}
+
+		// ============================================
+		// UTILITY FUNCTIONS
+		// ============================================
+		function getInitials(name) {
+			if (!name) return '--';
+			return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+		}
+
+		function getAvatarColor(name) {
+			const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
+			if (!name) return colors[0];
+			let hash = 0;
+			for (let i = 0; i < name.length; i++) {
+				hash = name.charCodeAt(i) + ((hash << 5) - hash);
+			}
+			return colors[Math.abs(hash) % colors.length];
+		}
+
+		function formatDate(dateStr) {
+			if (!dateStr || dateStr === '--') return '--';
+			const date = new Date(dateStr);
+			if (isNaN(date.getTime())) return dateStr;
+			return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+		}
+
+		function showToast(message, type = 'success') {
+			const container = document.getElementById('toastContainer');
+			const toast = document.createElement('div');
+			toast.className = 'toast ' + type;
+
+			const icons = {
+				success: 'check-circle',
+				error: 'times-circle',
+				warning: 'exclamation-circle',
+				info: 'info-circle'
+			};
+
+			toast.innerHTML = '<i class="fas fa-' + icons[type] + '"></i> ' + message;
+			container.appendChild(toast);
+			setTimeout(() => toast.remove(), 4000);
+		}
+
+		// ============================================
+		// ACTIONS
+		// ============================================
+		function editStudent() {
+			window.location.href = 'students.html?action=edit&id=' + studentId;
+		}
+
+		function exportStudentData() {
+			showToast('Exporting student data...', 'info');
+			// In production, this would generate a PDF or Excel file
+		}
+	</script>
+</body>
+</html>
