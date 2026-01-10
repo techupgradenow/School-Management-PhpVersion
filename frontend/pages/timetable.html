@@ -762,6 +762,160 @@
 				display: none;
 			}
 		}
+
+		/* Substitute Teacher Styles */
+		.subject-card.substituted {
+			position: relative;
+			border: 2px dashed #f59e0b;
+		}
+		.subject-card.substituted::before {
+			content: 'SUB';
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			background: linear-gradient(135deg, #f59e0b, #d97706);
+			color: white;
+			font-size: 8px;
+			font-weight: 700;
+			padding: 2px 6px;
+			border-radius: 10px;
+			z-index: 5;
+		}
+		.substitute-info {
+			font-size: 9px;
+			color: #f59e0b;
+			margin-top: 2px;
+			font-weight: 600;
+		}
+		.original-teacher {
+			text-decoration: line-through;
+			opacity: 0.6;
+		}
+
+		/* Absence Management Styles */
+		.absence-controls {
+			display: flex;
+			gap: 10px;
+			margin-left: 10px;
+		}
+		.btn-absence {
+			background: linear-gradient(135deg, #ef4444, #dc2626);
+			color: white;
+			border: none;
+		}
+		.btn-absence:hover {
+			background: linear-gradient(135deg, #dc2626, #b91c1c);
+		}
+		.btn-auto-assign {
+			background: linear-gradient(135deg, #22c55e, #16a34a);
+			color: white;
+			border: none;
+		}
+		.btn-auto-assign:hover {
+			background: linear-gradient(135deg, #16a34a, #15803d);
+		}
+
+		/* Today's Absences Alert */
+		.absence-alert {
+			background: linear-gradient(135deg, #fef3c7, #fde68a);
+			border: 2px solid #f59e0b;
+			border-radius: 12px;
+			padding: 16px 20px;
+			margin-bottom: 20px;
+			display: none;
+		}
+		.absence-alert.show {
+			display: block;
+		}
+		.absence-alert-header {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-weight: 700;
+			color: #92400e;
+			margin-bottom: 10px;
+		}
+		.absence-alert-header i {
+			font-size: 18px;
+		}
+		.absence-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+		.absence-item {
+			background: white;
+			padding: 8px 12px;
+			border-radius: 8px;
+			font-size: 13px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+		}
+		.absence-item .teacher-name {
+			font-weight: 600;
+			color: #1e293b;
+		}
+		.absence-item .status {
+			font-size: 11px;
+			padding: 2px 8px;
+			border-radius: 20px;
+		}
+		.absence-item .status.pending {
+			background: #fef3c7;
+			color: #92400e;
+		}
+		.absence-item .status.assigned {
+			background: #dcfce7;
+			color: #166534;
+		}
+		.absence-item .status.unassigned {
+			background: #fee2e2;
+			color: #991b1b;
+		}
+
+		/* Absence Modal Styles */
+		.absence-modal-content {
+			max-width: 600px;
+		}
+		.teacher-select-wrapper {
+			position: relative;
+		}
+		.teacher-search-results {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: white;
+			border: 2px solid #e2e8f0;
+			border-top: none;
+			border-radius: 0 0 12px 12px;
+			max-height: 200px;
+			overflow-y: auto;
+			z-index: 100;
+			display: none;
+		}
+		.teacher-search-results.show {
+			display: block;
+		}
+		.teacher-result-item {
+			padding: 12px 16px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			border-bottom: 1px solid #e2e8f0;
+		}
+		.teacher-result-item:last-child {
+			border-bottom: none;
+		}
+		.teacher-result-item:hover {
+			background: #f8fafc;
+		}
+		.teacher-result-item.selected {
+			background: #eff6ff;
+		}
 	</style>
 </head>
 <body>
@@ -773,11 +927,26 @@
 			</button>
 		</div>
 
+		<!-- Today's Absences Alert -->
+		<div class="absence-alert" id="absenceAlert">
+			<div class="absence-alert-header">
+				<i class="fas fa-exclamation-triangle"></i>
+				<span>Teacher Absences Today</span>
+				<button class="btn btn-auto-assign btn-sm" id="autoAssignBtn" style="margin-left: auto; height: 32px; padding: 0 12px; font-size: 12px;">
+					<i class="fas fa-magic"></i> Auto-Assign Substitutes
+				</button>
+			</div>
+			<div class="absence-list" id="absenceList">
+				<!-- Populated by JS -->
+			</div>
+		</div>
+
 		<!-- Controls -->
 		<div class="timetable-controls">
 			<div>
 				<label>Class</label>
 				<select id="classSelect">
+					<option value="">All Classes</option>
 					<option value="8">Class 8</option>
 					<option value="9">Class 9</option>
 					<option value="10" selected>Class 10</option>
@@ -788,10 +957,19 @@
 			<div>
 				<label>Section</label>
 				<select id="sectionSelect">
+					<option value="">All Sections</option>
 					<option value="A" selected>Section A</option>
 					<option value="B">Section B</option>
 					<option value="C">Section C</option>
 				</select>
+			</div>
+			<div class="absence-controls">
+				<button class="btn btn-absence" id="markAbsenceBtn">
+					<i class="fas fa-user-slash"></i> Mark Absence
+				</button>
+				<button class="btn btn-light" id="viewAbsencesBtn">
+					<i class="fas fa-calendar-times"></i> View Absences
+				</button>
 			</div>
 			<div style="margin-left: auto; display: flex; gap: 10px;">
 				<button class="btn btn-light" id="printBtn">
@@ -1069,8 +1247,158 @@
 		</div>
 	</div>
 
+	<!-- Mark Absence Modal -->
+	<div class="modal" id="absenceModal">
+		<div class="modal-content absence-modal-content">
+			<div class="modal-header">
+				<div class="modal-title">
+					<span></span>
+					<span>Mark Teacher Absence</span>
+				</div>
+				<div id="closeAbsenceModal" class="modal-close">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			<div class="modal-body">
+				<!-- Teacher Selection -->
+				<div class="teacher-select-wrapper">
+					<label for="absenceTeacherSelect">
+						<i class="fas fa-chalkboard-teacher"></i>
+						Select Teacher <span class="required">*</span>
+					</label>
+					<select id="absenceTeacherSelect">
+						<option value="">Select Teacher</option>
+					</select>
+				</div>
+
+				<!-- Absence Type -->
+				<div>
+					<label for="absenceType">
+						<i class="fas fa-tag"></i>
+						Absence Type <span class="required">*</span>
+					</label>
+					<select id="absenceType">
+						<option value="">Select Type</option>
+						<option value="SICK_LEAVE">Sick Leave</option>
+						<option value="CASUAL_LEAVE">Casual Leave</option>
+						<option value="EMERGENCY">Emergency Leave</option>
+						<option value="TRAINING">Training/Workshop</option>
+						<option value="OTHER">Other</option>
+					</select>
+				</div>
+
+				<!-- Date Range -->
+				<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+					<div>
+						<label for="absenceStartDate">
+							<i class="fas fa-calendar"></i>
+							Start Date <span class="required">*</span>
+						</label>
+						<input type="date" id="absenceStartDate">
+					</div>
+					<div>
+						<label for="absenceEndDate">
+							<i class="fas fa-calendar"></i>
+							End Date <span class="required">*</span>
+						</label>
+						<input type="date" id="absenceEndDate">
+					</div>
+				</div>
+
+				<!-- Reason -->
+				<div>
+					<label for="absenceReason">
+						<i class="fas fa-comment"></i>
+						Reason
+					</label>
+					<input type="text" id="absenceReason" placeholder="Optional reason for absence">
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button id="cancelAbsenceBtn" class="btn btn-cancel">
+					<i class="fas fa-times"></i> Cancel
+				</button>
+				<button id="saveAbsenceBtn" class="btn btn-save">
+					<i class="fas fa-check"></i> Mark Absence
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Assign Substitute Modal -->
+	<div class="modal" id="substituteModal">
+		<div class="modal-content absence-modal-content">
+			<div class="modal-header">
+				<div class="modal-title">
+					<span></span>
+					<span id="substituteModalTitle">Assign Substitute</span>
+				</div>
+				<div id="closeSubstituteModal" class="modal-close">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="substitutionRecordId">
+				<input type="hidden" id="substitutionDate">
+				<input type="hidden" id="substitutionSlot">
+
+				<!-- Original Teacher Info -->
+				<div style="background: #f8fafc; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+					<div style="font-size: 12px; color: #64748b; margin-bottom: 8px;">ABSENT TEACHER</div>
+					<div id="originalTeacherInfo" style="font-weight: 600; color: #1e293b;">-</div>
+					<div id="periodInfo" style="font-size: 13px; color: #64748b; margin-top: 4px;">-</div>
+				</div>
+
+				<!-- Substitute Teacher Selection -->
+				<div>
+					<label for="substituteTeacherSelect">
+						<i class="fas fa-user-plus"></i>
+						Select Substitute Teacher <span class="required">*</span>
+					</label>
+					<select id="substituteTeacherSelect">
+						<option value="">Select Available Teacher</option>
+					</select>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button id="cancelSubstituteBtn" class="btn btn-cancel">
+					<i class="fas fa-times"></i> Cancel
+				</button>
+				<button id="saveSubstituteBtn" class="btn btn-save">
+					<i class="fas fa-check"></i> Assign Substitute
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- View Absences Modal -->
+	<div class="modal" id="viewAbsencesModal">
+		<div class="modal-content" style="max-width: 800px;">
+			<div class="modal-header">
+				<div class="modal-title">
+					<span></span>
+					<span>Teacher Absences</span>
+				</div>
+				<div id="closeViewAbsencesModal" class="modal-close">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			<div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+				<div id="absencesListContainer">
+					<p style="text-align: center; color: #64748b;">Loading absences...</p>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button id="closeViewAbsencesBtn" class="btn btn-cancel">
+					<i class="fas fa-times"></i> Close
+				</button>
+			</div>
+		</div>
+	</div>
+
 	<script>
 		// Constants
+		const API_BASE = '../../backend/api';
 		const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 		const PERIODS = [
 			{ num: 1, start: '08:00', end: '08:45' },
@@ -1111,6 +1439,258 @@
 		let selectedIcon = '📚';
 		let selectedIconType = 'emoji'; // 'emoji' or 'image'
 		let selectedIconData = null;
+
+		// State variables
+		let allTeachers = [];
+		let todaySubstitutions = {};
+		let todayAbsences = [];
+
+		// API Functions
+		async function apiRequest(endpoint, method = 'GET', data = null) {
+			const options = {
+				method,
+				headers: { 'Content-Type': 'application/json' }
+			};
+			if (data && method !== 'GET') {
+				options.body = JSON.stringify(data);
+			}
+			try {
+				const response = await fetch(`${API_BASE}/${endpoint}`, options);
+				return await response.json();
+			} catch (error) {
+				console.error('API Error:', error);
+				return { success: false, message: error.message };
+			}
+		}
+
+		// Fetch all teachers
+		async function fetchTeachers() {
+			const result = await apiRequest('teachers.php?action=list');
+			if (result.success && result.data) {
+				allTeachers = result.data;
+				populateTeacherDropdowns();
+			}
+		}
+
+		// Populate teacher dropdowns
+		function populateTeacherDropdowns() {
+			const absenceSelect = document.getElementById('absenceTeacherSelect');
+			if (absenceSelect) {
+				absenceSelect.innerHTML = '<option value="">Select Teacher</option>';
+				allTeachers.forEach(teacher => {
+					const option = document.createElement('option');
+					option.value = teacher.id;
+					option.textContent = `${teacher.name} - ${teacher.subject || 'N/A'}`;
+					absenceSelect.appendChild(option);
+				});
+			}
+		}
+
+		// Fetch today's absences
+		async function fetchTodayAbsences() {
+			const result = await apiRequest('timetable.php?action=today_absences');
+			if (result.success && result.data) {
+				todayAbsences = result.data;
+				renderAbsenceAlert();
+			}
+		}
+
+		// Render absence alert
+		function renderAbsenceAlert() {
+			const alertDiv = document.getElementById('absenceAlert');
+			const listDiv = document.getElementById('absenceList');
+
+			if (!alertDiv || !listDiv) return;
+
+			if (todayAbsences.length === 0) {
+				alertDiv.classList.remove('show');
+				return;
+			}
+
+			alertDiv.classList.add('show');
+
+			let html = '';
+			todayAbsences.forEach(absence => {
+				const pendingCount = absence.affected_periods?.filter(p => p.status === 'PENDING').length || 0;
+				const assignedCount = absence.affected_periods?.filter(p => p.status === 'ASSIGNED').length || 0;
+				const totalPeriods = absence.affected_periods?.length || 0;
+
+				let statusClass = 'pending';
+				let statusText = 'Pending';
+				if (assignedCount === totalPeriods && totalPeriods > 0) {
+					statusClass = 'assigned';
+					statusText = 'All Covered';
+				} else if (assignedCount > 0) {
+					statusClass = 'pending';
+					statusText = `${assignedCount}/${totalPeriods} Covered`;
+				} else {
+					statusClass = 'unassigned';
+					statusText = `${totalPeriods} periods uncovered`;
+				}
+
+				html += `
+					<div class="absence-item" data-absence-id="${absence.id}">
+						<span class="teacher-name">${absence.teacher_name}</span>
+						<span class="status ${statusClass}">${statusText}</span>
+						${pendingCount > 0 ? `<button class="btn btn-sm" onclick="openAssignForAbsence('${absence.id}')" style="padding: 4px 8px; font-size: 11px; background: #667eea; color: white; border: none; border-radius: 4px;">Assign</button>` : ''}
+					</div>
+				`;
+			});
+
+			listDiv.innerHTML = html;
+		}
+
+		// Fetch substitutions for a date
+		async function fetchSubstitutionsForDate(date) {
+			const result = await apiRequest(`timetable.php?action=substitutions&date=${date}`);
+			if (result.success && result.data) {
+				// Create a map for quick lookup
+				todaySubstitutions = {};
+				result.data.forEach(sub => {
+					const key = `${sub.class_name}-${sub.section}-${sub.day_of_week}-${sub.slot_id}`;
+					todaySubstitutions[key] = sub;
+				});
+			}
+		}
+
+		// Mark teacher absence
+		async function markTeacherAbsence() {
+			const teacherId = document.getElementById('absenceTeacherSelect').value;
+			const absenceType = document.getElementById('absenceType').value;
+			const startDate = document.getElementById('absenceStartDate').value;
+			const endDate = document.getElementById('absenceEndDate').value;
+			const reason = document.getElementById('absenceReason').value;
+
+			if (!teacherId) {
+				notify('Please select a teacher', 'error');
+				return;
+			}
+			if (!absenceType) {
+				notify('Please select absence type', 'error');
+				return;
+			}
+			if (!startDate || !endDate) {
+				notify('Please select date range', 'error');
+				return;
+			}
+			if (new Date(endDate) < new Date(startDate)) {
+				notify('End date cannot be before start date', 'error');
+				return;
+			}
+
+			const result = await apiRequest('timetable.php?action=mark_absence', 'POST', {
+				teacher_id: teacherId,
+				absence_type: absenceType,
+				start_date: startDate,
+				end_date: endDate,
+				reason: reason
+			});
+
+			if (result.success) {
+				notify('Absence marked successfully', 'success');
+				closeAbsenceModal();
+				fetchTodayAbsences();
+				renderTimetable();
+			} else {
+				notify(result.message || 'Failed to mark absence', 'error');
+			}
+		}
+
+		// Auto-assign substitutes
+		async function autoAssignSubstitutes() {
+			const today = new Date().toISOString().split('T')[0];
+			const result = await apiRequest('timetable.php?action=auto_assign_substitutes', 'POST', {
+				date: today
+			});
+
+			if (result.success) {
+				const assigned = result.data?.assigned || 0;
+				const failed = result.data?.failed || 0;
+				if (assigned > 0) {
+					notify(`Auto-assigned ${assigned} substitute(s)`, 'success');
+				} else if (failed > 0) {
+					notify(`Could not find substitutes for ${failed} period(s)`, 'warning');
+				} else {
+					notify('No pending substitutions to assign', 'info');
+				}
+				fetchTodayAbsences();
+				renderTimetable();
+			} else {
+				notify(result.message || 'Failed to auto-assign', 'error');
+			}
+		}
+
+		// Assign specific substitute
+		async function assignSubstitute() {
+			const recordId = document.getElementById('substitutionRecordId').value;
+			const substituteId = document.getElementById('substituteTeacherSelect').value;
+
+			if (!substituteId) {
+				notify('Please select a substitute teacher', 'error');
+				return;
+			}
+
+			const result = await apiRequest('timetable.php?action=assign_substitute', 'POST', {
+				substitution_id: recordId,
+				substitute_teacher_id: substituteId
+			});
+
+			if (result.success) {
+				notify('Substitute assigned successfully', 'success');
+				closeSubstituteModal();
+				fetchTodayAbsences();
+				renderTimetable();
+			} else {
+				notify(result.message || 'Failed to assign substitute', 'error');
+			}
+		}
+
+		// Open assign substitute modal for an absence
+		async function openAssignForAbsence(absenceId) {
+			const absence = todayAbsences.find(a => a.id == absenceId);
+			if (!absence) return;
+
+			const pendingPeriods = absence.affected_periods?.filter(p => p.status === 'PENDING') || [];
+			if (pendingPeriods.length === 0) {
+				notify('All periods are already covered', 'info');
+				return;
+			}
+
+			// Open modal for first pending period
+			const period = pendingPeriods[0];
+			await openSubstituteModal(period, absence);
+		}
+
+		// Open substitute modal
+		async function openSubstituteModal(substitution, absence) {
+			const modal = document.getElementById('substituteModal');
+			if (!modal) return;
+
+			document.getElementById('substitutionRecordId').value = substitution.id;
+			document.getElementById('substitutionDate').value = substitution.substitution_date;
+			document.getElementById('substitutionSlot').value = substitution.slot_id;
+
+			document.getElementById('originalTeacherInfo').textContent = absence?.teacher_name || substitution.original_teacher_name || 'Unknown';
+			document.getElementById('periodInfo').textContent = `Period ${substitution.slot_id} - ${substitution.subject_name || 'N/A'} (${substitution.class_name || ''} ${substitution.section || ''})`;
+
+			// Fetch available teachers
+			const result = await apiRequest(`timetable.php?action=available_teachers&date=${substitution.substitution_date}&period=${substitution.slot_id}&original_teacher_id=${substitution.original_teacher_id}`);
+
+			const select = document.getElementById('substituteTeacherSelect');
+			select.innerHTML = '<option value="">Select Available Teacher</option>';
+
+			if (result.success && result.data) {
+				result.data.forEach(teacher => {
+					const option = document.createElement('option');
+					option.value = teacher.id;
+					const matchIcon = teacher.subject_match ? ' ★' : '';
+					option.textContent = `${teacher.name} - ${teacher.primary_subject || 'N/A'}${matchIcon}`;
+					select.appendChild(option);
+				});
+			}
+
+			modal.classList.add('show');
+		}
 
 		// Demo Data
 		const DEMO_DATA = {
@@ -1514,13 +2094,25 @@
 							</div>`;
 					} else {
 						const slot = schedule[day] && schedule[day][period.num];
+						// Check for substitution
+						const subKey = `Class ${cls}-${sec}-${day}-${period.num}`;
+						const substitution = todaySubstitutions[subKey];
+
 						if (slot && slot.subject) {
 							const colorClass = getSubjectColorClass(slot.subject);
+							const isSubstituted = substitution && substitution.status === 'ASSIGNED';
+							const substituteTeacher = isSubstituted ? substitution.substitute_teacher_name : null;
+
 							html += `
 								<div class="cell cell-slot" data-day="${day}" data-period="${period.num}">
-									<div class="subject-card ${colorClass}">
+									<div class="subject-card ${colorClass} ${isSubstituted ? 'substituted' : ''}">
 										<div class="subject-name">${slot.subject}</div>
-										${slot.teacher ? `<div class="teacher-name">${slot.teacher}</div>` : ''}
+										${isSubstituted ? `
+											<div class="teacher-name original-teacher">${slot.teacher || ''}</div>
+											<div class="substitute-info"><i class="fas fa-exchange-alt"></i> ${substituteTeacher}</div>
+										` : `
+											${slot.teacher ? `<div class="teacher-name">${slot.teacher}</div>` : ''}
+										`}
 										${slot.room ? `<div class="room-info">${slot.room}</div>` : ''}
 									</div>
 								</div>`;
@@ -1701,6 +2293,140 @@
 				window.parent.showNotification(msg, type);
 			} else {
 				alert(msg);
+			}
+		}
+
+		// Absence Modal Functions
+		function openAbsenceModal() {
+			const modal = document.getElementById('absenceModal');
+			if (!modal) return;
+
+			// Reset form
+			document.getElementById('absenceTeacherSelect').value = '';
+			document.getElementById('absenceType').value = '';
+			document.getElementById('absenceStartDate').value = new Date().toISOString().split('T')[0];
+			document.getElementById('absenceEndDate').value = new Date().toISOString().split('T')[0];
+			document.getElementById('absenceReason').value = '';
+
+			modal.classList.add('show');
+		}
+
+		function closeAbsenceModal() {
+			const modal = document.getElementById('absenceModal');
+			if (!modal) return;
+			modal.classList.add('closing');
+			modal.classList.remove('show');
+			setTimeout(() => modal.classList.remove('closing'), 350);
+		}
+
+		function closeSubstituteModal() {
+			const modal = document.getElementById('substituteModal');
+			if (!modal) return;
+			modal.classList.add('closing');
+			modal.classList.remove('show');
+			setTimeout(() => modal.classList.remove('closing'), 350);
+		}
+
+		function closeViewAbsencesModal() {
+			const modal = document.getElementById('viewAbsencesModal');
+			if (!modal) return;
+			modal.classList.add('closing');
+			modal.classList.remove('show');
+			setTimeout(() => modal.classList.remove('closing'), 350);
+		}
+
+		// View all absences
+		async function openViewAbsencesModal() {
+			const modal = document.getElementById('viewAbsencesModal');
+			const container = document.getElementById('absencesListContainer');
+			if (!modal || !container) return;
+
+			modal.classList.add('show');
+			container.innerHTML = '<p style="text-align: center; color: #64748b;">Loading absences...</p>';
+
+			const result = await apiRequest('timetable.php?action=absences');
+
+			if (result.success && result.data && result.data.length > 0) {
+				let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+				result.data.forEach(absence => {
+					const statusColors = {
+						'PENDING': '#fef3c7',
+						'APPROVED': '#dcfce7',
+						'REJECTED': '#fee2e2',
+						'CANCELLED': '#e2e8f0'
+					};
+					const statusTextColors = {
+						'PENDING': '#92400e',
+						'APPROVED': '#166534',
+						'REJECTED': '#991b1b',
+						'CANCELLED': '#64748b'
+					};
+
+					html += `
+						<div style="background: #f8fafc; padding: 16px; border-radius: 12px; border-left: 4px solid ${statusColors[absence.status] || '#e2e8f0'};">
+							<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+								<div>
+									<div style="font-weight: 600; color: #1e293b;">${absence.teacher_name || 'Unknown'}</div>
+									<div style="font-size: 12px; color: #64748b;">${absence.absence_type?.replace('_', ' ') || 'Leave'}</div>
+								</div>
+								<span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: ${statusColors[absence.status] || '#e2e8f0'}; color: ${statusTextColors[absence.status] || '#64748b'};">
+									${absence.status || 'Unknown'}
+								</span>
+							</div>
+							<div style="font-size: 13px; color: #475569;">
+								<i class="fas fa-calendar-alt" style="margin-right: 6px;"></i>
+								${absence.start_date} ${absence.start_date !== absence.end_date ? ` to ${absence.end_date}` : ''}
+							</div>
+							${absence.reason ? `<div style="font-size: 12px; color: #64748b; margin-top: 6px;"><i class="fas fa-comment" style="margin-right: 6px;"></i>${absence.reason}</div>` : ''}
+							${absence.status === 'PENDING' ? `
+								<div style="margin-top: 12px; display: flex; gap: 8px;">
+									<button onclick="approveAbsence('${absence.id}')" style="padding: 6px 12px; background: #22c55e; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+										<i class="fas fa-check"></i> Approve
+									</button>
+									<button onclick="cancelAbsence('${absence.id}')" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 6px; font-size: 12px; cursor: pointer;">
+										<i class="fas fa-times"></i> Cancel
+									</button>
+								</div>
+							` : ''}
+						</div>
+					`;
+				});
+				html += '</div>';
+				container.innerHTML = html;
+			} else {
+				container.innerHTML = '<p style="text-align: center; color: #64748b;">No absences found</p>';
+			}
+		}
+
+		// Approve absence
+		async function approveAbsence(absenceId) {
+			const result = await apiRequest('timetable.php?action=approve_absence', 'POST', {
+				absence_id: absenceId
+			});
+
+			if (result.success) {
+				notify('Absence approved', 'success');
+				openViewAbsencesModal(); // Refresh list
+				fetchTodayAbsences();
+				renderTimetable();
+			} else {
+				notify(result.message || 'Failed to approve', 'error');
+			}
+		}
+
+		// Cancel absence
+		async function cancelAbsence(absenceId) {
+			const result = await apiRequest('timetable.php?action=cancel_absence', 'POST', {
+				absence_id: absenceId
+			});
+
+			if (result.success) {
+				notify('Absence cancelled', 'success');
+				openViewAbsencesModal(); // Refresh list
+				fetchTodayAbsences();
+				renderTimetable();
+			} else {
+				notify(result.message || 'Failed to cancel', 'error');
 			}
 		}
 
@@ -1968,12 +2694,55 @@
 			if (e.target === slotModal) closeModalFn();
 		});
 
+		// Absence Management Event Listeners
+		const markAbsenceBtn = document.getElementById('markAbsenceBtn');
+		const viewAbsencesBtn = document.getElementById('viewAbsencesBtn');
+		const autoAssignBtn = document.getElementById('autoAssignBtn');
+		const closeAbsenceModalBtn = document.getElementById('closeAbsenceModal');
+		const cancelAbsenceBtn = document.getElementById('cancelAbsenceBtn');
+		const saveAbsenceBtn = document.getElementById('saveAbsenceBtn');
+		const closeSubstituteModalBtn = document.getElementById('closeSubstituteModal');
+		const cancelSubstituteBtn = document.getElementById('cancelSubstituteBtn');
+		const saveSubstituteBtn = document.getElementById('saveSubstituteBtn');
+		const closeViewAbsencesModalBtn = document.getElementById('closeViewAbsencesModal');
+		const closeViewAbsencesBtnAlt = document.getElementById('closeViewAbsencesBtn');
+		const absenceModal = document.getElementById('absenceModal');
+		const substituteModal = document.getElementById('substituteModal');
+		const viewAbsencesModal = document.getElementById('viewAbsencesModal');
+
+		if (markAbsenceBtn) markAbsenceBtn.addEventListener('click', openAbsenceModal);
+		if (viewAbsencesBtn) viewAbsencesBtn.addEventListener('click', openViewAbsencesModal);
+		if (autoAssignBtn) autoAssignBtn.addEventListener('click', autoAssignSubstitutes);
+		if (closeAbsenceModalBtn) closeAbsenceModalBtn.addEventListener('click', closeAbsenceModal);
+		if (cancelAbsenceBtn) cancelAbsenceBtn.addEventListener('click', closeAbsenceModal);
+		if (saveAbsenceBtn) saveAbsenceBtn.addEventListener('click', markTeacherAbsence);
+		if (closeSubstituteModalBtn) closeSubstituteModalBtn.addEventListener('click', closeSubstituteModal);
+		if (cancelSubstituteBtn) cancelSubstituteBtn.addEventListener('click', closeSubstituteModal);
+		if (saveSubstituteBtn) saveSubstituteBtn.addEventListener('click', assignSubstitute);
+		if (closeViewAbsencesModalBtn) closeViewAbsencesModalBtn.addEventListener('click', closeViewAbsencesModal);
+		if (closeViewAbsencesBtnAlt) closeViewAbsencesBtnAlt.addEventListener('click', closeViewAbsencesModal);
+
+		// Modal backdrop close handlers
+		window.addEventListener('click', (e) => {
+			if (e.target === absenceModal) closeAbsenceModal();
+			if (e.target === substituteModal) closeSubstituteModal();
+			if (e.target === viewAbsencesModal) closeViewAbsencesModal();
+		});
+
 		// Initialize
-		document.addEventListener('DOMContentLoaded', () => {
+		document.addEventListener('DOMContentLoaded', async () => {
 			loadCustomSubjects();
 			renderSubjectDropdown();
 			setupSubjectDropdownHandler();
 			renderTimetable();
+
+			// Fetch teachers and today's absences
+			await fetchTeachers();
+			await fetchTodayAbsences();
+
+			// Fetch substitutions for today
+			const today = new Date().toISOString().split('T')[0];
+			await fetchSubstitutionsForDate(today);
 		});
 	</script>
 	<script src="../assets/js/responsive.js"></script>

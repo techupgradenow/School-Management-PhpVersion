@@ -100,6 +100,14 @@ function handleGet($db, $params) {
                 getStudentHistory($db, $params);
                 break;
 
+            case 'classes':
+                getDistinctClasses($db);
+                break;
+
+            case 'sections':
+                getDistinctSections($db);
+                break;
+
             default:
                 sendResponse(false, 'Invalid action', null, ['action' => 'Unknown action']);
         }
@@ -658,6 +666,32 @@ function handleDelete($db, $params, $activityLogger) {
             $db->rollBack();
         }
         sendResponse(false, 'Error deleting student', null, ['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Get distinct classes from students table
+ */
+function getDistinctClasses($db) {
+    try {
+        $stmt = $db->query("SELECT DISTINCT class FROM students WHERE class IS NOT NULL AND class != '' ORDER BY class");
+        $classes = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        sendResponse(true, 'Classes fetched successfully', $classes);
+    } catch (Exception $e) {
+        sendResponse(false, 'Error fetching classes', null, ['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Get distinct sections from students table
+ */
+function getDistinctSections($db) {
+    try {
+        $stmt = $db->query("SELECT DISTINCT section FROM students WHERE section IS NOT NULL AND section != '' ORDER BY section");
+        $sections = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        sendResponse(true, 'Sections fetched successfully', $sections);
+    } catch (Exception $e) {
+        sendResponse(false, 'Error fetching sections', null, ['error' => $e->getMessage()]);
     }
 }
 ?>

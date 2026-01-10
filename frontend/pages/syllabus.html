@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<title>Syllabus Management - EduManage Pro</title>
+	<link rel="stylesheet" href="../assets/css/style.css">
+	<link rel="stylesheet" href="../assets/css/responsive.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="../assets/js/app.js"></script>
+	<script src="../assets/js/permissions.js"></script>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+		.btn-outline:hover { border-color: #7c3aed; color: #7c3aed; }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-success:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); }
+		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+		.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+		}
+		.stat-icon.purple { background: #f3e8ff; color: #7c3aed; }
+		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
+		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.table-toolbar {
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 1px solid #f1f5f9;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.search-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+		.search-box { position: relative; width: 250px; }
+		.search-box input {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px 0 44px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.search-box input:focus { outline: none; border-color: #7c3aed; }
+		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+		.filter-select {
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			min-width: 150px;
+			cursor: pointer;
+		}
+		.filter-select:focus { outline: none; border-color: #7c3aed; }
+
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+		.data-table th {
+			padding: 16px 20px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 13px;
+			color: white;
+			text-transform: uppercase;
+		}
+		.data-table th:first-child { padding-left: 24px; }
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; cursor: pointer; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 16px 20px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table td:first-child { padding-left: 24px; }
+
+		.syllabus-id { font-weight: 700; color: #7c3aed; }
+		.syllabus-info { display: flex; align-items: center; gap: 14px; }
+		.syllabus-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			background: #f3e8ff;
+			color: #7c3aed;
+		}
+		.syllabus-title { font-weight: 600; color: #1e293b; }
+		.syllabus-subject { font-size: 12px; color: #64748b; }
+
+		.status-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+		.status-badge.draft { background: #fef3c7; color: #d97706; }
+		.status-badge.active { background: #dcfce7; color: #16a34a; }
+		.status-badge.archived { background: #f1f5f9; color: #64748b; }
+
+		.progress-bar {
+			width: 100%;
+			height: 8px;
+			background: #e2e8f0;
+			border-radius: 4px;
+			overflow: hidden;
+		}
+		.progress-bar-fill {
+			height: 100%;
+			background: linear-gradient(135deg, #7c3aed, #6d28d9);
+			border-radius: 4px;
+			transition: width 0.3s ease;
+		}
+		.progress-text { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+		.action-btns { display: flex; gap: 8px; }
+		.action-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+		.action-btn.view { background: #eff6ff; color: #3b82f6; }
+		.action-btn.edit { background: #f0fdf4; color: #22c55e; }
+		.action-btn.delete { background: #fef2f2; color: #ef4444; }
+		.action-btn:hover { transform: scale(1.1); }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.page-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.page-btn:hover:not(:disabled) { border-color: #7c3aed; color: #7c3aed; }
+		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: #64748b;
+		}
+		.empty-state i { font-size: 48px; margin-bottom: 16px; color: #cbd5e1; }
+		.empty-state h3 { font-size: 18px; margin-bottom: 8px; color: #334155; }
+
+		/* Modal Styles */
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.5);
+			backdrop-filter: blur(4px);
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+			padding: 16px;
+		}
+		.modal-overlay.active { display: flex; }
+		.modal-content {
+			background: white;
+			border-radius: 20px;
+			width: 600px;
+			max-width: 100%;
+			max-height: 90vh;
+			overflow: hidden;
+			animation: modalSlide 0.3s ease;
+			display: flex;
+			flex-direction: column;
+		}
+		.modal-content.wide { width: 900px; }
+		@keyframes modalSlide { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+		.modal-header {
+			padding: 24px;
+			border-bottom: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.modal-title { font-size: 20px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 12px; }
+		.modal-close {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			border: none;
+			background: #f1f5f9;
+			color: #64748b;
+			cursor: pointer;
+			font-size: 20px;
+		}
+		.modal-close:hover { background: #e2e8f0; }
+		.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+		.modal-footer {
+			padding: 20px 24px;
+			border-top: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+
+		.form-group { margin-bottom: 20px; }
+		.form-group label { display: block; font-weight: 600; font-size: 13px; color: #334155; margin-bottom: 8px; }
+		.form-group input, .form-group select, .form-group textarea {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+		.form-group textarea { height: 100px; padding: 12px 16px; resize: vertical; }
+		.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+			outline: none;
+			border-color: #7c3aed;
+			box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+		}
+		.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+		/* Detail View Styles */
+		.detail-view { display: none; }
+		.detail-view.active { display: block; }
+		.list-view.hidden { display: none; }
+
+		.back-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+			margin-bottom: 20px;
+			padding: 8px 16px;
+			border-radius: 8px;
+			transition: all 0.2s;
+		}
+		.back-btn:hover { background: #f1f5f9; color: #7c3aed; }
+
+		.syllabus-detail-header {
+			background: linear-gradient(135deg, #7c3aed, #6d28d9);
+			border-radius: 16px;
+			padding: 24px;
+			color: white;
+			margin-bottom: 24px;
+		}
+		.syllabus-detail-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+		.syllabus-detail-meta { display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; opacity: 0.9; }
+		.syllabus-detail-meta span { display: flex; align-items: center; gap: 6px; }
+
+		.chapter-card {
+			background: white;
+			border-radius: 12px;
+			margin-bottom: 12px;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.chapter-header {
+			padding: 16px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: pointer;
+			transition: all 0.2s;
+		}
+		.chapter-header:hover { background: #f8fafc; }
+		.chapter-info { display: flex; align-items: center; gap: 12px; }
+		.chapter-number {
+			width: 32px;
+			height: 32px;
+			border-radius: 8px;
+			background: #f3e8ff;
+			color: #7c3aed;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 700;
+			font-size: 14px;
+		}
+		.chapter-title { font-weight: 600; color: #1e293b; }
+		.chapter-meta { font-size: 12px; color: #64748b; }
+		.chapter-actions { display: flex; align-items: center; gap: 12px; }
+		.chapter-toggle { color: #64748b; transition: transform 0.2s; }
+		.chapter-toggle.open { transform: rotate(180deg); }
+
+		.chapter-content {
+			display: none;
+			border-top: 1px solid #f1f5f9;
+			padding: 16px 20px;
+		}
+		.chapter-content.open { display: block; }
+
+		.topic-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 12px;
+			border-radius: 8px;
+			margin-bottom: 8px;
+			background: #f8fafc;
+			transition: all 0.2s;
+		}
+		.topic-item:hover { background: #f1f5f9; }
+		.topic-checkbox {
+			width: 22px;
+			height: 22px;
+			border-radius: 6px;
+			border: 2px solid #cbd5e1;
+			cursor: pointer;
+			accent-color: #7c3aed;
+		}
+		.topic-checkbox:checked { border-color: #7c3aed; }
+		.topic-info { flex: 1; }
+		.topic-title { font-weight: 500; color: #334155; }
+		.topic-objectives { font-size: 12px; color: #64748b; margin-top: 4px; }
+		.topic-duration { font-size: 12px; color: #7c3aed; font-weight: 600; }
+
+		.add-item-btn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			width: 100%;
+			padding: 12px;
+			border: 2px dashed #e2e8f0;
+			border-radius: 8px;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.2s;
+			background: transparent;
+		}
+		.add-item-btn:hover { border-color: #7c3aed; color: #7c3aed; }
+
+		/* Toast Notification */
+		.toast {
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			padding: 16px 24px;
+			border-radius: 12px;
+			background: #1e293b;
+			color: white;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			z-index: 2000;
+			animation: slideUp 0.3s ease;
+			box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+		}
+		.toast.success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+		.toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+		@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+		/* Responsive */
+		@media (max-width: 1024px) {
+			.stats-row { grid-template-columns: repeat(2, 1fr); }
+		}
+		@media (max-width: 768px) {
+			.stats-row { grid-template-columns: 1fr; }
+			.form-row { grid-template-columns: 1fr; }
+			.search-filters { flex-direction: column; width: 100%; }
+			.search-box { width: 100%; }
+			.filter-select { width: 100%; }
+		}
+	</style>
+</head>
+<body>
+	<div class="content" style="padding: 24px;">
+		<!-- List View -->
+		<div class="list-view" id="listView">
+			<!-- Page Header -->
+			<div class="page-header">
+				<div class="page-title-section">
+					<h1>Syllabus Management</h1>
+					<p>Create and manage syllabus with chapters, topics, and progress tracking</p>
+				</div>
+				<div class="header-actions">
+					<button class="btn btn-success" onclick="openBulkCreateModal()" data-permission="syllabus:create">
+						<i class="fas fa-layer-group"></i> Bulk Create
+					</button>
+					<button class="btn btn-primary" onclick="openAddSyllabusModal()" data-permission="syllabus:create">
+						<i class="fas fa-plus"></i> Add Syllabus
+					</button>
+				</div>
+			</div>
+
+			<!-- Stats Row -->
+			<div class="stats-row">
+				<div class="stat-card">
+					<div class="stat-icon purple"><i class="fas fa-book-open"></i></div>
+					<div>
+						<div class="stat-value" id="statTotalSyllabi">0</div>
+						<div class="stat-label">Total Syllabi</div>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i class="fas fa-list"></i></div>
+					<div>
+						<div class="stat-value" id="statTotalChapters">0</div>
+						<div class="stat-label">Total Chapters</div>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+					<div>
+						<div class="stat-value" id="statCompletionRate">0%</div>
+						<div class="stat-label">Completion Rate</div>
+					</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue"><i class="fas fa-graduation-cap"></i></div>
+					<div>
+						<div class="stat-value" id="statActiveClasses">0</div>
+						<div class="stat-label">Active Classes</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Table Card -->
+			<div class="table-card">
+				<div class="table-toolbar">
+					<div class="search-filters">
+						<div class="search-box">
+							<i class="fas fa-search"></i>
+							<input type="text" id="searchInput" placeholder="Search syllabus...">
+						</div>
+						<select class="filter-select" id="filterClass">
+							<option value="">All Classes</option>
+						</select>
+						<select class="filter-select" id="filterSubject">
+							<option value="">All Subjects</option>
+						</select>
+						<select class="filter-select" id="filterStatus">
+							<option value="">All Status</option>
+							<option value="Draft">Draft</option>
+							<option value="Active">Active</option>
+							<option value="Archived">Archived</option>
+						</select>
+					</div>
+				</div>
+
+				<table class="data-table">
+					<thead>
+						<tr>
+							<th>Code</th>
+							<th>Syllabus</th>
+							<th>Class</th>
+							<th>Section</th>
+							<th>Chapters</th>
+							<th>Progress</th>
+							<th>Status</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody id="syllabusTableBody">
+						<tr>
+							<td colspan="8">
+								<div class="empty-state">
+									<i class="fas fa-book-open"></i>
+									<h3>No Syllabus Found</h3>
+									<p>Create your first syllabus to get started</p>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="table-footer">
+					<div class="pagination-info" id="paginationInfo">Showing 0 of 0 entries</div>
+					<div class="pagination-btns">
+						<button class="page-btn" id="prevPageBtn" onclick="changePage(-1)" disabled>
+							<i class="fas fa-chevron-left"></i>
+						</button>
+						<span id="pageIndicator">Page 1</span>
+						<button class="page-btn" id="nextPageBtn" onclick="changePage(1)" disabled>
+							<i class="fas fa-chevron-right"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Detail View -->
+		<div class="detail-view" id="detailView">
+			<div class="back-btn" onclick="showListView()">
+				<i class="fas fa-arrow-left"></i> Back to List
+			</div>
+
+			<div class="syllabus-detail-header" id="syllabusDetailHeader">
+				<div class="syllabus-detail-title" id="detailTitle">Syllabus Title</div>
+				<div class="syllabus-detail-meta">
+					<span><i class="fas fa-graduation-cap"></i> <span id="detailClass">Class</span></span>
+					<span><i class="fas fa-book"></i> <span id="detailSubject">Subject</span></span>
+					<span><i class="fas fa-calendar"></i> <span id="detailYear">Academic Year</span></span>
+					<span><i class="fas fa-list"></i> <span id="detailChapterCount">0</span> Chapters</span>
+				</div>
+			</div>
+
+			<div class="page-header" style="margin-bottom: 16px;">
+				<h2 style="font-size: 18px; font-weight: 600; color: #1e293b;">Chapters & Topics</h2>
+				<button class="btn btn-primary btn-sm" onclick="openAddChapterModal()" data-permission="syllabus:create">
+					<i class="fas fa-plus"></i> Add Chapter
+				</button>
+			</div>
+
+			<div id="chaptersContainer">
+				<!-- Chapters will be rendered here -->
+			</div>
+		</div>
+	</div>
+
+	<!-- Add/Edit Syllabus Modal -->
+	<div class="modal-overlay" id="syllabusModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">
+					<i class="fas fa-book-open" style="color: #7c3aed;"></i>
+					<span id="syllabusModalTitle">Add Syllabus</span>
+				</div>
+				<button class="modal-close" onclick="closeSyllabusModal()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<form id="syllabusForm">
+					<input type="hidden" id="syllabusId">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Class *</label>
+							<select id="syllabusClass" required>
+								<option value="">Select Class</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Section</label>
+							<select id="syllabusSection">
+								<option value="">All Sections</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Subject *</label>
+							<input type="text" id="syllabusSubject" placeholder="e.g., Mathematics" required>
+						</div>
+						<div class="form-group">
+							<label>Academic Year *</label>
+							<select id="syllabusYear" required>
+								<option value="">Select Year</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Board Type</label>
+							<select id="syllabusBoardType">
+								<option value="CBSE">CBSE</option>
+								<option value="ICSE">ICSE</option>
+								<option value="State Board">State Board</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Medium</label>
+							<select id="syllabusMedium">
+								<option value="English">English</option>
+								<option value="Hindi">Hindi</option>
+								<option value="Tamil">Tamil</option>
+								<option value="Telugu">Telugu</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Total Marks</label>
+							<input type="number" id="syllabusTotalMarks" placeholder="e.g., 100">
+						</div>
+						<div class="form-group">
+							<label>Status</label>
+							<select id="syllabusStatus">
+								<option value="Draft">Draft</option>
+								<option value="Active">Active</option>
+								<option value="Archived">Archived</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Title *</label>
+						<input type="text" id="syllabusTitle" placeholder="e.g., Class 10 Mathematics Syllabus 2024-25" required>
+					</div>
+					<div class="form-group">
+						<label>Description</label>
+						<textarea id="syllabusDescription" placeholder="Brief description of the syllabus..."></textarea>
+					</div>
+					<div class="form-group">
+						<label>Exam Pattern</label>
+						<textarea id="syllabusExamPattern" placeholder="Describe the exam pattern..."></textarea>
+					</div>
+					<div class="form-group">
+						<label>Upload Syllabus Document (PDF/DOCX)</label>
+						<input type="file" id="syllabusFile" accept=".pdf,.doc,.docx" style="padding: 8px;">
+						<small style="color: #666;">Max file size: 10MB</small>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline" onclick="closeSyllabusModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveSyllabus()">
+					<i class="fas fa-save"></i> Save Syllabus
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add/Edit Chapter Modal -->
+	<div class="modal-overlay" id="chapterModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">
+					<i class="fas fa-list" style="color: #7c3aed;"></i>
+					<span id="chapterModalTitle">Add Chapter</span>
+				</div>
+				<button class="modal-close" onclick="closeChapterModal()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<form id="chapterForm">
+					<input type="hidden" id="chapterId">
+					<input type="hidden" id="chapterSyllabusId">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Chapter Number *</label>
+							<input type="number" id="chapterNo" min="1" placeholder="1" required>
+						</div>
+						<div class="form-group">
+							<label>Estimated Hours</label>
+							<input type="number" id="chapterHours" min="0" step="0.5" placeholder="e.g., 8">
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Chapter Title *</label>
+						<input type="text" id="chapterTitle" placeholder="e.g., Real Numbers" required>
+					</div>
+					<div class="form-group">
+						<label>Description</label>
+						<textarea id="chapterDescription" placeholder="Brief description of the chapter..."></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline" onclick="closeChapterModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveChapter()">
+					<i class="fas fa-save"></i> Save Chapter
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add/Edit Topic Modal -->
+	<div class="modal-overlay" id="topicModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">
+					<i class="fas fa-bookmark" style="color: #7c3aed;"></i>
+					<span id="topicModalTitle">Add Topic</span>
+				</div>
+				<button class="modal-close" onclick="closeTopicModal()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<form id="topicForm">
+					<input type="hidden" id="topicId">
+					<input type="hidden" id="topicChapterId">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Topic Number *</label>
+							<input type="number" id="topicNo" min="1" placeholder="1" required>
+						</div>
+						<div class="form-group">
+							<label>Duration (minutes)</label>
+							<input type="number" id="topicMinutes" min="0" placeholder="45">
+						</div>
+					</div>
+					<div class="form-group">
+						<label>Topic Title *</label>
+						<input type="text" id="topicTitle" placeholder="e.g., Euclid's Division Lemma" required>
+					</div>
+					<div class="form-group">
+						<label>Description</label>
+						<textarea id="topicDescription" placeholder="Brief description of the topic..."></textarea>
+					</div>
+					<div class="form-group">
+						<label>Learning Objectives</label>
+						<textarea id="topicObjectives" placeholder="Enter learning objectives (one per line)..."></textarea>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline" onclick="closeTopicModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveTopic()">
+					<i class="fas fa-save"></i> Save Topic
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bulk Create Modal -->
+	<div class="modal-overlay" id="bulkCreateModal">
+		<div class="modal-content wide">
+			<div class="modal-header">
+				<div class="modal-title">
+					<i class="fas fa-layer-group" style="color: #22c55e;"></i>
+					<span>Bulk Create Syllabus</span>
+				</div>
+				<button class="modal-close" onclick="closeBulkCreateModal()">&times;</button>
+			</div>
+			<div class="modal-body">
+				<p style="color: #64748b; margin-bottom: 20px;">
+					Create syllabus for multiple subjects at once. Select common fields, check subjects, and optionally enter custom syllabus codes.
+				</p>
+				<form id="bulkCreateForm">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Class *</label>
+							<select id="bulkClass" required onchange="generatePreview()">
+								<option value="">Select Class</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Section</label>
+							<select id="bulkSection" onchange="generatePreview()">
+								<option value="">All Sections</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Academic Year *</label>
+							<select id="bulkYear" required onchange="generatePreview()">
+								<option value="">Select Year</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Board Type</label>
+							<select id="bulkBoardType">
+								<option value="CBSE">CBSE</option>
+								<option value="ICSE">ICSE</option>
+								<option value="State Board">State Board</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Medium</label>
+							<select id="bulkMedium">
+								<option value="English">English</option>
+								<option value="Hindi">Hindi</option>
+								<option value="Tamil">Tamil</option>
+								<option value="Telugu">Telugu</option>
+								<option value="Other">Other</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Initial Status</label>
+							<select id="bulkStatus">
+								<option value="Draft">Draft</option>
+								<option value="Active">Active</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label style="display: flex; align-items: center; gap: 10px;">
+							<span>Select Subjects *</span>
+							<button type="button" class="btn btn-sm btn-outline" onclick="toggleAllSubjects()" style="padding: 4px 12px;">
+								Toggle All
+							</button>
+						</label>
+						<div id="subjectCheckboxes" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; padding: 16px; background: #f8fafc; border-radius: 10px; border: 2px solid #e2e8f0;">
+							<!-- Checkboxes will be populated dynamically -->
+						</div>
+					</div>
+
+					<!-- Add Custom Subject -->
+					<div class="form-group" style="margin-top: 16px;">
+						<label style="display: flex; align-items: center; gap: 10px;">
+							<span>Add Custom Subject</span>
+							<small style="color: #64748b;">(Will be saved for future use)</small>
+						</label>
+						<div style="display: flex; gap: 10px; margin-top: 8px;">
+							<input type="text" id="customSubjectInput" placeholder="Enter custom subject name..." style="flex: 1; height: 44px; padding: 0 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px;">
+							<button type="button" class="btn btn-primary btn-sm" onclick="addCustomSubject()" style="white-space: nowrap;">
+								<i class="fas fa-plus"></i> Add Subject
+							</button>
+						</div>
+					</div>
+
+					<!-- Preview Section with Editable Codes -->
+					<div id="previewSection" style="margin-top: 20px; display: none;">
+						<label style="font-weight: 600; font-size: 13px; color: #334155; margin-bottom: 8px; display: block;">
+							<i class="fas fa-edit"></i> Syllabus Codes (Click to edit):
+						</label>
+						<div id="codePreview" style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 10px; padding: 16px; max-height: 300px; overflow-y: auto;">
+							<!-- Preview will be shown here -->
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline" onclick="closeBulkCreateModal()">Cancel</button>
+				<button class="btn btn-success" onclick="executeBulkCreate()">
+					<i class="fas fa-layer-group"></i> Create All Selected
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// ============ CONFIG ============
+		const API_BASE = '/School-Management-PhpVersion/backend/api';
+
+		// ============ STATE ============
+		let syllabi = [];
+		let currentSyllabus = null;
+		let currentPage = 1;
+		let totalPages = 1;
+		let perPage = 10;
+		let availableSubjects = [];
+
+		// ============ INIT ============
+		document.addEventListener('DOMContentLoaded', function() {
+			populateDropdowns();
+			loadStats();
+			loadSyllabusList();
+
+			// Search and filter listeners
+			document.getElementById('searchInput').addEventListener('input', debounce(loadSyllabusList, 300));
+			document.getElementById('filterClass').addEventListener('change', loadSyllabusList);
+			document.getElementById('filterSubject').addEventListener('change', loadSyllabusList);
+			document.getElementById('filterStatus').addEventListener('change', loadSyllabusList);
+		});
+
+		// ============ API HELPER ============
+		async function apiCall(endpoint, options = {}) {
+			try {
+				const response = await fetch(`${API_BASE}/${endpoint}`, {
+					credentials: 'include',
+					headers: { 'Content-Type': 'application/json', ...options.headers },
+					...options
+				});
+				if (response.status === 401) {
+					showToast('Session expired. Please login again.', 'error');
+					setTimeout(() => window.top.location.href = '/School-Management-PhpVersion/frontend/login.html', 1500);
+					throw new Error('Auth required');
+				}
+				return response.json();
+			} catch (error) {
+				console.error('API Error:', error);
+				throw error;
+			}
+		}
+
+		// ============ UTILITY FUNCTIONS ============
+		function debounce(func, wait) {
+			let timeout;
+			return function(...args) {
+				clearTimeout(timeout);
+				timeout = setTimeout(() => func.apply(this, args), wait);
+			};
+		}
+
+		function showToast(message, type = 'success') {
+			const existing = document.querySelector('.toast');
+			if (existing) existing.remove();
+
+			const toast = document.createElement('div');
+			toast.className = `toast ${type}`;
+			toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+			document.body.appendChild(toast);
+
+			setTimeout(() => {
+				toast.style.opacity = '0';
+				setTimeout(() => toast.remove(), 300);
+			}, 3000);
+		}
+
+		// ============ FILE UPLOAD ============
+		async function uploadSyllabusFile(syllabusId, file) {
+			return new Promise((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = async function(e) {
+					try {
+						const base64 = e.target.result.split(',')[1];
+						const result = await apiCall('syllabus.php', {
+							method: 'POST',
+							body: JSON.stringify({
+								action: 'upload_file',
+								syllabus_id: syllabusId,
+								file: base64,
+								file_name: file.name,
+								file_type: file.type
+							})
+						});
+						if (result.success) {
+							showToast('File uploaded successfully');
+						}
+						resolve(result);
+					} catch (err) {
+						console.error('File upload error:', err);
+						reject(err);
+					}
+				};
+				reader.readAsDataURL(file);
+			});
+		}
+
+		// ============ POPULATE DROPDOWNS ============
+		// Store class-id mappings for dependent dropdowns
+		let classIdMap = {};
+		let allSections = [];
+
+		async function populateDropdowns() {
+			const classSelect = document.getElementById('filterClass');
+			const syllabusClass = document.getElementById('syllabusClass');
+			const syllabusSection = document.getElementById('syllabusSection');
+			const subjectFilter = document.getElementById('filterSubject');
+			const bulkClass = document.getElementById('bulkClass');
+			const bulkSection = document.getElementById('bulkSection');
+			const bulkYear = document.getElementById('bulkYear');
+
+			// Fetch classes from Syllabus API (uses classes table with proper structure)
+			try {
+				const classResult = await apiCall('syllabus.php?action=classes');
+				if (classResult.success && classResult.data?.classes) {
+					const classes = classResult.data.classes;
+					classes.forEach(cls => {
+						// Store class id mapping
+						classIdMap[cls.name] = cls.id;
+
+						// Filter class select
+						const opt1 = document.createElement('option');
+						opt1.value = cls.name;
+						opt1.dataset.classId = cls.id;
+						opt1.textContent = cls.name;
+						classSelect.appendChild(opt1);
+
+						// Syllabus form select
+						const opt2 = document.createElement('option');
+						opt2.value = cls.name;
+						opt2.dataset.classId = cls.id;
+						opt2.textContent = cls.name;
+						syllabusClass.appendChild(opt2);
+
+						// Bulk create select
+						const opt3 = document.createElement('option');
+						opt3.value = cls.name;
+						opt3.dataset.classId = cls.id;
+						opt3.textContent = cls.name;
+						bulkClass.appendChild(opt3);
+					});
+				}
+			} catch (e) {
+				console.log('Falling back to legacy class fetch');
+				// Fallback to Students API
+				try {
+					const classResult = await apiCall('students.php?action=classes');
+					if (classResult.success && classResult.data) {
+						classResult.data.forEach(cls => {
+							[classSelect, syllabusClass, bulkClass].forEach(select => {
+								const opt = document.createElement('option');
+								opt.value = cls;
+								opt.textContent = cls;
+								select.appendChild(opt);
+							});
+						});
+					}
+				} catch (e2) {
+					// Fallback to Class 1-12 if API fails
+					for (let i = 1; i <= 12; i++) {
+						const cls = `Class ${i}`;
+						[classSelect, syllabusClass, bulkClass].forEach(select => {
+							const opt = document.createElement('option');
+							opt.value = cls;
+							opt.textContent = cls;
+							select.appendChild(opt);
+						});
+					}
+				}
+			}
+
+			// Fetch all sections initially (will be filtered based on class selection)
+			try {
+				const sectionResult = await apiCall('syllabus.php?action=sections_by_class');
+				if (sectionResult.success && sectionResult.data?.sections) {
+					allSections = sectionResult.data.sections;
+					// Populate all sections initially
+					populateSectionDropdowns(allSections);
+				}
+			} catch (e) {
+				// Fallback sections
+				allSections = [
+					{id: 'A', name: 'A'},
+					{id: 'B', name: 'B'},
+					{id: 'C', name: 'C'},
+					{id: 'D', name: 'D'}
+				];
+				populateSectionDropdowns(allSections);
+			}
+
+			// Fetch subjects from Teachers table + custom subjects
+			try {
+				const subjectResult = await apiCall('teachers.php?action=subjects');
+				if (subjectResult.success && subjectResult.data) {
+					availableSubjects = subjectResult.data;
+				}
+			} catch (e) {
+				// Fallback subjects if API fails
+				availableSubjects = ['Mathematics', 'Science', 'English', 'Hindi', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Social Studies', 'Geography', 'History', 'Economics'];
+			}
+
+			// Also fetch custom subjects
+			try {
+				const customResult = await apiCall('syllabus.php?action=custom_subjects');
+				if (customResult.success && customResult.data) {
+					// Merge custom subjects (avoid duplicates)
+					customResult.data.forEach(sub => {
+						if (!availableSubjects.some(s => s.toLowerCase() === sub.toLowerCase())) {
+							availableSubjects.push(sub);
+						}
+					});
+				}
+			} catch (e) {
+				// Silent fail for custom subjects
+			}
+
+			// Sort subjects alphabetically
+			availableSubjects.sort((a, b) => a.localeCompare(b));
+
+			// Populate subject filter dropdown
+			availableSubjects.forEach(sub => {
+				const opt = document.createElement('option');
+				opt.value = sub;
+				opt.textContent = sub;
+				subjectFilter.appendChild(opt);
+			});
+
+			// Populate academic year dropdowns
+			const yearSelect = document.getElementById('syllabusYear');
+			const currentYear = new Date().getFullYear();
+			for (let i = currentYear - 1; i <= currentYear + 2; i++) {
+				const yearVal = `${i}-${i + 1}`;
+
+				const opt1 = document.createElement('option');
+				opt1.value = yearVal;
+				opt1.textContent = yearVal;
+				if (i === currentYear) opt1.selected = true;
+				yearSelect.appendChild(opt1);
+
+				const opt2 = document.createElement('option');
+				opt2.value = yearVal;
+				opt2.textContent = yearVal;
+				if (i === currentYear) opt2.selected = true;
+				bulkYear.appendChild(opt2);
+			}
+
+			// Setup dependent dropdown event listeners
+			setupDependentDropdowns();
+
+			// Populate subject checkboxes for bulk create
+			populateSubjectCheckboxes();
+		}
+
+		// Helper to populate section dropdowns
+		function populateSectionDropdowns(sections) {
+			const syllabusSection = document.getElementById('syllabusSection');
+			const bulkSection = document.getElementById('bulkSection');
+
+			// Clear existing options except first
+			syllabusSection.innerHTML = '<option value="">All Sections</option>';
+			bulkSection.innerHTML = '<option value="">All Sections</option>';
+
+			sections.forEach(sec => {
+				const opt1 = document.createElement('option');
+				opt1.value = sec.name;
+				opt1.textContent = sec.name;
+				syllabusSection.appendChild(opt1);
+
+				const opt2 = document.createElement('option');
+				opt2.value = sec.name;
+				opt2.textContent = sec.name;
+				bulkSection.appendChild(opt2);
+			});
+		}
+
+		// Setup dependent dropdown event listeners
+		function setupDependentDropdowns() {
+			// Single Syllabus Form - Class change updates Sections and Subjects
+			const syllabusClass = document.getElementById('syllabusClass');
+			syllabusClass.addEventListener('change', async function() {
+				const selectedClass = this.value;
+				const classId = this.options[this.selectedIndex]?.dataset?.classId || classIdMap[selectedClass];
+
+				// Update sections based on class
+				await updateSectionsByClass(selectedClass, classId, 'syllabusSection');
+
+				// Update subjects based on class
+				await updateSubjectsByClass(selectedClass, classId);
+			});
+
+			// Bulk Create Form - Class change updates Sections and Subjects
+			const bulkClass = document.getElementById('bulkClass');
+			bulkClass.addEventListener('change', async function() {
+				const selectedClass = this.value;
+				const classId = this.options[this.selectedIndex]?.dataset?.classId || classIdMap[selectedClass];
+
+				// Update sections
+				await updateSectionsByClass(selectedClass, classId, 'bulkSection');
+
+				// Update subject checkboxes based on class
+				await updateSubjectCheckboxesByClass(selectedClass, classId);
+
+				// Regenerate preview
+				generatePreview();
+			});
+		}
+
+		// Update sections dropdown based on selected class
+		async function updateSectionsByClass(className, classId, sectionSelectId) {
+			const sectionSelect = document.getElementById(sectionSelectId);
+
+			try {
+				let params = '';
+				if (classId) {
+					params = `action=sections_by_class&class_id=${classId}`;
+				} else if (className) {
+					params = `action=sections_by_class&class_name=${encodeURIComponent(className)}`;
+				} else {
+					params = 'action=sections_by_class';
+				}
+
+				const result = await apiCall(`syllabus.php?${params}`);
+				if (result.success && result.data?.sections) {
+					sectionSelect.innerHTML = '<option value="">All Sections</option>';
+					result.data.sections.forEach(sec => {
+						const opt = document.createElement('option');
+						opt.value = sec.name;
+						opt.textContent = sec.name;
+						sectionSelect.appendChild(opt);
+					});
+				}
+			} catch (e) {
+				console.error('Error fetching sections:', e);
+				// Keep default sections
+			}
+		}
+
+		// Update subjects for single syllabus form based on class
+		async function updateSubjectsByClass(className, classId) {
+			try {
+				let params = 'action=subjects_by_class';
+				if (classId) {
+					params += `&class_id=${classId}`;
+				} else if (className) {
+					params += `&class=${encodeURIComponent(className)}`;
+				}
+
+				const result = await apiCall(`syllabus.php?${params}`);
+				if (result.success && result.data?.subjects) {
+					// Update availableSubjects for the current class
+					const classSubjects = result.data.subjects.map(s => s.subject_name);
+
+					// Merge with existing subjects (keep custom ones)
+					const mergedSubjects = [...new Set([...classSubjects, ...availableSubjects])];
+					mergedSubjects.sort((a, b) => a.localeCompare(b));
+
+					// Update subject filter
+					const subjectFilter = document.getElementById('filterSubject');
+					const currentValue = subjectFilter.value;
+					subjectFilter.innerHTML = '<option value="">All Subjects</option>';
+					mergedSubjects.forEach(sub => {
+						const opt = document.createElement('option');
+						opt.value = sub;
+						opt.textContent = sub;
+						subjectFilter.appendChild(opt);
+					});
+					if (currentValue) subjectFilter.value = currentValue;
+
+					// Store teacher info for auto-suggest
+					window.subjectTeacherMap = {};
+					result.data.subjects.forEach(s => {
+						if (s.teacher_name) {
+							window.subjectTeacherMap[s.subject_name.toLowerCase()] = {
+								id: s.teacher_id,
+								name: s.teacher_name
+							};
+						}
+					});
+				}
+			} catch (e) {
+				console.error('Error fetching subjects by class:', e);
+			}
+		}
+
+		// Update subject checkboxes in bulk create based on class
+		async function updateSubjectCheckboxesByClass(className, classId) {
+			try {
+				let params = 'action=subjects_by_class';
+				if (classId) {
+					params += `&class_id=${classId}`;
+				} else if (className) {
+					params += `&class=${encodeURIComponent(className)}`;
+				}
+
+				const result = await apiCall(`syllabus.php?${params}`);
+				if (result.success && result.data?.subjects) {
+					const classSubjects = result.data.subjects.map(s => s.subject_name);
+
+					// Merge with custom subjects
+					const mergedSubjects = [...new Set([...classSubjects, ...availableSubjects])];
+					mergedSubjects.sort((a, b) => a.localeCompare(b));
+
+					// Update checkbox list with class-specific subjects first
+					const container = document.getElementById('subjectCheckboxes');
+					container.innerHTML = mergedSubjects.map(subject => {
+						const isClassSubject = classSubjects.includes(subject);
+						return `
+						<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s; background: ${isClassSubject ? '#f0fdf4' : 'white'}; ${isClassSubject ? 'border: 1px solid #86efac;' : ''}">
+							<input type="checkbox" class="subject-checkbox" value="${escapeHtml(subject)}" onchange="generatePreview()" style="width: 18px; height: 18px; accent-color: #7c3aed;">
+							<span style="font-size: 14px; color: #334155;">${escapeHtml(subject)}</span>
+							${isClassSubject ? '<i class="fas fa-check-circle" style="color: #22c55e; font-size: 12px;" title="Assigned to this class"></i>' : ''}
+						</label>
+					`}).join('');
+				}
+			} catch (e) {
+				console.error('Error updating subject checkboxes:', e);
+			}
+		}
+
+		// ============ BULK CREATE FUNCTIONS ============
+		function populateSubjectCheckboxes() {
+			const container = document.getElementById('subjectCheckboxes');
+			container.innerHTML = availableSubjects.map(subject => `
+				<label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s; background: white;">
+					<input type="checkbox" class="subject-checkbox" value="${escapeHtml(subject)}" onchange="generatePreview()" style="width: 18px; height: 18px; accent-color: #7c3aed;">
+					<span style="font-size: 14px; color: #334155;">${escapeHtml(subject)}</span>
+				</label>
+			`).join('');
+		}
+
+		function toggleAllSubjects() {
+			const checkboxes = document.querySelectorAll('.subject-checkbox');
+			const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+			checkboxes.forEach(cb => cb.checked = !allChecked);
+			generatePreview();
+		}
+
+		function getSubjectCode(subject) {
+			const subjectCodes = {
+				'mathematics': 'MATH', 'math': 'MATH',
+				'science': 'SCI', 'english': 'ENG', 'hindi': 'HIN',
+				'social': 'SST', 'social studies': 'SST',
+				'physics': 'PHY', 'chemistry': 'CHE', 'biology': 'BIO',
+				'computer': 'CS', 'computer science': 'CS',
+				'history': 'HIS', 'geography': 'GEO', 'economics': 'ECO',
+				'political': 'POL', 'political science': 'POL',
+				'sanskrit': 'SKT', 'french': 'FRE', 'german': 'GER',
+				'accountancy': 'ACC', 'accounts': 'ACC',
+				'business': 'BUS', 'business studies': 'BUS',
+				'physical education': 'PE', 'art': 'ART', 'music': 'MUS',
+				'environmental': 'EVS', 'evs': 'EVS'
+			};
+
+			const subjectLower = subject.toLowerCase();
+			for (let key in subjectCodes) {
+				if (subjectLower.includes(key)) {
+					return subjectCodes[key];
+				}
+			}
+			// Fallback: first 4 chars
+			return subject.replace(/[^a-zA-Z]/g, '').substring(0, 4).toUpperCase() || 'SUB';
+		}
+
+		function generatePreview() {
+			const classVal = document.getElementById('bulkClass').value;
+			const section = document.getElementById('bulkSection').value || 'A';
+			const year = document.getElementById('bulkYear').value;
+			const selectedSubjects = Array.from(document.querySelectorAll('.subject-checkbox:checked')).map(cb => cb.value);
+
+			const previewSection = document.getElementById('previewSection');
+			const codePreview = document.getElementById('codePreview');
+
+			if (!classVal || !year || selectedSubjects.length === 0) {
+				previewSection.style.display = 'none';
+				return;
+			}
+
+			// Extract class number
+			const classNum = classVal.replace(/[^0-9]/g, '').padStart(2, '0');
+			const sectionCode = section.charAt(0).toUpperCase();
+
+			// Year code
+			const yearParts = year.split('-');
+			const yearCode = yearParts[0].slice(-2) + (yearParts[1] ? yearParts[1].slice(-2) : yearParts[0].slice(-2));
+
+			previewSection.style.display = 'block';
+			codePreview.innerHTML = selectedSubjects.map((subject, idx) => {
+				const subjectCode = getSubjectCode(subject);
+				const defaultCode = `SYL-${classNum}-${sectionCode}-${subjectCode}-${yearCode}`;
+				return `
+				<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: white; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e2e8f0;">
+					<input type="text"
+						class="syllabus-code-input"
+						data-subject="${escapeHtml(subject)}"
+						value="${defaultCode}"
+						style="font-family: monospace; font-weight: 700; color: #16a34a; width: 200px; padding: 8px 12px; border: 2px solid #86efac; border-radius: 6px; font-size: 14px; background: #f0fdf4;">
+					<span style="color: #334155; font-size: 14px; flex: 1;">${escapeHtml(subject)}</span>
+					<button type="button" onclick="removeSubjectFromPreview('${escapeHtml(subject)}')" style="background: #fef2f2; color: #ef4444; border: none; border-radius: 6px; padding: 6px 10px; cursor: pointer;" title="Remove">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+			`}).join('');
+		}
+
+		function removeSubjectFromPreview(subject) {
+			const checkbox = document.querySelector(`.subject-checkbox[value="${subject}"]`);
+			if (checkbox) {
+				checkbox.checked = false;
+			}
+			generatePreview();
+		}
+
+		// Add custom subject to the list
+		async function addCustomSubject() {
+			const input = document.getElementById('customSubjectInput');
+			const subjectName = input.value.trim();
+
+			if (!subjectName) {
+				showToast('Please enter a subject name', 'error');
+				return;
+			}
+
+			// Check if already exists
+			if (availableSubjects.some(s => s.toLowerCase() === subjectName.toLowerCase())) {
+				showToast('This subject already exists', 'error');
+				return;
+			}
+
+			try {
+				// Save to database
+				const result = await apiCall('syllabus.php', {
+					method: 'POST',
+					body: JSON.stringify({
+						action: 'add_custom_subject',
+						subject_name: subjectName
+					})
+				});
+
+				if (result.success) {
+					// Add to local list
+					availableSubjects.push(subjectName);
+
+					// Refresh checkboxes
+					populateSubjectCheckboxes();
+
+					// Auto-check the new subject
+					setTimeout(() => {
+						const newCheckbox = document.querySelector(`.subject-checkbox[value="${subjectName}"]`);
+						if (newCheckbox) {
+							newCheckbox.checked = true;
+							generatePreview();
+						}
+					}, 100);
+
+					// Clear input
+					input.value = '';
+
+					showToast(`Subject "${subjectName}" added successfully`);
+				} else {
+					showToast(result.message || 'Failed to add subject', 'error');
+				}
+			} catch (error) {
+				console.error('Error adding custom subject:', error);
+				showToast('Failed to add subject', 'error');
+			}
+		}
+
+		function openBulkCreateModal() {
+			document.getElementById('bulkCreateForm').reset();
+			document.querySelectorAll('.subject-checkbox').forEach(cb => cb.checked = false);
+			document.getElementById('previewSection').style.display = 'none';
+
+			// Set default year to current
+			const currentYear = new Date().getFullYear();
+			document.getElementById('bulkYear').value = `${currentYear}-${currentYear + 1}`;
+
+			document.getElementById('bulkCreateModal').classList.add('active');
+		}
+
+		function closeBulkCreateModal() {
+			document.getElementById('bulkCreateModal').classList.remove('active');
+		}
+
+		async function executeBulkCreate() {
+			const classVal = document.getElementById('bulkClass').value;
+			const section = document.getElementById('bulkSection').value;
+			const year = document.getElementById('bulkYear').value;
+			const boardType = document.getElementById('bulkBoardType').value;
+			const medium = document.getElementById('bulkMedium').value;
+			const status = document.getElementById('bulkStatus').value;
+
+			// Get subjects with their custom codes from input fields
+			const codeInputs = document.querySelectorAll('.syllabus-code-input');
+
+			if (!classVal || !year) {
+				showToast('Please select Class and Academic Year', 'error');
+				return;
+			}
+
+			if (codeInputs.length === 0) {
+				showToast('Please select at least one subject', 'error');
+				return;
+			}
+
+			// Prepare subjects array with custom codes
+			const subjects = Array.from(codeInputs).map(input => {
+				const subject = input.dataset.subject;
+				const customCode = input.value.trim();
+				return {
+					subject: subject,
+					syllabus_code: customCode,
+					title: `${classVal} ${subject} Syllabus ${year}`,
+					status: status
+				};
+			});
+
+			// Validate codes are not empty
+			const emptyCode = subjects.find(s => !s.syllabus_code);
+			if (emptyCode) {
+				showToast(`Please enter a syllabus code for ${emptyCode.subject}`, 'error');
+				return;
+			}
+
+			try {
+				const result = await apiCall('syllabus.php', {
+					method: 'POST',
+					body: JSON.stringify({
+						action: 'bulk_create_syllabus',
+						class: classVal,
+						section: section,
+						academic_year: year,
+						board_type: boardType,
+						medium: medium,
+						subjects: subjects
+					})
+				});
+
+				if (result.success) {
+					const created = result.data?.total_created || 0;
+					const failed = result.data?.total_failed || 0;
+
+					let message = `Successfully created ${created} syllabus`;
+					if (failed > 0) {
+						message += `. ${failed} failed (may already exist).`;
+					}
+
+					showToast(message, created > 0 ? 'success' : 'error');
+					closeBulkCreateModal();
+					loadSyllabusList();
+					loadStats();
+				} else {
+					showToast(result.message || 'Bulk creation failed', 'error');
+				}
+			} catch (error) {
+				console.error('Bulk create error:', error);
+				showToast('Failed to create syllabus', 'error');
+			}
+		}
+
+		// ============ LOAD STATS ============
+		async function loadStats() {
+			try {
+				const result = await apiCall('syllabus.php?action=stats');
+				if (result.success) {
+					document.getElementById('statTotalSyllabi').textContent = result.data.total_syllabi || 0;
+					document.getElementById('statTotalChapters').textContent = result.data.total_chapters || 0;
+					document.getElementById('statCompletionRate').textContent = (result.data.completion_rate || 0) + '%';
+					document.getElementById('statActiveClasses').textContent = result.data.active_classes || 0;
+				}
+			} catch (error) {
+				console.error('Error loading stats:', error);
+			}
+		}
+
+		// ============ LOAD SYLLABUS LIST ============
+		async function loadSyllabusList() {
+			const search = document.getElementById('searchInput').value;
+			const classFilter = document.getElementById('filterClass').value;
+			const subjectFilter = document.getElementById('filterSubject').value;
+			const statusFilter = document.getElementById('filterStatus').value;
+
+			const params = new URLSearchParams({
+				action: 'list',
+				page: currentPage,
+				perPage: perPage,
+				search: search,
+				class: classFilter,
+				subject: subjectFilter,
+				status: statusFilter
+			});
+
+			try {
+				const result = await apiCall(`syllabus.php?${params}`);
+				if (result.success) {
+					syllabi = result.data.syllabi || [];
+					totalPages = result.data.pagination?.totalPages || 1;
+					renderSyllabusList();
+					updatePagination(result.data.pagination);
+				}
+			} catch (error) {
+				console.error('Error loading syllabus list:', error);
+				showToast('Failed to load syllabus list', 'error');
+			}
+		}
+
+		// ============ RENDER SYLLABUS LIST ============
+		function renderSyllabusList() {
+			const tbody = document.getElementById('syllabusTableBody');
+
+			if (!syllabi.length) {
+				tbody.innerHTML = `
+					<tr>
+						<td colspan="8">
+							<div class="empty-state">
+								<i class="fas fa-book-open"></i>
+								<h3>No Syllabus Found</h3>
+								<p>Create your first syllabus to get started</p>
+							</div>
+						</td>
+					</tr>
+				`;
+				return;
+			}
+
+			tbody.innerHTML = syllabi.map(s => `
+				<tr onclick="viewSyllabus('${s.id}')">
+					<td><span class="syllabus-id" title="${s.id}">${escapeHtml(s.syllabus_code || s.id)}</span></td>
+					<td>
+						<div class="syllabus-info">
+							<div class="syllabus-icon"><i class="fas fa-book-open"></i></div>
+							<div>
+								<div class="syllabus-title">${escapeHtml(s.title)}</div>
+								<div class="syllabus-subject">${escapeHtml(s.subject)}</div>
+							</div>
+						</div>
+					</td>
+					<td>${escapeHtml(s.class)}</td>
+					<td>${escapeHtml(s.section || '-')}</td>
+					<td>${s.chapter_count || 0}</td>
+					<td>
+						<div class="progress-bar">
+							<div class="progress-bar-fill" style="width: ${calculateProgress(s)}%"></div>
+						</div>
+						<div class="progress-text">${calculateProgress(s)}% Complete</div>
+					</td>
+					<td><span class="status-badge ${s.status.toLowerCase()}">${s.status}</span></td>
+					<td>
+						<div class="action-btns" onclick="event.stopPropagation()">
+							<button class="action-btn view" onclick="viewSyllabus('${s.id}')" title="View Details">
+								<i class="fas fa-eye"></i>
+							</button>
+							<button class="action-btn edit" onclick="editSyllabus('${s.id}')" title="Edit" data-permission="syllabus:edit">
+								<i class="fas fa-edit"></i>
+							</button>
+							<button class="action-btn delete" onclick="deleteSyllabus('${s.id}')" title="Delete" data-permission="syllabus:delete">
+								<i class="fas fa-trash"></i>
+							</button>
+						</div>
+					</td>
+				</tr>
+			`).join('');
+		}
+
+		function calculateProgress(syllabus) {
+			// Placeholder - will be calculated based on progress data
+			return 0;
+		}
+
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text || '';
+			return div.innerHTML;
+		}
+
+		// ============ PAGINATION ============
+		function updatePagination(pagination) {
+			const info = document.getElementById('paginationInfo');
+			const start = ((pagination.page - 1) * pagination.perPage) + 1;
+			const end = Math.min(pagination.page * pagination.perPage, pagination.total);
+			info.textContent = `Showing ${pagination.total > 0 ? start : 0}-${end} of ${pagination.total} entries`;
+
+			document.getElementById('pageIndicator').textContent = `Page ${pagination.page} of ${pagination.totalPages || 1}`;
+			document.getElementById('prevPageBtn').disabled = pagination.page <= 1;
+			document.getElementById('nextPageBtn').disabled = pagination.page >= pagination.totalPages;
+		}
+
+		function changePage(delta) {
+			currentPage += delta;
+			loadSyllabusList();
+		}
+
+		// ============ VIEW SYLLABUS DETAIL ============
+		async function viewSyllabus(id) {
+			try {
+				const result = await apiCall(`syllabus.php?action=single&id=${id}`);
+				if (result.success) {
+					currentSyllabus = result.data;
+					renderDetailView();
+					showDetailView();
+				} else {
+					showToast(result.message || 'Failed to load syllabus', 'error');
+				}
+			} catch (error) {
+				console.error('Error loading syllabus:', error);
+				showToast('Failed to load syllabus details', 'error');
+			}
+		}
+
+		function renderDetailView() {
+			if (!currentSyllabus) return;
+
+			document.getElementById('detailTitle').textContent = currentSyllabus.title;
+			document.getElementById('detailClass').textContent = currentSyllabus.class;
+			document.getElementById('detailSubject').textContent = currentSyllabus.subject;
+			document.getElementById('detailYear').textContent = currentSyllabus.academic_year;
+			document.getElementById('detailChapterCount').textContent = currentSyllabus.chapters?.length || 0;
+
+			renderChapters();
+		}
+
+		function renderChapters() {
+			const container = document.getElementById('chaptersContainer');
+			const chapters = currentSyllabus.chapters || [];
+
+			if (!chapters.length) {
+				container.innerHTML = `
+					<div class="empty-state">
+						<i class="fas fa-list"></i>
+						<h3>No Chapters Yet</h3>
+						<p>Add chapters to build your syllabus structure</p>
+					</div>
+				`;
+				return;
+			}
+
+			container.innerHTML = chapters.map(chapter => `
+				<div class="chapter-card">
+					<div class="chapter-header" onclick="toggleChapter('${chapter.id}')">
+						<div class="chapter-info">
+							<div class="chapter-number">${chapter.chapter_no}</div>
+							<div>
+								<div class="chapter-title">${escapeHtml(chapter.title)}</div>
+								<div class="chapter-meta">
+									${chapter.estimated_hours ? `<i class="fas fa-clock"></i> ${chapter.estimated_hours} hrs` : ''}
+									&bull; ${chapter.topics?.length || 0} topics
+								</div>
+							</div>
+						</div>
+						<div class="chapter-actions">
+							<button class="action-btn edit" onclick="event.stopPropagation(); editChapter('${chapter.id}')" title="Edit Chapter" data-permission="syllabus:edit">
+								<i class="fas fa-edit"></i>
+							</button>
+							<button class="action-btn delete" onclick="event.stopPropagation(); deleteChapter('${chapter.id}')" title="Delete Chapter" data-permission="syllabus:delete">
+								<i class="fas fa-trash"></i>
+							</button>
+							<i class="fas fa-chevron-down chapter-toggle" id="toggle-${chapter.id}"></i>
+						</div>
+					</div>
+					<div class="chapter-content" id="content-${chapter.id}">
+						${renderTopics(chapter)}
+						<button class="add-item-btn" onclick="openAddTopicModal('${chapter.id}')" data-permission="syllabus:create">
+							<i class="fas fa-plus"></i> Add Topic
+						</button>
+					</div>
+				</div>
+			`).join('');
+		}
+
+		function renderTopics(chapter) {
+			const topics = chapter.topics || [];
+			if (!topics.length) {
+				return '<p style="color: #64748b; text-align: center; padding: 16px;">No topics yet</p>';
+			}
+
+			return topics.map(topic => `
+				<div class="topic-item">
+					<input type="checkbox" class="topic-checkbox"
+						onchange="toggleTopicProgress('${topic.id}', this.checked)"
+						${topic.is_completed ? 'checked' : ''}>
+					<div class="topic-info">
+						<div class="topic-title">${chapter.chapter_no}.${topic.topic_no} ${escapeHtml(topic.title)}</div>
+						${topic.learning_objectives ? `<div class="topic-objectives">${escapeHtml(topic.learning_objectives)}</div>` : ''}
+					</div>
+					<div class="topic-duration">${topic.estimated_minutes || 45} min</div>
+					<div class="action-btns">
+						<button class="action-btn edit" onclick="editTopic('${topic.id}', '${chapter.id}')" title="Edit" data-permission="syllabus:edit">
+							<i class="fas fa-edit"></i>
+						</button>
+						<button class="action-btn delete" onclick="deleteTopic('${topic.id}')" title="Delete" data-permission="syllabus:delete">
+							<i class="fas fa-trash"></i>
+						</button>
+					</div>
+				</div>
+			`).join('');
+		}
+
+		function toggleChapter(chapterId) {
+			const content = document.getElementById(`content-${chapterId}`);
+			const toggle = document.getElementById(`toggle-${chapterId}`);
+			content.classList.toggle('open');
+			toggle.classList.toggle('open');
+		}
+
+		// ============ VIEW SWITCHING ============
+		function showListView() {
+			document.getElementById('listView').classList.remove('hidden');
+			document.getElementById('detailView').classList.remove('active');
+			currentSyllabus = null;
+			loadSyllabusList();
+			loadStats();
+		}
+
+		function showDetailView() {
+			document.getElementById('listView').classList.add('hidden');
+			document.getElementById('detailView').classList.add('active');
+		}
+
+		// ============ SYLLABUS MODAL ============
+		function openAddSyllabusModal() {
+			document.getElementById('syllabusModalTitle').textContent = 'Add Syllabus';
+			document.getElementById('syllabusForm').reset();
+			document.getElementById('syllabusId').value = '';
+			document.getElementById('syllabusModal').classList.add('active');
+		}
+
+		function closeSyllabusModal() {
+			document.getElementById('syllabusModal').classList.remove('active');
+		}
+
+		async function editSyllabus(id) {
+			const syllabus = syllabi.find(s => s.id === id);
+			if (!syllabus) return;
+
+			document.getElementById('syllabusModalTitle').textContent = 'Edit Syllabus';
+			document.getElementById('syllabusId').value = syllabus.id;
+			document.getElementById('syllabusClass').value = syllabus.class;
+			document.getElementById('syllabusSection').value = syllabus.section || '';
+			document.getElementById('syllabusSubject').value = syllabus.subject;
+			document.getElementById('syllabusYear').value = syllabus.academic_year;
+			document.getElementById('syllabusBoardType').value = syllabus.board_type || 'CBSE';
+			document.getElementById('syllabusMedium').value = syllabus.medium || 'English';
+			document.getElementById('syllabusTotalMarks').value = syllabus.total_marks || '';
+			document.getElementById('syllabusTitle').value = syllabus.title;
+			document.getElementById('syllabusDescription').value = syllabus.description || '';
+			document.getElementById('syllabusExamPattern').value = syllabus.exam_pattern || '';
+			document.getElementById('syllabusStatus').value = syllabus.status;
+
+			document.getElementById('syllabusModal').classList.add('active');
+		}
+
+		async function saveSyllabus() {
+			const id = document.getElementById('syllabusId').value;
+			const data = {
+				class: document.getElementById('syllabusClass').value,
+				section: document.getElementById('syllabusSection').value,
+				subject: document.getElementById('syllabusSubject').value,
+				academic_year: document.getElementById('syllabusYear').value,
+				board_type: document.getElementById('syllabusBoardType').value,
+				medium: document.getElementById('syllabusMedium').value,
+				total_marks: document.getElementById('syllabusTotalMarks').value,
+				title: document.getElementById('syllabusTitle').value,
+				description: document.getElementById('syllabusDescription').value,
+				exam_pattern: document.getElementById('syllabusExamPattern').value,
+				status: document.getElementById('syllabusStatus').value
+			};
+
+			if (!data.class || !data.subject || !data.academic_year || !data.title) {
+				showToast('Please fill all required fields', 'error');
+				return;
+			}
+
+			try {
+				let result;
+				let syllabusId = id;
+
+				if (id) {
+					// Update
+					result = await apiCall('syllabus.php', {
+						method: 'PUT',
+						body: JSON.stringify({ ...data, id, type: 'syllabus' })
+					});
+				} else {
+					// Create
+					result = await apiCall('syllabus.php', {
+						method: 'POST',
+						body: JSON.stringify({ ...data, action: 'create_syllabus' })
+					});
+					if (result.success && result.data) {
+						syllabusId = result.data.id;
+					}
+				}
+
+				// Handle file upload if a file is selected
+				const fileInput = document.getElementById('syllabusFile');
+				if (fileInput.files.length > 0 && syllabusId) {
+					await uploadSyllabusFile(syllabusId, fileInput.files[0]);
+				}
+
+				if (result.success) {
+					showToast(id ? 'Syllabus updated successfully' : 'Syllabus created successfully');
+					closeSyllabusModal();
+					loadSyllabusList();
+					loadStats();
+				} else {
+					showToast(result.message || 'Operation failed', 'error');
+				}
+			} catch (error) {
+				console.error('Error saving syllabus:', error);
+				showToast('Failed to save syllabus', 'error');
+			}
+		}
+
+		async function deleteSyllabus(id) {
+			if (!confirm('Are you sure you want to delete this syllabus? All chapters and topics will also be deleted.')) {
+				return;
+			}
+
+			try {
+				const result = await apiCall(`syllabus.php?id=${id}&type=syllabus`, { method: 'DELETE' });
+				if (result.success) {
+					showToast('Syllabus deleted successfully');
+					loadSyllabusList();
+					loadStats();
+				} else {
+					showToast(result.message || 'Delete failed', 'error');
+				}
+			} catch (error) {
+				console.error('Error deleting syllabus:', error);
+				showToast('Failed to delete syllabus', 'error');
+			}
+		}
+
+		// ============ CHAPTER MODAL ============
+		function openAddChapterModal() {
+			if (!currentSyllabus) return;
+			document.getElementById('chapterModalTitle').textContent = 'Add Chapter';
+			document.getElementById('chapterForm').reset();
+			document.getElementById('chapterId').value = '';
+			document.getElementById('chapterSyllabusId').value = currentSyllabus.id;
+
+			// Auto-set next chapter number
+			const nextChapterNo = (currentSyllabus.chapters?.length || 0) + 1;
+			document.getElementById('chapterNo').value = nextChapterNo;
+
+			document.getElementById('chapterModal').classList.add('active');
+		}
+
+		function closeChapterModal() {
+			document.getElementById('chapterModal').classList.remove('active');
+		}
+
+		function editChapter(chapterId) {
+			const chapter = currentSyllabus?.chapters?.find(c => c.id === chapterId);
+			if (!chapter) return;
+
+			document.getElementById('chapterModalTitle').textContent = 'Edit Chapter';
+			document.getElementById('chapterId').value = chapter.id;
+			document.getElementById('chapterSyllabusId').value = currentSyllabus.id;
+			document.getElementById('chapterNo').value = chapter.chapter_no;
+			document.getElementById('chapterTitle').value = chapter.title;
+			document.getElementById('chapterDescription').value = chapter.description || '';
+			document.getElementById('chapterHours').value = chapter.estimated_hours || '';
+
+			document.getElementById('chapterModal').classList.add('active');
+		}
+
+		async function saveChapter() {
+			const id = document.getElementById('chapterId').value;
+			const syllabusId = document.getElementById('chapterSyllabusId').value;
+			const data = {
+				syllabus_id: syllabusId,
+				chapter_no: document.getElementById('chapterNo').value,
+				title: document.getElementById('chapterTitle').value,
+				description: document.getElementById('chapterDescription').value,
+				estimated_hours: document.getElementById('chapterHours').value || 0
+			};
+
+			if (!data.chapter_no || !data.title) {
+				showToast('Please fill all required fields', 'error');
+				return;
+			}
+
+			try {
+				let result;
+				if (id) {
+					result = await apiCall('syllabus.php', {
+						method: 'PUT',
+						body: JSON.stringify({ ...data, id, type: 'chapter' })
+					});
+				} else {
+					result = await apiCall('syllabus.php', {
+						method: 'POST',
+						body: JSON.stringify({ ...data, action: 'add_chapter' })
+					});
+				}
+
+				if (result.success) {
+					showToast(id ? 'Chapter updated successfully' : 'Chapter added successfully');
+					closeChapterModal();
+					viewSyllabus(currentSyllabus.id); // Refresh detail view
+				} else {
+					showToast(result.message || 'Operation failed', 'error');
+				}
+			} catch (error) {
+				console.error('Error saving chapter:', error);
+				showToast('Failed to save chapter', 'error');
+			}
+		}
+
+		async function deleteChapter(chapterId) {
+			if (!confirm('Are you sure you want to delete this chapter? All topics will also be deleted.')) {
+				return;
+			}
+
+			try {
+				const result = await apiCall(`syllabus.php?id=${chapterId}&type=chapter`, { method: 'DELETE' });
+				if (result.success) {
+					showToast('Chapter deleted successfully');
+					viewSyllabus(currentSyllabus.id);
+				} else {
+					showToast(result.message || 'Delete failed', 'error');
+				}
+			} catch (error) {
+				console.error('Error deleting chapter:', error);
+				showToast('Failed to delete chapter', 'error');
+			}
+		}
+
+		// ============ TOPIC MODAL ============
+		function openAddTopicModal(chapterId) {
+			document.getElementById('topicModalTitle').textContent = 'Add Topic';
+			document.getElementById('topicForm').reset();
+			document.getElementById('topicId').value = '';
+			document.getElementById('topicChapterId').value = chapterId;
+
+			// Auto-set next topic number
+			const chapter = currentSyllabus?.chapters?.find(c => c.id === chapterId);
+			const nextTopicNo = (chapter?.topics?.length || 0) + 1;
+			document.getElementById('topicNo').value = nextTopicNo;
+			document.getElementById('topicMinutes').value = 45;
+
+			document.getElementById('topicModal').classList.add('active');
+		}
+
+		function closeTopicModal() {
+			document.getElementById('topicModal').classList.remove('active');
+		}
+
+		function editTopic(topicId, chapterId) {
+			const chapter = currentSyllabus?.chapters?.find(c => c.id === chapterId);
+			const topic = chapter?.topics?.find(t => t.id === topicId);
+			if (!topic) return;
+
+			document.getElementById('topicModalTitle').textContent = 'Edit Topic';
+			document.getElementById('topicId').value = topic.id;
+			document.getElementById('topicChapterId').value = chapterId;
+			document.getElementById('topicNo').value = topic.topic_no;
+			document.getElementById('topicTitle').value = topic.title;
+			document.getElementById('topicDescription').value = topic.description || '';
+			document.getElementById('topicObjectives').value = topic.learning_objectives || '';
+			document.getElementById('topicMinutes').value = topic.estimated_minutes || 45;
+
+			document.getElementById('topicModal').classList.add('active');
+		}
+
+		async function saveTopic() {
+			const id = document.getElementById('topicId').value;
+			const chapterId = document.getElementById('topicChapterId').value;
+			const data = {
+				chapter_id: chapterId,
+				topic_no: document.getElementById('topicNo').value,
+				title: document.getElementById('topicTitle').value,
+				description: document.getElementById('topicDescription').value,
+				learning_objectives: document.getElementById('topicObjectives').value,
+				estimated_minutes: document.getElementById('topicMinutes').value || 45
+			};
+
+			if (!data.topic_no || !data.title) {
+				showToast('Please fill all required fields', 'error');
+				return;
+			}
+
+			try {
+				let result;
+				if (id) {
+					result = await apiCall('syllabus.php', {
+						method: 'PUT',
+						body: JSON.stringify({ ...data, id, type: 'topic' })
+					});
+				} else {
+					result = await apiCall('syllabus.php', {
+						method: 'POST',
+						body: JSON.stringify({ ...data, action: 'add_topic' })
+					});
+				}
+
+				if (result.success) {
+					showToast(id ? 'Topic updated successfully' : 'Topic added successfully');
+					closeTopicModal();
+					viewSyllabus(currentSyllabus.id);
+				} else {
+					showToast(result.message || 'Operation failed', 'error');
+				}
+			} catch (error) {
+				console.error('Error saving topic:', error);
+				showToast('Failed to save topic', 'error');
+			}
+		}
+
+		async function deleteTopic(topicId) {
+			if (!confirm('Are you sure you want to delete this topic?')) {
+				return;
+			}
+
+			try {
+				const result = await apiCall(`syllabus.php?id=${topicId}&type=topic`, { method: 'DELETE' });
+				if (result.success) {
+					showToast('Topic deleted successfully');
+					viewSyllabus(currentSyllabus.id);
+				} else {
+					showToast(result.message || 'Delete failed', 'error');
+				}
+			} catch (error) {
+				console.error('Error deleting topic:', error);
+				showToast('Failed to delete topic', 'error');
+			}
+		}
+
+		// ============ PROGRESS TRACKING ============
+		async function toggleTopicProgress(topicId, completed) {
+			try {
+				const result = await apiCall('syllabus.php', {
+					method: 'POST',
+					body: JSON.stringify({
+						action: 'mark_progress',
+						topic_id: topicId,
+						class: currentSyllabus.class,
+						section: 'A', // Default section - can be made dynamic
+						is_completed: completed ? 1 : 0
+					})
+				});
+
+				if (result.success) {
+					showToast(completed ? 'Topic marked as complete' : 'Topic marked as incomplete');
+					loadStats();
+				} else {
+					showToast(result.message || 'Failed to update progress', 'error');
+				}
+			} catch (error) {
+				console.error('Error updating progress:', error);
+				showToast('Failed to update progress', 'error');
+			}
+		}
+
+		// Close modals on backdrop click
+		document.querySelectorAll('.modal-overlay').forEach(modal => {
+			modal.addEventListener('click', function(e) {
+				if (e.target === this) {
+					this.classList.remove('active');
+				}
+			});
+		});
+	</script>
+</body>
+</html>

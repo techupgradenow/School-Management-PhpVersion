@@ -80,6 +80,10 @@ function handleGet($db, $params) {
                 getTeachersStats($db);
                 break;
 
+            case 'subjects':
+                getDistinctSubjects($db);
+                break;
+
             default:
                 sendResponse(false, 'Invalid action');
         }
@@ -379,6 +383,19 @@ function handleDelete($db, $params) {
 
     } catch (Exception $e) {
         sendResponse(false, 'Error deleting teacher', null, ['error' => $e->getMessage()]);
+    }
+}
+
+/**
+ * Get distinct subjects from teachers table
+ */
+function getDistinctSubjects($db) {
+    try {
+        $stmt = $db->query("SELECT DISTINCT subject FROM teachers WHERE subject IS NOT NULL AND subject != '' ORDER BY subject");
+        $subjects = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        sendResponse(true, 'Subjects fetched successfully', $subjects);
+    } catch (Exception $e) {
+        sendResponse(false, 'Error fetching subjects', null, ['error' => $e->getMessage()]);
     }
 }
 ?>

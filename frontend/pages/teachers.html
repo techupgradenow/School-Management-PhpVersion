@@ -3,7 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<title>Teachers</title>
+	<title>Teachers - EduManage Pro</title>
+	<!-- Updated: 2026-01-09 with Teacher Profile Links -->
 	<link rel="stylesheet" href="../assets/css/style.css">
 	<link rel="stylesheet" href="../assets/css/responsive.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -384,6 +385,29 @@
 
 		.teacher-info { display: flex; align-items: center; gap: 12px; }
 		.teacher-name { font-weight: 600; color: #1e293b; }
+		.teacher-name-link {
+			font-weight: 600;
+			color: #3b82f6;
+			text-decoration: none;
+			cursor: pointer;
+			transition: color 0.2s;
+		}
+		.teacher-name-link:hover {
+			color: #2563eb;
+			text-decoration: underline;
+		}
+		.teacher-id-link {
+			font-weight: 700;
+			color: #7c3aed;
+			font-size: 13px;
+			text-decoration: none;
+			cursor: pointer;
+			transition: color 0.2s;
+		}
+		.teacher-id-link:hover {
+			color: #6d28d9;
+			text-decoration: underline;
+		}
 		.teacher-email { font-size: 12px; color: #64748b; }
 		.teacher-id { font-weight: 700; color: #7c3aed; font-size: 13px; }
 
@@ -573,10 +597,10 @@
 		}
 
 		/* ============================================ */
-		/* CLEAN PROFESSIONAL FORM - NO SCROLL        */
+		/* FULL-SCREEN PAGE VIEW                      */
 		/* ============================================ */
 
-		/* Form View Container */
+		/* Form View - Full Screen */
 		#formView {
 			display: none;
 			position: absolute;
@@ -585,30 +609,66 @@
 			right: 0;
 			bottom: 0;
 			z-index: 100;
-			background: #f8fafc;
+			background: #f5f7fa;
+			overflow-y: auto;
+			padding: 20px;
+			animation: fadeIn 0.2s ease;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+
+		@keyframes slideUp {
+			from { opacity: 0; transform: translateY(20px); }
+			to { opacity: 1; transform: translateY(0); }
 		}
 
 		#formView.active {
-			display: flex;
-			flex-direction: column;
+			display: block;
 		}
 
 		.form-page-container {
-			flex: 1;
+			background: #ffffff;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+			width: 100%;
+			max-width: 1200px;
+			margin: 0 auto;
 			display: flex;
 			flex-direction: column;
 			overflow: hidden;
-			min-height: 0;
+			animation: slideUp 0.3s ease;
 		}
 
-		/* ===== HEADER - CLEAN ===== */
+		/* ===== HEADER - PAGE STYLE ===== */
 		.form-page-header {
-			padding: 12px 20px;
-			background: linear-gradient(135deg, #6366f1, #8b5cf6);
+			padding: 20px 24px;
+			background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			flex-shrink: 0;
+			border-radius: 16px 16px 0 0;
+		}
+
+		.modal-close-btn {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			border: none;
+			background: rgba(255,255,255,0.2);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			color: #ffffff;
+			transition: all 0.2s;
+		}
+		.modal-close-btn:hover {
+			background: rgba(255,255,255,0.3);
 		}
 
 		.form-page-header-left {
@@ -706,22 +766,24 @@
 			border-bottom-color: #6366f1;
 		}
 
-		/* ===== FORM BODY ===== */
+		/* ===== FORM BODY - MODAL SCROLL ===== */
 		.form-page-body {
-			padding: 14px 20px;
+			padding: 20px 24px;
 			flex: 1;
 			overflow-y: auto;
 			overflow-x: hidden;
 			background: #f8fafc;
 			min-height: 0;
+			max-height: calc(90vh - 200px);
 		}
 
 		/* Custom Scrollbar */
 		.form-page-body::-webkit-scrollbar {
-			width: 4px;
+			width: 6px;
 		}
 		.form-page-body::-webkit-scrollbar-track {
 			background: #e5e7eb;
+			border-radius: 3px;
 		}
 		.form-page-body::-webkit-scrollbar-thumb {
 			background: #94a3b8;
@@ -1491,22 +1553,43 @@
 		}
 
 		@media (max-width: 768px) {
-			.form-page-container {
+			/* Mobile Styles */
+			#formView {
 				padding: 10px;
 			}
 
+			.form-page-container {
+				max-width: 100%;
+				border-radius: 12px;
+			}
+
 			.form-page-header {
-				padding: 16px 20px;
+				padding: 12px 16px;
+				border-radius: 12px 12px 0 0;
 			}
 
 			.form-page-title h2 {
-				font-size: 16px;
+				font-size: 14px;
+			}
+
+			.form-page-title p {
+				font-size: 10px;
 			}
 
 			.form-page-title-icon {
-				width: 40px;
-				height: 40px;
-				font-size: 16px;
+				width: 32px;
+				height: 32px;
+				font-size: 14px;
+			}
+
+			.modal-close-btn {
+				width: 32px;
+				height: 32px;
+				font-size: 14px;
+			}
+
+			.form-page-body {
+				padding: 16px;
 			}
 
 			.form-row {
@@ -1534,22 +1617,24 @@
 
 			.tab-btn {
 				justify-content: flex-start;
-				padding: 12px 16px;
-				border-radius: 10px;
+				padding: 10px 14px;
+				border-radius: 8px;
+				font-size: 12px;
 			}
 
 			.tab-btn.active {
-				box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+				background: rgba(99, 102, 241, 0.1);
+				box-shadow: none;
 			}
 
 			.form-section {
-				padding: 16px;
-				border-radius: 12px;
+				padding: 14px;
+				border-radius: 10px;
 			}
 
 			.form-group input,
 			.form-group select {
-				height: 44px;
+				height: 42px;
 			}
 
 			.enhanced-modal .teacher-modal-content {
@@ -1571,12 +1656,13 @@
 			}
 
 			.form-page-footer {
-				padding: 16px 20px;
+				padding: 12px 16px;
 			}
 
 			.form-page-footer .btn {
 				flex: 1;
 				min-width: auto;
+				padding: 10px 16px;
 			}
 		}
 		/* ===== RESPONSIVE STYLES ===== */
@@ -1741,9 +1827,6 @@
 			<div class="form-page-container">
 				<div class="form-page-header">
 					<div class="form-page-header-left">
-						<button class="back-btn" onclick="showListView()" title="Back to List">
-							<i class="fas fa-arrow-left"></i>
-						</button>
 						<div class="form-page-title">
 							<div class="form-page-title-icon">
 								<i class="fas fa-user-plus" id="formTitleIcon"></i>
@@ -1754,6 +1837,9 @@
 							</div>
 						</div>
 					</div>
+					<button type="button" class="modal-close-btn" onclick="showListView()" title="Close">
+						<i class="fas fa-times"></i>
+					</button>
 				</div>
 
 				<!-- Tab Navigation -->
@@ -2870,8 +2956,8 @@
 									${removeBtn}
 								</div>
 							</td>
-							<td><span class="teacher-id">${t.id}</span></td>
-							<td><div class="editable-cell" data-field="name" data-idx="${globalIdx}">${t.name}</div></td>
+							<td><a href="teacher-detail.html?id=${encodeURIComponent(t.id)}" class="teacher-id-link" title="View Full Teacher Profile">${t.id}</a></td>
+							<td><a href="teacher-detail.html?id=${encodeURIComponent(t.id)}" class="teacher-name-link" title="View Full Teacher Profile">${t.name}</a></td>
 							<td><div class="editable-cell" data-field="gender" data-idx="${globalIdx}" data-type="select"><span class="gender-badge ${genderClass}">${t.gender}</span></div></td>
 							<td><div class="editable-cell" data-field="subject" data-idx="${globalIdx}" data-type="subject"><span class="subject-badge">${t.subject}</span></div></td>
 							<td><div class="editable-cell" data-field="email" data-idx="${globalIdx}">${t.email || '-'}</div></td>
@@ -3009,21 +3095,8 @@
 					return;
 				}
 
-				// Open the modal in view-only mode
-				editingTeacherIndex = -1; // Set to -1 to indicate view mode
-				openEditTeacherModal(idx);
-
-				// Change modal title
-				$('#modalTitle').html('<i class="fas fa-eye"></i> View Teacher Details');
-
-				// Make all inputs read-only
-				$('#teacherModal input, #teacherModal select, #teacherModal textarea').prop('readonly', true).prop('disabled', true);
-
-				// Hide the save button, show only close
-				$('#saveTeacherBtn').hide();
-				$('.modal-footer-sticky .btn-secondary').text('Close');
-
-				notify('Viewing teacher details (read-only mode)', 'info');
+				// Navigate to the comprehensive teacher detail page
+				window.location.href = 'teacher-detail.html?id=' + encodeURIComponent(teacher.id);
 			} catch (error) {
 				console.error('Error viewing teacher:', error);
 				notify('Error loading teacher details', 'error');
@@ -3368,6 +3441,17 @@
 		window.openAddTeacherModal = openAddTeacherModal;
 		window.closeTeacherModal = closeTeacherModal;
 		window.addNewTeacher = addNewTeacher;
+
+		// ============================================
+		// MODAL CLOSE BEHAVIORS
+		// ============================================
+
+		// ESC key to close form view (optional - can be disabled if unwanted)
+		$(document).on('keydown', function(e) {
+			if (e.key === 'Escape' && $('#formView').hasClass('active')) {
+				showListView();
+			}
+		});
 
 		// Alias for page-based save
 		window.saveTeacherFromPage = function() {

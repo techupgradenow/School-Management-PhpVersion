@@ -534,6 +534,10 @@
                         <i class="fas fa-calendar-check"></i>
                         <span>Events</span>
                     </li>
+                    <li data-page="syllabus">
+                        <i class="fas fa-book-open"></i>
+                        <span>Syllabus</span>
+                    </li>
                     <li data-page="settings">
                         <i class="fas fa-cog"></i>
                         <span>Settings</span>
@@ -1696,22 +1700,22 @@
 		const ROLE_CONFIG = {
 			superadmin: {
 				label: 'Super Admin',
-				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','payroll','library','transport','hostel','reports','settings'],
+				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','payroll','library','transport','hostel','reports','syllabus','settings'],
 				quickActions: ['addStudent','takeAttendance','scheduleExam','collectFees','sendNotification','generateReport']
 			},
 			admin: {
 				label: 'Admin',
-				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','payroll','library','reports','settings'],
+				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','payroll','library','reports','syllabus','settings'],
 				quickActions: ['addStudent','takeAttendance','scheduleExam','collectFees','sendNotification','generateReport']
 			},
 			teacher: {
 				label: 'Teacher',
-				allowedPages: ['dashboard','attendance','exams','admitcard','timetable','students','reports'],
+				allowedPages: ['dashboard','attendance','exams','admitcard','timetable','students','reports','syllabus'],
 				quickActions: ['takeAttendance','scheduleExam','sendNotification']
 			},
 			student: {
 				label: 'Student',
-				allowedPages: ['dashboard','timetable','attendance','fees','library','transport','hostel','admitcard'],
+				allowedPages: ['dashboard','timetable','attendance','fees','library','transport','hostel','admitcard','syllabus'],
 				quickActions: []
 			},
 			parent: {

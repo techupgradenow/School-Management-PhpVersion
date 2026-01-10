@@ -22,7 +22,8 @@ class PermissionGuard {
     const ALL_MODULES = [
         'dashboard', 'students', 'teachers', 'classes', 'subjects',
         'exams', 'attendance', 'fees', 'library', 'transport',
-        'reports', 'settings', 'users', 'hostel', 'payroll', 'timetable'
+        'reports', 'settings', 'users', 'hostel', 'payroll', 'timetable',
+        'syllabus'
     ];
 
     // All available actions
