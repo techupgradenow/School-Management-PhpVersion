@@ -10,10 +10,37 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/functions.php';
 require_once __DIR__ . '/../helpers/permission_guard.php';
+require_once __DIR__ . '/../helpers/TenantContext.php';
 
 // Start session for permission checks
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+/**
+ * Get current school ID from session/context
+ * CRITICAL: All queries must filter by school_id for multi-tenant isolation
+ */
+function getCurrentSchoolId() {
+    if (isset($_SESSION['school_id']) && !empty($_SESSION['school_id'])) {
+        return $_SESSION['school_id'];
+    }
+    try {
+        $db = getDB();
+        $tenant = TenantContext::getInstance($db);
+        $schoolId = $tenant->getSchoolId();
+        if ($schoolId) return $schoolId;
+    } catch (Exception $e) {}
+    try {
+        $db = getDB();
+        $stmt = $db->query("SELECT id FROM schools WHERE is_active = 1 LIMIT 1");
+        $school = $stmt->fetch();
+        if ($school) {
+            $_SESSION['school_id'] = $school['id'];
+            return $school['id'];
+        }
+    } catch (Exception $e) {}
+    return null;
 }
 
 // Get request method
@@ -102,6 +129,7 @@ function handleGet($db, $params) {
 
 /**
  * Get payments list
+ * IMPORTANT: Filters by school_id for multi-tenant isolation
  */
 function getPaymentsList($db, $params) {
     $page = isset($params['page']) ? (int)$params['page'] : 1;
@@ -110,9 +138,16 @@ function getPaymentsList($db, $params) {
     $search = $params['search'] ?? '';
     $startDate = $params['start_date'] ?? '';
     $endDate = $params['end_date'] ?? '';
+    $schoolId = getCurrentSchoolId();
 
     $where = [];
     $bindings = [];
+
+    // CRITICAL: Always filter by school_id for data isolation
+    if ($schoolId) {
+        $where[] = "fee_payments.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
 
     if (!empty($status)) {
         $where[] = "fee_payments.status = :status";

@@ -7,24 +7,23 @@
  * Usage: php run_migration.php
  */
 
-// Database configuration
-$host = 'localhost';
-$dbname = 'edumanage_pro';
-$username = 'root';
-$password = '';
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../config/env.php';
+validateRemoteDatabase();
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password,
+        getDbDsn(),
+        DB_USER,
+        DB_PASS,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_TIMEOUT => DB_CONNECT_TIMEOUT
         ]
     );
 
-    echo "Connected to database successfully.\n\n";
+    echo "Connected to remote Hostinger database successfully.\n\n";
 
     // Check if migration already done
     $stmt = $pdo->query("SHOW COLUMNS FROM users LIKE 'uuid'");

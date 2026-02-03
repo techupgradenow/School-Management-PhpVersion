@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management System - Database Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            background: #3949ab;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .table-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-card.primary {
+            border-color: #1a237e;
+        }
+
+        .table-card.secondary {
+            border-color: #7986cb;
+        }
+
+        .table-header {
+            background: #1a237e;
+            color: white;
+            padding: 10px 15px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .table-header.secondary {
+            background: #3949ab;
+        }
+
+        .table-header.tertiary {
+            background: #5c6bc0;
+        }
+
+        .table-header.logging {
+            background: #7986cb;
+        }
+
+        .table-body {
+            padding: 10px 0;
+            font-size: 12px;
+        }
+
+        .column {
+            padding: 5px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column:last-child {
+            border-bottom: none;
+        }
+
+        .column-name {
+            font-weight: 500;
+        }
+
+        .column-type {
+            color: #666;
+            font-size: 11px;
+        }
+
+        .pk {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .fk {
+            color: #1976d2;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .badge.pk {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .badge.fk {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .erd-diagram {
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.4;
+        }
+
+        .relationship-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .relationship-table th {
+            background: #3949ab;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .relationship-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .relationship-table tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #3949ab 0%, #5c6bc0 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card .number {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .audit-columns {
+            background: #fff3e0;
+            border: 1px solid #ffb74d;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .audit-columns h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            .header {
+                background: #1a237e !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>SCHOOL MANAGEMENT SYSTEM</h1>
+            <p>Multi-Tenant Database Architecture v2.0</p>
+            <p>Document Date: January 2025</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <div class="section-title">DATABASE SUMMARY</div>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="number">52</div>
+                    <div class="label">Total Tables</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number">14</div>
+                    <div class="label">Multi-Tenant Tables</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number">UUID</div>
+                    <div class="label">Primary Key Type</div>
+                </div>
+                <div class="summary-card">
+                    <div class="number">RBAC</div>
+                    <div class="label">Access Control</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ERD Diagram -->
+        <div class="section">
+            <div class="section-title">ENTITY RELATIONSHIP DIAGRAM</div>
+            <div class="erd-diagram">
+                                    ┌──────────────┐
+                                    │    PLANS     │
+                                    │──────────────│
+                                    │ PK id (UUID) │
+                                    │ code, name   │
+                                    │ price_monthly│
+                                    │ max_students │
+                                    └──────┬───────┘
+                                           │
+                     ┌─────────────────────┼─────────────────────┐
+                     │                     │                     │
+                     ▼                     ▼                     ▼
+            ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+            │   FEATURES   │      │   SCHOOLS    │      │PLAN_FEATURES │
+            │──────────────│      │──────────────│      │──────────────│
+            │ PK id (UUID) │◄─────│ PK id (UUID) │      │ FK plan_id   │
+            │ code, name   │      │ FK plan_id   │      │ FK feature_id│
+            │ category     │      │ code, name   │      │ is_enabled   │
+            │ is_premium   │      │ email        │      │ usage_limit  │
+            └──────┬───────┘      │ subscription │      └──────────────┘
+                   │              │   _status    │
+                   │              └──────┬───────┘
+                   │                     │
+                   │    ┌────────────────┼────────────────┐
+                   │    │                │                │
+                   │    ▼                ▼                ▼
+                   │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+                   │  │SCHOOL_FEATURE│ │ SCHOOL_USERS │ │SUBSCRIPTION_ │
+                   │  │  _OVERRIDES  │ │──────────────│ │   HISTORY    │
+                   │  │──────────────│ │ FK school_id │ │──────────────│
+                   │  │ FK school_id │ │ FK user_id   │ │ FK school_id │
+                   └──│ FK feature_id│ │ FK role_id   │ │ FK plan_id   │
+                      │ is_enabled   │ │ user_type    │ │ action       │
+                      └──────────────┘ └──────┬───────┘ └──────────────┘
+                                              │
+                            ┌─────────────────┼─────────────────┐
+                            │                 │                 │
+                            ▼                 ▼                 ▼
+                   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+                   │ GLOBAL_USERS │  │    ROLES     │  │ PERMISSIONS  │
+                   │──────────────│  │──────────────│  │──────────────│
+                   │ PK id (UUID) │  │ PK id (UUID) │  │ PK id (UUID) │
+                   │ email        │  │ FK school_id │  │ code         │
+                   │ password     │  │ code, name   │  │ action       │
+                   │ first_name   │  │ hierarchy    │  │ resource     │
+                   │ is_super_admin│  │   _level     │  └──────┬───────┘
+                   └──────────────┘  └──────┬───────┘         │
+                                            │                 │
+                                            └────────┬────────┘
+                                                     │
+                                                     ▼
+                                            ┌──────────────┐
+                                            │    ROLE_     │
+                                            │ PERMISSIONS  │
+                                            │──────────────│
+                                            │ FK role_id   │
+                                            │FK permission │
+                                            │   _id        │
+                                            │ is_granted   │
+                                            └──────────────┘
+            </div>
+        </div>
+
+        <!-- Module 1: Subscription -->
+        <div class="section">
+            <div class="section-title">MODULE 1: SUBSCRIPTION & PLANS</div>
+            <div class="tables-grid">
+                <!-- Plans Table -->
+                <div class="table-card primary">
+                    <div class="table-header">plans</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">code</span><span class="column-type">VARCHAR(50) UNIQUE</span></div>
+                        <div class="column"><span class="column-name">name</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">description</span><span class="column-type">TEXT</span></div>
+                        <div class="column"><span class="column-name">price_monthly</span><span class="column-type">DECIMAL(10,2)</span></div>
+                        <div class="column"><span class="column-name">price_yearly</span><span class="column-type">DECIMAL(10,2)</span></div>
+                        <div class="column"><span class="column-name">max_students</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">max_teachers</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">max_users</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">max_storage_gb</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">trial_days</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">is_active</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">is_default</span><span class="column-type">TINYINT(1)</span></div>
+                    </div>
+                </div>
+
+                <!-- Features Table -->
+                <div class="table-card primary">
+                    <div class="table-header">features</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">code</span><span class="column-type">VARCHAR(50) UNIQUE</span></div>
+                        <div class="column"><span class="column-name">name</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">description</span><span class="column-type">TEXT</span></div>
+                        <div class="column"><span class="column-name">category</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">icon</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">route</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">parent_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">is_premium</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">is_active</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">sort_order</span><span class="column-type">INT</span></div>
+                    </div>
+                </div>
+
+                <!-- Plan Features Table -->
+                <div class="table-card primary">
+                    <div class="table-header">plan_features</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">plan_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">feature_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">is_enabled</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">usage_limit</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">limit_type</span><span class="column-type">ENUM</span></div>
+                        <div class="column"><span class="column-name">custom_config</span><span class="column-type">JSON</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 2: Tenant -->
+        <div class="section">
+            <div class="section-title">MODULE 2: TENANT (SCHOOLS)</div>
+            <div class="tables-grid">
+                <!-- Schools Table -->
+                <div class="table-card primary">
+                    <div class="table-header secondary">schools</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">code</span><span class="column-type">VARCHAR(20) UNIQUE</span></div>
+                        <div class="column"><span class="column-name">name</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">slug</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">email</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">phone</span><span class="column-type">VARCHAR(20)</span></div>
+                        <div class="column"><span class="column-name">logo</span><span class="column-type">TEXT</span></div>
+                        <div class="column"><span class="column-name">address</span><span class="column-type">TEXT</span></div>
+                        <div class="column"><span class="column-name">city, state, country</span><span class="column-type">VARCHAR</span></div>
+                        <div class="column"><span class="column-name">timezone</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">plan_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">subscription_status</span><span class="column-type">ENUM</span></div>
+                        <div class="column"><span class="column-name">subscription_start</span><span class="column-type">DATE</span></div>
+                        <div class="column"><span class="column-name">subscription_end</span><span class="column-type">DATE</span></div>
+                        <div class="column"><span class="column-name">is_active</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">settings</span><span class="column-type">JSON</span></div>
+                    </div>
+                </div>
+
+                <!-- School Feature Overrides -->
+                <div class="table-card">
+                    <div class="table-header secondary">school_feature_overrides</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">feature_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">is_enabled</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">usage_limit</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">valid_from</span><span class="column-type">DATE</span></div>
+                        <div class="column"><span class="column-name">valid_until</span><span class="column-type">DATE</span></div>
+                        <div class="column"><span class="column-name">reason</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">granted_by</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                    </div>
+                </div>
+
+                <!-- Subscription History -->
+                <div class="table-card">
+                    <div class="table-header secondary">subscription_history</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">plan_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">previous_plan_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">action</span><span class="column-type">ENUM</span></div>
+                        <div class="column"><span class="column-name">billing_cycle</span><span class="column-type">ENUM</span></div>
+                        <div class="column"><span class="column-name">amount</span><span class="column-type">DECIMAL(10,2)</span></div>
+                        <div class="column"><span class="column-name">payment_reference</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">starts_at, ends_at</span><span class="column-type">DATE</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 3: RBAC -->
+        <div class="section">
+            <div class="section-title">MODULE 3: RBAC (ROLES & PERMISSIONS)</div>
+            <div class="tables-grid">
+                <!-- Roles -->
+                <div class="table-card">
+                    <div class="table-header tertiary">roles</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36) NULL</span></div>
+                        <div class="column"><span class="column-name">code</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">name</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">description</span><span class="column-type">TEXT</span></div>
+                        <div class="column"><span class="column-name">is_system</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">hierarchy_level</span><span class="column-type">INT</span></div>
+                    </div>
+                </div>
+
+                <!-- Permissions -->
+                <div class="table-card">
+                    <div class="table-header tertiary">permissions</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">code</span><span class="column-type">VARCHAR(100) UNIQUE</span></div>
+                        <div class="column"><span class="column-name">name</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">feature_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">action</span><span class="column-type">ENUM</span></div>
+                        <div class="column"><span class="column-name">resource</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">is_system</span><span class="column-type">TINYINT(1)</span></div>
+                    </div>
+                </div>
+
+                <!-- Role Permissions -->
+                <div class="table-card">
+                    <div class="table-header tertiary">role_permissions</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">role_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">permission_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">is_granted</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">conditions</span><span class="column-type">JSON</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 4: Users -->
+        <div class="section">
+            <div class="section-title">MODULE 4: USER MANAGEMENT</div>
+            <div class="tables-grid">
+                <!-- Global Users -->
+                <div class="table-card">
+                    <div class="table-header tertiary">global_users</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">email</span><span class="column-type">VARCHAR(255) UNIQUE</span></div>
+                        <div class="column"><span class="column-name">phone</span><span class="column-type">VARCHAR(20)</span></div>
+                        <div class="column"><span class="column-name">password</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">first_name</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">last_name</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">avatar</span><span class="column-type">TEXT</span></div>
+                        <div class="column"><span class="column-name">is_super_admin</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">is_active</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">last_login_at</span><span class="column-type">TIMESTAMP</span></div>
+                        <div class="column"><span class="column-name">two_factor_enabled</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">preferences</span><span class="column-type">JSON</span></div>
+                    </div>
+                </div>
+
+                <!-- School Users -->
+                <div class="table-card">
+                    <div class="table-header tertiary">school_users</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">user_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">role_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">employee_id</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">user_type</span><span class="column-type">ENUM</span></div>
+                        <div class="column"><span class="column-name">department</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">designation</span><span class="column-type">VARCHAR(100)</span></div>
+                        <div class="column"><span class="column-name">joining_date</span><span class="column-type">DATE</span></div>
+                        <div class="column"><span class="column-name">is_primary_school</span><span class="column-type">TINYINT(1)</span></div>
+                        <div class="column"><span class="column-name">permissions_override</span><span class="column-type">JSON</span></div>
+                        <div class="column"><span class="column-name">is_active</span><span class="column-type">TINYINT(1)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module 5: Logging -->
+        <div class="section">
+            <div class="section-title">MODULE 5: AUDIT & LOGGING</div>
+            <div class="tables-grid">
+                <!-- Audit Log -->
+                <div class="table-card">
+                    <div class="table-header logging">audit_log</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">BIGINT AUTO_INCREMENT</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">user_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">action</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">entity_type</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">entity_id</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">old_values</span><span class="column-type">JSON</span></div>
+                        <div class="column"><span class="column-name">new_values</span><span class="column-type">JSON</span></div>
+                        <div class="column"><span class="column-name">ip_address</span><span class="column-type">VARCHAR(45)</span></div>
+                    </div>
+                </div>
+
+                <!-- Feature Usage Log -->
+                <div class="table-card">
+                    <div class="table-header logging">feature_usage_log</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">BIGINT AUTO_INCREMENT</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">feature_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">user_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">action</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">usage_count</span><span class="column-type">INT</span></div>
+                        <div class="column"><span class="column-name">metadata</span><span class="column-type">JSON</span></div>
+                    </div>
+                </div>
+
+                <!-- User Sessions -->
+                <div class="table-card">
+                    <div class="table-header logging">user_sessions</div>
+                    <div class="table-body">
+                        <div class="column"><span class="column-name">id</span><span class="badge pk">PK</span><span class="column-type">CHAR(36) UUID</span></div>
+                        <div class="column"><span class="column-name">user_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">school_id</span><span class="badge fk">FK</span><span class="column-type">CHAR(36)</span></div>
+                        <div class="column"><span class="column-name">token_hash</span><span class="column-type">VARCHAR(255)</span></div>
+                        <div class="column"><span class="column-name">ip_address</span><span class="column-type">VARCHAR(45)</span></div>
+                        <div class="column"><span class="column-name">device_type</span><span class="column-type">VARCHAR(50)</span></div>
+                        <div class="column"><span class="column-name">last_activity</span><span class="column-type">TIMESTAMP</span></div>
+                        <div class="column"><span class="column-name">expires_at</span><span class="column-type">TIMESTAMP</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Columns -->
+        <div class="section">
+            <div class="section-title">STANDARD AUDIT COLUMNS (All Tables)</div>
+            <div class="audit-columns">
+                <h4>Every table includes these audit tracking columns:</h4>
+                <table class="relationship-table">
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><strong>created_by</strong></td>
+                        <td>VARCHAR(100)</td>
+                        <td>Username/email of user who created the record</td>
+                    </tr>
+                    <tr>
+                        <td><strong>updated_by</strong></td>
+                        <td>VARCHAR(100)</td>
+                        <td>Username/email of user who last modified the record</td>
+                    </tr>
+                    <tr>
+                        <td><strong>created_at</strong></td>
+                        <td>TIMESTAMP</td>
+                        <td>Date and time when record was created</td>
+                    </tr>
+                    <tr>
+                        <td><strong>updated_at</strong></td>
+                        <td>TIMESTAMP</td>
+                        <td>Date and time when record was last modified</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Relationships -->
+        <div class="section">
+            <div class="section-title">TABLE RELATIONSHIPS</div>
+            <table class="relationship-table">
+                <tr>
+                    <th>Parent Table</th>
+                    <th>Relationship</th>
+                    <th>Child Table</th>
+                    <th>Foreign Key</th>
+                </tr>
+                <tr>
+                    <td>plans</td>
+                    <td>1 : N</td>
+                    <td>schools</td>
+                    <td>plan_id</td>
+                </tr>
+                <tr>
+                    <td>plans</td>
+                    <td>1 : N</td>
+                    <td>plan_features</td>
+                    <td>plan_id</td>
+                </tr>
+                <tr>
+                    <td>features</td>
+                    <td>1 : N</td>
+                    <td>plan_features</td>
+                    <td>feature_id</td>
+                </tr>
+                <tr>
+                    <td>schools</td>
+                    <td>1 : N</td>
+                    <td>school_users</td>
+                    <td>school_id</td>
+                </tr>
+                <tr>
+                    <td>schools</td>
+                    <td>1 : N</td>
+                    <td>school_feature_overrides</td>
+                    <td>school_id</td>
+                </tr>
+                <tr>
+                    <td>schools</td>
+                    <td>1 : N</td>
+                    <td>subscription_history</td>
+                    <td>school_id</td>
+                </tr>
+                <tr>
+                    <td>global_users</td>
+                    <td>1 : N</td>
+                    <td>school_users</td>
+                    <td>user_id</td>
+                </tr>
+                <tr>
+                    <td>roles</td>
+                    <td>1 : N</td>
+                    <td>school_users</td>
+                    <td>role_id</td>
+                </tr>
+                <tr>
+                    <td>roles</td>
+                    <td>1 : N</td>
+                    <td>role_permissions</td>
+                    <td>role_id</td>
+                </tr>
+                <tr>
+                    <td>permissions</td>
+                    <td>1 : N</td>
+                    <td>role_permissions</td>
+                    <td>permission_id</td>
+                </tr>
+                <tr>
+                    <td>global_users</td>
+                    <td>1 : N</td>
+                    <td>user_sessions</td>
+                    <td>user_id</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Seed Data Summary -->
+        <div class="section">
+            <div class="section-title">SEED DATA SUMMARY</div>
+            <div class="tables-grid">
+                <div class="table-card">
+                    <div class="table-header">Plans (4 records)</div>
+                    <div class="table-body">
+                        <div class="column"><span>free</span><span>₹0/month, 50 students</span></div>
+                        <div class="column"><span>basic</span><span>₹999/month, 200 students</span></div>
+                        <div class="column"><span>premium</span><span>₹2,499/month, 1000 students</span></div>
+                        <div class="column"><span>enterprise</span><span>₹4,999/month, unlimited</span></div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">Roles (11 records)</div>
+                    <div class="table-body">
+                        <div class="column"><span>super_admin</span><span>Level 1</span></div>
+                        <div class="column"><span>school_admin</span><span>Level 10</span></div>
+                        <div class="column"><span>principal</span><span>Level 20</span></div>
+                        <div class="column"><span>teacher</span><span>Level 50</span></div>
+                        <div class="column"><span>student</span><span>Level 100</span></div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">Features (26 records)</div>
+                    <div class="table-body">
+                        <div class="column"><span>Core</span><span>dashboard, students, teachers, classes</span></div>
+                        <div class="column"><span>Academic</span><span>attendance, timetable, exams, syllabus</span></div>
+                        <div class="column"><span>Finance</span><span>fees, payroll, expenses</span></div>
+                        <div class="column"><span>Resources</span><span>library, transport, hostel</span></div>
+                        <div class="column"><span>Communication</span><span>notifications, sms, email, whatsapp</span></div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">Permissions (31 records)</div>
+                    <div class="table-body">
+                        <div class="column"><span>students</span><span>view, create, edit, delete, export</span></div>
+                        <div class="column"><span>teachers</span><span>view, create, edit, delete</span></div>
+                        <div class="column"><span>attendance</span><span>view, create, edit</span></div>
+                        <div class="column"><span>fees</span><span>view, create, edit, delete, collect</span></div>
+                        <div class="column"><span>exams</span><span>view, create, edit, delete, results</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>School Management System</strong> - Database Architecture Document</p>
+            <p>Generated: January 2025 | Version 2.0 | Multi-Tenant Architecture</p>
+        </div>
+    </div>
+</body>
+</html>

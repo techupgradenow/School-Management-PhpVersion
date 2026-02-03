@@ -12,6 +12,25 @@
 	<script src="../assets/js/dynamic-dropdown.js"></script>
 	<script src="../assets/js/permissions.js"></script>
 	<style>
+		/* Hide sidebar when loaded in iframe */
+		.sidebar {
+			display: none !important;
+		}
+
+		.app-container {
+			display: block !important;
+		}
+
+		.main-content {
+			margin-left: 0 !important;
+			width: 100% !important;
+		}
+
+		body {
+			background: #f8fafc !important;
+			overflow-x: hidden;
+		}
+
 		.payroll-container {
 			padding: 24px;
 			max-width: 1600px;

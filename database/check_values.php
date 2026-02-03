@@ -1,6 +1,10 @@
 <?php
-$pdo = new PDO('mysql:host=localhost;dbname=edumanage_pro', 'root', '');
-echo "=== ALL DROPDOWN VALUES IN DATABASE ===\n\n";
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../backend/config/env.php';
+validateRemoteDatabase();
+
+$pdo = new PDO(getDbDsn(), DB_USER, DB_PASS);
+echo "=== ALL DROPDOWN VALUES IN DATABASE (Remote Hostinger) ===\n\n";
 
 $stmt = $pdo->query("
     SELECT dc.category_name, dc.category_key,

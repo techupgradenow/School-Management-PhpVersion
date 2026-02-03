@@ -4,11 +4,15 @@
  * Shows permissions stored in the database
  */
 
-$pdo = new PDO('mysql:host=localhost;dbname=edumanage_pro', 'root', '', [
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../config/env.php';
+validateRemoteDatabase();
+
+$pdo = new PDO(getDbDsn(), DB_USER, DB_PASS, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ]);
 
-echo "=== USER PERMISSIONS CHECK ===\n\n";
+echo "=== USER PERMISSIONS CHECK (Remote Hostinger) ===\n\n";
 
 // Show all users with their permissions
 $stmt = $pdo->query("

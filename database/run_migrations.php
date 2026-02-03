@@ -12,14 +12,14 @@
  *   --fresh  Drop all existing mt_ tables before running migrations
  */
 
-// Configuration
-$config = [
-    'host' => 'localhost',
-    'database' => 'edumanage_pro',
-    'username' => 'root',
-    'password' => '',
-    'charset' => 'utf8mb4'
-];
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../backend/config/env.php';
+
+// Validate we're using remote database (blocks localhost)
+validateRemoteDatabase();
+
+// Configuration - Uses ONLY remote Hostinger database
+$config = getDbCredentials();
 
 // Parse command line arguments
 $options = getopt('', ['seed', 'fresh', 'help']);

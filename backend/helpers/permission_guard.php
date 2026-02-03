@@ -8,6 +8,7 @@
  */
 
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/env.php';
 
 class PermissionGuard {
     private static $instance = null;
@@ -61,6 +62,11 @@ class PermissionGuard {
         $this->userId = $_SESSION['user_id'] ?? null;
         $this->userRole = strtolower($_SESSION['user_role'] ?? '');
 
+        // Development mode: Auto-login if no session exists
+        if (!$this->userId && defined('DEV_AUTO_LOGIN') && DEV_AUTO_LOGIN === true) {
+            $this->devAutoLogin();
+        }
+
         if ($this->userId) {
             // Get user UUID for permission lookup
             $stmt = $this->db->prepare("SELECT uuid FROM users WHERE id = ?");
@@ -70,6 +76,48 @@ class PermissionGuard {
 
             // Load permissions from database
             $this->loadPermissions();
+        }
+    }
+
+    /**
+     * Development auto-login - creates session for first superadmin user
+     * WARNING: NEVER enable in production!
+     */
+    private function devAutoLogin() {
+        try {
+            // Find first superadmin or admin user
+            $stmt = $this->db->prepare("
+                SELECT id, uuid, name, username, email, role
+                FROM users
+                WHERE role IN ('SuperAdmin', 'superadmin', 'Admin', 'admin') AND status = 'Active'
+                ORDER BY FIELD(role, 'SuperAdmin', 'superadmin', 'Admin', 'admin')
+                LIMIT 1
+            ");
+            $stmt->execute();
+            $user = $stmt->fetch();
+
+            if ($user) {
+                // Get school_id for multi-tenant support
+                $schoolStmt = $this->db->prepare("SELECT id FROM schools WHERE is_active = 1 LIMIT 1");
+                $schoolStmt->execute();
+                $school = $schoolStmt->fetch();
+
+                // Set session variables
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['logged_in'] = true;
+                $_SESSION['school_id'] = $school['id'] ?? null;
+
+                // Update instance variables
+                $this->userId = $user['id'];
+                $this->userRole = strtolower($user['role']);
+                $this->userUuid = $user['uuid'];
+            }
+        } catch (Exception $e) {
+            // Silent fail - just continue without auto-login
         }
     }
 
@@ -224,8 +272,18 @@ class PermissionGuard {
 
     /**
      * Require authentication - sends 401 if not authenticated
+     * In development mode with DEV_AUTO_LOGIN, bypasses authentication
      */
     public function requireAuth() {
+        // Development mode bypass
+        if (defined('DEV_AUTO_LOGIN') && DEV_AUTO_LOGIN === true && defined('APP_ENV') && APP_ENV === 'development') {
+            if (!$this->isAuthenticated()) {
+                // Force auto-login for development
+                $this->devAutoLogin();
+                $this->loadPermissions();
+            }
+        }
+
         if (!$this->isAuthenticated()) {
             $this->sendUnauthorized('Authentication required');
         }

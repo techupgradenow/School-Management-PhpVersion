@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Teacher Profile - EduManage Pro</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="../assets/js/permissions.js"></script>
+	<style>
+		:root {
+			--bg: #F8FAFC;
+			--card: #FFFFFF;
+			--border: #E2E8F0;
+			--text: #0F172A;
+			--text-secondary: #475569;
+			--text-muted: #94A3B8;
+			--primary: #8B5CF6;
+			--primary-hover: #7C3AED;
+			--primary-light: #EDE9FE;
+			--success: #22C55E;
+			--success-bg: #DCFCE7;
+			--danger: #EF4444;
+			--danger-bg: #FEE2E2;
+			--warning: #F59E0B;
+			--warning-bg: #FEF3C7;
+			--info: #3B82F6;
+			--info-bg: #DBEAFE;
+			--shadow: 0 1px 3px rgba(0,0,0,0.1);
+			--shadow-lg: 0 4px 12px rgba(0,0,0,0.1);
+			--radius: 12px;
+		}
+
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+
+		body {
+			font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+			background: var(--bg);
+			color: var(--text);
+			line-height: 1.5;
+		}
+
+		.app {
+			padding: 20px;
+			max-width: 1400px;
+			margin: 0 auto;
+		}
+
+		/* ===== BACK BUTTON ===== */
+		.back-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			color: var(--text-secondary);
+			text-decoration: none;
+			font-size: 14px;
+			font-weight: 500;
+			margin-bottom: 20px;
+			transition: color 0.2s;
+		}
+
+		.back-link:hover {
+			color: var(--primary);
+		}
+
+		/* ===== PROFILE HEADER ===== */
+		.profile-header {
+			background: white;
+			border-radius: var(--radius);
+			padding: 24px;
+			margin-bottom: 20px;
+			box-shadow: var(--shadow);
+			display: flex;
+			gap: 24px;
+			align-items: center;
+		}
+
+		.profile-avatar {
+			width: 100px;
+			height: 100px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: white;
+			font-size: 36px;
+			font-weight: 700;
+			flex-shrink: 0;
+			overflow: hidden;
+			border: 4px solid var(--primary-light);
+		}
+
+		.profile-avatar img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		.profile-info {
+			flex: 1;
+		}
+
+		.profile-name {
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--text);
+			margin-bottom: 4px;
+		}
+
+		.profile-id {
+			font-size: 14px;
+			color: var(--primary);
+			font-weight: 600;
+			margin-bottom: 8px;
+		}
+
+		.profile-meta {
+			display: flex;
+			gap: 20px;
+			flex-wrap: wrap;
+		}
+
+		.profile-meta-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 13px;
+			color: var(--text-secondary);
+		}
+
+		.profile-meta-item i {
+			color: var(--primary);
+		}
+
+		.profile-actions {
+			display: flex;
+			gap: 10px;
+		}
+
+		.btn {
+			padding: 10px 18px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 13px;
+			cursor: pointer;
+			transition: all 0.2s;
+			border: none;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.btn-primary {
+			background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+			color: white;
+		}
+
+		.btn-primary:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+		}
+
+		.btn-outline {
+			background: white;
+			border: 2px solid var(--border);
+			color: var(--text-secondary);
+		}
+
+		.btn-outline:hover {
+			border-color: var(--primary);
+			color: var(--primary);
+		}
+
+		.status-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+
+		.status-badge.active {
+			background: var(--success-bg);
+			color: var(--success);
+		}
+
+		.status-badge.inactive {
+			background: var(--danger-bg);
+			color: var(--danger);
+		}
+
+		/* ===== TABS ===== */
+		.profile-tabs {
+			display: flex;
+			gap: 4px;
+			background: white;
+			padding: 6px;
+			border-radius: var(--radius);
+			margin-bottom: 20px;
+			box-shadow: var(--shadow);
+			flex-wrap: wrap;
+			overflow-x: auto;
+		}
+
+		.profile-tab {
+			padding: 12px 20px;
+			border-radius: 8px;
+			font-weight: 600;
+			font-size: 13px;
+			cursor: pointer;
+			transition: all 0.2s;
+			border: none;
+			background: transparent;
+			color: var(--text-secondary);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			white-space: nowrap;
+		}
+
+		.profile-tab:hover {
+			background: var(--bg);
+			color: var(--text);
+		}
+
+		.profile-tab.active {
+			background: var(--primary);
+			color: white;
+		}
+
+		.profile-tab i {
+			font-size: 14px;
+		}
+
+		.tab-badge {
+			padding: 2px 8px;
+			border-radius: 10px;
+			font-size: 11px;
+			font-weight: 700;
+			background: rgba(255,255,255,0.2);
+		}
+
+		.profile-tab:not(.active) .tab-badge {
+			background: var(--primary-light);
+			color: var(--primary);
+		}
+
+		/* ===== TAB CONTENT ===== */
+		.tab-content {
+			display: none;
+		}
+
+		.tab-content.active {
+			display: block;
+			animation: fadeIn 0.3s ease;
+		}
+
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		/* ===== PROFILE PROGRESS ===== */
+		.profile-progress {
+			background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+			border-radius: var(--radius);
+			padding: 3px;
+			margin-bottom: 20px;
+		}
+
+		.profile-progress-inner {
+			background: white;
+			border-radius: 9px;
+			padding: 16px 20px;
+			display: flex;
+			align-items: center;
+			gap: 20px;
+		}
+
+		.progress-info {
+			flex: 1;
+		}
+
+		.progress-label {
+			font-size: 12px;
+			color: var(--text-muted);
+			margin-bottom: 6px;
+		}
+
+		.progress-bar-container {
+			height: 8px;
+			background: var(--bg);
+			border-radius: 4px;
+			overflow: hidden;
+		}
+
+		.progress-bar {
+			height: 100%;
+			background: linear-gradient(90deg, var(--primary), var(--success));
+			border-radius: 4px;
+			transition: width 0.5s ease;
+		}
+
+		.progress-percentage {
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--primary);
+		}
+
+		/* ===== CARDS GRID ===== */
+		.cards-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 20px;
+		}
+
+		.detail-card {
+			background: white;
+			border-radius: var(--radius);
+			box-shadow: var(--shadow);
+			overflow: hidden;
+		}
+
+		.detail-card-header {
+			padding: 16px 20px;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.detail-card-title {
+			font-size: 15px;
+			font-weight: 700;
+			color: var(--text);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.detail-card-title i {
+			color: var(--primary);
+		}
+
+		.detail-card-body {
+			padding: 20px;
+		}
+
+		.detail-item {
+			margin-bottom: 16px;
+		}
+
+		.detail-item:last-child {
+			margin-bottom: 0;
+		}
+
+		.detail-label {
+			font-size: 11px;
+			font-weight: 700;
+			color: var(--primary);
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			margin-bottom: 4px;
+		}
+
+		.detail-value {
+			font-size: 14px;
+			color: var(--text);
+			font-weight: 500;
+		}
+
+		.detail-value a {
+			color: var(--info);
+			text-decoration: none;
+		}
+
+		.detail-value a:hover {
+			text-decoration: underline;
+		}
+
+		/* ===== EDIT BUTTON ===== */
+		.edit-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 8px;
+			border: 1px solid var(--border);
+			background: white;
+			color: var(--text-secondary);
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+
+		.edit-btn:hover {
+			border-color: var(--primary);
+			color: var(--primary);
+			background: var(--primary-light);
+		}
+
+		/* ===== STATS GRID ===== */
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+
+		.stat-card {
+			background: white;
+			border-radius: var(--radius);
+			padding: 20px;
+			box-shadow: var(--shadow);
+			text-align: center;
+		}
+
+		.stat-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			margin: 0 auto 12px;
+		}
+
+		.stat-icon.blue { background: var(--info-bg); color: var(--info); }
+		.stat-icon.green { background: var(--success-bg); color: var(--success); }
+		.stat-icon.orange { background: var(--warning-bg); color: var(--warning); }
+		.stat-icon.purple { background: var(--primary-light); color: var(--primary); }
+
+		.stat-value {
+			font-size: 28px;
+			font-weight: 700;
+			color: var(--text);
+			margin-bottom: 4px;
+		}
+
+		.stat-label {
+			font-size: 12px;
+			color: var(--text-muted);
+		}
+
+		/* ===== DATA TABLE ===== */
+		.data-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.data-table thead {
+			background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+		}
+
+		.data-table th {
+			padding: 14px 16px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 11px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.data-table tbody tr {
+			border-bottom: 1px solid var(--border);
+			transition: background 0.2s;
+		}
+
+		.data-table tbody tr:hover {
+			background: var(--bg);
+		}
+
+		.data-table td {
+			padding: 14px 16px;
+			font-size: 14px;
+			color: var(--text);
+		}
+
+		/* ===== CHART CARD ===== */
+		.chart-card {
+			background: white;
+			border-radius: var(--radius);
+			padding: 20px;
+			box-shadow: var(--shadow);
+		}
+
+		.chart-card h3 {
+			font-size: 16px;
+			font-weight: 700;
+			color: var(--text);
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.chart-card h3 i {
+			color: var(--primary);
+		}
+
+		.chart-container {
+			height: 300px;
+			position: relative;
+		}
+
+		/* ===== SCHEDULE GRID ===== */
+		.schedule-grid {
+			display: grid;
+			grid-template-columns: repeat(6, 1fr);
+			gap: 12px;
+		}
+
+		.schedule-day {
+			background: white;
+			border-radius: var(--radius);
+			box-shadow: var(--shadow);
+			overflow: hidden;
+		}
+
+		.schedule-day-header {
+			background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+			padding: 12px;
+			text-align: center;
+			color: white;
+			font-weight: 700;
+			font-size: 13px;
+		}
+
+		.schedule-slots {
+			padding: 12px;
+		}
+
+		.schedule-slot {
+			padding: 10px;
+			background: var(--bg);
+			border-radius: 8px;
+			margin-bottom: 8px;
+			border-left: 3px solid var(--primary);
+		}
+
+		.schedule-slot:last-child {
+			margin-bottom: 0;
+		}
+
+		.slot-time {
+			font-size: 11px;
+			color: var(--text-muted);
+			font-weight: 600;
+		}
+
+		.slot-subject {
+			font-size: 13px;
+			font-weight: 600;
+			color: var(--text);
+			margin-top: 4px;
+		}
+
+		.slot-class {
+			font-size: 11px;
+			color: var(--primary);
+		}
+
+		/* ===== ACTIVITY FEED ===== */
+		.activity-feed {
+			padding: 20px;
+		}
+
+		.activity-item {
+			display: flex;
+			gap: 16px;
+			padding: 16px 0;
+			border-bottom: 1px solid var(--border);
+		}
+
+		.activity-item:last-child {
+			border-bottom: none;
+		}
+
+		.activity-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+		}
+
+		.activity-icon.attendance { background: var(--success-bg); color: var(--success); }
+		.activity-icon.class { background: var(--info-bg); color: var(--info); }
+		.activity-icon.document { background: var(--warning-bg); color: var(--warning); }
+		.activity-icon.feedback { background: var(--primary-light); color: var(--primary); }
+
+		.activity-content {
+			flex: 1;
+		}
+
+		.activity-title {
+			font-weight: 600;
+			color: var(--text);
+			margin-bottom: 4px;
+		}
+
+		.activity-desc {
+			font-size: 13px;
+			color: var(--text-secondary);
+		}
+
+		.activity-time {
+			font-size: 12px;
+			color: var(--text-muted);
+		}
+
+		/* ===== RATING STARS ===== */
+		.rating-stars {
+			display: flex;
+			gap: 4px;
+		}
+
+		.rating-stars i {
+			color: #FFC107;
+		}
+
+		.rating-stars i.empty {
+			color: #E2E8F0;
+		}
+
+		/* ===== EMPTY STATE ===== */
+		.empty-state {
+			text-align: center;
+			padding: 60px 20px;
+			color: var(--text-muted);
+		}
+
+		.empty-state i {
+			font-size: 48px;
+			margin-bottom: 16px;
+			color: #CBD5E1;
+		}
+
+		.empty-state h3 {
+			font-size: 18px;
+			font-weight: 600;
+			color: var(--text-secondary);
+			margin-bottom: 8px;
+		}
+
+		/* ===== LOADING ===== */
+		.loading-spinner {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 60px;
+		}
+
+		.spinner {
+			width: 40px;
+			height: 40px;
+			border: 4px solid var(--border);
+			border-top-color: var(--primary);
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+
+		/* ===== TOAST ===== */
+		.toast {
+			position: fixed;
+			bottom: 20px;
+			right: 20px;
+			padding: 14px 20px;
+			border-radius: 10px;
+			color: white;
+			font-weight: 600;
+			font-size: 14px;
+			z-index: 9999;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			animation: slideIn 0.3s ease;
+		}
+
+		.toast.success { background: var(--success); }
+		.toast.error { background: var(--danger); }
+		.toast.info { background: var(--info); }
+
+		@keyframes slideIn {
+			from { transform: translateX(100%); opacity: 0; }
+			to { transform: translateX(0); opacity: 1; }
+		}
+
+		/* ===== MODAL ===== */
+		.modal-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(15, 23, 42, 0.7);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 1000;
+			padding: 20px;
+		}
+
+		.modal-overlay.active {
+			display: flex;
+		}
+
+		.modal-content {
+			background: white;
+			border-radius: 16px;
+			width: 100%;
+			max-width: 600px;
+			max-height: 90vh;
+			overflow-y: auto;
+		}
+
+		.modal-header {
+			padding: 20px 24px;
+			background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+			color: white;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.modal-header h3 {
+			font-size: 18px;
+			font-weight: 700;
+		}
+
+		.modal-close {
+			width: 36px;
+			height: 36px;
+			border: none;
+			background: rgba(255,255,255,0.2);
+			border-radius: 10px;
+			color: white;
+			font-size: 16px;
+			cursor: pointer;
+		}
+
+		.modal-body {
+			padding: 24px;
+		}
+
+		.modal-footer {
+			padding: 16px 24px;
+			border-top: 1px solid var(--border);
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+
+		/* ===== FORM STYLES ===== */
+		.form-grid {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 16px;
+		}
+
+		.form-group {
+			margin-bottom: 16px;
+		}
+
+		.form-group.full-width {
+			grid-column: span 2;
+		}
+
+		.form-group label {
+			display: block;
+			font-size: 12px;
+			font-weight: 600;
+			color: var(--primary);
+			text-transform: uppercase;
+			margin-bottom: 6px;
+		}
+
+		.form-group input,
+		.form-group select,
+		.form-group textarea {
+			width: 100%;
+			padding: 12px 14px;
+			border: 1px solid var(--border);
+			border-radius: 10px;
+			font-size: 14px;
+			transition: all 0.2s;
+		}
+
+		.form-group input:focus,
+		.form-group select:focus,
+		.form-group textarea:focus {
+			outline: none;
+			border-color: var(--primary);
+			box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+		}
+
+		/* ===== RESPONSIVE ===== */
+		@media (max-width: 1200px) {
+			.schedule-grid {
+				grid-template-columns: repeat(3, 1fr);
+			}
+		}
+
+		@media (max-width: 992px) {
+			.cards-grid {
+				grid-template-columns: 1fr;
+			}
+			.stats-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 768px) {
+			.profile-header {
+				flex-direction: column;
+				text-align: center;
+			}
+			.profile-meta {
+				justify-content: center;
+			}
+			.profile-actions {
+				justify-content: center;
+			}
+			.schedule-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+			.form-grid {
+				grid-template-columns: 1fr;
+			}
+			.form-group.full-width {
+				grid-column: span 1;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.stats-grid {
+				grid-template-columns: 1fr;
+			}
+			.schedule-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="app">
+		<!-- Back Link -->
+		<a href="teachers.html" class="back-link">
+			<i class="fas fa-arrow-left"></i> Back to Teachers
+		</a>
+
+		<!-- Profile Header -->
+		<div class="profile-header">
+			<div class="profile-avatar" id="profileAvatar">
+				<span id="avatarInitials">RK</span>
+			</div>
+			<div class="profile-info">
+				<h1 class="profile-name" id="profileName">Loading...</h1>
+				<div class="profile-id" id="profileId">ID: ---</div>
+				<div class="profile-meta">
+					<span class="profile-meta-item"><i class="fas fa-briefcase"></i> <span id="profileDept">-</span></span>
+					<span class="profile-meta-item"><i class="fas fa-book"></i> <span id="profileSubject">-</span></span>
+					<span class="profile-meta-item"><i class="fas fa-calendar"></i> Joined: <span id="profileJoinDate">-</span></span>
+					<span class="status-badge active" id="profileStatus">Active</span>
+				</div>
+			</div>
+			<div class="profile-actions">
+				<button class="btn btn-outline" onclick="printProfile()">
+					<i class="fas fa-print"></i> Print
+				</button>
+				<button class="btn btn-primary" onclick="openEditModal()">
+					<i class="fas fa-edit"></i> Edit Profile
+				</button>
+			</div>
+		</div>
+
+		<!-- Profile Completion Progress -->
+		<div class="profile-progress">
+			<div class="profile-progress-inner">
+				<div class="progress-info">
+					<div class="progress-label">Profile Completion</div>
+					<div class="progress-bar-container">
+						<div class="progress-bar" id="progressBar" style="width: 85%;"></div>
+					</div>
+				</div>
+				<div class="progress-percentage" id="progressPercentage">85%</div>
+			</div>
+		</div>
+
+		<!-- Tabs -->
+		<div class="profile-tabs">
+			<button class="profile-tab active" data-tab="profile" onclick="switchTab('profile')">
+				<i class="fas fa-user"></i> Profile
+			</button>
+			<button class="profile-tab" data-tab="classes" onclick="switchTab('classes')">
+				<i class="fas fa-chalkboard"></i> Classes
+			</button>
+			<button class="profile-tab" data-tab="teaching" onclick="switchTab('teaching')">
+				<i class="fas fa-book-open"></i> Teaching
+			</button>
+			<button class="profile-tab" data-tab="attendance" onclick="switchTab('attendance')">
+				<i class="fas fa-calendar-check"></i> Attendance
+			</button>
+			<button class="profile-tab" data-tab="performance" onclick="switchTab('performance')">
+				<i class="fas fa-chart-line"></i> Performance
+			</button>
+			<button class="profile-tab" data-tab="feedback" onclick="switchTab('feedback')">
+				<i class="fas fa-comments"></i> Feedback
+			</button>
+			<button class="profile-tab" data-tab="score" onclick="switchTab('score')">
+				<i class="fas fa-star"></i> Score
+			</button>
+			<button class="profile-tab" data-tab="activities" onclick="switchTab('activities')">
+				<i class="fas fa-trophy"></i> Activities
+			</button>
+			<button class="profile-tab" data-tab="hr" onclick="switchTab('hr')">
+				<i class="fas fa-file-contract"></i> HR <span class="tab-badge">Admin</span>
+			</button>
+			<button class="profile-tab" data-tab="documents" onclick="switchTab('documents')">
+				<i class="fas fa-folder-open"></i> Documents
+			</button>
+		</div>
+
+		<!-- Tab Contents -->
+
+		<!-- Profile Tab -->
+		<div class="tab-content active" id="tab-profile">
+			<div class="cards-grid">
+				<!-- Personal Details -->
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-user-circle"></i> Personal Details
+						</div>
+						<button class="edit-btn" onclick="openEditModal('personal')">
+							<i class="fas fa-edit"></i>
+						</button>
+					</div>
+					<div class="detail-card-body">
+						<div class="detail-item">
+							<div class="detail-label">Full Name</div>
+							<div class="detail-value" id="detailName">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Gender</div>
+							<div class="detail-value" id="detailGender">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Date of Birth</div>
+							<div class="detail-value" id="detailDob">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Blood Group</div>
+							<div class="detail-value" id="detailBloodGroup">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Nationality</div>
+							<div class="detail-value" id="detailNationality">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Marital Status</div>
+							<div class="detail-value" id="detailMaritalStatus">-</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Contact Details -->
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-address-card"></i> Contact Details
+						</div>
+						<button class="edit-btn" onclick="openEditModal('contact')">
+							<i class="fas fa-edit"></i>
+						</button>
+					</div>
+					<div class="detail-card-body">
+						<div class="detail-item">
+							<div class="detail-label">Email</div>
+							<div class="detail-value"><a href="" id="detailEmail">-</a></div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Phone</div>
+							<div class="detail-value" id="detailPhone">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Address</div>
+							<div class="detail-value" id="detailAddress">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Emergency Contact</div>
+							<div class="detail-value" id="detailEmergency">-</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Professional Details -->
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-graduation-cap"></i> Professional Details
+						</div>
+						<button class="edit-btn" onclick="openEditModal('professional')">
+							<i class="fas fa-edit"></i>
+						</button>
+					</div>
+					<div class="detail-card-body">
+						<div class="detail-item">
+							<div class="detail-label">Qualification</div>
+							<div class="detail-value" id="detailQualification">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Specialization</div>
+							<div class="detail-value" id="detailSpecialization">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Experience</div>
+							<div class="detail-value" id="detailExperience">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Department</div>
+							<div class="detail-value" id="detailDepartment">-</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Bank Details -->
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-university"></i> Bank Details
+						</div>
+						<button class="edit-btn" onclick="openEditModal('bank')">
+							<i class="fas fa-edit"></i>
+						</button>
+					</div>
+					<div class="detail-card-body">
+						<div class="detail-item">
+							<div class="detail-label">Bank Name</div>
+							<div class="detail-value" id="detailBankName">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Account Number</div>
+							<div class="detail-value" id="detailAccountNo">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">IFSC Code</div>
+							<div class="detail-value" id="detailIfsc">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">PAN Number</div>
+							<div class="detail-value" id="detailPan">-</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Classes Tab -->
+		<div class="tab-content" id="tab-classes">
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon blue"><i class="fas fa-chalkboard-teacher"></i></div>
+					<div class="stat-value" id="statClasses">0</div>
+					<div class="stat-label">Assigned Classes</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i class="fas fa-users"></i></div>
+					<div class="stat-value" id="statStudents">0</div>
+					<div class="stat-label">Total Students</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+					<div class="stat-value" id="statHours">0</div>
+					<div class="stat-label">Teaching Hours/Week</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon purple"><i class="fas fa-book"></i></div>
+					<div class="stat-value" id="statSubjects">0</div>
+					<div class="stat-label">Subjects</div>
+				</div>
+			</div>
+
+			<div class="detail-card">
+				<div class="detail-card-header">
+					<div class="detail-card-title">
+						<i class="fas fa-list"></i> Class Assignments
+					</div>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>Class</th>
+								<th>Section</th>
+								<th>Subject</th>
+								<th>Students</th>
+								<th>Schedule</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody id="classesTableBody">
+							<tr>
+								<td colspan="6" class="empty-state">
+									<i class="fas fa-chalkboard"></i>
+									<h3>No Classes Assigned</h3>
+									<p>This teacher has no assigned classes</p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<!-- Teaching Tab -->
+		<div class="tab-content" id="tab-teaching">
+			<div class="detail-card" style="margin-bottom: 20px;">
+				<div class="detail-card-header">
+					<div class="detail-card-title">
+						<i class="fas fa-calendar-alt"></i> Weekly Schedule
+					</div>
+				</div>
+				<div class="detail-card-body">
+					<div class="schedule-grid" id="scheduleGrid">
+						<!-- Schedule will be populated dynamically -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Attendance Tab -->
+		<div class="tab-content" id="tab-attendance">
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+					<div class="stat-value" id="statAttendance">0%</div>
+					<div class="stat-label">Attendance Rate</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue"><i class="fas fa-calendar-day"></i></div>
+					<div class="stat-value" id="statPresent">0</div>
+					<div class="stat-label">Days Present</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i class="fas fa-calendar-times"></i></div>
+					<div class="stat-value" id="statAbsent">0</div>
+					<div class="stat-label">Days Absent</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon purple"><i class="fas fa-plane"></i></div>
+					<div class="stat-value" id="statLeaves">0</div>
+					<div class="stat-label">Leaves Taken</div>
+				</div>
+			</div>
+
+			<div class="cards-grid">
+				<div class="chart-card">
+					<h3><i class="fas fa-chart-line"></i> Monthly Attendance</h3>
+					<div class="chart-container">
+						<canvas id="attendanceChart"></canvas>
+					</div>
+				</div>
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-history"></i> Recent Attendance
+						</div>
+					</div>
+					<div style="overflow-x: auto;">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Status</th>
+									<th>Check In</th>
+									<th>Check Out</th>
+								</tr>
+							</thead>
+							<tbody id="attendanceTableBody">
+								<tr>
+									<td colspan="4" class="empty-state">
+										<p>No attendance records</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Performance Tab -->
+		<div class="tab-content" id="tab-performance">
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon purple"><i class="fas fa-star"></i></div>
+					<div class="stat-value" id="statRating">0.0</div>
+					<div class="stat-label">Overall Rating</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i class="fas fa-graduation-cap"></i></div>
+					<div class="stat-value" id="statPassRate">0%</div>
+					<div class="stat-label">Student Pass Rate</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue"><i class="fas fa-tasks"></i></div>
+					<div class="stat-value" id="statCompletion">0%</div>
+					<div class="stat-label">Syllabus Completion</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i class="fas fa-award"></i></div>
+					<div class="stat-value" id="statAwards">0</div>
+					<div class="stat-label">Awards Received</div>
+				</div>
+			</div>
+
+			<div class="cards-grid">
+				<div class="chart-card">
+					<h3><i class="fas fa-chart-radar"></i> Performance Metrics</h3>
+					<div class="chart-container">
+						<canvas id="performanceChart"></canvas>
+					</div>
+				</div>
+				<div class="chart-card">
+					<h3><i class="fas fa-chart-bar"></i> Monthly Performance</h3>
+					<div class="chart-container">
+						<canvas id="monthlyPerformanceChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Feedback Tab -->
+		<div class="tab-content" id="tab-feedback">
+			<div class="detail-card">
+				<div class="detail-card-header">
+					<div class="detail-card-title">
+						<i class="fas fa-comment-dots"></i> Student Feedback
+					</div>
+				</div>
+				<div class="activity-feed" id="feedbackList">
+					<div class="empty-state">
+						<i class="fas fa-comments"></i>
+						<h3>No Feedback Yet</h3>
+						<p>Student feedback will appear here</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Score Tab -->
+		<div class="tab-content" id="tab-score">
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon purple"><i class="fas fa-star"></i></div>
+					<div class="stat-value" id="statTotalScore">0</div>
+					<div class="stat-label">Total Score</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon blue"><i class="fas fa-trophy"></i></div>
+					<div class="stat-value" id="statRank">#0</div>
+					<div class="stat-label">Department Rank</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon green"><i class="fas fa-medal"></i></div>
+					<div class="stat-value" id="statBadges">0</div>
+					<div class="stat-label">Badges Earned</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon orange"><i class="fas fa-gem"></i></div>
+					<div class="stat-value" id="statPoints">0</div>
+					<div class="stat-label">Bonus Points</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Activities Tab -->
+		<div class="tab-content" id="tab-activities">
+			<div class="detail-card">
+				<div class="detail-card-header">
+					<div class="detail-card-title">
+						<i class="fas fa-calendar-alt"></i> Recent Activities
+					</div>
+				</div>
+				<div class="activity-feed" id="activitiesList">
+					<div class="empty-state">
+						<i class="fas fa-trophy"></i>
+						<h3>No Activities</h3>
+						<p>Extra-curricular activities will appear here</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- HR Tab -->
+		<div class="tab-content" id="tab-hr">
+			<div class="cards-grid">
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-file-invoice-dollar"></i> Salary Details
+						</div>
+					</div>
+					<div class="detail-card-body">
+						<div class="detail-item">
+							<div class="detail-label">Basic Salary</div>
+							<div class="detail-value" id="detailSalary">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Allowances</div>
+							<div class="detail-value" id="detailAllowances">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Deductions</div>
+							<div class="detail-value" id="detailDeductions">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Net Salary</div>
+							<div class="detail-value" id="detailNetSalary">-</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="detail-card">
+					<div class="detail-card-header">
+						<div class="detail-card-title">
+							<i class="fas fa-umbrella-beach"></i> Leave Balance
+						</div>
+					</div>
+					<div class="detail-card-body">
+						<div class="detail-item">
+							<div class="detail-label">Casual Leave</div>
+							<div class="detail-value" id="detailCasualLeave">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Sick Leave</div>
+							<div class="detail-value" id="detailSickLeave">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Earned Leave</div>
+							<div class="detail-value" id="detailEarnedLeave">-</div>
+						</div>
+						<div class="detail-item">
+							<div class="detail-label">Total Available</div>
+							<div class="detail-value" id="detailTotalLeave">-</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Documents Tab -->
+		<div class="tab-content" id="tab-documents">
+			<div class="detail-card">
+				<div class="detail-card-header">
+					<div class="detail-card-title">
+						<i class="fas fa-folder-open"></i> Uploaded Documents
+					</div>
+					<button class="btn btn-primary" onclick="uploadDocument()">
+						<i class="fas fa-upload"></i> Upload
+					</button>
+				</div>
+				<div style="overflow-x: auto;">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>Document</th>
+								<th>Type</th>
+								<th>Uploaded Date</th>
+								<th>Size</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody id="documentsTableBody">
+							<tr>
+								<td colspan="5" class="empty-state">
+									<i class="fas fa-folder-open"></i>
+									<h3>No Documents</h3>
+									<p>Upload documents to see them here</p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Edit Modal -->
+	<div class="modal-overlay" id="editModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3><i class="fas fa-edit"></i> Edit Profile</h3>
+				<button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<form id="editForm">
+					<div class="form-grid">
+						<div class="form-group">
+							<label>Full Name</label>
+							<input type="text" id="editName" placeholder="Enter full name">
+						</div>
+						<div class="form-group">
+							<label>Gender</label>
+							<select id="editGender">
+								<option value="Male">Male</option>
+								<option value="Female">Female</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Date of Birth</label>
+							<input type="date" id="editDob">
+						</div>
+						<div class="form-group">
+							<label>Phone</label>
+							<input type="tel" id="editPhone" placeholder="+91 XXXXX XXXXX">
+						</div>
+						<div class="form-group full-width">
+							<label>Email</label>
+							<input type="email" id="editEmail" placeholder="email@school.edu">
+						</div>
+						<div class="form-group full-width">
+							<label>Address</label>
+							<textarea id="editAddress" rows="3" placeholder="Enter full address"></textarea>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveProfile()">
+					<i class="fas fa-save"></i> Save Changes
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const API_BASE = '../../backend/api/teachers.php';
+		let teacherId = null;
+		let teacherData = null;
+
+		// Configure jQuery AJAX
+		$.ajaxSetup({
+			xhrFields: { withCredentials: true },
+			crossDomain: true
+		});
+
+		// Initialize
+		$(document).ready(function() {
+			// Get teacher ID from URL
+			const urlParams = new URLSearchParams(window.location.search);
+			teacherId = urlParams.get('id');
+
+			if (!teacherId) {
+				showToast('No teacher ID provided', 'error');
+				setTimeout(() => window.location.href = 'teachers.html', 2000);
+				return;
+			}
+
+			loadTeacherProfile();
+		});
+
+		// Load Teacher Profile
+		function loadTeacherProfile() {
+			$.get(`${API_BASE}?action=single&id=${encodeURIComponent(teacherId)}`)
+				.done(function(response) {
+					if (response.success && response.data) {
+						teacherData = response.data;
+						populateProfile(teacherData);
+					} else {
+						showToast('Teacher not found', 'error');
+						setTimeout(() => window.location.href = 'teachers.html', 2000);
+					}
+				})
+				.fail(function() {
+					showToast('Failed to load teacher profile', 'error');
+				});
+		}
+
+		// Populate Profile Data
+		function populateProfile(data) {
+			// Header
+			$('#profileName').text(data.name || 'Unknown');
+			$('#profileId').text('ID: ' + data.id);
+			$('#profileDept').text(data.department || 'N/A');
+			$('#profileSubject').text(data.subject || 'N/A');
+			$('#profileJoinDate').text(formatDate(data.join_date));
+
+			// Avatar
+			if (data.photo) {
+				$('#profileAvatar').html(`<img src="${data.photo}" alt="${data.name}">`);
+			} else {
+				const initials = getInitials(data.name);
+				$('#avatarInitials').text(initials);
+			}
+
+			// Status
+			const statusBadge = $('#profileStatus');
+			if (data.status === 'Active') {
+				statusBadge.removeClass('inactive').addClass('active').text('Active');
+			} else {
+				statusBadge.removeClass('active').addClass('inactive').text('Inactive');
+			}
+
+			// Personal Details
+			$('#detailName').text(data.name || '-');
+			$('#detailGender').text(data.gender || '-');
+			$('#detailDob').text(formatDate(data.dob));
+			$('#detailBloodGroup').text(data.blood_group || 'O+');
+			$('#detailNationality').text(data.nationality || 'Indian');
+			$('#detailMaritalStatus').text(data.marital_status || 'Married');
+
+			// Contact Details
+			$('#detailEmail').text(data.email || '-').attr('href', 'mailto:' + data.email);
+			$('#detailPhone').text(data.phone || '-');
+			$('#detailAddress').text(data.address || '-');
+			$('#detailEmergency').text(data.emergency_contact || '-');
+
+			// Professional Details
+			$('#detailQualification').text(data.qualification || '-');
+			$('#detailSpecialization').text(data.specialization || data.subject || '-');
+			$('#detailExperience').text(data.experience ? data.experience + ' years' : '-');
+			$('#detailDepartment').text(data.department || '-');
+
+			// Bank Details (masked for security)
+			$('#detailBankName').text(data.bank_name || '-');
+			$('#detailAccountNo').text(data.account_no ? '****' + data.account_no.slice(-4) : '-');
+			$('#detailIfsc').text(data.ifsc_code || '-');
+			$('#detailPan').text(data.pan_no ? '****' + data.pan_no.slice(-4) : '-');
+
+			// Calculate profile completion
+			calculateProfileCompletion(data);
+
+			// Load additional data
+			loadClassesData();
+			loadScheduleData();
+			loadAttendanceData();
+			loadPerformanceData();
+		}
+
+		// Calculate Profile Completion
+		function calculateProfileCompletion(data) {
+			const fields = ['name', 'email', 'phone', 'address', 'dob', 'gender', 'qualification', 'department', 'subject', 'photo'];
+			let completed = 0;
+			fields.forEach(field => {
+				if (data[field]) completed++;
+			});
+			const percentage = Math.round((completed / fields.length) * 100);
+			$('#progressBar').css('width', percentage + '%');
+			$('#progressPercentage').text(percentage + '%');
+		}
+
+		// Load Classes Data
+		function loadClassesData() {
+			// Simulated data - replace with actual API call
+			const classes = [
+				{ class: '10', section: 'A', subject: 'Mathematics', students: 45, schedule: 'Mon, Wed, Fri - 9:00 AM', status: 'Active' },
+				{ class: '10', section: 'B', subject: 'Mathematics', students: 42, schedule: 'Mon, Wed, Fri - 10:00 AM', status: 'Active' },
+				{ class: '9', section: 'A', subject: 'Mathematics', students: 48, schedule: 'Tue, Thu - 9:00 AM', status: 'Active' }
+			];
+
+			$('#statClasses').text(classes.length);
+			$('#statStudents').text(classes.reduce((sum, c) => sum + c.students, 0));
+			$('#statHours').text(classes.length * 5);
+			$('#statSubjects').text(1);
+
+			const tbody = $('#classesTableBody');
+			tbody.empty();
+
+			if (classes.length === 0) {
+				tbody.html(`<tr><td colspan="6" class="empty-state"><i class="fas fa-chalkboard"></i><h3>No Classes Assigned</h3></td></tr>`);
+				return;
+			}
+
+			classes.forEach(c => {
+				tbody.append(`
+					<tr>
+						<td>Class ${c.class}</td>
+						<td>${c.section}</td>
+						<td>${c.subject}</td>
+						<td>${c.students}</td>
+						<td>${c.schedule}</td>
+						<td><span class="status-badge active">${c.status}</span></td>
+					</tr>
+				`);
+			});
+		}
+
+		// Load Schedule Data
+		function loadScheduleData() {
+			const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+			const scheduleData = {
+				'Monday': [
+					{ time: '9:00 - 9:45', subject: 'Mathematics', class: 'Class 10-A' },
+					{ time: '10:00 - 10:45', subject: 'Mathematics', class: 'Class 10-B' },
+					{ time: '11:00 - 11:45', subject: 'Mathematics', class: 'Class 9-A' }
+				],
+				'Tuesday': [
+					{ time: '9:00 - 9:45', subject: 'Mathematics', class: 'Class 9-A' },
+					{ time: '10:00 - 10:45', subject: 'Mathematics', class: 'Class 9-B' }
+				],
+				'Wednesday': [
+					{ time: '9:00 - 9:45', subject: 'Mathematics', class: 'Class 10-A' },
+					{ time: '10:00 - 10:45', subject: 'Mathematics', class: 'Class 10-B' }
+				],
+				'Thursday': [
+					{ time: '9:00 - 9:45', subject: 'Mathematics', class: 'Class 9-A' },
+					{ time: '11:00 - 11:45', subject: 'Mathematics', class: 'Class 9-B' }
+				],
+				'Friday': [
+					{ time: '9:00 - 9:45', subject: 'Mathematics', class: 'Class 10-A' },
+					{ time: '10:00 - 10:45', subject: 'Mathematics', class: 'Class 10-B' },
+					{ time: '11:00 - 11:45', subject: 'Mathematics', class: 'Class 9-A' }
+				],
+				'Saturday': []
+			};
+
+			const grid = $('#scheduleGrid');
+			grid.empty();
+
+			days.forEach(day => {
+				const slots = scheduleData[day] || [];
+				let slotsHtml = '';
+
+				if (slots.length === 0) {
+					slotsHtml = '<div style="text-align: center; color: var(--text-muted); padding: 20px;"><i class="fas fa-coffee"></i><br>No Classes</div>';
+				} else {
+					slots.forEach(slot => {
+						slotsHtml += `
+							<div class="schedule-slot">
+								<div class="slot-time">${slot.time}</div>
+								<div class="slot-subject">${slot.subject}</div>
+								<div class="slot-class">${slot.class}</div>
+							</div>
+						`;
+					});
+				}
+
+				grid.append(`
+					<div class="schedule-day">
+						<div class="schedule-day-header">${day}</div>
+						<div class="schedule-slots">${slotsHtml}</div>
+					</div>
+				`);
+			});
+		}
+
+		// Load Attendance Data
+		function loadAttendanceData() {
+			// Simulated data
+			$('#statAttendance').text('92%');
+			$('#statPresent').text('220');
+			$('#statAbsent').text('20');
+			$('#statLeaves').text('8');
+
+			// Chart
+			const ctx = document.getElementById('attendanceChart').getContext('2d');
+			new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+					datasets: [{
+						label: 'Attendance %',
+						data: [95, 92, 88, 94, 90, 93],
+						borderColor: '#8B5CF6',
+						backgroundColor: 'rgba(139, 92, 246, 0.1)',
+						fill: true,
+						tension: 0.4
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { display: false } },
+					scales: { y: { beginAtZero: false, min: 80, max: 100 } }
+				}
+			});
+
+			// Recent attendance table
+			const tbody = $('#attendanceTableBody');
+			tbody.empty();
+			const recentAttendance = [
+				{ date: '2026-01-18', status: 'Present', checkIn: '8:45 AM', checkOut: '4:30 PM' },
+				{ date: '2026-01-17', status: 'Present', checkIn: '8:50 AM', checkOut: '4:25 PM' },
+				{ date: '2026-01-16', status: 'Present', checkIn: '8:40 AM', checkOut: '4:35 PM' },
+				{ date: '2026-01-15', status: 'Absent', checkIn: '-', checkOut: '-' },
+				{ date: '2026-01-14', status: 'Present', checkIn: '8:55 AM', checkOut: '4:20 PM' }
+			];
+
+			recentAttendance.forEach(a => {
+				const statusClass = a.status === 'Present' ? 'active' : 'inactive';
+				tbody.append(`
+					<tr>
+						<td>${formatDate(a.date)}</td>
+						<td><span class="status-badge ${statusClass}">${a.status}</span></td>
+						<td>${a.checkIn}</td>
+						<td>${a.checkOut}</td>
+					</tr>
+				`);
+			});
+		}
+
+		// Load Performance Data
+		function loadPerformanceData() {
+			// Simulated data
+			$('#statRating').text('4.5');
+			$('#statPassRate').text('92%');
+			$('#statCompletion').text('85%');
+			$('#statAwards').text('3');
+
+			// Radar Chart
+			const ctx1 = document.getElementById('performanceChart').getContext('2d');
+			new Chart(ctx1, {
+				type: 'radar',
+				data: {
+					labels: ['Teaching', 'Communication', 'Punctuality', 'Knowledge', 'Student Engagement', 'Innovation'],
+					datasets: [{
+						label: 'Performance',
+						data: [4.5, 4.2, 4.8, 4.6, 4.0, 3.8],
+						borderColor: '#8B5CF6',
+						backgroundColor: 'rgba(139, 92, 246, 0.2)',
+						pointBackgroundColor: '#8B5CF6'
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					scales: {
+						r: { beginAtZero: true, max: 5 }
+					}
+				}
+			});
+
+			// Bar Chart
+			const ctx2 = document.getElementById('monthlyPerformanceChart').getContext('2d');
+			new Chart(ctx2, {
+				type: 'bar',
+				data: {
+					labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+					datasets: [{
+						label: 'Score',
+						data: [85, 88, 82, 90, 87, 92],
+						backgroundColor: '#8B5CF6'
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { display: false } },
+					scales: { y: { beginAtZero: false, min: 70, max: 100 } }
+				}
+			});
+		}
+
+		// Tab Switching
+		function switchTab(tabName) {
+			$('.profile-tab').removeClass('active');
+			$(`.profile-tab[data-tab="${tabName}"]`).addClass('active');
+
+			$('.tab-content').removeClass('active');
+			$(`#tab-${tabName}`).addClass('active');
+		}
+
+		// Open Edit Modal
+		function openEditModal(section) {
+			if (teacherData) {
+				$('#editName').val(teacherData.name || '');
+				$('#editGender').val(teacherData.gender || 'Male');
+				$('#editDob').val(teacherData.dob || '');
+				$('#editPhone').val(teacherData.phone || '');
+				$('#editEmail').val(teacherData.email || '');
+				$('#editAddress').val(teacherData.address || '');
+			}
+			$('#editModal').addClass('active');
+		}
+
+		function closeEditModal() {
+			$('#editModal').removeClass('active');
+		}
+
+		// Save Profile
+		function saveProfile() {
+			const updatedData = {
+				id: teacherId,
+				name: $('#editName').val(),
+				gender: $('#editGender').val(),
+				dob: $('#editDob').val(),
+				phone: $('#editPhone').val(),
+				email: $('#editEmail').val(),
+				address: $('#editAddress').val()
+			};
+
+			$.ajax({
+				url: API_BASE,
+				method: 'PUT',
+				contentType: 'application/json',
+				data: JSON.stringify(updatedData)
+			})
+			.done(function(response) {
+				if (response.success) {
+					showToast('Profile updated successfully', 'success');
+					closeEditModal();
+					loadTeacherProfile();
+				} else {
+					showToast(response.message || 'Failed to update', 'error');
+				}
+			})
+			.fail(function() {
+				showToast('Failed to update profile', 'error');
+			});
+		}
+
+		// Print Profile
+		function printProfile() {
+			window.print();
+		}
+
+		// Upload Document
+		function uploadDocument() {
+			showToast('Document upload coming soon', 'info');
+		}
+
+		// Helper Functions
+		function formatDate(dateStr) {
+			if (!dateStr) return '-';
+			const date = new Date(dateStr);
+			return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+		}
+
+		function getInitials(name) {
+			if (!name) return '??';
+			const parts = name.split(' ');
+			if (parts.length >= 2) {
+				return (parts[0][0] + parts[1][0]).toUpperCase();
+			}
+			return name.substring(0, 2).toUpperCase();
+		}
+
+		function showToast(message, type = 'success') {
+			const iconMap = {
+				'success': 'check-circle',
+				'error': 'times-circle',
+				'info': 'info-circle'
+			};
+			const icon = iconMap[type] || 'info-circle';
+			const toast = $(`<div class="toast ${type}"><i class="fas fa-${icon}"></i> ${message}</div>`);
+			$('body').append(toast);
+			setTimeout(() => toast.remove(), 3000);
+		}
+
+		// Close modal on escape
+		$(document).on('keydown', function(e) {
+			if (e.key === 'Escape') {
+				closeEditModal();
+			}
+		});
+	</script>
+</body>
+</html>

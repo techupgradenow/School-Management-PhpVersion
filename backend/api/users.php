@@ -26,26 +26,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../helpers/cache.php';
 require_once __DIR__ . '/../helpers/permission_guard.php';
 
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../config/env.php';
+
 // Start session for permission checks
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Database configuration
-$host = 'localhost';
-$dbname = 'edumanage_pro';
-$username = 'root';
-$password = '';
+// Validate we're using remote database (blocks localhost)
+validateRemoteDatabase();
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
-        $username,
-        $password,
+        getDbDsn(),
+        DB_USER,
+        DB_PASS,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_TIMEOUT => DB_CONNECT_TIMEOUT
         ]
     );
 } catch (PDOException $e) {

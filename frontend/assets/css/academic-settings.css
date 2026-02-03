@@ -1,0 +1,874 @@
+/**
+ * Academic Settings Module Styles
+ * EduManage Pro - School Management System
+ *
+ * Modern, professional styling for:
+ * - Classes & Sections management
+ * - Subjects management
+ * - Dependent dropdown interactions
+ *
+ * @version 2.0.0
+ */
+
+/* ============================================================================
+   CSS VARIABLES
+   ============================================================================ */
+:root {
+    /* Primary Colors */
+    --academic-primary: #2563EB;
+    --academic-primary-light: #3B82F6;
+    --academic-primary-dark: #1D4ED8;
+
+    /* Status Colors */
+    --status-active: #059669;
+    --status-active-bg: #D1FAE5;
+    --status-inactive: #DC2626;
+    --status-inactive-bg: #FEE2E2;
+
+    /* UI Colors */
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --border-color: #E5E7EB;
+    --bg-light: #F9FAFB;
+
+    /* Subject Type Colors */
+    --subject-core: #2563EB;
+    --subject-theory: #0891B2;
+    --subject-practical: #059669;
+    --subject-lab: #D97706;
+    --subject-elective: #6B7280;
+    --subject-activity: #8B5CF6;
+
+    /* Animation */
+    --transition-fast: 150ms ease;
+    --transition-normal: 250ms ease;
+}
+
+/* ============================================================================
+   ACADEMIC SETTINGS CONTAINER
+   ============================================================================ */
+.academic-settings-container {
+    padding: 1.5rem;
+}
+
+/* ============================================================================
+   TAB NAVIGATION
+   ============================================================================ */
+.academic-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0;
+}
+
+.academic-tab {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: transparent;
+    color: #6B7280;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.academic-tab:hover {
+    color: var(--academic-primary);
+    background: var(--bg-light);
+}
+
+.academic-tab.active {
+    color: var(--academic-primary);
+    background: white;
+}
+
+.academic-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--academic-primary);
+}
+
+.academic-tab i {
+    margin-right: 0.5rem;
+}
+
+/* ============================================================================
+   TAB CONTENT PANELS
+   ============================================================================ */
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================================
+   CARD LAYOUTS
+   ============================================================================ */
+.academic-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.academic-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.academic-card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.academic-card-title i {
+    color: var(--academic-primary);
+}
+
+.academic-card-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.academic-card-body {
+    padding: 1.5rem;
+}
+
+/* ============================================================================
+   SEARCH BAR
+   ============================================================================ */
+.academic-search {
+    position: relative;
+    max-width: 300px;
+}
+
+.academic-search input {
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.academic-search input:focus {
+    outline: none;
+    border-color: var(--academic-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.academic-search i {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+}
+
+/* ============================================================================
+   DATA TABLES
+   ============================================================================ */
+.academic-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.academic-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6B7280;
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.academic-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.academic-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.academic-table tbody tr:hover {
+    background: var(--bg-light);
+}
+
+.academic-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================================================
+   CLASS INFO CELL
+   ============================================================================ */
+.class-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.class-name {
+    font-weight: 600;
+    color: #1F2937;
+}
+
+/* ============================================================================
+   SECTION BADGES
+   ============================================================================ */
+.sections-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+    color: var(--academic-primary);
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.section-badge:hover {
+    background: linear-gradient(135deg, #E0E7FF, #C7D2FE);
+    border-color: var(--academic-primary-light);
+    transform: translateY(-1px);
+}
+
+.section-badge small {
+    font-size: 0.6875rem;
+    color: #6B7280;
+}
+
+/* ============================================================================
+   STATUS BADGES
+   ============================================================================ */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.status-active {
+    background: var(--status-active-bg);
+    color: var(--status-active);
+}
+
+.status-badge.status-inactive {
+    background: var(--status-inactive-bg);
+    color: var(--status-inactive);
+}
+
+/* ============================================================================
+   SUBJECT INFO
+   ============================================================================ */
+.subject-info {
+    display: flex;
+    align-items: center;
+}
+
+.subject-code {
+    font-weight: 700;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    font-size: 0.875rem;
+}
+
+.subject-name-cell .subject-name {
+    font-weight: 500;
+    color: #1F2937;
+}
+
+/* Subject Type Badges */
+.badge-primary { background: var(--subject-core); color: white; }
+.badge-info { background: var(--subject-theory); color: white; }
+.badge-success { background: var(--subject-practical); color: white; }
+.badge-warning { background: var(--subject-lab); color: white; }
+.badge-secondary { background: var(--subject-elective); color: white; }
+.badge-purple { background: var(--subject-activity); color: white; }
+
+/* ============================================================================
+   ACTION BUTTONS
+   ============================================================================ */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    transition: all var(--transition-fast);
+}
+
+.btn-outline-primary {
+    border: 1px solid var(--academic-primary);
+    color: var(--academic-primary);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--academic-primary);
+    color: white;
+}
+
+.btn-outline-success {
+    border: 1px solid var(--status-active);
+    color: var(--status-active);
+    background: transparent;
+}
+
+.btn-outline-success:hover {
+    background: var(--status-active);
+    color: white;
+}
+
+.btn-outline-info {
+    border: 1px solid #0891B2;
+    color: #0891B2;
+    background: transparent;
+}
+
+.btn-outline-info:hover {
+    background: #0891B2;
+    color: white;
+}
+
+.btn-outline-danger {
+    border: 1px solid var(--status-inactive);
+    color: var(--status-inactive);
+    background: transparent;
+}
+
+.btn-outline-danger:hover {
+    background: var(--status-inactive);
+    color: white;
+}
+
+/* ============================================================================
+   SKELETON LOADERS
+   ============================================================================ */
+.skeleton-row td {
+    padding: 1rem;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 0.25rem;
+}
+
+.skeleton-text {
+    height: 1rem;
+    width: 80%;
+}
+
+.skeleton-badge {
+    height: 1.5rem;
+    width: 4rem;
+    border-radius: 9999px;
+}
+
+.skeleton-actions {
+    height: 2rem;
+    width: 6rem;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+
+.empty-state i {
+    color: #D1D5DB;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    color: #6B7280;
+    margin: 0;
+}
+
+/* ============================================================================
+   MODALS
+   ============================================================================ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    padding: 1rem;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-dialog {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-dialog.modal-lg {
+    max-width: 700px;
+}
+
+.modal-dialog.modal-sm {
+    max-width: 350px;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header.modal-header-danger {
+    background: #FEF2F2;
+    border-bottom-color: #FECACA;
+}
+
+.modal-header.modal-header-danger .modal-title {
+    color: var(--status-inactive);
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color var(--transition-fast);
+}
+
+.modal-close:hover {
+    color: #374151;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    max-height: calc(90vh - 140px);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-light);
+}
+
+/* ============================================================================
+   FORM STYLES
+   ============================================================================ */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.form-label.required::after {
+    content: '*';
+    color: var(--status-inactive);
+    margin-left: 0.25rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--academic-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-control:disabled {
+    background: var(--bg-light);
+    cursor: not-allowed;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-text {
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 0.25rem;
+}
+
+/* Color picker */
+input[type="color"].form-control {
+    height: 2.5rem;
+    padding: 0.25rem;
+    cursor: pointer;
+}
+
+/* ============================================================================
+   CHECKBOX STYLES (for subject assignment)
+   ============================================================================ */
+.subject-checkbox-item {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all var(--transition-fast);
+}
+
+.subject-checkbox-item:hover {
+    border-color: var(--academic-primary-light);
+    background: var(--bg-light);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 0.75rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.checkbox-label input:checked + .checkbox-custom {
+    background: var(--academic-primary);
+    border-color: var(--academic-primary);
+}
+
+.checkbox-label input:checked + .checkbox-custom::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: white;
+    font-size: 0.75rem;
+}
+
+.subject-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.subject-label .subject-code {
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.subject-label .subject-name {
+    color: #4B5563;
+}
+
+/* ============================================================================
+   TOAST NOTIFICATIONS
+   ============================================================================ */
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    min-width: 300px;
+    max-width: 400px;
+    border-left: 4px solid;
+}
+
+.toast-success {
+    border-left-color: var(--status-active);
+}
+
+.toast-success .toast-content i {
+    color: var(--status-active);
+}
+
+.toast-error {
+    border-left-color: var(--status-inactive);
+}
+
+.toast-error .toast-content i {
+    color: var(--status-inactive);
+}
+
+.toast-warning {
+    border-left-color: #D97706;
+}
+
+.toast-warning .toast-content i {
+    color: #D97706;
+}
+
+.toast-info {
+    border-left-color: #0891B2;
+}
+
+.toast-info .toast-content i {
+    color: #0891B2;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toast-content span {
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    padding: 0.25rem;
+    margin-left: 0.5rem;
+    transition: color var(--transition-fast);
+}
+
+.toast-close:hover {
+    color: #374151;
+}
+
+/* Toast Animations */
+.animate-slideIn {
+    animation: slideIn 0.3s ease;
+}
+
+.animate-slideOut {
+    animation: slideOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* ============================================================================
+   CONFIRM DIALOG
+   ============================================================================ */
+.confirm-dialog .modal-body p {
+    color: #4B5563;
+    margin: 0;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+@media (max-width: 768px) {
+    .academic-settings-container {
+        padding: 1rem;
+    }
+
+    .academic-tabs {
+        flex-wrap: wrap;
+    }
+
+    .academic-tab {
+        flex: 1;
+        text-align: center;
+        padding: 0.625rem 1rem;
+    }
+
+    .academic-card-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .academic-card-actions {
+        justify-content: flex-end;
+    }
+
+    .academic-search {
+        max-width: none;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .academic-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    .sections-badges {
+        flex-direction: column;
+    }
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+@media print {
+    .academic-tabs,
+    .academic-card-actions,
+    .action-buttons,
+    .modal-overlay,
+    .toast-container {
+        display: none !important;
+    }
+
+    .academic-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}

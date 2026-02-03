@@ -10,10 +10,37 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/functions.php';
 require_once __DIR__ . '/../helpers/permission_guard.php';
+require_once __DIR__ . '/../helpers/TenantContext.php';
 
 // Start session for permission checks
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+/**
+ * Get current school ID from session/context
+ * CRITICAL: All queries must filter by school_id for multi-tenant isolation
+ */
+function getCurrentSchoolId() {
+    if (isset($_SESSION['school_id']) && !empty($_SESSION['school_id'])) {
+        return $_SESSION['school_id'];
+    }
+    try {
+        $db = getDB();
+        $tenant = TenantContext::getInstance($db);
+        $schoolId = $tenant->getSchoolId();
+        if ($schoolId) return $schoolId;
+    } catch (Exception $e) {}
+    try {
+        $db = getDB();
+        $stmt = $db->query("SELECT id FROM schools WHERE is_active = 1 LIMIT 1");
+        $school = $stmt->fetch();
+        if ($school) {
+            $_SESSION['school_id'] = $school['id'];
+            return $school['id'];
+        }
+    } catch (Exception $e) {}
+    return null;
 }
 
 // Get request method
@@ -109,9 +136,16 @@ function getExamsList($db, $params) {
     $class = $params['class'] ?? '';
     $status = $params['status'] ?? '';
     $search = $params['search'] ?? '';
+    $schoolId = getCurrentSchoolId();
 
     $where = [];
     $bindings = [];
+
+    // CRITICAL: Always filter by school_id for data isolation
+    if ($schoolId) {
+        $where[] = "exams.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
 
     if (!empty($class)) {
         $where[] = "exams.class = :class";
@@ -181,7 +215,8 @@ function getSingleExam($db, $params) {
         sendResponse(false, 'Exam ID is required');
     }
 
-    $stmt = $db->prepare("
+    $schoolId = getCurrentSchoolId();
+    $sql = "
         SELECT
             exams.*,
             subjects.name as subject_name,
@@ -189,8 +224,17 @@ function getSingleExam($db, $params) {
         FROM exams
         LEFT JOIN subjects ON exams.subject_id = subjects.id
         WHERE exams.id = :id
-    ");
-    $stmt->execute([':id' => $params['id']]);
+    ";
+    $bindings = [':id' => $params['id']];
+
+    // CRITICAL: Filter by school_id for data isolation
+    if ($schoolId) {
+        $sql .= " AND exams.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute($bindings);
     $exam = $stmt->fetch();
 
     if (!$exam) {
@@ -209,6 +253,7 @@ function getExamMarks($db, $params) {
     }
 
     $examId = $params['exam_id'];
+    $schoolId = getCurrentSchoolId();
 
     $query = "
         SELECT
@@ -219,12 +264,21 @@ function getExamMarks($db, $params) {
             students.section
         FROM exam_marks
         LEFT JOIN students ON exam_marks.student_id = students.id
+        LEFT JOIN exams ON exam_marks.exam_id = exams.id
         WHERE exam_marks.exam_id = :exam_id
-        ORDER BY students.roll_no
     ";
+    $bindings = [':exam_id' => $examId];
+
+    // CRITICAL: Filter by school_id for data isolation
+    if ($schoolId) {
+        $query .= " AND exams.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
+
+    $query .= " ORDER BY students.roll_no";
 
     $stmt = $db->prepare($query);
-    $stmt->execute([':exam_id' => $examId]);
+    $stmt->execute($bindings);
     $marks = $stmt->fetchAll();
 
     sendResponse(true, 'Marks fetched successfully', ['marks' => $marks]);
@@ -240,9 +294,16 @@ function getStudentMarks($db, $params) {
 
     $studentId = $params['student_id'];
     $class = $params['class'] ?? '';
+    $schoolId = getCurrentSchoolId();
 
     $where = ["exam_marks.student_id = :student_id"];
     $bindings = [':student_id' => $studentId];
+
+    // CRITICAL: Filter by school_id for data isolation
+    if ($schoolId) {
+        $where[] = "exams.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
 
     if (!empty($class)) {
         $where[] = "exams.class = :class";
@@ -279,14 +340,24 @@ function getStudentMarks($db, $params) {
  */
 function getExamStats($db, $params) {
     $examId = $params['exam_id'] ?? '';
+    $schoolId = getCurrentSchoolId();
 
     if (empty($examId)) {
         sendResponse(false, 'Exam ID is required');
     }
 
-    // Get exam details
-    $examStmt = $db->prepare("SELECT * FROM exams WHERE id = :id");
-    $examStmt->execute([':id' => $examId]);
+    // Get exam details with school_id filter
+    $sql = "SELECT * FROM exams WHERE id = :id";
+    $bindings = [':id' => $examId];
+
+    // CRITICAL: Filter by school_id for data isolation
+    if ($schoolId) {
+        $sql .= " AND school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
+
+    $examStmt = $db->prepare($sql);
+    $examStmt->execute($bindings);
     $exam = $examStmt->fetch();
 
     if (!$exam) {
@@ -351,6 +422,7 @@ function getExamResults($db, $params) {
     }
 
     $examId = $params['exam_id'];
+    $schoolId = getCurrentSchoolId();
 
     $query = "
         SELECT
@@ -365,11 +437,19 @@ function getExamResults($db, $params) {
         LEFT JOIN students ON exam_marks.student_id = students.id
         LEFT JOIN exams ON exam_marks.exam_id = exams.id
         WHERE exam_marks.exam_id = :exam_id
-        ORDER BY exam_marks.marks_obtained DESC
     ";
+    $bindings = [':exam_id' => $examId];
+
+    // CRITICAL: Filter by school_id for data isolation
+    if ($schoolId) {
+        $query .= " AND exams.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
+
+    $query .= " ORDER BY exam_marks.marks_obtained DESC";
 
     $stmt = $db->prepare($query);
-    $stmt->execute([':exam_id' => $examId]);
+    $stmt->execute($bindings);
     $results = $stmt->fetchAll();
 
     // Calculate grades
@@ -432,6 +512,9 @@ function createExam($db, $data) {
         sendResponse(false, 'Validation failed', null, $errors);
     }
 
+    // CRITICAL: Get school_id for multi-tenant isolation
+    $schoolId = getCurrentSchoolId();
+
     // Sanitize input
     $name = sanitizeInput($data['name']);
     $class = sanitizeInput($data['class']);
@@ -447,14 +530,15 @@ function createExam($db, $data) {
     // Generate exam ID
     $examId = generateId('EXM', 10);
 
-    // Insert exam
+    // Insert exam with school_id
     $stmt = $db->prepare("
-        INSERT INTO exams (id, name, class, subject_id, exam_date, start_time, end_time, max_marks, pass_marks, description, status)
-        VALUES (:id, :name, :class, :subject_id, :exam_date, :start_time, :end_time, :max_marks, :pass_marks, :description, :status)
+        INSERT INTO exams (id, school_id, name, class, subject_id, exam_date, start_time, end_time, max_marks, pass_marks, description, status)
+        VALUES (:id, :school_id, :name, :class, :subject_id, :exam_date, :start_time, :end_time, :max_marks, :pass_marks, :description, :status)
     ");
 
     $stmt->execute([
         ':id' => $examId,
+        ':school_id' => $schoolId,
         ':name' => $name,
         ':class' => $class,
         ':subject_id' => $subjectId,
@@ -569,10 +653,19 @@ function handlePut($db, $data) {
         }
 
         $examId = sanitizeInput($data['id']);
+        $schoolId = getCurrentSchoolId();
 
-        // Check if exam exists
-        $checkStmt = $db->prepare("SELECT id FROM exams WHERE id = :id");
-        $checkStmt->execute([':id' => $examId]);
+        // Check if exam exists (with school_id filter for data isolation)
+        $sql = "SELECT id FROM exams WHERE id = :id";
+        $bindings = [':id' => $examId];
+
+        if ($schoolId) {
+            $sql .= " AND school_id = :school_id";
+            $bindings[':school_id'] = $schoolId;
+        }
+
+        $checkStmt = $db->prepare($sql);
+        $checkStmt->execute($bindings);
 
         if (!$checkStmt->fetch()) {
             sendResponse(false, 'Exam not found');
@@ -605,8 +698,13 @@ function handlePut($db, $data) {
             sendResponse(false, 'No fields to update');
         }
 
-        // Update exam
+        // Update exam (with school_id filter for data isolation)
         $query = "UPDATE exams SET " . implode(', ', $fields) . " WHERE id = :id";
+        if ($schoolId) {
+            $query .= " AND school_id = :school_id";
+            $bindings[':school_id'] = $schoolId;
+        }
+
         $stmt = $db->prepare($query);
         $stmt->execute($bindings);
 
@@ -630,9 +728,19 @@ function handleDelete($db, $params) {
         }
 
         $examId = sanitizeInput($params['id']);
+        $schoolId = getCurrentSchoolId();
 
-        $stmt = $db->prepare("DELETE FROM exams WHERE id = :id");
-        $stmt->execute([':id' => $examId]);
+        // CRITICAL: Delete with school_id filter for data isolation
+        $sql = "DELETE FROM exams WHERE id = :id";
+        $bindings = [':id' => $examId];
+
+        if ($schoolId) {
+            $sql .= " AND school_id = :school_id";
+            $bindings[':school_id'] = $schoolId;
+        }
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute($bindings);
 
         if ($stmt->rowCount() === 0) {
             sendResponse(false, 'Exam not found');

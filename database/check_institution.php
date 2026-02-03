@@ -1,5 +1,9 @@
 <?php
-$pdo = new PDO('mysql:host=localhost;dbname=edumanage_pro', 'root', '');
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../backend/config/env.php';
+validateRemoteDatabase();
+
+$pdo = new PDO(getDbDsn(), DB_USER, DB_PASS);
 
 echo "=== institution_settings table ===\n";
 $stmt = $pdo->query("SELECT * FROM institution_settings WHERE setting_key = 'institution_type'");

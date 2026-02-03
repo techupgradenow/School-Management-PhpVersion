@@ -1272,28 +1272,12 @@
 							<label class="filter-label">Class</label>
 							<select class="filter-select" id="filterClass">
 								<option value="">All Classes</option>
-								<option value="Class 1">Class 1</option>
-								<option value="Class 2">Class 2</option>
-								<option value="Class 3">Class 3</option>
-								<option value="Class 4">Class 4</option>
-								<option value="Class 5">Class 5</option>
-								<option value="Class 6">Class 6</option>
-								<option value="Class 7">Class 7</option>
-								<option value="Class 8">Class 8</option>
-								<option value="Class 9">Class 9</option>
-								<option value="Class 10">Class 10</option>
-								<option value="Class 11">Class 11</option>
-								<option value="Class 12">Class 12</option>
 							</select>
 						</div>
 						<div class="filter-group">
 							<label class="filter-label">Section</label>
 							<select class="filter-select" id="filterSection">
 								<option value="">All Sections</option>
-								<option value="A">Section A</option>
-								<option value="B">Section B</option>
-								<option value="C">Section C</option>
-								<option value="D">Section D</option>
 							</select>
 						</div>
 						<div class="filter-group">
@@ -1451,19 +1435,7 @@
 									<div class="input-wrapper">
 										<i class="fas fa-school input-icon"></i>
 										<select class="form-control" id="studentClass" required>
-											<option value="">Select class</option>
-											<option value="Class 1">Class 1</option>
-											<option value="Class 2">Class 2</option>
-											<option value="Class 3">Class 3</option>
-											<option value="Class 4">Class 4</option>
-											<option value="Class 5">Class 5</option>
-											<option value="Class 6">Class 6</option>
-											<option value="Class 7">Class 7</option>
-											<option value="Class 8">Class 8</option>
-											<option value="Class 9">Class 9</option>
-											<option value="Class 10">Class 10</option>
-											<option value="Class 11">Class 11</option>
-											<option value="Class 12">Class 12</option>
+											<option value="">Loading classes...</option>
 										</select>
 									</div>
 								</div>
@@ -1472,11 +1444,7 @@
 									<div class="input-wrapper">
 										<i class="fas fa-layer-group input-icon"></i>
 										<select class="form-control" id="studentSection" required>
-											<option value="">Select section</option>
-											<option value="A">Section A</option>
-											<option value="B">Section B</option>
-											<option value="C">Section C</option>
-											<option value="D">Section D</option>
+											<option value="">Select class first</option>
 										</select>
 									</div>
 								</div>
@@ -2348,15 +2316,15 @@
 		function loadFromLocalStorage() {
 			try {
 				var saved = localStorage.getItem('edu_students');
-				if (saved) students = JSON.parse(saved);
-				if (!students || students.length === 0) {
-					students = generateDemoStudents();
-					saveToLocalStorage();
+				if (saved) {
+					students = JSON.parse(saved);
+				} else {
+					students = [];
 				}
 				renderTable();
 				updateStats();
 			} catch (e) {
-				students = generateDemoStudents();
+				students = [];
 				renderTable();
 				updateStats();
 			}
@@ -2368,30 +2336,6 @@
 			} catch (e) {
 				console.error('Save error:', e);
 			}
-		}
-
-		function generateDemoStudents() {
-			var names = ['Aarav Sharma', 'Ananya Patel', 'Arjun Singh', 'Diya Gupta', 'Kabir Verma'];
-			var classes = ['Class 8', 'Class 9', 'Class 10'];
-			var sections = ['A', 'B', 'C'];
-			var demoStudents = [];
-
-			for (var i = 0; i < 15; i++) {
-				demoStudents.push({
-					id: 'STU' + String(i + 1).padStart(3, '0'),
-					name: names[i % names.length],
-					gender: i % 2 === 0 ? 'Male' : 'Female',
-					class: classes[i % classes.length],
-					section: sections[i % sections.length],
-					roll_no: String(i + 1),
-					admission_no: 'ADM2024' + String(i + 1).padStart(3, '0'),
-					parent_name: 'Parent ' + (i + 1),
-					contact: '98765' + String(43210 + i).padStart(5, '0'),
-					status: 'Active',
-					created_at: new Date().toISOString()
-				});
-			}
-			return demoStudents;
 		}
 
 		// ============================================
@@ -2680,7 +2624,183 @@
 			showToast('Exported ' + students.length + ' students', 'success');
 		});
 
+		// Load classes from Academic Settings API
+		function loadClassesAndSections() {
+			var filterClassSelect = document.getElementById('filterClass');
+			var filterSectionSelect = document.getElementById('filterSection');
+			var studentClassSelect = document.getElementById('studentClass');
+			var studentSectionSelect = document.getElementById('studentSection');
+
+			// Load classes from academic API
+			$.ajax({
+				url: '../backend/api/academic.php',
+				method: 'GET',
+				data: { action: 'classes' },
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data && response.data.length > 0) {
+						var classes = response.data
+							.filter(function(c) { return c.status === 'Active'; })
+							.sort(function(a, b) { return (a.numeric_value || 0) - (b.numeric_value || 0); });
+
+						// Populate filter class dropdown
+						if (filterClassSelect) {
+							classes.forEach(function(cls) {
+								var option = document.createElement('option');
+								option.value = cls.class_name;
+								option.textContent = cls.class_name;
+								option.dataset.id = cls.id;
+								filterClassSelect.appendChild(option);
+							});
+						}
+
+						// Populate modal class dropdown
+						if (studentClassSelect) {
+							studentClassSelect.innerHTML = '<option value="">Select class</option>';
+							classes.forEach(function(cls) {
+								var option = document.createElement('option');
+								option.value = cls.class_name;
+								option.textContent = cls.class_name;
+								option.dataset.id = cls.id;
+								studentClassSelect.appendChild(option);
+							});
+						}
+					} else {
+						// Fallback to hardcoded classes
+						loadClassesFallback();
+					}
+				},
+				error: function() {
+					loadClassesFallback();
+				}
+			});
+
+			// Load all sections for filter (not dependent for filters)
+			$.ajax({
+				url: '../backend/api/students.php',
+				method: 'GET',
+				data: { action: 'sections' },
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data && response.data.length > 0) {
+						if (filterSectionSelect) {
+							response.data.forEach(function(sec) {
+								var option = document.createElement('option');
+								option.value = sec.section || sec.name || sec;
+								option.textContent = 'Section ' + (sec.section || sec.name || sec);
+								filterSectionSelect.appendChild(option);
+							});
+						}
+					}
+				}
+			});
+
+			// Setup dependent dropdown for modal - class change loads sections
+			if (studentClassSelect) {
+				studentClassSelect.addEventListener('change', function() {
+					loadSectionsForModalClass();
+				});
+			}
+		}
+
+		// Fallback for classes if API fails
+		function loadClassesFallback() {
+			var filterClassSelect = document.getElementById('filterClass');
+			var studentClassSelect = document.getElementById('studentClass');
+
+			var standardClasses = [];
+			for (var i = 1; i <= 12; i++) {
+				standardClasses.push('Class ' + i);
+			}
+
+			if (filterClassSelect) {
+				standardClasses.forEach(function(cls) {
+					var option = document.createElement('option');
+					option.value = cls;
+					option.textContent = cls;
+					filterClassSelect.appendChild(option);
+				});
+			}
+
+			if (studentClassSelect) {
+				studentClassSelect.innerHTML = '<option value="">Select class</option>';
+				standardClasses.forEach(function(cls) {
+					var option = document.createElement('option');
+					option.value = cls;
+					option.textContent = cls;
+					studentClassSelect.appendChild(option);
+				});
+			}
+
+			// Also set fallback sections for modal
+			loadSectionsFallback();
+		}
+
+		// Load sections for modal when class changes (dependent dropdown)
+		function loadSectionsForModalClass() {
+			var studentClassSelect = document.getElementById('studentClass');
+			var studentSectionSelect = document.getElementById('studentSection');
+
+			if (!studentSectionSelect) return;
+
+			var selectedOption = studentClassSelect.options[studentClassSelect.selectedIndex];
+			var classId = selectedOption?.dataset?.id;
+
+			if (!classId || !studentClassSelect.value) {
+				studentSectionSelect.innerHTML = '<option value="">Select class first</option>';
+				studentSectionSelect.disabled = true;
+				return;
+			}
+
+			studentSectionSelect.innerHTML = '<option value="">Loading sections...</option>';
+			studentSectionSelect.disabled = true;
+
+			$.ajax({
+				url: '../backend/api/academic.php',
+				method: 'GET',
+				data: { action: 'sections', class_id: classId },
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data?.sections) {
+						var sections = response.data.sections.filter(function(s) { return s.status === 'Active'; });
+
+						studentSectionSelect.innerHTML = '<option value="">Select section</option>';
+						sections.forEach(function(sec) {
+							var option = document.createElement('option');
+							option.value = sec.section_name;
+							option.textContent = 'Section ' + sec.section_name;
+							option.dataset.id = sec.id;
+							studentSectionSelect.appendChild(option);
+						});
+						studentSectionSelect.disabled = false;
+					} else {
+						loadSectionsFallback();
+					}
+				},
+				error: function() {
+					loadSectionsFallback();
+				}
+			});
+		}
+
+		// Fallback sections for modal
+		function loadSectionsFallback() {
+			var studentSectionSelect = document.getElementById('studentSection');
+			if (!studentSectionSelect) return;
+
+			var standardSections = ['A', 'B', 'C', 'D'];
+			studentSectionSelect.innerHTML = '<option value="">Select section</option>';
+			standardSections.forEach(function(sec) {
+				var option = document.createElement('option');
+				option.value = sec;
+				option.textContent = 'Section ' + sec;
+				studentSectionSelect.appendChild(option);
+			});
+			studentSectionSelect.disabled = false;
+		}
+
 		// Initialize
+		loadClassesAndSections();
 		loadStudents();
 	})();
 	</script>

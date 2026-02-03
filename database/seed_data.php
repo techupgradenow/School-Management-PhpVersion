@@ -6,14 +6,16 @@
 
 header('Content-Type: text/plain');
 
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$dbname = 'edumanage_pro';
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../backend/config/env.php';
+
+// Validate we're using remote database (blocks localhost)
+validateRemoteDatabase();
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    $pdo = new PDO(getDbDsn(), DB_USER, DB_PASS, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_TIMEOUT => DB_CONNECT_TIMEOUT
     ]);
     echo "Connected to database successfully.\n\n";
 

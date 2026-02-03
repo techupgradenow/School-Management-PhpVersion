@@ -13,6 +13,14 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
 
+        /* Page Container - standalone page without sidebar */
+        .page-container {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -419,14 +427,14 @@
         }
 
         @media (max-width: 480px) {
-            .main-content { padding: 16px !important; }
+            .page-container { padding: 16px !important; }
             .settings-section { padding: 20px; }
             .category-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="main-content" style="padding: 24px;">
+    <div class="page-container">
         <div class="page-header">
             <div class="page-title-section">
                 <h1><i class="fas fa-cog" style="color: #f59e0b; margin-right: 12px;"></i>Institution Settings</h1>

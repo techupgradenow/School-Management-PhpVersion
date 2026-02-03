@@ -473,7 +473,7 @@ function getTeacherAbsences($db, $params) {
     $stmt->execute($bindings);
     $absences = $stmt->fetchAll();
 
-    sendResponse(true, 'Teacher absences fetched successfully', ['absences' => $absences]);
+    sendResponse(true, 'Teacher absences fetched successfully', $absences);
 }
 
 /**
@@ -522,7 +522,7 @@ function getAbsenceDetails($db, $params) {
         LEFT JOIN teachers st ON sr.substitute_teacher_id = st.id
         WHERE tt.teacher_id = :teacher_id
         ORDER BY FIELD(tt.day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
-                 tt.period_no
+                 tt.period_number
     ");
     $periodStmt->execute([
         ':teacher_id' => $absence['teacher_id'],
@@ -577,11 +577,11 @@ function getTodayAbsences($db, $params) {
                 AND sr.substitution_date = :today
                 AND sr.class_id = tt.class
                 AND sr.section_id = tt.section
-                AND sr.slot_id = tt.period_no
+                AND sr.slot_id = tt.period_number
             LEFT JOIN teachers st ON sr.substitute_teacher_id = st.id
             WHERE tt.teacher_id = :teacher_id
             AND tt.day_of_week = :day_of_week
-            ORDER BY tt.period_no
+            ORDER BY tt.period_number
         ");
         $periodStmt->execute([
             ':teacher_id' => $absence['teacher_id'],
@@ -779,7 +779,7 @@ function createSubstitutionRecords($db, $absenceId) {
                         ':timetable_entry_id' => $entry['id'],
                         ':original_teacher_id' => $absence['teacher_id'],
                         ':substitution_date' => $dateStr,
-                        ':slot_id' => $entry['period_no'],
+                        ':slot_id' => $entry['period_number'],
                         ':class_id' => $entry['class'],
                         ':section_id' => $entry['section'],
                         ':subject_id' => $entry['subject_id']
@@ -836,7 +836,7 @@ function getSubstitutions($db, $params) {
     $stmt->execute($bindings);
     $substitutions = $stmt->fetchAll();
 
-    sendResponse(true, 'Substitutions fetched successfully', ['substitutions' => $substitutions]);
+    sendResponse(true, 'Substitutions fetched successfully', $substitutions);
 }
 
 /**
@@ -913,7 +913,7 @@ function getAvailableTeachersForSubstitution($db, $params) {
             SELECT tt.teacher_id
             FROM timetable tt
             WHERE tt.day_of_week = :day_of_week
-            AND tt.period_no = :period
+            AND tt.period_number = :period
         )
         -- Not already assigned as substitute at this slot
         AND t.id NOT IN (
@@ -1036,7 +1036,7 @@ function autoAssignSubstitutes($db, $data) {
             -- Not teaching at this slot
             AND t.id NOT IN (
                 SELECT tt.teacher_id FROM timetable tt
-                WHERE tt.day_of_week = :day_of_week AND tt.period_no = :period
+                WHERE tt.day_of_week = :day_of_week AND tt.period_number = :period
             )
             -- Not already assigned as substitute
             AND t.id NOT IN (

@@ -14,19 +14,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Database connection
+// Include centralized database configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/../config/env.php';
+
+// Database connection to Remote Hostinger Database
 try {
+    validateRemoteDatabase(); // Ensure no localhost connections
+
     $pdo = new PDO(
-        "mysql:host=localhost;dbname=edumanage_pro;charset=utf8mb4",
-        "root",
-        "",
+        getDbDsn(),
+        DB_USER,
+        DB_PASS,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_TIMEOUT => DB_CONNECT_TIMEOUT
         ]
     );
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+    error_log("Payroll API - Remote DB Connection Failed: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Remote database connection failed. Please check your network connection.']);
+    exit;
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
 }
 

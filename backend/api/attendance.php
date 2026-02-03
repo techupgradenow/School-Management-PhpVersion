@@ -10,10 +10,54 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/functions.php';
 require_once __DIR__ . '/../helpers/permission_guard.php';
+require_once __DIR__ . '/../helpers/TenantContext.php';
 
 // Start session for permission checks
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+/**
+ * Get current school ID from session/context
+ * CRITICAL: All queries must filter by school_id for multi-tenant isolation
+ * Optimized: Uses static cache and accepts optional db parameter
+ */
+function getCurrentSchoolId($existingDb = null) {
+    static $cachedSchoolId = null;
+
+    if ($cachedSchoolId !== null) {
+        return $cachedSchoolId;
+    }
+
+    if (isset($_SESSION['school_id']) && !empty($_SESSION['school_id'])) {
+        $cachedSchoolId = $_SESSION['school_id'];
+        return $cachedSchoolId;
+    }
+
+    $db = $existingDb ?? (function_exists('getDB') ? getDB() : null);
+
+    if ($db) {
+        try {
+            $tenant = TenantContext::getInstance($db);
+            $schoolId = $tenant->getSchoolId();
+            if ($schoolId) {
+                $cachedSchoolId = $schoolId;
+                return $cachedSchoolId;
+            }
+        } catch (Exception $e) {}
+
+        try {
+            $stmt = $db->query("SELECT id FROM schools WHERE is_active = 1 LIMIT 1");
+            $school = $stmt->fetch();
+            if ($school) {
+                $_SESSION['school_id'] = $school['id'];
+                $cachedSchoolId = $school['id'];
+                return $cachedSchoolId;
+            }
+        } catch (Exception $e) {}
+    }
+
+    return null;
 }
 
 // Get request method
@@ -94,15 +138,23 @@ function handleGet($db, $params) {
 
 /**
  * Get attendance list
+ * IMPORTANT: Filters by school_id for multi-tenant isolation
  */
 function getAttendanceList($db, $params) {
     $date = $params['date'] ?? date('Y-m-d');
     $class = $params['class'] ?? '';
     $section = $params['section'] ?? '';
     $status = $params['status'] ?? '';
+    $schoolId = getCurrentSchoolId();
 
-    $where = ["DATE(date) = :date"];
+    $where = ["DATE(attendance.date) = :date"];
     $bindings = [':date' => $date];
+
+    // CRITICAL: Always filter by school_id for data isolation
+    if ($schoolId) {
+        $where[] = "attendance.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
 
     if (!empty($class)) {
         $where[] = "students.class = :class";
@@ -129,7 +181,8 @@ function getAttendanceList($db, $params) {
             students.section,
             students.roll_no
         FROM attendance
-        LEFT JOIN students ON attendance.student_id = students.id
+        LEFT JOIN students ON attendance.student_id = students.id" .
+        ($schoolId ? " AND students.school_id = attendance.school_id" : "") . "
         $whereClause
         ORDER BY students.class, students.section, students.roll_no
     ";
@@ -143,6 +196,7 @@ function getAttendanceList($db, $params) {
 
 /**
  * Get student attendance history
+ * IMPORTANT: Filters by school_id for multi-tenant isolation
  */
 function getStudentAttendance($db, $params) {
     if (empty($params['student_id'])) {
@@ -152,20 +206,24 @@ function getStudentAttendance($db, $params) {
     $studentId = $params['student_id'];
     $startDate = $params['start_date'] ?? date('Y-m-d', strtotime('-30 days'));
     $endDate = $params['end_date'] ?? date('Y-m-d');
+    $schoolId = getCurrentSchoolId();
 
-    $query = "
-        SELECT * FROM attendance
-        WHERE student_id = :student_id
-        AND date BETWEEN :start_date AND :end_date
-        ORDER BY date DESC
-    ";
-
-    $stmt = $db->prepare($query);
-    $stmt->execute([
+    $sql = "SELECT * FROM attendance WHERE student_id = :student_id AND date BETWEEN :start_date AND :end_date";
+    $bindings = [
         ':student_id' => $studentId,
         ':start_date' => $startDate,
         ':end_date' => $endDate
-    ]);
+    ];
+
+    if ($schoolId) {
+        $sql .= " AND school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
+
+    $sql .= " ORDER BY date DESC";
+
+    $stmt = $db->prepare($sql);
+    $stmt->execute($bindings);
 
     $records = $stmt->fetchAll();
 
@@ -179,14 +237,21 @@ function getStudentAttendance($db, $params) {
 
 /**
  * Get attendance statistics
+ * Optimized: Single query with conditional aggregation (was 4 separate queries)
  */
 function getAttendanceStats($db, $params) {
     $date = $params['date'] ?? date('Y-m-d');
     $class = $params['class'] ?? '';
     $section = $params['section'] ?? '';
+    $schoolId = getCurrentSchoolId($db);
 
-    $where = ["DATE(date) = :date"];
+    $where = ["DATE(attendance.date) = :date"];
     $bindings = [':date' => $date];
+
+    if ($schoolId) {
+        $where[] = "attendance.school_id = :school_id";
+        $bindings[':school_id'] = $schoolId;
+    }
 
     if (!empty($class)) {
         $where[] = "students.class = :class";
@@ -200,62 +265,26 @@ function getAttendanceStats($db, $params) {
 
     $whereClause = 'WHERE ' . implode(' AND ', $where);
 
-    // Total students
-    $totalQuery = "
-        SELECT COUNT(DISTINCT student_id) as total
+    // Single optimized query with conditional aggregation
+    $query = "
+        SELECT
+            COUNT(DISTINCT attendance.student_id) as total,
+            SUM(CASE WHEN attendance.status = 'Present' THEN 1 ELSE 0 END) as present,
+            SUM(CASE WHEN attendance.status = 'Absent' THEN 1 ELSE 0 END) as absent,
+            SUM(CASE WHEN attendance.status = 'Late' THEN 1 ELSE 0 END) as late
         FROM attendance
         LEFT JOIN students ON attendance.student_id = students.id
         $whereClause
     ";
-    $totalStmt = $db->prepare($totalQuery);
-    $totalStmt->execute($bindings);
-    $total = $totalStmt->fetch()['total'];
 
-    // Present count
-    $presentWhere = $where;
-    $presentWhere[] = "attendance.status = 'Present'";
-    $presentWhereClause = 'WHERE ' . implode(' AND ', $presentWhere);
+    $stmt = $db->prepare($query);
+    $stmt->execute($bindings);
+    $result = $stmt->fetch();
 
-    $presentQuery = "
-        SELECT COUNT(*) as total
-        FROM attendance
-        LEFT JOIN students ON attendance.student_id = students.id
-        $presentWhereClause
-    ";
-    $presentStmt = $db->prepare($presentQuery);
-    $presentStmt->execute($bindings);
-    $present = $presentStmt->fetch()['total'];
-
-    // Absent count
-    $absentWhere = $where;
-    $absentWhere[] = "attendance.status = 'Absent'";
-    $absentWhereClause = 'WHERE ' . implode(' AND ', $absentWhere);
-
-    $absentQuery = "
-        SELECT COUNT(*) as total
-        FROM attendance
-        LEFT JOIN students ON attendance.student_id = students.id
-        $absentWhereClause
-    ";
-    $absentStmt = $db->prepare($absentQuery);
-    $absentStmt->execute($bindings);
-    $absent = $absentStmt->fetch()['total'];
-
-    // Late count
-    $lateWhere = $where;
-    $lateWhere[] = "attendance.status = 'Late'";
-    $lateWhereClause = 'WHERE ' . implode(' AND ', $lateWhere);
-
-    $lateQuery = "
-        SELECT COUNT(*) as total
-        FROM attendance
-        LEFT JOIN students ON attendance.student_id = students.id
-        $lateWhereClause
-    ";
-    $lateStmt = $db->prepare($lateQuery);
-    $lateStmt->execute($bindings);
-    $late = $lateStmt->fetch()['total'];
-
+    $total = (int)$result['total'];
+    $present = (int)$result['present'];
+    $absent = (int)$result['absent'];
+    $late = (int)$result['late'];
     $percentage = $total > 0 ? round(($present / $total) * 100, 2) : 0;
 
     $stats = [

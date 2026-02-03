@@ -41,7 +41,14 @@
       "Bash(del \"C:\\\\Users\\\\admin\\\\Documents\\\\GitHub\\\\School-Management-PhpVersion\\\\test_syllabus.php\")",
       "Bash(C:xamppphpphp.exe -l \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\backend\\\\api\\\\syllabus.php\")",
       "Bash(C:xamppmysqlbinmysql.exe -u root -e \"USE edumanage_pro; SELECT COUNT\\(*\\) as class_count FROM classes; SELECT COUNT\\(*\\) as section_count FROM sections; SELECT COUNT\\(*\\) as subject_count FROM subjects;\")",
-      "Bash(C:xamppphpphp.exe -l \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\backend\\\\api\\\\timetable.php\")"
+      "Bash(C:xamppphpphp.exe -l \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\backend\\\\api\\\\timetable.php\")",
+      "Bash(C:\\\\xampp\\\\mysql\\\\bin\\\\mysql.exe -u root -e \"USE edumanage_pro; DESCRIBE attendance; SHOW COLUMNS FROM attendance;\")",
+      "Bash(Select-String \"audit\")",
+      "Bash(C:/xampp/php/php.exe:*)",
+      "Bash(cmd /c copy /Y \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\frontend\\\\assets\\\\css\\\\style.css\" \"c:\\\\Users\\\\admin\\\\Documents\\\\GitHub\\\\School-Management-PhpVersion\\\\frontend\\\\assets\\\\css\\\\style.css\")",
+      "Bash(cmd /c \"C:\\\\xampp\\\\php\\\\php.exe C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\database\\\\run_academic_migration.php\")",
+      "Bash(powershell.exe -Command \"Invoke-WebRequest -Uri ''https://windows.php.net/downloads/releases/php-8.2.30-Win32-vs16-x64.zip'' -OutFile ''C:\\\\Users\\\\admin\\\\Downloads\\\\php82.zip''\")",
+      "Bash(/c/php82/php.exe:*)"
     ]
   }
 }

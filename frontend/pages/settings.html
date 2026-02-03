@@ -4,8 +4,9 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<title>Settings</title>
-	<link rel="stylesheet" href="../assets/css/style.css">
-	<link rel="stylesheet" href="../assets/css/responsive.css">
+	<link rel="stylesheet" href="../assets/css/style.css?v=20260128">
+	<link rel="stylesheet" href="../assets/css/responsive.css?v=20260128">
+	<link rel="stylesheet" href="../assets/css/academic-settings.css?v=20260128">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="../assets/js/app.js"></script>
@@ -20,11 +21,11 @@
 		}
 		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
 
-		/* Header - Reports & Analytics Style */
+		/* Header - Modern Professional Style */
 		.settings-header {
-			background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #1e3a5f 100%);
+			background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
 			padding: 28px 32px;
-			border-radius: 20px;
+			border-radius: 16px;
 			margin-bottom: 24px;
 			color: white;
 			display: flex;
@@ -32,6 +33,7 @@
 			align-items: center;
 			position: relative;
 			overflow: hidden;
+			box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
 		}
 		.settings-header::before {
 			content: '';
@@ -40,7 +42,7 @@
 			right: -100px;
 			width: 300px;
 			height: 300px;
-			background: rgba(255,255,255,0.05);
+			background: rgba(255,255,255,0.08);
 			border-radius: 50%;
 		}
 		.settings-header::after {
@@ -50,7 +52,7 @@
 			left: 30%;
 			width: 200px;
 			height: 200px;
-			background: rgba(255,255,255,0.03);
+			background: rgba(255,255,255,0.05);
 			border-radius: 50%;
 		}
 		.settings-header h1 {
@@ -104,16 +106,15 @@
 			box-sizing: border-box;
 		}
 
-		/* Horizontal Navigation Bar - Modern Professional Design */
+		/* Horizontal Navigation Bar - Light Professional Design */
 		.settings-sidebar {
-			background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+			background: white;
 			border-radius: 16px;
 			padding: 0;
-			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
+			box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 			width: 100%;
 			margin-bottom: 24px;
-			color: #e2e8f0;
-			backdrop-filter: blur(10px);
+			border: 1px solid #e2e8f0;
 			overflow-x: auto;
 			overflow-y: visible;
 		}
@@ -123,21 +124,21 @@
 		.sidebar-nav {
 			display: flex;
 			flex-direction: row;
-			gap: 4px;
-			padding: 8px;
+			gap: 6px;
+			padding: 12px;
 			align-items: center;
 			flex-wrap: wrap;
 		}
 		.nav-item {
-			padding: 14px 20px;
-			border-radius: 12px;
+			padding: 12px 20px;
+			border-radius: 10px;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			gap: 10px;
 			font-weight: 600;
-			color: #cbd5e1;
-			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			color: #64748b;
+			transition: all 0.2s ease;
 			border: none;
 			background: transparent;
 			text-align: center;
@@ -147,38 +148,21 @@
 			flex-shrink: 0;
 		}
 		.nav-item::before {
-			content: '';
-			position: absolute;
-			bottom: 0;
-			left: 50%;
-			transform: translateX(-50%);
-			width: 0;
-			height: 3px;
-			background: linear-gradient(90deg, #3b82f6, #2563eb);
-			border-radius: 3px 3px 0 0;
-			transition: width 0.3s ease;
+			display: none;
 		}
 		.nav-item:hover {
-			background: rgba(255, 255, 255, 0.08);
-			color: #ffffff;
-			transform: translateY(-2px);
-		}
-		.nav-item:hover::before {
-			width: 60%;
+			background: #f1f5f9;
+			color: #6366f1;
 		}
 		.nav-item.active {
-			background: linear-gradient(135deg, #1e3a5f, #2d5a87);
+			background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 			color: #ffffff;
-			box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
-			transform: translateY(0);
+			box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
 		}
-		.nav-item.active::before {
-			width: 80%;
-		}
-		.nav-item i { 
-			width: 18px; 
-			text-align: center; 
-			font-size: 15px; 
+		.nav-item i {
+			width: 18px;
+			text-align: center;
+			font-size: 15px;
 			flex-shrink: 0;
 		}
 
@@ -249,19 +233,8 @@
 			}
 		}
 		.settings-section.active {
-			animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			animation: fadeIn 0.3s ease;
 		}
-		.nav-item {
-			animation: slideIn 0.3s ease backwards;
-		}
-		.nav-item:nth-child(1) { animation-delay: 0.05s; }
-		.nav-item:nth-child(2) { animation-delay: 0.1s; }
-		.nav-item:nth-child(3) { animation-delay: 0.15s; }
-		.nav-item:nth-child(4) { animation-delay: 0.2s; }
-		.nav-item:nth-child(5) { animation-delay: 0.25s; }
-		.nav-item:nth-child(6) { animation-delay: 0.3s; }
-		.nav-item:nth-child(7) { animation-delay: 0.35s; }
-		.nav-item:nth-child(8) { animation-delay: 0.4s; }
 
 		/* Cards - Reports & Analytics Style */
 		.setting-card {
@@ -1478,10 +1451,9 @@
 		}
 		.form-input:focus, .form-select:focus, .form-textarea:focus {
 			outline: none;
-			border-color: #667eea;
-			box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 8px 24px rgba(102, 126, 234, 0.25), inset 0 1px 2px rgba(255, 255, 255, 1);
-			background: #ffffff;
-			transform: translateY(-3px);
+			border-color: #6366f1;
+			box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+			background-color: #ffffff;
 		}
 		.form-input::placeholder, .form-textarea::placeholder {
 			color: #94a3b8;
@@ -1495,16 +1467,28 @@
 		.form-select {
 			cursor: pointer;
 			appearance: none;
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23667eea' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			background-color: white;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
 			background-repeat: no-repeat;
 			background-position: right 16px center;
+			background-size: 12px;
 			padding-right: 42px;
 		}
 		.form-select:hover {
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23764ba2' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+			background-color: white;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236366f1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 16px center;
+			background-size: 12px;
 		}
 		.form-select:focus {
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%23764ba2' d='M7 4L12 9H2z'/%3E%3C/svg%3E");
+			background-color: white;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236366f1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 16px center;
+			background-size: 12px;
 		}
 		.form-textarea { min-height: 100px; resize: vertical; }
 		.form-hint { 
@@ -3676,87 +3660,545 @@
 
 				<!-- Academic Settings Section -->
 				<div class="settings-section" id="academicSection">
-					<div class="setting-card" style="margin-bottom: 24px;">
-						<div class="card-header">
-							<div class="card-title"><i class="fas fa-calendar-alt"></i> Academic Year</div>
+					<div class="setting-card" style="margin-bottom: 16px;">
+						<div class="card-header" style="padding: 12px 16px;">
+							<div class="card-title" style="font-size: 14px;"><i class="fas fa-calendar-alt"></i> Academic Year</div>
 						</div>
-						<div class="card-body" style="display: block !important; width: 100% !important; max-width: 100% !important; overflow: visible !important; padding: 28px !important;">
-							<div class="form-grid" style="display: grid !important; visibility: visible !important; opacity: 1 !important;">
-								<div class="form-group">
-									<label class="form-label">Current Academic Year</label>
-									<select class="form-select" id="academicYear">
+						<div class="card-body" style="display: block !important; padding: 16px !important;">
+							<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: end;">
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="form-label" style="font-size: 11px; margin-bottom: 4px;">Academic Year</label>
+									<select class="form-select" id="academicYear" style="padding: 8px 10px; font-size: 13px;">
 										<option value="2024-25" selected>2024-25</option>
 										<option value="2023-24">2023-24</option>
 										<option value="2025-26">2025-26</option>
 									</select>
 								</div>
-								<div class="form-group">
-									<label class="form-label">Session Start</label>
-									<input type="date" class="form-input" id="sessionStart" value="2024-04-01">
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="form-label" style="font-size: 11px; margin-bottom: 4px;">Session Start</label>
+									<input type="date" class="form-input" id="sessionStart" value="2024-04-01" style="padding: 8px 10px; font-size: 13px;">
 								</div>
-								<div class="form-group">
-									<label class="form-label">Session End</label>
-									<input type="date" class="form-input" id="sessionEnd" value="2025-03-31">
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="form-label" style="font-size: 11px; margin-bottom: 4px;">Session End</label>
+									<input type="date" class="form-input" id="sessionEnd" value="2025-03-31" style="padding: 8px 10px; font-size: 13px;">
 								</div>
-								<div class="form-group">
-									<label class="form-label">Working Days/Week</label>
-									<select class="form-select" id="workingDays">
-										<option value="5">5 Days (Mon-Fri)</option>
-										<option value="6" selected>6 Days (Mon-Sat)</option>
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="form-label" style="font-size: 11px; margin-bottom: 4px;">Working Days</label>
+									<select class="form-select" id="workingDays" style="padding: 8px 10px; font-size: 13px;">
+										<option value="5">5 Days</option>
+										<option value="6" selected>6 Days</option>
 									</select>
 								</div>
 							</div>
-							<div class="btn-group">
-								<button class="btn btn-primary" id="saveAcademicBtn"><i class="fas fa-save"></i> Save Academic Settings</button>
+							<div style="margin-top: 12px; text-align: right;">
+								<button class="btn btn-primary" id="saveAcademicBtn" style="padding: 8px 16px; font-size: 13px;"><i class="fas fa-save"></i> Save</button>
 							</div>
 						</div>
 					</div>
 
-					<div class="setting-card" style="margin-bottom: 24px;">
-						<div class="card-header">
-							<div class="card-title"><i class="fas fa-layer-group"></i> Classes & Sections</div>
-							<button class="btn btn-primary" id="addClassBtn"><i class="fas fa-plus"></i> Add Class</button>
+					<!-- Academic Settings Container - Modern Design -->
+					<div id="academicSettingsContainer">
+						<style>
+							.academic-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: #f1f5f9; padding: 6px; border-radius: 12px; }
+							.academic-tab-btn { flex: 1; padding: 14px 24px; border: none; background: transparent; font-size: 15px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+							.academic-tab-btn:hover { color: #1e293b; background: rgba(255,255,255,0.5); }
+							.academic-tab-btn.active { background: white; color: #2563eb; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+							.academic-tab-btn i { font-size: 18px; }
+							.academic-tab-content { display: none; }
+							.academic-tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+							@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+							.quick-add-section { background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+							.quick-add-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f1f5f9; }
+							.quick-add-title { font-size: 18px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 12px; }
+							.quick-add-title i { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+							.quick-add-title i.blue { background: #dbeafe; color: #2563eb; }
+							.quick-add-title i.green { background: #d1fae5; color: #059669; }
+							.quick-add-title i.purple { background: #ede9fe; color: #7c3aed; }
+
+							.quick-add-form { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+							.quick-add-field { display: flex; flex-direction: column; gap: 6px; }
+							.quick-add-field label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+							.quick-add-field input, .quick-add-field select { padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 14px; transition: all 0.2s; background: #f8fafc; }
+							.quick-add-field input:focus, .quick-add-field select:focus { outline: none; border-color: #2563eb; background: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+							.quick-add-field input::placeholder { color: #94a3b8; }
+
+							.quick-add-btn { padding: 12px 24px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
+							.quick-add-btn.primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; }
+							.quick-add-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.35); }
+							.quick-add-btn.success { background: linear-gradient(135deg, #059669, #047857); color: white; }
+							.quick-add-btn.success:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5,150,105,0.35); }
+							.quick-add-btn.purple { background: linear-gradient(135deg, #7c3aed, #6d28d9); color: white; }
+							.quick-add-btn.purple:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.35); }
+
+							.items-list { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; overflow: hidden; }
+							.items-list-header { padding: 20px 24px; background: linear-gradient(135deg, #1e293b, #334155); color: white; display: flex; align-items: center; justify-content: space-between; }
+							.items-list-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+							.items-list-count { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 13px; }
+
+							.item-card { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+							.item-card:hover { background: #f8fafc; }
+							.item-card:last-child { border-bottom: none; }
+							.item-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; margin-right: 16px; }
+							.item-icon.class { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1d4ed8; }
+							.item-icon.subject { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #6d28d9; }
+							.item-info { flex: 1; }
+							.item-name { font-size: 15px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+							.item-meta { font-size: 13px; color: #64748b; display: flex; gap: 16px; flex-wrap: wrap; }
+							.item-meta span { display: flex; align-items: center; gap: 4px; }
+							.item-badge { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+							.item-badge.active { background: #d1fae5; color: #065f46; }
+							.item-badge.inactive { background: #fee2e2; color: #991b1b; }
+							.section-tag { display: inline-flex; align-items: center; padding: 4px 10px; background: #e0e7ff; color: #3730a3; border-radius: 6px; font-size: 12px; font-weight: 600; margin: 2px; }
+							.item-actions { display: flex; gap: 8px; }
+							.item-action-btn { width: 36px; height: 36px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+							.item-action-btn.edit { background: #f1f5f9; color: #64748b; }
+							.item-action-btn.edit:hover { background: #dbeafe; color: #2563eb; }
+							.item-action-btn.delete { background: #f1f5f9; color: #64748b; }
+							.item-action-btn.delete:hover { background: #fee2e2; color: #dc2626; }
+
+							.empty-state { padding: 60px 24px; text-align: center; }
+							.empty-state i { font-size: 48px; color: #cbd5e1; margin-bottom: 16px; }
+							.empty-state p { color: #64748b; font-size: 15px; }
+
+							.status-toast { position: fixed; bottom: 24px; right: 24px; padding: 16px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; z-index: 10000; animation: slideUp 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+							.status-toast.success { background: #059669; color: white; }
+							.status-toast.error { background: #dc2626; color: white; }
+							@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+							/* Professional Data Table Styles */
+							.data-table-container {
+								background: white;
+								border-radius: 16px;
+								box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+								border: 1px solid #e2e8f0;
+								overflow: hidden;
+							}
+							.table-header-bar {
+								background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+								padding: 16px 24px;
+								display: flex;
+								align-items: center;
+								justify-content: space-between;
+							}
+							.table-title {
+								display: flex;
+								align-items: center;
+								gap: 12px;
+								color: white;
+								font-size: 16px;
+								font-weight: 600;
+							}
+							.table-title i {
+								font-size: 20px;
+								opacity: 0.9;
+							}
+							.badge-count {
+								background: rgba(255,255,255,0.25);
+								padding: 4px 12px;
+								border-radius: 20px;
+								font-size: 13px;
+								font-weight: 600;
+							}
+							.btn-refresh {
+								background: rgba(255,255,255,0.2);
+								border: 1px solid rgba(255,255,255,0.3);
+								color: white;
+								padding: 8px 16px;
+								border-radius: 8px;
+								cursor: pointer;
+								display: flex;
+								align-items: center;
+								gap: 6px;
+								font-size: 13px;
+								font-weight: 500;
+								transition: all 0.2s;
+							}
+							.btn-refresh:hover {
+								background: rgba(255,255,255,0.3);
+								transform: translateY(-1px);
+							}
+							.table-wrapper {
+								overflow-x: auto;
+							}
+							.classes-table {
+								width: 100%;
+								border-collapse: collapse;
+							}
+							.classes-table thead {
+								background: #f8fafc;
+							}
+							.classes-table th {
+								padding: 14px 16px;
+								text-align: left;
+								font-size: 11px;
+								font-weight: 700;
+								color: #475569;
+								text-transform: uppercase;
+								letter-spacing: 0.5px;
+								border-bottom: 2px solid #e2e8f0;
+							}
+							.classes-table tbody tr {
+								border-bottom: 1px solid #f1f5f9;
+								transition: all 0.15s ease;
+							}
+							.classes-table tbody tr:hover {
+								background: #f0f9ff;
+							}
+							.classes-table td {
+								padding: 14px 16px;
+								font-size: 14px;
+								color: #334155;
+								vertical-align: middle;
+							}
+							.classes-table .loading-cell {
+								text-align: center;
+								padding: 48px;
+								color: #64748b;
+							}
+							.classes-table .loading-cell i {
+								margin-right: 8px;
+								color: #3b82f6;
+							}
+							.class-name-cell {
+								display: flex;
+								align-items: center;
+								gap: 12px;
+							}
+							.class-icon {
+								width: 40px;
+								height: 40px;
+								border-radius: 10px;
+								background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+								color: #1d4ed8;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								font-weight: 700;
+								font-size: 14px;
+							}
+							.class-name {
+								font-weight: 600;
+								color: #1e293b;
+							}
+							.order-badge {
+								display: inline-flex;
+								align-items: center;
+								justify-content: center;
+								min-width: 36px;
+								height: 28px;
+								padding: 0 10px;
+								background: #f1f5f9;
+								color: #475569;
+								border-radius: 6px;
+								font-weight: 600;
+								font-size: 13px;
+							}
+							.sections-cell {
+								display: flex;
+								gap: 6px;
+								flex-wrap: wrap;
+							}
+							.section-chip {
+								padding: 4px 10px;
+								background: #e0e7ff;
+								color: #3730a3;
+								border-radius: 6px;
+								font-size: 12px;
+								font-weight: 600;
+							}
+							.no-sections {
+								color: #94a3b8;
+								font-size: 13px;
+								font-style: italic;
+							}
+							.student-count {
+								display: inline-flex;
+								align-items: center;
+								gap: 6px;
+								color: #475569;
+								font-weight: 500;
+							}
+							.student-count i {
+								color: #3b82f6;
+								font-size: 12px;
+							}
+							.status-pill {
+								display: inline-flex;
+								align-items: center;
+								padding: 5px 12px;
+								border-radius: 20px;
+								font-size: 12px;
+								font-weight: 600;
+							}
+							.status-pill.active {
+								background: #dcfce7;
+								color: #166534;
+							}
+							.status-pill.inactive {
+								background: #fee2e2;
+								color: #991b1b;
+							}
+							.action-btns {
+								display: flex;
+								gap: 8px;
+								justify-content: center;
+							}
+							.action-btn {
+								width: 34px;
+								height: 34px;
+								border: none;
+								border-radius: 8px;
+								cursor: pointer;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								transition: all 0.2s;
+								font-size: 14px;
+							}
+							.action-btn.edit {
+								background: #dbeafe;
+								color: #1d4ed8;
+							}
+							.action-btn.edit:hover {
+								background: #3b82f6;
+								color: white;
+								transform: translateY(-2px);
+								box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+							}
+							.action-btn.add {
+								background: #d1fae5;
+								color: #059669;
+							}
+							.action-btn.add:hover {
+								background: #10b981;
+								color: white;
+								transform: translateY(-2px);
+								box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+							}
+							.action-btn.delete {
+								background: #fee2e2;
+								color: #dc2626;
+							}
+							.action-btn.delete:hover {
+								background: #ef4444;
+								color: white;
+								transform: translateY(-2px);
+								box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+							}
+							.empty-table-state {
+								text-align: center;
+								padding: 60px 24px;
+							}
+							.empty-table-state i {
+								font-size: 48px;
+								color: #cbd5e1;
+								margin-bottom: 16px;
+							}
+							.empty-table-state p {
+								color: #64748b;
+								font-size: 15px;
+							}
+						</style>
+
+						<!-- Tab Navigation -->
+						<div class="academic-tabs">
+							<button class="academic-tab-btn active" onclick="switchAcademicMainTab('classes')" data-tab="classes">
+								<i class="fas fa-graduation-cap"></i> Classes & Sections
+							</button>
+							<button class="academic-tab-btn" onclick="switchAcademicMainTab('subjects')" data-tab="subjects">
+								<i class="fas fa-book"></i> Subjects
+							</button>
 						</div>
-						<div class="card-body" style="display: block !important; width: 100% !important; max-width: 100% !important; overflow: visible !important; padding: 28px !important;">
-							<div style="overflow-x: auto !important; width: 100% !important; display: block !important;">
-								<table class="data-table" style="width: 100% !important; display: table !important; visibility: visible !important; opacity: 1 !important;">
-									<thead>
-										<tr>
-											<th>Class</th>
-											<th>Sections</th>
-											<th>Class Teacher</th>
-											<th>Students</th>
-											<th>Actions</th>
-										</tr>
-									</thead>
-									<tbody id="classesTableBody"></tbody>
-								</table>
+
+						<!-- Classes & Sections Tab -->
+						<div class="academic-tab-content active" id="classesTabContent">
+							<!-- Quick Add Class -->
+							<div class="quick-add-section">
+								<div class="quick-add-header">
+									<div class="quick-add-title">
+										<i class="fas fa-plus-circle blue"></i>
+										<span>Quick Add Class</span>
+									</div>
+								</div>
+								<form class="quick-add-form" id="inlineClassForm" onsubmit="return addClassInline(event)">
+									<div class="quick-add-field" style="flex: 2; min-width: 200px;">
+										<label>Class Name *</label>
+										<input type="text" id="newClassName" placeholder="e.g., Class 1, LKG, Nursery" required>
+									</div>
+									<div class="quick-add-field" style="width: 100px;">
+										<label>Order *</label>
+										<input type="number" id="newClassOrder" placeholder="1" required title="Sort order: -2 for Nursery, 1 for Class 1, etc.">
+									</div>
+									<div class="quick-add-field" style="flex: 2; min-width: 180px;">
+										<label>Sections (comma separated)</label>
+										<input type="text" id="newClassSections" placeholder="A, B, C, D">
+									</div>
+									<div class="quick-add-field" style="width: 120px;">
+										<label>Status</label>
+										<select id="newClassStatus">
+											<option value="Active">Active</option>
+											<option value="Inactive">Inactive</option>
+										</select>
+									</div>
+									<button type="submit" class="quick-add-btn primary">
+										<i class="fas fa-plus"></i> Add Class
+									</button>
+								</form>
+								<div id="classAddStatus" style="margin-top: 12px; display: none;"></div>
+							</div>
+
+							<!-- Quick Add Section -->
+							<div class="quick-add-section">
+								<div class="quick-add-header">
+									<div class="quick-add-title">
+										<i class="fas fa-sitemap green"></i>
+										<span>Add Section to Existing Class</span>
+									</div>
+								</div>
+								<form class="quick-add-form" id="inlineSectionForm" onsubmit="return addSectionInline(event)">
+									<div class="quick-add-field" style="flex: 2; min-width: 200px;">
+										<label>Select Class *</label>
+										<select id="sectionClassSelect" required>
+											<option value="">-- Choose a Class --</option>
+										</select>
+									</div>
+									<div class="quick-add-field" style="width: 120px;">
+										<label>Section Name *</label>
+										<input type="text" id="newSectionName" placeholder="e.g., A, B" required>
+									</div>
+									<div class="quick-add-field" style="width: 100px;">
+										<label>Capacity</label>
+										<input type="number" id="newSectionCapacity" placeholder="40" value="40">
+									</div>
+									<div class="quick-add-field" style="flex: 1; min-width: 140px;">
+										<label>Room (Optional)</label>
+										<input type="text" id="newSectionRoom" placeholder="Room 101">
+									</div>
+									<div class="quick-add-field" style="width: 120px;">
+										<label>Status</label>
+										<select id="newSectionStatus">
+											<option value="Active">Active</option>
+											<option value="Inactive">Inactive</option>
+										</select>
+									</div>
+									<button type="submit" class="quick-add-btn success">
+										<i class="fas fa-plus"></i> Add Section
+									</button>
+								</form>
+								<div id="sectionAddStatus" style="margin-top: 12px; display: none;"></div>
+							</div>
+
+							<!-- Classes List - Professional Table -->
+							<div class="data-table-container">
+								<div class="table-header-bar">
+									<div class="table-title">
+										<i class="fas fa-graduation-cap"></i>
+										<span>All Classes</span>
+										<span class="badge-count" id="classesCount">0</span>
+									</div>
+									<button class="btn-refresh" onclick="loadClassesInline()">
+										<i class="fas fa-sync-alt"></i> Refresh
+									</button>
+								</div>
+								<div class="table-wrapper">
+									<table class="classes-table">
+										<thead>
+											<tr>
+												<th style="width: 50px;">#</th>
+												<th>Class Name</th>
+												<th style="width: 100px;">Order</th>
+												<th>Sections</th>
+												<th style="width: 100px;">Students</th>
+												<th style="width: 100px;">Status</th>
+												<th style="width: 150px; text-align: center;">Actions</th>
+											</tr>
+										</thead>
+										<tbody id="classesTableBody">
+											<tr>
+												<td colspan="7" class="loading-cell">
+													<i class="fas fa-spinner fa-spin"></i> Loading classes...
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+						<!-- Subjects Tab -->
+						<div class="academic-tab-content" id="subjectsTabContent">
+							<!-- Quick Add Subject -->
+							<div class="quick-add-section">
+								<div class="quick-add-header">
+									<div class="quick-add-title">
+										<i class="fas fa-book purple"></i>
+										<span>Quick Add Subject</span>
+									</div>
+								</div>
+								<form class="quick-add-form" id="inlineSubjectForm" onsubmit="return addSubjectInline(event)">
+									<div class="quick-add-field" style="width: 100px;">
+										<label>Code *</label>
+										<input type="text" id="newSubjectCode" placeholder="MATH" required>
+									</div>
+									<div class="quick-add-field" style="flex: 2; min-width: 180px;">
+										<label>Subject Name *</label>
+										<input type="text" id="newSubjectName" placeholder="Mathematics" required>
+									</div>
+									<div class="quick-add-field" style="width: 140px;">
+										<label>Type</label>
+										<select id="newSubjectType">
+											<option value="Core">Core</option>
+											<option value="Theory">Theory</option>
+											<option value="Practical">Practical</option>
+											<option value="Lab">Lab</option>
+											<option value="Elective">Elective</option>
+											<option value="Activity">Activity</option>
+										</select>
+									</div>
+									<div class="quick-add-field" style="width: 80px;">
+										<label>Max</label>
+										<input type="number" id="newSubjectMax" placeholder="100" value="100">
+									</div>
+									<div class="quick-add-field" style="width: 80px;">
+										<label>Pass</label>
+										<input type="number" id="newSubjectPass" placeholder="33" value="33">
+									</div>
+									<div class="quick-add-field" style="width: 120px;">
+										<label>Status</label>
+										<select id="newSubjectStatus">
+											<option value="Active">Active</option>
+											<option value="Inactive">Inactive</option>
+										</select>
+									</div>
+									<button type="submit" class="quick-add-btn purple">
+										<i class="fas fa-plus"></i> Add Subject
+									</button>
+								</form>
+								<div id="subjectAddStatus" style="margin-top: 12px; display: none;"></div>
+							</div>
+
+							<!-- Subjects List -->
+							<div class="items-list">
+								<div class="items-list-header">
+									<div class="items-list-title">
+										<i class="fas fa-book-open"></i> All Subjects
+										<span class="items-list-count" id="subjectsCount">0 subjects</span>
+									</div>
+									<button onclick="loadSubjectsInline()" style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px;">
+										<i class="fas fa-sync-alt"></i> Refresh
+									</button>
+								</div>
+								<div id="subjectsTableBody">
+									<div class="empty-state">
+										<i class="fas fa-spinner fa-spin"></i>
+										<p>Loading subjects...</p>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
 
-					<div class="setting-card">
-						<div class="card-header">
-							<div class="card-title"><i class="fas fa-book"></i> Subjects</div>
-							<button class="btn btn-primary" id="addSubjectBtn"><i class="fas fa-plus"></i> Add Subject</button>
-						</div>
-						<div class="card-body">
-							<div style="overflow-x: auto;">
-								<table class="data-table">
-									<thead>
-										<tr>
-											<th>Subject Code</th>
-											<th>Subject Name</th>
-											<th>Type</th>
-											<th>Classes</th>
-											<th>Actions</th>
-										</tr>
-									</thead>
-									<tbody id="subjectsTableBody"></tbody>
-								</table>
-							</div>
-						</div>
-					</div>
 				</div>
 
 				<!-- Notifications Section -->
@@ -4725,10 +5167,22 @@
 		// ==================== NAVIGATION ====================
 		document.querySelectorAll('.nav-item').forEach(item => {
 			item.addEventListener('click', () => {
+				const sectionName = item.dataset.section;
+				if (!sectionName) return; // Skip if no section (like Institution Setup button)
+
 				document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
 				document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
 				item.classList.add('active');
-				document.getElementById(item.dataset.section + 'Section').classList.add('active');
+
+				const section = document.getElementById(sectionName + 'Section');
+				if (section) {
+					section.classList.add('active');
+
+					// Initialize Academic Settings inline forms when section is shown
+					if (sectionName === 'academic') {
+						initAcademicInlineForms();
+					}
+				}
 			});
 		});
 
@@ -4752,14 +5206,24 @@
 			const studentsData = load('edu_students');
 			const studentsCount = Math.max(studentsFromUsers, studentsData.length);
 
-			document.getElementById('totalUsersCount').textContent = users.length;
-			document.getElementById('studentsCount').textContent = studentsCount;
-			document.getElementById('adminCount').textContent = admins;
-			document.getElementById('teacherCount').textContent = teachers;
-			document.getElementById('staffCount').textContent = staff;
+			// Safe element updates with null checks
+			const totalUsersEl = document.getElementById('totalUsersCount');
+			const studentsCountEl = document.getElementById('studentsCount');
+			const adminCountEl = document.getElementById('adminCount');
+			const teacherCountEl = document.getElementById('teacherCount');
+			const staffCountEl = document.getElementById('staffCount');
+
+			if (totalUsersEl) totalUsersEl.textContent = users.length;
+			if (studentsCountEl) studentsCountEl.textContent = studentsCount;
+			if (adminCountEl) adminCountEl.textContent = admins;
+			if (teacherCountEl) teacherCountEl.textContent = teachers;
+			if (staffCountEl) staffCountEl.textContent = staff;
+
+			const usersTableBody = document.getElementById('usersTableBody');
+			if (!usersTableBody) return;
 
 			if (users.length === 0) {
-				document.getElementById('usersTableBody').innerHTML = `
+				usersTableBody.innerHTML = `
 					<tr>
 						<td colspan="8" style="text-align:center;padding:60px 20px;">
 							<div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
@@ -4781,8 +5245,8 @@
 			if (!filteredUsers) {
 				updateFilterCounts(users, '', '', '', '', '', '', '');
 			}
-			
-			document.getElementById('usersTableBody').innerHTML = users.map(u => {
+
+			usersTableBody.innerHTML = users.map(u => {
 				// Ensure role and status always have values
 				let role = u.role || 'Staff';
 				let status = u.status || 'Active';
@@ -4880,50 +5344,718 @@
 			}).join('');
 		}
 
+		// ==================== ACADEMIC SETTINGS TAB SWITCHING ====================
+		function switchAcademicMainTab(tabName) {
+			// Update tab buttons
+			document.querySelectorAll('.academic-tab-btn').forEach(btn => {
+				btn.classList.remove('active');
+				if (btn.dataset.tab === tabName) {
+					btn.classList.add('active');
+				}
+			});
+
+			// Update tab content
+			document.querySelectorAll('.academic-tab-content').forEach(content => {
+				content.classList.remove('active');
+			});
+
+			const targetContent = document.getElementById(tabName + 'TabContent');
+			if (targetContent) {
+				targetContent.classList.add('active');
+			}
+		}
+
+		// Legacy function for compatibility
+		function switchAcademicTab(tabName) {
+			switchAcademicMainTab(tabName);
+		}
+
 		// ==================== RENDER CLASSES ====================
+		// Now handled by AcademicSettings module - this is a fallback for legacy compatibility
 		function renderClasses() {
-			const students = load('edu_students');
-			const classes = ['9', '10', '11', '12'];
-			document.getElementById('classesTableBody').innerHTML = classes.map(c => {
-				const count = students.filter(s => s.class === c).length;
-				return `
-					<tr>
-						<td><strong>Class ${c}</strong></td>
-						<td>A, B, C</td>
-						<td>-</td>
-						<td>${count}</td>
-						<td>
-							<button class="action-btn edit"><i class="fas fa-edit"></i></button>
-							<button class="action-btn delete"><i class="fas fa-trash"></i></button>
-						</td>
-					</tr>
-				`;
-			}).join('');
+			// Check if AcademicSettings is available
+			if (typeof AcademicSettings !== 'undefined' && AcademicSettings.loadClasses) {
+				AcademicSettings.loadClasses();
+			} else {
+				// Fallback to basic loading indicator
+				const tbody = document.getElementById('classesTableBody');
+				if (tbody) {
+					tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading classes from database...</td></tr>';
+				}
+			}
 		}
 
 		// ==================== RENDER SUBJECTS ====================
+		// Now handled by AcademicSettings module - this is a fallback for legacy compatibility
 		function renderSubjects() {
-			const subjects = [
-				{ code: 'MATH', name: 'Mathematics', type: 'Core', classes: '9-12' },
-				{ code: 'SCI', name: 'Science', type: 'Core', classes: '9-10' },
-				{ code: 'ENG', name: 'English', type: 'Core', classes: '9-12' },
-				{ code: 'PHY', name: 'Physics', type: 'Core', classes: '11-12' },
-				{ code: 'CHEM', name: 'Chemistry', type: 'Core', classes: '11-12' },
-				{ code: 'CS', name: 'Computer Science', type: 'Elective', classes: '9-12' },
-				{ code: 'PE', name: 'Physical Education', type: 'Elective', classes: '9-12' }
-			];
-			document.getElementById('subjectsTableBody').innerHTML = subjects.map(s => `
-				<tr>
-					<td><strong>${s.code}</strong></td>
-					<td>${s.name}</td>
-					<td><span class="badge ${s.type === 'Core' ? 'active' : 'staff'}">${s.type}</span></td>
-					<td>${s.classes}</td>
-					<td>
-						<button class="action-btn edit"><i class="fas fa-edit"></i></button>
-						<button class="action-btn delete"><i class="fas fa-trash"></i></button>
-					</td>
-				</tr>
-			`).join('');
+			// Check if AcademicSettings is available
+			if (typeof AcademicSettings !== 'undefined' && AcademicSettings.loadSubjects) {
+				AcademicSettings.loadSubjects();
+			} else {
+				// Fallback to basic loading indicator
+				const tbody = document.getElementById('subjectsTableBody');
+				if (tbody) {
+					tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading subjects from database...</td></tr>';
+				}
+			}
+		}
+
+		// ==================== INLINE FORM HANDLERS ====================
+
+		// API path for inline forms
+		const INLINE_API_PATH = '../../backend/api/academic.php';
+
+		// ==================== PERFORMANCE UTILITIES ====================
+
+		// Debounce function - prevents excessive API calls
+		function debounce(func, wait = 300) {
+			let timeout;
+			return function executedFunction(...args) {
+				const later = () => {
+					clearTimeout(timeout);
+					func.apply(this, args);
+				};
+				clearTimeout(timeout);
+				timeout = setTimeout(later, wait);
+			};
+		}
+
+		// Throttle function - limits function calls to once per interval
+		function throttle(func, limit = 1000) {
+			let inThrottle;
+			return function executedFunction(...args) {
+				if (!inThrottle) {
+					func.apply(this, args);
+					inThrottle = true;
+					setTimeout(() => inThrottle = false, limit);
+				}
+			};
+		}
+
+		// Simple in-memory cache for API responses
+		const apiCache = {
+			data: new Map(),
+			ttl: 60000, // 1 minute default TTL
+
+			set(key, value, ttl = this.ttl) {
+				this.data.set(key, {
+					value,
+					expires: Date.now() + ttl
+				});
+			},
+
+			get(key) {
+				const item = this.data.get(key);
+				if (!item) return null;
+				if (Date.now() > item.expires) {
+					this.data.delete(key);
+					return null;
+				}
+				return item.value;
+			},
+
+			invalidate(pattern = null) {
+				if (pattern) {
+					for (const key of this.data.keys()) {
+						if (key.includes(pattern)) {
+							this.data.delete(key);
+						}
+					}
+				} else {
+					this.data.clear();
+				}
+			}
+		};
+
+		// Cached fetch wrapper
+		async function cachedFetch(url, options = {}, cacheTtl = 60000) {
+			const cacheKey = url + JSON.stringify(options);
+
+			// Check cache first (only for GET requests)
+			if (!options.method || options.method === 'GET') {
+				const cached = apiCache.get(cacheKey);
+				if (cached) {
+					return cached;
+				}
+			}
+
+			// Fetch fresh data
+			const response = await fetch(url, options);
+			const data = await response.json();
+
+			// Cache successful GET responses
+			if (data.success && (!options.method || options.method === 'GET')) {
+				apiCache.set(cacheKey, data, cacheTtl);
+			}
+
+			return data;
+		}
+
+		// Invalidate cache when data changes
+		function invalidateClassesCache() {
+			apiCache.invalidate('classes');
+			apiCache.invalidate('sections');
+		}
+
+		function invalidateSubjectsCache() {
+			apiCache.invalidate('subjects');
+		}
+
+		// Add or Update class from inline form
+		async function addClassInline(event) {
+			event.preventDefault();
+
+			const className = document.getElementById('newClassName').value.trim();
+			const numericValue = document.getElementById('newClassOrder').value;
+			const sections = document.getElementById('newClassSections').value.trim();
+			const status = document.getElementById('newClassStatus').value;
+			const submitBtn = document.querySelector('#inlineClassForm button[type="submit"]');
+			const editId = submitBtn?.getAttribute('data-edit-id');
+			const isEdit = editId && editId !== '';
+
+			if (!className || !numericValue) {
+				showStatus('classAddStatus', 'Please fill in class name and order.', 'error');
+				return false;
+			}
+
+			const classData = {
+				class_name: className,
+				numeric_value: parseInt(numericValue),
+				status: status
+			};
+
+			// Only include sections for new classes
+			if (!isEdit) {
+				classData.initial_sections = sections;
+			}
+
+			try {
+				const action = isEdit ? 'update_class' : 'add_class';
+				const method = isEdit ? 'PUT' : 'POST';
+
+				if (isEdit) {
+					classData.id = parseInt(editId);
+				}
+
+				showStatus('classAddStatus', `<i class="fas fa-spinner fa-spin"></i> ${isEdit ? 'Updating' : 'Adding'} class...`, 'info');
+
+				const response = await fetch(`${INLINE_API_PATH}?action=${action}`, {
+					method: method,
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(classData)
+				});
+
+				const result = await response.json();
+
+				if (result.success) {
+					showToast(`Class "${className}" ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
+					document.getElementById('classAddStatus').style.display = 'none';
+					document.getElementById('inlineClassForm').reset();
+					document.getElementById('newClassStatus').value = 'Active';
+
+					// Reset edit mode
+					if (isEdit) {
+						cancelEditMode();
+					}
+
+					// Invalidate cache and reload with fresh data
+					invalidateClassesCache();
+					await loadClassesInline(true);
+					await populateSectionClassDropdown();
+				} else {
+					showStatus('classAddStatus', '<i class="fas fa-exclamation-circle"></i> ' + (result.message || result.error || `Failed to ${isEdit ? 'update' : 'add'} class`), 'error');
+				}
+			} catch (error) {
+				console.error('Error with class:', error);
+				showStatus('classAddStatus', '<i class="fas fa-exclamation-circle"></i> Network error. Please try again.', 'error');
+			}
+
+			return false;
+		}
+
+		// Add section from inline form
+		async function addSectionInline(event) {
+			event.preventDefault();
+
+			const classId = document.getElementById('sectionClassSelect').value;
+			const sectionName = document.getElementById('newSectionName').value.trim();
+			const capacity = document.getElementById('newSectionCapacity').value || 40;
+			const roomNumber = document.getElementById('newSectionRoom').value.trim();
+			const status = document.getElementById('newSectionStatus').value;
+
+			if (!classId || !sectionName) {
+				showStatus('sectionAddStatus', 'Please select a class and enter section name.', 'error');
+				return false;
+			}
+
+			const sectionData = {
+				class_id: parseInt(classId),
+				section_name: sectionName,
+				capacity: parseInt(capacity),
+				room_number: roomNumber,
+				status: status
+			};
+
+			try {
+				showStatus('sectionAddStatus', '<i class="fas fa-spinner fa-spin"></i> Adding section...', 'info');
+
+				const response = await fetch(`${INLINE_API_PATH}?action=add_section`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(sectionData)
+				});
+
+				const result = await response.json();
+
+				if (result.success) {
+					showToast(`Section "${sectionName}" added successfully!`, 'success');
+					document.getElementById('sectionAddStatus').style.display = 'none';
+					document.getElementById('newSectionName').value = '';
+					document.getElementById('newSectionRoom').value = '';
+					document.getElementById('newSectionCapacity').value = '40';
+
+					// Invalidate cache and reload classes table to show new section
+					invalidateClassesCache();
+					await loadClassesInline(true);
+				} else {
+					showStatus('sectionAddStatus', '<i class="fas fa-exclamation-circle"></i> ' + (result.message || result.error || 'Failed to add section'), 'error');
+				}
+			} catch (error) {
+				console.error('Error adding section:', error);
+				showStatus('sectionAddStatus', '<i class="fas fa-exclamation-circle"></i> Network error. Please try again.', 'error');
+			}
+
+			return false;
+		}
+
+		// Add subject from inline form
+		async function addSubjectInline(event) {
+			event.preventDefault();
+
+			const subjectCode = document.getElementById('newSubjectCode').value.trim();
+			const subjectName = document.getElementById('newSubjectName').value.trim();
+			const shortName = document.getElementById('newSubjectShort').value.trim();
+			const subjectType = document.getElementById('newSubjectType').value;
+			const maxMarks = document.getElementById('newSubjectMax').value || 100;
+			const passMarks = document.getElementById('newSubjectPass').value || 33;
+			const color = document.getElementById('newSubjectColor').value;
+			const status = document.getElementById('newSubjectStatus').value;
+
+			if (!subjectCode || !subjectName) {
+				showStatus('subjectAddStatus', 'Please fill in subject code and name.', 'error');
+				return false;
+			}
+
+			const subjectData = {
+				subject_code: subjectCode,
+				subject_name: subjectName,
+				short_name: shortName || subjectCode,
+				subject_type: subjectType,
+				max_marks: parseInt(maxMarks),
+				pass_marks: parseInt(passMarks),
+				color_code: color,
+				status: status
+			};
+
+			try {
+				showStatus('subjectAddStatus', '<i class="fas fa-spinner fa-spin"></i> Adding subject...', 'info');
+
+				const response = await fetch(`${INLINE_API_PATH}?action=add_subject`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(subjectData)
+				});
+
+				const result = await response.json();
+
+				if (result.success) {
+					showToast(`Subject "${subjectName}" added successfully!`, 'success');
+					document.getElementById('subjectAddStatus').style.display = 'none';
+					document.getElementById('inlineSubjectForm').reset();
+					document.getElementById('newSubjectMax').value = '100';
+					document.getElementById('newSubjectPass').value = '33';
+					document.getElementById('newSubjectStatus').value = 'Active';
+					document.getElementById('newSubjectType').value = 'Core';
+
+					await loadSubjectsInline();
+				} else {
+					showStatus('subjectAddStatus', '<i class="fas fa-exclamation-circle"></i> ' + (result.message || result.error || 'Failed to add subject'), 'error');
+				}
+			} catch (error) {
+				console.error('Error adding subject:', error);
+				showStatus('subjectAddStatus', '<i class="fas fa-exclamation-circle"></i> Network error. Please try again.', 'error');
+			}
+
+			return false;
+		}
+
+		// Show status message
+		function showStatus(elementId, message, type) {
+			const el = document.getElementById(elementId);
+			if (!el) return;
+
+			el.style.display = 'block';
+			el.innerHTML = message;
+			el.className = '';
+			el.style.padding = '12px';
+			el.style.borderRadius = '8px';
+			el.style.fontSize = '14px';
+
+			if (type === 'success') {
+				el.style.background = '#d1fae5';
+				el.style.color = '#065f46';
+				el.style.border = '1px solid #6ee7b7';
+			} else if (type === 'error') {
+				el.style.background = '#fee2e2';
+				el.style.color = '#991b1b';
+				el.style.border = '1px solid #fca5a5';
+			} else {
+				el.style.background = '#dbeafe';
+				el.style.color = '#1e40af';
+				el.style.border = '1px solid #93c5fd';
+			}
+		}
+
+		// Load classes - Professional Table Layout (with caching)
+		async function loadClassesInline(forceRefresh = false) {
+			const container = document.getElementById('classesTableBody');
+			const countEl = document.getElementById('classesCount');
+			if (!container) return;
+
+			container.innerHTML = '<tr><td colspan="7" class="loading-cell"><i class="fas fa-spinner fa-spin"></i> Loading classes...</td></tr>';
+
+			try {
+				// Invalidate cache if force refresh
+				if (forceRefresh) invalidateClassesCache();
+
+				// Use cached fetch (5 min TTL for classes)
+				const result = await cachedFetch(`${INLINE_API_PATH}?action=classes&with_sections=true`, {}, 300000);
+
+				// Extract classes array - API returns { data: { classes: [...], total: N } }
+				const classesData = result.data?.classes || result.data || [];
+				const classes = Array.isArray(classesData) ? classesData : [];
+
+				if (result.success && classes.length > 0) {
+					// Update count
+					if (countEl) countEl.textContent = classes.length;
+
+					container.innerHTML = classes.map((cls, index) => {
+						const sections = cls.sections || [];
+						const sectionChips = sections.length > 0
+							? sections.map(s => `<span class="section-chip">${escapeHtml(s.section_name)}</span>`).join('')
+							: '<span class="no-sections">No sections</span>';
+
+						const initials = cls.class_name.replace(/[^A-Z0-9]/gi, '').substring(0, 2).toUpperCase() || 'CL';
+						const orderNum = cls.numeric_value || cls.display_order || 0;
+
+						return `
+							<tr data-class-id="${cls.id}">
+								<td style="font-weight: 600; color: #64748b;">${index + 1}</td>
+								<td>
+									<div class="class-name-cell">
+										<div class="class-icon">${initials}</div>
+										<span class="class-name">${escapeHtml(cls.class_name)}</span>
+									</div>
+								</td>
+								<td>
+									<span class="order-badge">${orderNum}</span>
+								</td>
+								<td>
+									<div class="sections-cell">${sectionChips}</div>
+								</td>
+								<td>
+									<span class="student-count">
+										<i class="fas fa-users"></i>
+										${cls.total_students || 0}
+									</span>
+								</td>
+								<td>
+									<span class="status-pill ${cls.status === 'Active' ? 'active' : 'inactive'}">
+										${cls.status}
+									</span>
+								</td>
+								<td>
+									<div class="action-btns">
+										<button class="action-btn edit" onclick="editClassInline(${cls.id}, '${escapeHtml(cls.class_name)}', ${orderNum})" title="Edit Class">
+											<i class="fas fa-edit"></i>
+										</button>
+										<button class="action-btn add" onclick="quickAddSection(${cls.id}, '${escapeHtml(cls.class_name)}')" title="Add Section">
+											<i class="fas fa-plus"></i>
+										</button>
+										<button class="action-btn delete" onclick="deleteClassInline(${cls.id}, '${escapeHtml(cls.class_name)}')" title="Delete Class">
+											<i class="fas fa-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						`;
+					}).join('');
+				} else {
+					if (countEl) countEl.textContent = '0';
+					container.innerHTML = '<tr><td colspan="7"><div class="empty-table-state"><i class="fas fa-graduation-cap"></i><p>No classes found. Add your first class using the form above.</p></div></td></tr>';
+				}
+			} catch (error) {
+				console.error('Error loading classes:', error);
+				container.innerHTML = '<tr><td colspan="7"><div class="empty-table-state"><i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i><p style="color: #dc2626;">Failed to load classes. Please check your connection.</p></div></td></tr>';
+			}
+		}
+
+		// Quick add section - scroll to section form and select class
+		function quickAddSection(classId, className) {
+			const select = document.getElementById('sectionClassSelect');
+			const sectionInput = document.getElementById('newSectionName');
+			if (select) {
+				select.value = classId;
+			}
+			if (sectionInput) {
+				sectionInput.focus();
+			}
+			// Scroll to section form
+			document.querySelector('.quick-add-section:nth-of-type(2)')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			showToast(`Adding section to ${className}`, 'info');
+		}
+
+		// Load subjects - card-based layout
+		async function loadSubjectsInline(forceRefresh = false) {
+			const container = document.getElementById('subjectsTableBody');
+			const countEl = document.getElementById('subjectsCount');
+			if (!container) return;
+
+			container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading subjects...</p></div>';
+
+			try {
+				// Invalidate cache if force refresh
+				if (forceRefresh) invalidateSubjectsCache();
+
+				// Use cached fetch (5 min TTL for subjects)
+				const result = await cachedFetch(`${INLINE_API_PATH}?action=subjects`, {}, 300000);
+
+				// Extract subjects array - API returns { data: { subjects: [...], total: N } }
+				const subjectsData = result.data?.subjects || result.data || [];
+				const subjects = Array.isArray(subjectsData) ? subjectsData : [];
+
+				if (result.success && subjects.length > 0) {
+					// Update count
+					if (countEl) countEl.textContent = subjects.length + ' subjects';
+
+					// Type colors
+					const typeColors = {
+						'Core': { bg: '#dbeafe', color: '#1d4ed8' },
+						'Theory': { bg: '#e0e7ff', color: '#4338ca' },
+						'Practical': { bg: '#d1fae5', color: '#059669' },
+						'Lab': { bg: '#fef3c7', color: '#b45309' },
+						'Elective': { bg: '#ede9fe', color: '#7c3aed' },
+						'Activity': { bg: '#fce7f3', color: '#be185d' }
+					};
+
+					container.innerHTML = subjects.map(sub => {
+						const typeStyle = typeColors[sub.subject_type] || typeColors['Core'];
+						const initials = sub.subject_code.substring(0, 2).toUpperCase();
+
+						return `
+							<div class="item-card" data-subject-id="${sub.id}">
+								<div class="item-icon subject">${initials}</div>
+								<div class="item-info">
+									<div class="item-name">${escapeHtml(sub.subject_name)}</div>
+									<div class="item-meta">
+										<span><i class="fas fa-code"></i> ${escapeHtml(sub.subject_code)}</span>
+										<span style="background: ${typeStyle.bg}; color: ${typeStyle.color}; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">${sub.subject_type || 'Core'}</span>
+										<span><i class="fas fa-star"></i> ${sub.max_marks || 100} marks (Pass: ${sub.pass_marks || 33})</span>
+									</div>
+								</div>
+								<span class="item-badge ${sub.status === 'Active' ? 'active' : 'inactive'}">${sub.status}</span>
+								<div class="item-actions">
+									<button class="item-action-btn delete" onclick="deleteSubjectInline(${sub.id}, '${escapeHtml(sub.subject_name)}')" title="Delete Subject">
+										<i class="fas fa-trash"></i>
+									</button>
+								</div>
+							</div>
+						`;
+					}).join('');
+				} else {
+					if (countEl) countEl.textContent = '0 subjects';
+					container.innerHTML = '<div class="empty-state"><i class="fas fa-book"></i><p>No subjects found. Add your first subject using the form above.</p></div>';
+				}
+			} catch (error) {
+				console.error('Error loading subjects:', error);
+				container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i><p style="color: #dc2626;">Failed to load subjects. Please check your connection.</p></div>';
+			}
+		}
+
+		// Populate class dropdown for sections
+		async function populateSectionClassDropdown() {
+			const select = document.getElementById('sectionClassSelect');
+			if (!select) return;
+
+			// Store current selection
+			const currentValue = select.value;
+
+			try {
+				const response = await fetch(`${INLINE_API_PATH}?action=classes`);
+				const result = await response.json();
+
+				if (result.success && result.data) {
+					select.innerHTML = '<option value="">-- Choose a Class --</option>';
+					// API returns { classes: [...], total: N }, extract the array
+					const classes = Array.isArray(result.data) ? result.data : (result.data?.classes || []);
+					classes.forEach(cls => {
+						const option = document.createElement('option');
+						option.value = cls.id;
+						option.textContent = cls.class_name;
+						select.appendChild(option);
+					});
+
+					// Restore selection if still valid
+					if (currentValue) {
+						select.value = currentValue;
+					}
+				}
+			} catch (error) {
+				console.error('Error loading classes for dropdown:', error);
+			}
+		}
+
+		// Show toast notification
+		function showToast(message, type = 'success') {
+			// Remove existing toasts
+			document.querySelectorAll('.status-toast').forEach(t => t.remove());
+
+			const toast = document.createElement('div');
+			toast.className = `status-toast ${type}`;
+			toast.innerHTML = `
+				<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+				<span>${message}</span>
+			`;
+			document.body.appendChild(toast);
+
+			setTimeout(() => {
+				toast.style.animation = 'slideUp 0.3s ease reverse';
+				setTimeout(() => toast.remove(), 300);
+			}, 3000);
+		}
+
+		// Edit class - populate form with existing data
+		function editClassInline(id, name, order) {
+			// Populate the add class form with existing data for editing
+			const nameInput = document.getElementById('newClassName');
+			const orderInput = document.getElementById('newClassOrder');
+			const formTitle = document.querySelector('.quick-add-title span');
+			const submitBtn = document.querySelector('#inlineClassForm button[type="submit"]');
+
+			if (nameInput) nameInput.value = name;
+			if (orderInput) orderInput.value = order;
+			if (formTitle) formTitle.textContent = `Edit Class: ${name}`;
+			if (submitBtn) {
+				submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Class';
+				submitBtn.setAttribute('data-edit-id', id);
+			}
+
+			// Scroll to form
+			document.querySelector('.quick-add-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+			// Highlight form
+			const form = document.getElementById('inlineClassForm');
+			if (form) {
+				form.style.background = '#fffbeb';
+				form.style.border = '2px solid #f59e0b';
+				form.style.borderRadius = '12px';
+				form.style.padding = '16px';
+				setTimeout(() => {
+					form.style.background = '';
+					form.style.border = '';
+					form.style.padding = '';
+				}, 5000);
+			}
+		}
+
+		// Cancel edit mode
+		function cancelEditMode() {
+			const nameInput = document.getElementById('newClassName');
+			const orderInput = document.getElementById('newClassOrder');
+			const formTitle = document.querySelector('.quick-add-title span');
+			const submitBtn = document.querySelector('#inlineClassForm button[type="submit"]');
+			const form = document.getElementById('inlineClassForm');
+
+			if (nameInput) nameInput.value = '';
+			if (orderInput) orderInput.value = '';
+			if (formTitle) formTitle.textContent = 'Quick Add Class';
+			if (submitBtn) {
+				submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Class';
+				submitBtn.removeAttribute('data-edit-id');
+			}
+			if (form) {
+				form.style.background = '';
+				form.style.border = '';
+				form.style.padding = '';
+			}
+		}
+
+		// Delete class
+		async function deleteClassInline(id, name) {
+			if (!confirm(`Are you sure you want to delete "${name}"? This will also delete all sections.`)) {
+				return;
+			}
+
+			try {
+				const response = await fetch(`${INLINE_API_PATH}?action=delete_class&id=${id}`, {
+					method: 'DELETE'
+				});
+				const result = await response.json();
+
+				if (result.success) {
+					notify('Class deleted successfully!', 'success');
+					// Invalidate cache and reload
+					invalidateClassesCache();
+					loadClassesInline(true);
+					populateSectionClassDropdown();
+				} else {
+					notify(result.message || result.error || 'Failed to delete class', 'error');
+				}
+			} catch (error) {
+				console.error('Error deleting class:', error);
+				notify('Network error. Please try again.', 'error');
+			}
+		}
+
+		// Delete subject
+		async function deleteSubjectInline(id, name) {
+			if (!confirm(`Are you sure you want to delete "${name}"?`)) {
+				return;
+			}
+
+			try {
+				const response = await fetch(`${INLINE_API_PATH}?action=delete_subject&id=${id}`, {
+					method: 'DELETE'
+				});
+				const result = await response.json();
+
+				if (result.success) {
+					notify('Subject deleted successfully!', 'success');
+					// Invalidate cache and reload
+					invalidateSubjectsCache();
+					loadSubjectsInline(true);
+				} else {
+					notify(result.message || result.error || 'Failed to delete subject', 'error');
+				}
+			} catch (error) {
+				console.error('Error deleting subject:', error);
+				notify('Network error. Please try again.', 'error');
+			}
+		}
+
+		// Helper: Escape HTML
+		function escapeHtml(text) {
+			if (!text) return '';
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+
+		// Initialize inline forms when Academic section is shown
+		function initAcademicInlineForms() {
+			loadClassesInline();
+			loadSubjectsInline();
+			populateSectionClassDropdown();
 		}
 
 		// ==================== SYSTEM INFO ====================
@@ -5388,25 +6520,27 @@
 			}
 		});
 
-		document.getElementById('addUserBtn').addEventListener('click', () => {
-			if (currentRoleKey !== 'superadmin') {
-				notify('Only Super Admin can create users.', 'error');
-				return;
-			}
-			editingUserId = null;
-			document.getElementById('userModalTitle').textContent = 'Add New User';
-			document.getElementById('userName').value = '';
-			document.getElementById('userUsername').value = '';
-			document.getElementById('userEmail').value = '';
-			document.getElementById('userRole').value = 'Teacher';
-			document.getElementById('userPassword').value = '';
-			document.getElementById('userStatus').value = 'Active';
+		const addUserBtn = document.getElementById('addUserBtn');
+		if (addUserBtn) {
+			addUserBtn.addEventListener('click', () => {
+				if (currentRoleKey !== 'superadmin') {
+					notify('Only Super Admin can create users.', 'error');
+					return;
+				}
+				editingUserId = null;
+				document.getElementById('userModalTitle').textContent = 'Add New User';
+				document.getElementById('userName').value = '';
+				document.getElementById('userUsername').value = '';
+				document.getElementById('userEmail').value = '';
+				document.getElementById('userRole').value = 'Teacher';
+				document.getElementById('userPassword').value = '';
+				document.getElementById('userStatus').value = 'Active';
 
-			// Reset tabs to first step
-			document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
-			document.querySelector('.modal-tab[data-tab="details"]').classList.add('active');
-			document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
-			document.querySelector('.tab-details').classList.add('active');
+				// Reset tabs to first step
+				document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+				document.querySelector('.modal-tab[data-tab="details"]').classList.add('active');
+				document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active'));
+				document.querySelector('.tab-details').classList.add('active');
 
 			// Initialise enabled modules and UI based on default Teacher role
 			currentEnabledModules = Object.keys(ROLE_DEFAULT_PERMISSIONS['Teacher'] || {});
@@ -5432,15 +6566,22 @@
 			
 			document.getElementById('userModal').classList.add('active');
 			updateSaveButtonState();
-		});
+			});
+		}
 
-		document.getElementById('closeUserModal').addEventListener('click', () => {
-			document.getElementById('userModal').classList.remove('active');
-		});
+		const closeUserModalBtn = document.getElementById('closeUserModal');
+		if (closeUserModalBtn) {
+			closeUserModalBtn.addEventListener('click', () => {
+				document.getElementById('userModal').classList.remove('active');
+			});
+		}
 
-		document.getElementById('cancelUserBtn').addEventListener('click', () => {
-			document.getElementById('userModal').classList.remove('active');
-		});
+		const cancelUserBtn = document.getElementById('cancelUserBtn');
+		if (cancelUserBtn) {
+			cancelUserBtn.addEventListener('click', () => {
+				document.getElementById('userModal').classList.remove('active');
+			});
+		}
 
 		// Update save button when typing / changing controls
 		['userName','userUsername','userEmail','userPassword','userRole','userStatus'].forEach(id => {
@@ -5974,18 +7115,67 @@
 			notify('Academic settings saved!', 'success');
 		});
 
-		document.getElementById('saveNotifBtn').addEventListener('click', () => {
-			const settings = loadSettings();
-			settings.notifications = {
-				email: document.getElementById('emailNotif').checked,
-				sms: document.getElementById('smsNotif').checked,
-				feeReminder: document.getElementById('feeReminder').checked,
-				attendance: document.getElementById('attendanceAlert').checked,
-				exam: document.getElementById('examNotif').checked,
-				holiday: document.getElementById('holidayNotif').checked
+		document.getElementById('saveNotifBtn').addEventListener('click', async () => {
+			const btn = document.getElementById('saveNotifBtn');
+			const originalText = btn.innerHTML;
+			btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+			btn.disabled = true;
+
+			const notificationSettings = {
+				notif_email: document.getElementById('emailNotif').checked ? '1' : '0',
+				notif_sms: document.getElementById('smsNotif').checked ? '1' : '0',
+				notif_fee_reminder: document.getElementById('feeReminder').checked ? '1' : '0',
+				notif_attendance: document.getElementById('attendanceAlert').checked ? '1' : '0',
+				notif_exam: document.getElementById('examNotif').checked ? '1' : '0',
+				notif_holiday: document.getElementById('holidayNotif').checked ? '1' : '0'
 			};
-			saveSettings(settings);
-			notify('Notification settings saved!', 'success');
+
+			try {
+				// Save to database
+				const response = await fetch('/School-Management-PhpVersion/backend/api/institution.php', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						action: 'update',
+						settings: notificationSettings
+					})
+				});
+				const result = await response.json();
+
+				if (result.success) {
+					// Also save to localStorage for offline access
+					const settings = loadSettings();
+					settings.notifications = {
+						email: document.getElementById('emailNotif').checked,
+						sms: document.getElementById('smsNotif').checked,
+						feeReminder: document.getElementById('feeReminder').checked,
+						attendance: document.getElementById('attendanceAlert').checked,
+						exam: document.getElementById('examNotif').checked,
+						holiday: document.getElementById('holidayNotif').checked
+					};
+					saveSettings(settings);
+					notify('Notification settings saved to database!', 'success');
+				} else {
+					notify(result.message || 'Failed to save settings', 'error');
+				}
+			} catch (error) {
+				console.error('Error saving notification settings:', error);
+				notify('Network error. Settings saved locally only.', 'warning');
+				// Fallback to localStorage only
+				const settings = loadSettings();
+				settings.notifications = {
+					email: document.getElementById('emailNotif').checked,
+					sms: document.getElementById('smsNotif').checked,
+					feeReminder: document.getElementById('feeReminder').checked,
+					attendance: document.getElementById('attendanceAlert').checked,
+					exam: document.getElementById('examNotif').checked,
+					holiday: document.getElementById('holidayNotif').checked
+				};
+				saveSettings(settings);
+			} finally {
+				btn.innerHTML = originalText;
+				btn.disabled = false;
+			}
 		});
 
 		document.getElementById('saveAppearanceBtn').addEventListener('click', () => {
@@ -6160,6 +7350,41 @@
 		}
 
 		// ==================== LOAD SETTINGS ====================
+		// Load notification settings from database
+		async function loadNotificationSettingsFromDB() {
+			try {
+				const response = await fetch('/School-Management-PhpVersion/backend/api/institution.php?action=settings');
+				const result = await response.json();
+
+				if (result.success && result.data) {
+					const data = result.data;
+					// Update checkboxes based on database values
+					if (data.notif_email !== undefined) {
+						document.getElementById('emailNotif').checked = data.notif_email === '1';
+					}
+					if (data.notif_sms !== undefined) {
+						document.getElementById('smsNotif').checked = data.notif_sms === '1';
+					}
+					if (data.notif_fee_reminder !== undefined) {
+						document.getElementById('feeReminder').checked = data.notif_fee_reminder === '1';
+					}
+					if (data.notif_attendance !== undefined) {
+						document.getElementById('attendanceAlert').checked = data.notif_attendance === '1';
+					}
+					if (data.notif_exam !== undefined) {
+						document.getElementById('examNotif').checked = data.notif_exam === '1';
+					}
+					if (data.notif_holiday !== undefined) {
+						document.getElementById('holidayNotif').checked = data.notif_holiday === '1';
+					}
+					console.log('Notification settings loaded from database');
+				}
+			} catch (error) {
+				console.error('Error loading notification settings from database:', error);
+				// Will fall back to localStorage settings
+			}
+		}
+
 		function loadSavedSettings() {
 			const settings = loadSettings();
 			if (settings.school) {
@@ -6172,6 +7397,11 @@
 				document.getElementById('schoolPhone').value = settings.school.phone || '+91 9876543210';
 				document.getElementById('schoolAddress').value = settings.school.address || '123 Education Street, Knowledge Park, New Delhi - 110001';
 			}
+
+			// Load notification settings from database
+			loadNotificationSettingsFromDB();
+
+			// Fallback to localStorage if DB fails
 			if (settings.notifications) {
 				document.getElementById('emailNotif').checked = settings.notifications.email !== false;
 				document.getElementById('smsNotif').checked = settings.notifications.sms !== false;
@@ -6219,10 +7449,7 @@
 			renderSubjects();
 			renderSystemInfo();
 			initFilters();
-			// Initialize table resizing after a short delay to ensure table is rendered
-			setTimeout(() => {
-				initTableResize();
-			}, 100);
+			// Table initialization complete
 			console.log('Settings page loaded - All buttons enabled');
 		});
 
@@ -6341,12 +7568,12 @@
 			updateFilterCounts(loadUsers(), '', '', '', '', '', '', '');
 		}
 
-		// Initialize filters and table resizing after a short delay to ensure table is rendered
+		// Initialize filters after a short delay to ensure table is rendered
 		setTimeout(() => {
 			initFilters();
-			initTableResize();
 		}, 100);
 	</script>
 	<script src="../assets/js/responsive.js"></script>
+	<script src="../assets/js/academic-settings.js?v=20260129"></script>
 </body>
 </html>

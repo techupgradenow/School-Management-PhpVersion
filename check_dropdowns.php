@@ -1,7 +1,11 @@
 <?php
-$pdo = new PDO('mysql:host=localhost;dbname=edumanage_pro', 'root', '');
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/backend/config/env.php';
+validateRemoteDatabase();
 
-echo "=== DATA MAPPING FOR SYLLABUS ===\n\n";
+$pdo = new PDO(getDbDsn(), DB_USER, DB_PASS);
+
+echo "=== DATA MAPPING FOR SYLLABUS (Remote Hostinger) ===\n\n";
 
 echo "1. CLASSES in Students table:\n";
 $stmt = $pdo->query("SELECT DISTINCT class FROM students ORDER BY class");

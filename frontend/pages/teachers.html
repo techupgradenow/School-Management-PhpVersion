@@ -600,7 +600,7 @@
 		/* FULL-SCREEN PAGE VIEW                      */
 		/* ============================================ */
 
-		/* Form View - Full Screen */
+		/* Form View - True Full Screen Page */
 		#formView {
 			display: none;
 			position: absolute;
@@ -611,7 +611,7 @@
 			z-index: 100;
 			background: #f5f7fa;
 			overflow-y: auto;
-			padding: 20px;
+			padding: 0;
 			animation: fadeIn 0.2s ease;
 		}
 
@@ -631,26 +631,26 @@
 
 		.form-page-container {
 			background: #ffffff;
-			border-radius: 16px;
-			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+			border-radius: 0;
+			box-shadow: none;
 			width: 100%;
-			max-width: 1200px;
-			margin: 0 auto;
+			max-width: 100%;
+			margin: 0;
 			display: flex;
 			flex-direction: column;
+			min-height: 100%;
 			overflow: hidden;
-			animation: slideUp 0.3s ease;
 		}
 
 		/* ===== HEADER - PAGE STYLE ===== */
 		.form-page-header {
 			padding: 20px 24px;
-			background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+			background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
 			flex-shrink: 0;
-			border-radius: 16px 16px 0 0;
+			border-radius: 0;
 		}
 
 		.modal-close-btn {
@@ -758,12 +758,12 @@
 		}
 
 		.tab-btn:hover {
-			color: #6366f1;
+			color: #22C55E;
 		}
 
 		.tab-btn.active {
-			color: #6366f1;
-			border-bottom-color: #6366f1;
+			color: #22C55E;
+			border-bottom-color: #22C55E;
 		}
 
 		/* ===== FORM BODY - MODAL SCROLL ===== */
@@ -1275,12 +1275,12 @@
 
 		.tab-btn:hover {
 			background: #f1f5f9;
-			color: #475569;
+			color: #22C55E;
 		}
 
 		.tab-btn.active {
-			color: #8b5cf6;
-			border-bottom-color: #8b5cf6;
+			color: #22C55E;
+			border-bottom-color: #22C55E;
 			background: white;
 		}
 
@@ -1623,7 +1623,7 @@
 			}
 
 			.tab-btn.active {
-				background: rgba(99, 102, 241, 0.1);
+				background: rgba(34, 197, 94, 0.1);
 				box-shadow: none;
 			}
 

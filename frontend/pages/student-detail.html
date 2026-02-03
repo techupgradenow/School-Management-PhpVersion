@@ -2031,7 +2031,6 @@
 
 			// Try 'edu_students' first (used by students.html)
 			let studentsData = localStorage.getItem('edu_students');
-			console.log('edu_students data exists:', !!studentsData);
 
 			if (studentsData) {
 				try {
@@ -2045,7 +2044,6 @@
 			// Try 'students' as fallback
 			if (!students || students.length === 0) {
 				studentsData = localStorage.getItem('students');
-				console.log('students data exists:', !!studentsData);
 
 				if (studentsData) {
 					try {
@@ -2057,21 +2055,18 @@
 				}
 			}
 
-			// If still no data, generate demo students and save
+			// If no data found, show error - no mock data
 			if (!students || students.length === 0) {
-				console.log('No students found in localStorage, generating demo data');
-				students = generateDemoStudents();
-				localStorage.setItem('edu_students', JSON.stringify(students));
-				showToast('Demo student data generated', 'info');
+				showToast('No student data available. Please go to Students page first.', 'error');
+				document.querySelector('.main-container').innerHTML = '<div style="text-align:center;padding:60px;"><h2>No Student Data</h2><p>Please visit the <a href="students.html">Students page</a> to load student data.</p></div>';
+				return;
 			}
 
 			findStudentInList(students);
 		}
 
 		function findStudentInList(students) {
-			console.log('=== FINDING STUDENT IN LIST ===');
 			console.log('Looking for student ID:', studentId);
-			console.log('Available students:', students.map(s => ({ id: s.id, admission_no: s.admission_no, name: s.name })));
 
 			// Find student by ID (handle various ID formats)
 			studentData = students.find(s => {
@@ -2095,50 +2090,12 @@
 
 			if (!studentData) {
 				showToast('Student not found with ID: ' + studentId, 'error');
-				console.log('Student not found. Available IDs:', students.map(s => s.id));
-				console.log('Available admission numbers:', students.map(s => s.admission_no));
+				document.querySelector('.main-container').innerHTML = '<div style="text-align:center;padding:60px;"><h2>Student Not Found</h2><p>No student found with ID: ' + studentId + '</p><a href="students.html" class="btn btn-primary">Back to Students</a></div>';
 				return;
 			}
 
 			console.log('Found student:', studentData);
 			onStudentDataLoaded();
-		}
-
-		function generateDemoStudents() {
-			const names = ['Aarav Sharma', 'Ananya Patel', 'Arjun Singh', 'Diya Gupta', 'Kabir Verma',
-						   'Ishaan Kumar', 'Priya Reddy', 'Rohan Joshi', 'Sneha Nair', 'Vikram Mehta'];
-			const classes = ['Class 8', 'Class 9', 'Class 10'];
-			const sections = ['A', 'B', 'C'];
-			const demoStudents = [];
-
-			for (let i = 0; i < 10; i++) {
-				demoStudents.push({
-					id: 'STU' + String(i + 1).padStart(3, '0'),
-					name: names[i],
-					gender: i % 2 === 0 ? 'Male' : 'Female',
-					dob: '2010-0' + ((i % 9) + 1) + '-15',
-					class: classes[i % classes.length],
-					section: sections[i % sections.length],
-					roll_no: String(i + 1),
-					admission_no: 'ADM2020' + String(i + 1).padStart(3, '0'),
-					admission_date: '2020-04-01',
-					parent_name: 'Mr. ' + names[i].split(' ')[1],
-					father_name: 'Mr. ' + names[i].split(' ')[1],
-					mother_name: 'Mrs. ' + names[i].split(' ')[1],
-					contact: '98765' + String(43210 + i).padStart(5, '0'),
-					email: names[i].toLowerCase().replace(' ', '.') + '@email.com',
-					address: 'House No. ' + (i + 1) + ', Main Street',
-					city: 'Mumbai',
-					state: 'Maharashtra',
-					pincode: '400' + String(i + 1).padStart(3, '0'),
-					blood_group: ['A+', 'B+', 'O+', 'AB+'][i % 4],
-					religion: 'Hindu',
-					category: 'General',
-					status: 'Active',
-					created_at: new Date().toISOString()
-				});
-			}
-			return demoStudents;
 		}
 
 		function onStudentDataLoaded() {
@@ -2292,27 +2249,101 @@
 		};
 
 		function loadFeeData() {
-			// Clear old data for fresh demo (remove this line in production)
-			// localStorage.removeItem('studentFeeStructure_' + studentId);
+			// Fetch fee data from API
+			$.ajax({
+				url: '../backend/api/students.php',
+				method: 'GET',
+				data: { action: 'fees', student_id: studentId },
+				dataType: 'json',
+				success: function(response) {
+					if (response.success && response.data) {
+						// Process fee structure from API
+						const feeData = response.data;
+						feeStructure = {};
+						feePayments = [];
 
-			const storedFeeStructure = localStorage.getItem('studentFeeStructure_' + studentId);
-			const storedFees = localStorage.getItem('studentFees_' + studentId);
+						// Map fee_structure from database
+						if (feeData.fee_structure && feeData.fee_structure.length > 0) {
+							feeData.fee_structure.forEach(fee => {
+								const category = fee.fee_type ? fee.fee_type.toLowerCase() : 'other';
+								if (!feeStructure[category]) {
+									feeStructure[category] = {
+										name: fee.fee_type || 'Other Fee',
+										icon: getCategoryIcon(category),
+										total: 0,
+										paid: 0,
+										items: []
+									};
+								}
+								feeStructure[category].total += parseFloat(fee.amount) || 0;
+								feeStructure[category].items.push({
+									period: fee.description || fee.fee_name || 'Fee',
+									amount: parseFloat(fee.amount) || 0,
+									status: fee.status || 'Pending',
+									dueDate: fee.due_date,
+									date: fee.payment_date
+								});
+							});
+						}
 
-			if (storedFeeStructure) {
-				feeStructure = JSON.parse(storedFeeStructure);
-			} else {
-				// Generate comprehensive fee structure
-				generateFeeStructure();
-				localStorage.setItem('studentFeeStructure_' + studentId, JSON.stringify(feeStructure));
-			}
+						// Map payments from database
+						if (feeData.payments && feeData.payments.length > 0) {
+							feeData.payments.forEach((payment, idx) => {
+								// Update paid amount in fee structure
+								const category = payment.fee_type ? payment.fee_type.toLowerCase() : 'other';
+								if (feeStructure[category]) {
+									feeStructure[category].paid += parseFloat(payment.amount) || 0;
+								}
 
-			if (storedFees) {
-				feePayments = JSON.parse(storedFees);
-			} else {
-				// Generate payment history from fee structure
-				generatePaymentHistory();
-				localStorage.setItem('studentFees_' + studentId, JSON.stringify(feePayments));
-			}
+								feePayments.push({
+									id: payment.id || idx + 1,
+									receipt: payment.receipt_number || '--',
+									date: payment.payment_date || '',
+									type: payment.fee_type || 'Fee',
+									category: category,
+									description: payment.description || '',
+									amount: parseFloat(payment.amount) || 0,
+									mode: payment.payment_mode || '',
+									status: 'Paid',
+									ref: payment.transaction_id || ''
+								});
+							});
+						}
+					} else {
+						// No data - show empty state
+						feeStructure = {};
+						feePayments = [];
+					}
+
+					// Render with whatever data we have (may be empty)
+					renderFeeDataUI();
+				},
+				error: function(xhr, status, error) {
+					console.error('Error loading fee data:', error);
+					feeStructure = {};
+					feePayments = [];
+					renderFeeDataUI();
+					showToast('Unable to load fee data', 'error');
+				}
+			});
+		}
+
+		function getCategoryIcon(category) {
+			const icons = {
+				tuition: 'fas fa-graduation-cap',
+				bus: 'fas fa-bus',
+				transport: 'fas fa-bus',
+				hostel: 'fas fa-building',
+				lab: 'fas fa-flask',
+				library: 'fas fa-book',
+				sports: 'fas fa-futbol',
+				exam: 'fas fa-file-alt',
+				other: 'fas fa-receipt'
+			};
+			return icons[category] || icons.other;
+		}
+
+		function renderFeeDataUI() {
 
 			// Calculate totals from all categories
 			let totalFee = 0, paidAmount = 0, pendingAmount = 0, overdueAmount = 0;
@@ -2358,187 +2389,6 @@
 			renderHostelFeesSection();
 			renderFeeTable();
 			renderUpcomingDues();
-		}
-
-		function generateFeeStructure() {
-			// Tuition Fee - Quarterly payments
-			feeStructure.tuition = {
-				name: 'Tuition Fee',
-				icon: 'fas fa-graduation-cap',
-				total: 60000,
-				paid: 45000,
-				items: [
-					{ period: 'Q1 (Apr-Jun)', amount: 15000, status: 'Paid', date: '2025-04-05' },
-					{ period: 'Q2 (Jul-Sep)', amount: 15000, status: 'Paid', date: '2025-07-10' },
-					{ period: 'Q3 (Oct-Dec)', amount: 15000, status: 'Paid', date: '2025-10-15' },
-					{ period: 'Q4 (Jan-Mar)', amount: 15000, status: 'Pending', dueDate: '2026-01-15' }
-				]
-			};
-
-			// Bus Fee - Monthly payments (if student uses transport)
-			const usesTransport = true; // This would come from student data
-			if (usesTransport) {
-				feeStructure.bus = {
-					name: 'Bus/Transport Fee',
-					icon: 'fas fa-bus',
-					total: 24000, // ₹2000/month for 12 months
-					paid: 18000,
-					details: {
-						routeNo: 'R-05',
-						routeName: 'Sector 15 - School Campus',
-						pickupPoint: 'Sector 15 Market, Near SBI Bank',
-						pickupTime: '7:15 AM',
-						dropTime: '3:45 PM',
-						distance: '8.5 KM',
-						vehicleNo: 'DL-5C-AB-1234',
-						driverName: 'Ramesh Kumar',
-						driverContact: '+91 98765 43210'
-					},
-					items: [
-						{ month: 'Apr', amount: 2000, status: 'Paid', date: '2025-04-05' },
-						{ month: 'May', amount: 2000, status: 'Paid', date: '2025-05-05' },
-						{ month: 'Jun', amount: 2000, status: 'Paid', date: '2025-06-05' },
-						{ month: 'Jul', amount: 2000, status: 'Paid', date: '2025-07-05' },
-						{ month: 'Aug', amount: 2000, status: 'Paid', date: '2025-08-05' },
-						{ month: 'Sep', amount: 2000, status: 'Paid', date: '2025-09-05' },
-						{ month: 'Oct', amount: 2000, status: 'Paid', date: '2025-10-05' },
-						{ month: 'Nov', amount: 2000, status: 'Paid', date: '2025-11-05' },
-						{ month: 'Dec', amount: 2000, status: 'Paid', date: '2025-12-05' },
-						{ month: 'Jan', amount: 2000, status: 'Pending', dueDate: '2026-01-10' },
-						{ month: 'Feb', amount: 2000, status: 'Pending', dueDate: '2026-02-10' },
-						{ month: 'Mar', amount: 2000, status: 'Pending', dueDate: '2026-03-10' }
-					]
-				};
-			}
-
-			// Hostel Fee (if student is hosteler)
-			const isHosteler = true; // This would come from student data
-			if (isHosteler) {
-				feeStructure.hostel = {
-					name: 'Hostel Fee',
-					icon: 'fas fa-building',
-					total: 72000, // ₹6000/month for 12 months
-					paid: 54000,
-					details: {
-						hostelName: 'Boys Hostel - Block A',
-						roomNo: 'A-204',
-						roomType: 'Double Sharing (AC)',
-						bedNo: 'Bed 1',
-						floor: '2nd Floor',
-						warden: 'Mr. Suresh Sharma',
-						wardenContact: '+91 98765 12345',
-						messType: 'Vegetarian',
-						laundryIncluded: true
-					},
-					components: [
-						{ name: 'Room Rent', amount: 36000, paid: 27000, perMonth: 3000 },
-						{ name: 'Mess Charges', amount: 30000, paid: 22500, perMonth: 2500 },
-						{ name: 'Electricity', amount: 3600, paid: 2700, perMonth: 300 },
-						{ name: 'Laundry', amount: 2400, paid: 1800, perMonth: 200 }
-					],
-					items: [
-						{ month: 'Apr', amount: 6000, status: 'Paid', date: '2025-04-01' },
-						{ month: 'May', amount: 6000, status: 'Paid', date: '2025-05-01' },
-						{ month: 'Jun', amount: 6000, status: 'Paid', date: '2025-06-01' },
-						{ month: 'Jul', amount: 6000, status: 'Paid', date: '2025-07-01' },
-						{ month: 'Aug', amount: 6000, status: 'Paid', date: '2025-08-01' },
-						{ month: 'Sep', amount: 6000, status: 'Paid', date: '2025-09-01' },
-						{ month: 'Oct', amount: 6000, status: 'Paid', date: '2025-10-01' },
-						{ month: 'Nov', amount: 6000, status: 'Paid', date: '2025-11-01' },
-						{ month: 'Dec', amount: 6000, status: 'Paid', date: '2025-12-01' },
-						{ month: 'Jan', amount: 6000, status: 'Pending', dueDate: '2026-01-05' },
-						{ month: 'Feb', amount: 6000, status: 'Pending', dueDate: '2026-02-05' },
-						{ month: 'Mar', amount: 6000, status: 'Pending', dueDate: '2026-03-05' }
-					]
-				};
-			}
-
-			// Lab Fee - Annual
-			feeStructure.lab = {
-				name: 'Lab Fee',
-				icon: 'fas fa-flask',
-				total: 5000,
-				paid: 5000,
-				items: [{ period: 'Annual', amount: 5000, status: 'Paid', date: '2025-04-10' }]
-			};
-
-			// Library Fee - Annual
-			feeStructure.library = {
-				name: 'Library Fee',
-				icon: 'fas fa-book',
-				total: 2000,
-				paid: 2000,
-				items: [{ period: 'Annual', amount: 2000, status: 'Paid', date: '2025-04-10' }]
-			};
-
-			// Sports Fee - Annual
-			feeStructure.sports = {
-				name: 'Sports Fee',
-				icon: 'fas fa-futbol',
-				total: 3000,
-				paid: 0,
-				items: [{ period: 'Annual', amount: 3000, status: 'Pending', dueDate: '2026-01-31' }]
-			};
-
-			// Exam Fee - Per exam
-			feeStructure.exam = {
-				name: 'Exam Fee',
-				icon: 'fas fa-file-alt',
-				total: 4000,
-				paid: 2000,
-				items: [
-					{ period: 'Half Yearly Exam', amount: 2000, status: 'Paid', date: '2025-09-15' },
-					{ period: 'Annual Exam', amount: 2000, status: 'Overdue', dueDate: '2025-12-31' }
-				]
-			};
-		}
-
-		function generatePaymentHistory() {
-			feePayments = [];
-			let id = 1;
-
-			// Generate payment records from fee structure
-			Object.entries(feeStructure).forEach(([category, data]) => {
-				if (data.total === 0) return;
-
-				data.items.forEach(item => {
-					if (item.status === 'Paid') {
-						feePayments.push({
-							id: id++,
-							receipt: 'RCP-' + item.date.substring(0, 4) + '-' + String(id).padStart(3, '0'),
-							date: item.date,
-							type: data.name,
-							category: category,
-							description: item.period || item.month + ' ' + new Date().getFullYear(),
-							amount: item.amount,
-							mode: ['Cash', 'UPI', 'Online', 'Bank Transfer'][Math.floor(Math.random() * 4)],
-							status: 'Paid',
-							ref: 'TXN' + Math.random().toString(36).substr(2, 8).toUpperCase()
-						});
-					} else {
-						feePayments.push({
-							id: id++,
-							receipt: '--',
-							date: '',
-							type: data.name,
-							category: category,
-							description: item.period || item.month + ' 2026',
-							amount: item.amount,
-							mode: '',
-							status: item.status,
-							dueDate: item.dueDate,
-							ref: ''
-						});
-					}
-				});
-			});
-
-			// Sort by date (paid first, then pending)
-			feePayments.sort((a, b) => {
-				if (a.status === 'Paid' && b.status !== 'Paid') return -1;
-				if (a.status !== 'Paid' && b.status === 'Paid') return 1;
-				return new Date(b.date || b.dueDate) - new Date(a.date || a.dueDate);
-			});
 		}
 
 		function renderFeeCategories() {
@@ -2881,38 +2731,65 @@
 		// MARKS TAB
 		// ============================================
 		function loadExamData() {
-			// Load exam data from localStorage or generate sample data
-			const storedExams = localStorage.getItem('studentExams_' + studentId);
+			// Fetch exam data from API
+			$.ajax({
+				url: '../backend/api/students.php',
+				method: 'GET',
+				data: { action: 'exams', student_id: studentId },
+				dataType: 'json',
+				success: function(response) {
+					examResults = [];
 
-			if (storedExams) {
-				examResults = JSON.parse(storedExams);
-			} else {
-				// Generate sample exam data
-				examResults = [
-					{ exam: 'Unit Test 1', subject: 'Mathematics', max: 100, obtained: 92, grade: 'A+', result: 'Pass' },
-					{ exam: 'Unit Test 1', subject: 'Science', max: 100, obtained: 88, grade: 'A', result: 'Pass' },
-					{ exam: 'Unit Test 1', subject: 'English', max: 100, obtained: 85, grade: 'A', result: 'Pass' },
-					{ exam: 'Unit Test 1', subject: 'Hindi', max: 100, obtained: 72, grade: 'B', result: 'Pass' },
-					{ exam: 'Unit Test 1', subject: 'Social Science', max: 100, obtained: 82, grade: 'A', result: 'Pass' },
-					{ exam: 'Half Yearly', subject: 'Mathematics', max: 100, obtained: 89, grade: 'A', result: 'Pass' },
-					{ exam: 'Half Yearly', subject: 'Science', max: 100, obtained: 91, grade: 'A+', result: 'Pass' },
-					{ exam: 'Half Yearly', subject: 'English', max: 100, obtained: 83, grade: 'A', result: 'Pass' },
-					{ exam: 'Half Yearly', subject: 'Hindi', max: 100, obtained: 75, grade: 'B+', result: 'Pass' },
-					{ exam: 'Half Yearly', subject: 'Social Science', max: 100, obtained: 80, grade: 'A', result: 'Pass' }
-				];
-				localStorage.setItem('studentExams_' + studentId, JSON.stringify(examResults));
-			}
+					if (response.success && response.data) {
+						// Map API response to exam results format
+						if (Array.isArray(response.data)) {
+							// Already flat array
+							examResults = response.data.map(exam => ({
+								exam: exam.exam_name || exam.exam || 'Exam',
+								subject: exam.subject_name || exam.subject || '',
+								max: parseInt(exam.total_marks || exam.max || 100),
+								obtained: parseInt(exam.marks_obtained || exam.obtained || 0),
+								grade: exam.grade || getGrade(Math.round((exam.marks_obtained || 0) / (exam.total_marks || 100) * 100)),
+								result: (exam.marks_obtained >= (exam.total_marks * 0.4)) ? 'Pass' : 'Fail'
+							}));
+						} else if (response.data.grouped) {
+							// Grouped by exam format
+							Object.values(response.data.grouped).forEach(examGroup => {
+								examGroup.subjects.forEach(subj => {
+									examResults.push({
+										exam: examGroup.exam_name,
+										subject: subj.subject_name,
+										max: parseInt(subj.total_marks || 100),
+										obtained: parseInt(subj.marks_obtained || 0),
+										grade: subj.grade || getGrade(Math.round((subj.marks_obtained || 0) / (subj.total_marks || 100) * 100)),
+										result: (subj.marks_obtained >= (subj.total_marks * 0.4)) ? 'Pass' : 'Fail'
+									});
+								});
+							});
+						}
+					}
 
+					renderExamDataUI();
+				},
+				error: function(xhr, status, error) {
+					console.error('Error loading exam data:', error);
+					examResults = [];
+					renderExamDataUI();
+				}
+			});
+		}
+
+		function renderExamDataUI() {
 			// Calculate stats
-			const exams = [...new Set(examResults.map(e => e.exam))];
+			const exams = examResults.length > 0 ? [...new Set(examResults.map(e => e.exam))] : [];
 			const totalObtained = examResults.reduce((sum, e) => sum + e.obtained, 0);
 			const totalMax = examResults.reduce((sum, e) => sum + e.max, 0);
-			const avgPercentage = Math.round((totalObtained / totalMax) * 100);
+			const avgPercentage = totalMax > 0 ? Math.round((totalObtained / totalMax) * 100) : 0;
 
 			document.getElementById('totalExams').textContent = exams.length;
 			document.getElementById('avgPercentage').textContent = avgPercentage + '%';
-			document.getElementById('classRank').textContent = '5th';
-			document.getElementById('overallGrade').textContent = getGrade(avgPercentage);
+			document.getElementById('classRank').textContent = '--';
+			document.getElementById('overallGrade').textContent = examResults.length > 0 ? getGrade(avgPercentage) : '--';
 
 			renderMarksTable();
 			renderSubjectSummary();
@@ -2990,33 +2867,42 @@
 		// ATTENDANCE TAB
 		// ============================================
 		function loadAttendanceData() {
-			// Clear old data and regenerate for fresh demo
-			// To test with fresh data, uncomment next line:
-			// localStorage.removeItem('studentAttendance_' + studentId);
+			// Fetch attendance data from API
+			$.ajax({
+				url: '../backend/api/students.php',
+				method: 'GET',
+				data: { action: 'attendance', student_id: studentId },
+				dataType: 'json',
+				success: function(response) {
+					attendanceRecords = [];
 
-			// Load attendance data from localStorage or generate sample data
-			const storedAttendance = localStorage.getItem('studentAttendance_' + studentId);
-
-			if (storedAttendance) {
-				try {
-					attendanceRecords = JSON.parse(storedAttendance);
-					// Validate data has records
-					if (!Array.isArray(attendanceRecords) || attendanceRecords.length === 0) {
-						throw new Error('Empty attendance data');
+					if (response.success && response.data && Array.isArray(response.data)) {
+						// Map API response to attendance record format
+						attendanceRecords = response.data.map(record => {
+							const dateObj = new Date(record.date);
+							const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+							return {
+								date: record.date,
+								day: dayNames[dateObj.getDay()],
+								status: record.status || 'Present',
+								checkIn: record.check_in || record.checkIn || '--',
+								checkOut: record.check_out || record.checkOut || '--',
+								remarks: record.remarks || ''
+							};
+						});
 					}
-				} catch (e) {
-					console.log('Regenerating attendance data:', e);
-					attendanceRecords = generateAttendanceData();
-					localStorage.setItem('studentAttendance_' + studentId, JSON.stringify(attendanceRecords));
+
+					renderAttendanceDataUI();
+				},
+				error: function(xhr, status, error) {
+					console.error('Error loading attendance data:', error);
+					attendanceRecords = [];
+					renderAttendanceDataUI();
 				}
-			} else {
-				// Generate sample attendance data for the current academic year
-				attendanceRecords = generateAttendanceData();
-				localStorage.setItem('studentAttendance_' + studentId, JSON.stringify(attendanceRecords));
-			}
+			});
+		}
 
-			console.log('Loaded attendance records:', attendanceRecords.length);
-
+		function renderAttendanceDataUI() {
 			// Calculate stats
 			const workingDays = attendanceRecords.length;
 			const presentDays = attendanceRecords.filter(a => a.status === 'Present').length;
@@ -3045,108 +2931,6 @@
 
 			renderAttendanceCalendar();
 			renderAttendanceTable();
-		}
-
-		function generateAttendanceData() {
-			const records = [];
-			const today = new Date();
-
-			// Academic year: April to March
-			// If current month is Jan-Mar, academic year started previous year
-			// If current month is Apr-Dec, academic year started this year
-			let academicYearStart;
-			if (today.getMonth() < 3) { // Jan, Feb, Mar (0, 1, 2)
-				academicYearStart = new Date(today.getFullYear() - 1, 3, 1); // April 1st of previous year
-			} else {
-				academicYearStart = new Date(today.getFullYear(), 3, 1); // April 1st of current year
-			}
-
-			// Define holidays (customize as needed)
-			const holidays = [
-				'2025-08-15', // Independence Day
-				'2025-10-02', // Gandhi Jayanti
-				'2025-10-12', // Dussehra
-				'2025-10-31', // Diwali
-				'2025-11-01', // Diwali
-				'2025-12-25', // Christmas
-				'2026-01-01', // New Year
-				'2026-01-26', // Republic Day
-			];
-
-			// Generate realistic check-in times
-			function getCheckInTime(status) {
-				if (status === 'Absent') return '--';
-				if (status === 'Late') {
-					const lateMinutes = [15, 20, 25, 30, 45];
-					return `09:${String(lateMinutes[Math.floor(Math.random() * lateMinutes.length)]).padStart(2, '0')} AM`;
-				}
-				// Present - arrive between 8:30 and 8:55 AM
-				const minutes = 30 + Math.floor(Math.random() * 25);
-				return `08:${String(minutes).padStart(2, '0')} AM`;
-			}
-
-			// Generate realistic check-out times
-			function getCheckOutTime(status) {
-				if (status === 'Absent') return '--';
-				// Leave between 3:15 and 3:45 PM
-				const minutes = 15 + Math.floor(Math.random() * 30);
-				return `03:${String(minutes).padStart(2, '0')} PM`;
-			}
-
-			// Generate remarks
-			function getRemarks(status, date) {
-				if (status === 'Present') return '';
-				if (status === 'Late') {
-					const reasons = ['Traffic delay', 'Arrived late', 'Bus delay', 'Minor delay', 'Parent informed'];
-					return reasons[Math.floor(Math.random() * reasons.length)];
-				}
-				if (status === 'Absent') {
-					const reasons = ['Medical leave', 'Sick leave', 'Family emergency', 'Prior permission', 'Not well'];
-					return reasons[Math.floor(Math.random() * reasons.length)];
-				}
-				return '';
-			}
-
-			// Use seeded random for consistency per student
-			let seed = studentId ? studentId.charCodeAt(0) * 1000 : 12345;
-			function seededRandom() {
-				seed = (seed * 9301 + 49297) % 233280;
-				return seed / 233280;
-			}
-
-			for (let d = new Date(academicYearStart); d <= today; d.setDate(d.getDate() + 1)) {
-				const dayOfWeek = d.getDay();
-				const dateStr = d.toISOString().split('T')[0];
-
-				// Skip Sundays
-				if (dayOfWeek === 0) continue;
-
-				// Skip 2nd and 4th Saturdays (common school pattern)
-				if (dayOfWeek === 6) {
-					const weekOfMonth = Math.ceil(d.getDate() / 7);
-					if (weekOfMonth === 2 || weekOfMonth === 4) continue;
-				}
-
-				// Skip holidays
-				if (holidays.includes(dateStr)) continue;
-
-				// Determine status with realistic distribution
-				const rand = seededRandom();
-				let status = 'Present';
-				if (rand > 0.92) status = 'Absent';       // ~8% absent
-				else if (rand > 0.85) status = 'Late';   // ~7% late
-
-				records.push({
-					date: dateStr,
-					day: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayOfWeek],
-					status: status,
-					checkIn: getCheckInTime(status),
-					checkOut: getCheckOutTime(status),
-					remarks: getRemarks(status, dateStr)
-				});
-			}
-
-			return records;
 		}
 
 		function renderAttendanceCalendar() {

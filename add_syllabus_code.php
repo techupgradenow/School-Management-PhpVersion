@@ -1,8 +1,12 @@
 <?php
-$pdo = new PDO('mysql:host=localhost;dbname=edumanage_pro', 'root', '');
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/backend/config/env.php';
+validateRemoteDatabase();
+
+$pdo = new PDO(getDbDsn(), DB_USER, DB_PASS);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-echo "=== ADDING SYLLABUS_CODE COLUMN ===\n\n";
+echo "=== ADDING SYLLABUS_CODE COLUMN (Remote Hostinger) ===\n\n";
 
 // Check if column exists
 $stmt = $pdo->query("SHOW COLUMNS FROM syllabus LIKE 'syllabus_code'");

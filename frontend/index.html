@@ -1757,7 +1757,12 @@
 					li.style.display = '';
 					return;
 				}
-				if (allowed.includes(page)) {
+				// Sub-pages that should inherit parent module permission
+				const subPageMap = {
+					'attendance_report': 'attendance'
+				};
+				const parentPage = subPageMap[page] || page;
+				if (allowed.includes(page) || allowed.includes(parentPage)) {
 					li.style.display = '';
 				} else {
 					li.style.display = 'none';
@@ -1772,7 +1777,7 @@
 				sidebarMenuItems.forEach(i => i.classList.remove('active'));
 				activeLi.classList.add('active');
 				if (contentFrame && activeLi.dataset.page) {
-					contentFrame.src = `pages/${activeLi.dataset.page}.html`;
+					contentFrame.src = `pages/${activeLi.dataset.page}.html?v=${Date.now()}`;
 				}
 			}
 
@@ -2244,7 +2249,7 @@
                 }
 
                 if (contentFrame && this.dataset.page) {
-                    contentFrame.src = `pages/${this.dataset.page}.html`;
+                    contentFrame.src = `pages/${this.dataset.page}.html?v=${Date.now()}`;
                 }
 
                 // Close mobile sidebar if open
@@ -2269,7 +2274,7 @@
                 this.classList.add('active');
 				if (contentFrame) {
 					if (this.dataset.page) {
-						contentFrame.src = `pages/${this.dataset.page}.html`;
+						contentFrame.src = `pages/${this.dataset.page}.html?v=${Date.now()}`;
 					}
 				}
             });

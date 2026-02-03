@@ -1,10 +1,15 @@
 <?php
 // Test script to verify syllabus tables exist
+
+// Include centralized environment configuration (Remote Hostinger DB only)
+require_once __DIR__ . '/backend/config/env.php';
+validateRemoteDatabase();
+
 try {
-    $pdo = new PDO('mysql:host=localhost;dbname=edumanage_pro', 'root', '');
+    $pdo = new PDO(getDbDsn(), DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    echo "=== SYLLABUS TABLES CHECK ===\n";
+    echo "=== SYLLABUS TABLES CHECK (Remote Hostinger) ===\n";
 
     $stmt = $pdo->query("SHOW TABLES LIKE 'syllabus%'");
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);

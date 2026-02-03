@@ -513,6 +513,390 @@
                 categoriesLoaded: memoryCache ? Object.keys(memoryCache).length : 0,
                 institutionType: institutionType
             };
+        },
+
+        // =====================================================================
+        // DEPENDENT/CASCADE DROPDOWN SUPPORT
+        // For Class -> Section -> Subject hierarchies
+        // =====================================================================
+
+        /**
+         * Setup dependent dropdown relationship
+         * When parent changes, child dropdown is populated via API
+         *
+         * @param {string} parentSelector - jQuery selector for parent dropdown
+         * @param {string} childSelector - jQuery selector for child dropdown
+         * @param {string} apiEndpoint - API URL (can include ?action=xxx)
+         * @param {string} paramName - Parameter name to send parent value (e.g., 'class_id')
+         * @param {object} options - Additional options
+         */
+        setupDependentDropdown: function(parentSelector, childSelector, apiEndpoint, paramName, options) {
+            options = $.extend({
+                placeholder: 'Select...',
+                emptyMessage: 'Please select a parent first',
+                loadingMessage: 'Loading...',
+                valueField: 'id',
+                labelField: 'name',
+                onChange: null,
+                autoLoad: false
+            }, options);
+
+            var $parent = $(parentSelector);
+            var $child = $(childSelector);
+
+            if ($parent.length === 0 || $child.length === 0) {
+                console.warn('DynamicDropdown.setupDependentDropdown: Parent or child selector not found');
+                return;
+            }
+
+            // Store reference for later use
+            $child.data('dependentConfig', {
+                parentSelector: parentSelector,
+                apiEndpoint: apiEndpoint,
+                paramName: paramName,
+                options: options
+            });
+
+            // Set initial state
+            this._setChildState($child, 'empty', options);
+
+            // Listen for parent changes
+            $parent.off('change.dependent').on('change.dependent', function() {
+                var parentValue = $(this).val();
+                DynamicDropdown._loadDependentOptions($child, parentValue);
+            });
+
+            // If parent already has a value and autoLoad is true, load child options
+            if (options.autoLoad && $parent.val()) {
+                this._loadDependentOptions($child, $parent.val());
+            }
+        },
+
+        /**
+         * Internal: Load options for dependent dropdown
+         */
+        _loadDependentOptions: function($child, parentValue) {
+            var config = $child.data('dependentConfig');
+            if (!config) return;
+
+            var options = config.options;
+
+            if (!parentValue) {
+                this._setChildState($child, 'empty', options);
+                if (options.onChange) options.onChange(null, $child);
+                return;
+            }
+
+            // Show loading state
+            this._setChildState($child, 'loading', options);
+
+            // Build API URL
+            var url = config.apiEndpoint;
+            var separator = url.includes('?') ? '&' : '?';
+            url += separator + config.paramName + '=' + encodeURIComponent(parentValue);
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 10000,
+                success: function(response) {
+                    if (response.success) {
+                        var data = response.data;
+
+                        // Handle different response structures
+                        var items = [];
+                        if (Array.isArray(data)) {
+                            items = data;
+                        } else if (data.sections) {
+                            items = data.sections;
+                        } else if (data.subjects) {
+                            items = data.subjects;
+                        } else if (data.items) {
+                            items = data.items;
+                        }
+
+                        DynamicDropdown._populateChild($child, items, options);
+                    } else {
+                        DynamicDropdown._setChildState($child, 'error', options, response.error || 'Failed to load options');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    DynamicDropdown._setChildState($child, 'error', options, 'Network error');
+                }
+            });
+        },
+
+        /**
+         * Internal: Set child dropdown state
+         */
+        _setChildState: function($child, state, options, message) {
+            $child.prop('disabled', state !== 'ready');
+
+            switch (state) {
+                case 'empty':
+                    $child.html('<option value="">' + options.emptyMessage + '</option>');
+                    break;
+                case 'loading':
+                    $child.html('<option value="">' + options.loadingMessage + '</option>');
+                    break;
+                case 'error':
+                    $child.html('<option value="">Error: ' + (message || 'Failed to load') + '</option>');
+                    break;
+                case 'ready':
+                    // Options already set
+                    break;
+            }
+
+            // Trigger change to update any custom dropdown UI
+            $child.trigger('stateChange', [state]);
+        },
+
+        /**
+         * Internal: Populate child dropdown with options
+         */
+        _populateChild: function($child, items, options) {
+            var html = '<option value="">' + options.placeholder + '</option>';
+
+            items.forEach(function(item) {
+                var value = item[options.valueField] || item.id || item.value;
+                var label = item[options.labelField] || item.name || item.section_name || item.subject_name || item.value || value;
+                html += '<option value="' + value + '">' + label + '</option>';
+            });
+
+            $child.html(html).prop('disabled', false);
+            this._setChildState($child, 'ready', options);
+
+            if (options.onChange) {
+                options.onChange(items, $child);
+            }
+        },
+
+        /**
+         * Setup Class -> Section cascade using AcademicSettings API
+         *
+         * @param {string} classSelector - jQuery selector for class dropdown
+         * @param {string} sectionSelector - jQuery selector for section dropdown
+         * @param {object} options - Additional options
+         */
+        setupClassSectionCascade: function(classSelector, sectionSelector, options) {
+            options = $.extend({
+                placeholder: 'Select Section',
+                emptyMessage: 'Select a class first',
+                valueField: 'id',
+                labelField: 'section_name'
+            }, options);
+
+            this.setupDependentDropdown(
+                classSelector,
+                sectionSelector,
+                CONFIG.API_BASE + '/academic.php?action=sections',
+                'class_id',
+                options
+            );
+        },
+
+        /**
+         * Setup Class -> Subject cascade using AcademicSettings API
+         *
+         * @param {string} classSelector - jQuery selector for class dropdown
+         * @param {string} subjectSelector - jQuery selector for subject dropdown
+         * @param {object} options - Additional options
+         */
+        setupClassSubjectCascade: function(classSelector, subjectSelector, options) {
+            options = $.extend({
+                placeholder: 'Select Subject',
+                emptyMessage: 'Select a class first',
+                valueField: 'id',
+                labelField: 'subject_name'
+            }, options);
+
+            this.setupDependentDropdown(
+                classSelector,
+                subjectSelector,
+                CONFIG.API_BASE + '/academic.php?action=subjects',
+                'class_id',
+                options
+            );
+        },
+
+        /**
+         * Load classes from AcademicSettings API and populate dropdown
+         *
+         * @param {string} selector - jQuery selector for class dropdown
+         * @param {object} options - Options for population
+         */
+        loadClasses: function(selector, options) {
+            options = $.extend({
+                placeholder: 'Select Class',
+                showAddNew: false,
+                valueField: 'id',
+                labelField: 'class_name',
+                includeInactive: false,
+                onChange: null
+            }, options);
+
+            var $select = $(selector);
+            if ($select.length === 0) return;
+
+            // Show loading
+            $select.html('<option value="">Loading classes...</option>').prop('disabled', true);
+
+            $.ajax({
+                url: CONFIG.API_BASE + '/academic.php?action=classes',
+                type: 'GET',
+                dataType: 'json',
+                timeout: 10000,
+                success: function(response) {
+                    if (response.success && response.data) {
+                        var classes = response.data;
+
+                        // Filter active only if requested
+                        if (!options.includeInactive) {
+                            classes = classes.filter(function(c) {
+                                return c.status === 'Active';
+                            });
+                        }
+
+                        // Sort by numeric_value
+                        classes.sort(function(a, b) {
+                            return (a.numeric_value || 0) - (b.numeric_value || 0);
+                        });
+
+                        var html = '<option value="">' + options.placeholder + '</option>';
+                        classes.forEach(function(cls) {
+                            var value = cls[options.valueField] || cls.id;
+                            var label = cls[options.labelField] || cls.class_name;
+                            html += '<option value="' + value + '" data-numeric="' + (cls.numeric_value || 0) + '">' + label + '</option>';
+                        });
+
+                        $select.html(html).prop('disabled', false);
+
+                        if (options.onChange) {
+                            options.onChange(classes, $select);
+                        }
+                    } else {
+                        $select.html('<option value="">Failed to load classes</option>');
+                    }
+                },
+                error: function() {
+                    $select.html('<option value="">Error loading classes</option>');
+                }
+            });
+        },
+
+        /**
+         * Load subjects from AcademicSettings API and populate dropdown
+         *
+         * @param {string} selector - jQuery selector for subject dropdown
+         * @param {object} options - Options for population
+         */
+        loadSubjects: function(selector, options) {
+            options = $.extend({
+                placeholder: 'Select Subject',
+                showAddNew: false,
+                valueField: 'id',
+                labelField: 'subject_name',
+                includeInactive: false,
+                classId: null, // Optional: filter by class
+                onChange: null
+            }, options);
+
+            var $select = $(selector);
+            if ($select.length === 0) return;
+
+            // Show loading
+            $select.html('<option value="">Loading subjects...</option>').prop('disabled', true);
+
+            var url = CONFIG.API_BASE + '/academic.php?action=subjects';
+            if (options.classId) {
+                url += '&class_id=' + options.classId;
+            }
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 10000,
+                success: function(response) {
+                    if (response.success && response.data) {
+                        var subjects = response.data;
+
+                        // Filter active only if requested
+                        if (!options.includeInactive) {
+                            subjects = subjects.filter(function(s) {
+                                return s.status === 'Active';
+                            });
+                        }
+
+                        var html = '<option value="">' + options.placeholder + '</option>';
+                        subjects.forEach(function(sub) {
+                            var value = sub[options.valueField] || sub.id;
+                            var label = sub[options.labelField] || sub.subject_name;
+                            html += '<option value="' + value + '" data-code="' + (sub.subject_code || '') + '">' + label + '</option>';
+                        });
+
+                        $select.html(html).prop('disabled', false);
+
+                        if (options.onChange) {
+                            options.onChange(subjects, $select);
+                        }
+                    } else {
+                        $select.html('<option value="">Failed to load subjects</option>');
+                    }
+                },
+                error: function() {
+                    $select.html('<option value="">Error loading subjects</option>');
+                }
+            });
+        },
+
+        /**
+         * Full setup for Class -> Section -> Subject triple cascade
+         *
+         * @param {object} selectors - { class: '#classSelect', section: '#sectionSelect', subject: '#subjectSelect' }
+         * @param {object} options - Additional options
+         */
+        setupFullCascade: function(selectors, options) {
+            options = $.extend({
+                loadClassesOnInit: true,
+                onChange: null
+            }, options);
+
+            var self = this;
+
+            // Load classes first
+            if (options.loadClassesOnInit) {
+                this.loadClasses(selectors.class, {
+                    onChange: function(classes, $select) {
+                        // Setup class -> section cascade
+                        if (selectors.section) {
+                            self.setupClassSectionCascade(selectors.class, selectors.section, {
+                                onChange: function(sections, $sectionSelect) {
+                                    if (options.onChange) {
+                                        options.onChange('section', sections, $sectionSelect);
+                                    }
+                                }
+                            });
+                        }
+
+                        // Setup class -> subject cascade
+                        if (selectors.subject) {
+                            self.setupClassSubjectCascade(selectors.class, selectors.subject, {
+                                onChange: function(subjects, $subjectSelect) {
+                                    if (options.onChange) {
+                                        options.onChange('subject', subjects, $subjectSelect);
+                                    }
+                                }
+                            });
+                        }
+
+                        if (options.onChange) {
+                            options.onChange('class', classes, $select);
+                        }
+                    }
+                });
+            }
         }
     };
 

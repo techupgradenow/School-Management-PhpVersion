@@ -2401,7 +2401,7 @@
 		// Approve absence
 		async function approveAbsence(absenceId) {
 			const result = await apiRequest('timetable.php?action=approve_absence', 'POST', {
-				absence_id: absenceId
+				id: absenceId
 			});
 
 			if (result.success) {
@@ -2417,7 +2417,7 @@
 		// Cancel absence
 		async function cancelAbsence(absenceId) {
 			const result = await apiRequest('timetable.php?action=cancel_absence', 'POST', {
-				absence_id: absenceId
+				id: absenceId
 			});
 
 			if (result.success) {
