@@ -48,7 +48,12 @@
       "Bash(cmd /c copy /Y \"C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\frontend\\\\assets\\\\css\\\\style.css\" \"c:\\\\Users\\\\admin\\\\Documents\\\\GitHub\\\\School-Management-PhpVersion\\\\frontend\\\\assets\\\\css\\\\style.css\")",
       "Bash(cmd /c \"C:\\\\xampp\\\\php\\\\php.exe C:\\\\xampp\\\\htdocs\\\\School-Management-PhpVersion\\\\database\\\\run_academic_migration.php\")",
       "Bash(powershell.exe -Command \"Invoke-WebRequest -Uri ''https://windows.php.net/downloads/releases/php-8.2.30-Win32-vs16-x64.zip'' -OutFile ''C:\\\\Users\\\\admin\\\\Downloads\\\\php82.zip''\")",
-      "Bash(/c/php82/php.exe:*)"
+      "Bash(/c/php82/php.exe:*)",
+      "Bash(TOKEN=\"4|S10WYq8nCTxVmqTjXW8OdfAClXoJhO8wGYnwoHki1cce72be\")",
+      "Bash(__NEW_LINE_6d4485cab4b11e0b__ echo \"=== 1. Auth Login ===\")",
+      "Bash(where:*)",
+      "Bash(find:*)",
+      "Bash(\"C:/php82/php.exe\" -r \"\n$pdo = new PDO\\(''mysql:host=193.203.184.194;dbname=u282002960_upgradeschool'', ''u282002960_upgradeschool'', ''UpgradeSchool@33''\\);\n$cols = $pdo->query\\(''DESCRIBE personal_access_tokens''\\)->fetchAll\\(PDO::FETCH_ASSOC\\);\nforeach\\($cols as $c\\) echo $c[''Field''] . '' | '' . $c[''Type''] . '' | '' . $c[''Key''] . PHP_EOL;\n\")"
     ]
   }
 }

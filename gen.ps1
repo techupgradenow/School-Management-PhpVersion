@@ -1,1 +1,0 @@
-Write-Host 'PS1 script works'

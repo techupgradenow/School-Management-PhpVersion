@@ -1,1 +1,0 @@
-import os, base64, json; print("Script ready")
