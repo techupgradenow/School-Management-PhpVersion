@@ -10,19 +10,20 @@
     // CONFIGURATION
     // ========================================
 
-    const API_BASE_URL = '/School-Management-PhpVersion/backend/api';
+    // Laravel API base URL — update if your Laravel server runs on a different port
+    const API_BASE_URL = 'http://localhost:5001/api';
 
     const API_ENDPOINTS = {
-        auth: `${API_BASE_URL}/auth.php`,
-        students: `${API_BASE_URL}/students.php`,
-        teachers: `${API_BASE_URL}/teachers.php`,
-        attendance: `${API_BASE_URL}/attendance.php`,
-        exams: `${API_BASE_URL}/exams.php`,
-        fees: `${API_BASE_URL}/fees.php`,
-        library: `${API_BASE_URL}/library.php`,
-        transport: `${API_BASE_URL}/transport.php`,
-        hostel: `${API_BASE_URL}/hostel.php`,
-        notifications: `${API_BASE_URL}/notifications.php`
+        auth:          `${API_BASE_URL}/auth/login`,
+        students:      `${API_BASE_URL}/backend/api/students.php`,
+        teachers:      `${API_BASE_URL}/backend/api/teachers.php`,
+        attendance:    `${API_BASE_URL}/backend/api/attendance.php`,
+        exams:         `${API_BASE_URL}/backend/api/exams.php`,
+        fees:          `${API_BASE_URL}/backend/api/fees.php`,
+        library:       `${API_BASE_URL}/backend/api/library.php`,
+        transport:     `${API_BASE_URL}/backend/api/transport.php`,
+        hostel:        `${API_BASE_URL}/backend/api/hostel.php`,
+        notifications: `${API_BASE_URL}/backend/api/notifications.php`
     };
 
     // ========================================

@@ -1,0 +1,2497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduManage Pro - Company Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s;
+            overflow: hidden;
+            z-index: 100;
+        }
+        .sidebar.collapsed { width: 68px; min-width: 68px; }
+        .sidebar-header {
+            padding: 20px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            min-height: 68px;
+        }
+        .sidebar-header .logo-icon {
+            width: 36px; height: 36px; min-width: 36px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px;
+        }
+        .sidebar-header h3 {
+            color: white; font-size: 16px; font-weight: 700;
+            white-space: nowrap; overflow: hidden;
+        }
+        .sidebar-header .badge-admin {
+            background: #6366f1; color: white;
+            font-size: 9px; font-weight: 700;
+            padding: 2px 6px; border-radius: 4px;
+            white-space: nowrap;
+        }
+        .sidebar.collapsed .sidebar-header h3,
+        .sidebar.collapsed .sidebar-header .badge-admin { display: none; }
+
+        .sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+        .nav-section-label {
+            padding: 12px 18px 4px;
+            font-size: 10px; font-weight: 700;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase; letter-spacing: 1px;
+            white-space: nowrap; overflow: hidden;
+        }
+        .sidebar.collapsed .nav-section-label { visibility: hidden; height: 20px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 18px;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            white-space: nowrap;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-item.active {
+            background: rgba(99,102,241,0.2);
+            color: white;
+        }
+        .nav-item.active::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: #6366f1;
+            border-radius: 0 3px 3px 0;
+        }
+        .nav-item i:first-child { width: 20px; text-align: center; font-size: 15px; }
+        .nav-item span { overflow: hidden; }
+        .sidebar.collapsed .nav-item span { display: none; }
+        .nav-badge {
+            margin-left: auto;
+            background: #ef4444; color: white;
+            font-size: 10px; font-weight: 700;
+            padding: 2px 6px; border-radius: 10px;
+            min-width: 18px; text-align: center;
+        }
+        .sidebar.collapsed .nav-badge { display: none; }
+
+        .sidebar-footer {
+            padding: 12px 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* ===== MAIN ===== */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .topbar {
+            height: 64px; min-height: 64px;
+            background: white;
+            display: flex; align-items: center;
+            padding: 0 24px;
+            gap: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            z-index: 50;
+        }
+        .topbar-toggle {
+            width: 36px; height: 36px;
+            border: none; background: #f1f5f9;
+            border-radius: 8px;
+            cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .topbar-toggle:hover { background: #e2e8f0; }
+        .topbar-breadcrumb { flex: 1; }
+        .topbar-breadcrumb h2 { font-size: 18px; font-weight: 600; color: #1e293b; }
+        .topbar-breadcrumb span { font-size: 12px; color: #94a3b8; }
+
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .topbar-admin-info {
+            display: flex; align-items: center; gap: 10px;
+            padding: 6px 12px;
+            background: #f8fafc; border-radius: 10px;
+            cursor: pointer;
+        }
+        .admin-avatar {
+            width: 34px; height: 34px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 13px; font-weight: 700;
+        }
+        .admin-name { font-size: 13px; font-weight: 600; color: #1e293b; }
+        .admin-role { font-size: 11px; color: #6366f1; font-weight: 600; }
+        .btn-logout {
+            padding: 8px 14px; border: 1px solid #fecaca;
+            background: #fef2f2; color: #ef4444;
+            border-radius: 8px; cursor: pointer;
+            font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover { background: #ef4444; color: white; }
+
+        .content-area {
+            flex: 1; overflow-y: auto;
+            padding: 24px;
+        }
+
+        /* ===== PANELS ===== */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* ===== STAT CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex; align-items: center; gap: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+        .stat-icon {
+            width: 52px; height: 52px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; color: white; flex-shrink: 0;
+        }
+        .stat-icon.purple { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .stat-icon.blue   { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .stat-icon.green  { background: linear-gradient(135deg, #10b981, #059669); }
+        .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-icon.red    { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .stat-icon.teal   { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .stat-info { flex: 1; }
+        .stat-label { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+        .stat-value { font-size: 26px; font-weight: 700; color: #1e293b; }
+        .stat-sub { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+        .stat-trend { font-size: 11px; font-weight: 600; }
+        .stat-trend.up { color: #10b981; }
+        .stat-trend.down { color: #ef4444; }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .card-title {
+            font-size: 15px; font-weight: 600; color: #1e293b;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .card-title i { color: #6366f1; }
+        .card-body { padding: 20px; }
+
+        /* ===== TABLE ===== */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            padding: 10px 14px;
+            font-size: 12px; font-weight: 700;
+            color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
+            background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        tbody td {
+            padding: 13px 14px;
+            font-size: 13px; color: #374151;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        tbody tr:hover td { background: #f8fafc; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 9px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+        }
+        .badge-active   { background: #d1fae5; color: #065f46; }
+        .badge-trial    { background: #dbeafe; color: #1e40af; }
+        .badge-expired  { background: #fee2e2; color: #991b1b; }
+        .badge-cancelled{ background: #f3f4f6; color: #4b5563; }
+        .badge-pending  { background: #fef9c3; color: #78350f; }
+        .badge-paid     { background: #d1fae5; color: #065f46; }
+        .badge-free     { background: #ede9fe; color: #5b21b6; }
+        .badge-premium  { background: #fef3c7; color: #92400e; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 13px; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: all 0.2s; text-decoration: none;
+        }
+        .btn-primary { background: #6366f1; color: white; }
+        .btn-primary:hover { background: #4f46e5; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger  { background: #ef4444; color: white; }
+        .btn-danger:hover  { background: #dc2626; }
+        .btn-outline { background: white; border: 1px solid #e2e8f0; color: #475569; }
+        .btn-outline:hover { background: #f8fafc; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .btn-icon { padding: 6px 8px; }
+
+        /* ===== SEARCH / FILTERS ===== */
+        .toolbar {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+        .search-input {
+            padding: 8px 14px; border: 1px solid #e2e8f0;
+            border-radius: 8px; font-size: 13px;
+            outline: none; flex: 1; min-width: 180px;
+        }
+        .search-input:focus { border-color: #6366f1; }
+        select.filter-select {
+            padding: 8px 12px; border: 1px solid #e2e8f0;
+            border-radius: 8px; font-size: 13px;
+            background: white; outline: none; cursor: pointer;
+        }
+        select.filter-select:focus { border-color: #6366f1; }
+
+        /* ===== MODAL ===== */
+        .modal-backdrop {
+            display: none; position: fixed;
+            inset: 0; background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(3px);
+            z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal {
+            background: white; border-radius: 16px;
+            width: 560px; max-width: 96vw;
+            max-height: 90vh; display: flex; flex-direction: column;
+            animation: modalIn 0.25s ease;
+        }
+        .modal-lg { width: 740px; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-header h3 { font-size: 17px; font-weight: 700; color: #1e293b; }
+        .modal-close {
+            width: 34px; height: 34px;
+            border: none; background: #f1f5f9;
+            border-radius: 8px; cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .modal-close:hover { background: #fef2f2; color: #ef4444; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #f1f5f9;
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+
+        /* ===== FORM ===== */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-grid.col-1 { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 12px; font-weight: 700; color: #475569; }
+        .form-control {
+            padding: 9px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px; font-size: 13px;
+            outline: none; transition: border 0.2s;
+            width: 100%;
+        }
+        .form-control:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        textarea.form-control { resize: vertical; min-height: 80px; }
+
+        /* ===== PLAN CARDS ===== */
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
+        }
+        .plan-card {
+            background: white; border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            padding: 22px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .plan-card:hover { border-color: #6366f1; box-shadow: 0 6px 20px rgba(99,102,241,0.12); }
+        .plan-card.popular { border-color: #6366f1; }
+        .plan-popular-badge {
+            position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; font-size: 10px; font-weight: 700;
+            padding: 3px 12px; border-radius: 20px;
+        }
+        .plan-name { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+        .plan-price { font-size: 28px; font-weight: 800; color: #6366f1; margin-bottom: 4px; }
+        .plan-price span { font-size: 13px; font-weight: 500; color: #94a3b8; }
+        .plan-desc { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+        .plan-features { list-style: none; margin-bottom: 18px; }
+        .plan-features li {
+            font-size: 12px; color: #475569;
+            padding: 4px 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .plan-features li i { color: #10b981; font-size: 11px; }
+        .plan-actions { display: flex; gap: 8px; }
+
+        /* ===== CHART ===== */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        .chart-box {
+            background: white; border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 20px;
+        }
+        .chart-box h3 { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 16px; }
+        .chart-canvas-wrap { position: relative; height: 220px; }
+
+        /* ===== SCHOOL DETAIL ===== */
+        .school-info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+        }
+        .info-item { }
+        .info-item .info-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 3px; }
+        .info-item .info-value { font-size: 14px; font-weight: 600; color: #1e293b; }
+
+        /* ===== PROGRESS BAR ===== */
+        .usage-bar { margin: 6px 0; }
+        .usage-label { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        .progress-track { height: 6px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #6366f1, #8b5cf6); transition: width 0.6s; }
+        .progress-fill.warning { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .progress-fill.danger  { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+        /* ===== TOAST ===== */
+        #toast {
+            position: fixed; bottom: 24px; right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px; color: white;
+            font-size: 13px; font-weight: 600;
+            display: none; z-index: 9999;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: toastIn 0.3s ease;
+        }
+        @keyframes toastIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: none; } }
+        #toast.success { background: #10b981; }
+        #toast.error   { background: #ef4444; }
+        #toast.info    { background: #6366f1; }
+
+        /* ===== LOGIN SCREEN ===== */
+        #loginScreen {
+            position: fixed; inset: 0;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9000;
+        }
+        .login-box {
+            background: white; border-radius: 20px;
+            padding: 40px; width: 400px; max-width: 95vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .login-logo {
+            text-align: center; margin-bottom: 28px;
+        }
+        .login-logo .logo-circle {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 18px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 28px; color: white; margin-bottom: 12px;
+        }
+        .login-logo h2 { font-size: 20px; font-weight: 700; color: #1e293b; }
+        .login-logo p  { font-size: 13px; color: #64748b; margin-top: 4px; }
+        .login-box .form-group { margin-bottom: 16px; }
+        .login-box label { font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 6px; }
+        .login-box input {
+            width: 100%; padding: 11px 14px;
+            border: 1.5px solid #e2e8f0; border-radius: 10px;
+            font-size: 14px; outline: none; transition: border 0.2s;
+        }
+        .login-box input:focus { border-color: #6366f1; }
+        .login-submit {
+            width: 100%; padding: 13px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none; border-radius: 10px; color: white;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .login-submit:hover { opacity: 0.92; }
+        .login-error {
+            background: #fef2f2; border: 1px solid #fecaca;
+            color: #dc2626; padding: 10px 14px;
+            border-radius: 8px; font-size: 13px;
+            margin-bottom: 14px; display: none;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center; padding: 50px 20px; color: #94a3b8;
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 14px; color: #cbd5e1; }
+        .empty-state p { font-size: 14px; font-weight: 600; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; left: -260px; transition: left 0.3s; }
+            .sidebar.mobile-open { left: 0; }
+            .chart-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .school-info-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== MODULE ACCESS GRID ===== */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 12px;
+        }
+        .module-section-label {
+            grid-column: 1 / -1;
+            font-size: 10px; font-weight: 700;
+            color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 6px; margin-bottom: 2px;
+        }
+        .module-card {
+            background: white; border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            padding: 14px 16px;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 10px;
+            transition: all 0.2s;
+        }
+        .module-card.enabled { border-color: #10b981; background: #f0fdf4; }
+        .module-card.premium-locked { border-color: #f59e0b; }
+        .module-card-info { flex: 1; min-width: 0; }
+        .module-card-name { font-size: 13px; font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .module-card-cat { font-size: 10px; color: #94a3b8; margin-top: 2px; display: flex; gap: 6px; }
+        /* Toggle switch */
+        .module-toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+        .module-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+        .module-toggle-slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background: #e2e8f0; border-radius: 24px; transition: 0.3s;
+        }
+        .module-toggle-slider:before {
+            content: ''; position: absolute;
+            width: 18px; height: 18px; left: 3px; bottom: 3px;
+            background: white; border-radius: 50%; transition: 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .module-toggle input:checked + .module-toggle-slider { background: #10b981; }
+        .module-toggle input:checked + .module-toggle-slider:before { transform: translateX(20px); }
+        .module-toggle input:disabled + .module-toggle-slider { opacity: 0.5; cursor: wait; }
+        /* Request row */
+        .req-reason { font-size: 12px; color: #64748b; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen">
+    <div class="login-box">
+        <div class="login-logo">
+            <div class="logo-circle"><i class="fas fa-shield-alt"></i></div>
+            <h2>Company Admin Panel</h2>
+            <p>EduManage Pro — Platform Management</p>
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <div class="form-group">
+            <label>Admin Username</label>
+            <input type="text" id="loginUser" placeholder="superadmin" value="superadmin">
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPass" placeholder="••••••••" value="">
+        </div>
+        <button class="login-submit" onclick="doLogin()">
+            <i class="fas fa-sign-in-alt"></i> Sign In to Admin Panel
+        </button>
+    </div>
+</div>
+
+<!-- ===== SIDEBAR ===== -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div>
+            <h3>EduManage Pro</h3>
+            <div class="badge-admin">COMPANY ADMIN</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="showPanel('dashboard')">
+            <i class="fas fa-chart-pie"></i><span>Dashboard</span>
+        </div>
+
+        <div class="nav-section-label">School Management</div>
+        <div class="nav-item" onclick="showPanel('schools')">
+            <i class="fas fa-school"></i><span>School Access</span>
+            <span class="nav-badge" id="schoolsBadge">0</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('module-requests')">
+            <i class="fas fa-inbox"></i><span>Module Requests</span>
+            <span class="nav-badge" id="requestsBadge" style="display:none">0</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('module-access')">
+            <i class="fas fa-puzzle-piece"></i><span>Module Access</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('subscriptions')">
+            <i class="fas fa-credit-card"></i><span>Subscriptions</span>
+        </div>
+
+        <div class="nav-section-label">Billing</div>
+        <div class="nav-item" onclick="showPanel('plans')">
+            <i class="fas fa-tags"></i><span>Plans & Pricing</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('payments')">
+            <i class="fas fa-receipt"></i><span>Payments</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('coupons')">
+            <i class="fas fa-ticket-alt"></i><span>Coupons</span>
+        </div>
+
+        <div class="nav-section-label">System</div>
+        <div class="nav-item" onclick="showPanel('settings')">
+            <i class="fas fa-cog"></i><span>Platform Settings</span>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="nav-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MAIN WRAPPER ===== -->
+<div class="main-wrapper">
+    <!-- Topbar -->
+    <div class="topbar">
+        <button class="topbar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="topbar-breadcrumb">
+            <h2 id="pageTitle">Dashboard</h2>
+            <span id="pageSubtitle">Platform overview & key metrics</span>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-admin-info">
+                <div class="admin-avatar" id="adminInitials">SA</div>
+                <div>
+                    <div class="admin-name" id="adminName">Super Admin</div>
+                    <div class="admin-role">Platform Administrator</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+
+        <!-- ===== DASHBOARD PANEL ===== -->
+        <div class="panel active" id="panel-dashboard">
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon purple"><i class="fas fa-school"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Schools</div>
+                        <div class="stat-value" id="statTotalSchools">—</div>
+                        <div class="stat-trend up" id="statSchoolsTrend"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue"><i class="fas fa-user-graduate"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Students</div>
+                        <div class="stat-value" id="statTotalStudents">—</div>
+                        <div class="stat-sub">Across all schools</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green"><i class="fas fa-rupee-sign"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Monthly Revenue (MRR)</div>
+                        <div class="stat-value" id="statMRR">—</div>
+                        <div class="stat-trend up" id="statMRRTrend"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Active Subscriptions</div>
+                        <div class="stat-value" id="statActiveSchools">—</div>
+                        <div class="stat-sub" id="statTrialCount"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon teal"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Teachers</div>
+                        <div class="stat-value" id="statTotalTeachers">—</div>
+                        <div class="stat-sub">Across all schools</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-label">Expired / Cancelled</div>
+                        <div class="stat-value" id="statExpiredSchools">—</div>
+                        <div class="stat-sub">Needs attention</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-grid">
+                <div class="chart-box">
+                    <h3><i class="fas fa-chart-line" style="color:#6366f1;margin-right:6px"></i>Monthly Revenue (Last 12 Months)</h3>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <h3><i class="fas fa-chart-pie" style="color:#6366f1;margin-right:6px"></i>Subscription Status</h3>
+                    <div class="chart-canvas-wrap">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Schools -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-clock"></i> Recent School Registrations</div>
+                    <button class="btn btn-outline btn-sm" onclick="showPanel('schools')">View All</button>
+                </div>
+                <div class="card-body" style="padding:0">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr>
+                                <th>School</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Students</th>
+                                <th>Joined</th>
+                                <th>Action</th>
+                            </tr></thead>
+                            <tbody id="recentSchoolsBody">
+                                <tr><td colspan="6" class="empty-state" style="padding:30px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SCHOOLS PANEL ===== -->
+        <div class="panel" id="panel-schools">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-school"></i> All Schools</div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddSchoolModal()">
+                        <i class="fas fa-plus"></i> Add School
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="toolbar" style="margin-bottom:16px">
+                        <input type="text" class="search-input" id="schoolSearch" placeholder="Search by name, email, city..." oninput="filterSchools()">
+                        <select class="filter-select" id="schoolStatusFilter" onchange="filterSchools()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="trial">Trial</option>
+                            <option value="expired">Expired</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <select class="filter-select" id="schoolPlanFilter" onchange="filterSchools()">
+                            <option value="">All Plans</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="loadSchools()"><i class="fas fa-sync"></i></button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr>
+                            <th>#</th>
+                            <th>School Name</th>
+                            <th>Email</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Students</th>
+                            <th>Subscription Ends</th>
+                            <th>Actions</th>
+                        </tr></thead>
+                        <tbody id="schoolsTableBody">
+                            <tr><td colspan="8" style="padding:30px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #f1f5f9">
+                    <span style="font-size:12px;color:#64748b" id="schoolsPagination"></span>
+                    <div style="display:flex;gap:6px" id="schoolsPageBtns"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SUBSCRIPTIONS PANEL ===== -->
+        <div class="panel" id="panel-subscriptions">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-credit-card"></i> Subscription Management</div>
+                </div>
+                <div class="card-body">
+                    <div class="toolbar" style="margin-bottom:16px">
+                        <input type="text" class="search-input" placeholder="Search school..." id="subSearch" oninput="filterSubscriptions()">
+                        <select class="filter-select" id="subStatusFilter" onchange="filterSubscriptions()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="trial">Trial</option>
+                            <option value="expired">Expired</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="loadSubscriptions()"><i class="fas fa-sync"></i></button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr>
+                            <th>School</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr></thead>
+                        <tbody id="subsTableBody">
+                            <tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PLANS PANEL ===== -->
+        <div class="panel" id="panel-plans">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <div>
+                    <h2 style="font-size:20px;font-weight:700;color:#1e293b">Subscription Plans</h2>
+                    <p style="font-size:13px;color:#64748b">Manage pricing tiers for schools</p>
+                </div>
+                <button class="btn btn-primary" onclick="openPlanModal()">
+                    <i class="fas fa-plus"></i> Create New Plan
+                </button>
+            </div>
+            <div class="plans-grid" id="plansGrid">
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8">Loading plans...</div>
+            </div>
+        </div>
+
+        <!-- ===== PAYMENTS PANEL ===== -->
+        <div class="panel" id="panel-payments">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-receipt"></i> Payment History</div>
+                    <div style="display:flex;gap:8px">
+                        <input type="date" class="form-control" id="payDateFrom" style="width:140px">
+                        <input type="date" class="form-control" id="payDateTo" style="width:140px">
+                        <button class="btn btn-outline btn-sm" onclick="loadPayments()"><i class="fas fa-filter"></i></button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr>
+                            <th>Invoice #</th>
+                            <th>School</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr></thead>
+                        <tbody id="paymentsBody">
+                            <tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== COUPONS PANEL ===== -->
+        <div class="panel" id="panel-coupons">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-ticket-alt"></i> Coupons & Discounts</div>
+                    <button class="btn btn-primary btn-sm" onclick="openCouponModal()">
+                        <i class="fas fa-plus"></i> New Coupon
+                    </button>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Discount</th>
+                            <th>Used / Limit</th>
+                            <th>Valid Until</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr></thead>
+                        <tbody id="couponsBody">
+                            <tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS PANEL ===== -->
+        <div class="panel" id="panel-settings">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-cog"></i> Platform Settings</div>
+                    <button class="btn btn-primary btn-sm" onclick="saveSettings()"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Platform Name</label>
+                            <input class="form-control" id="setPlatformName" value="EduManage Pro">
+                        </div>
+                        <div class="form-group">
+                            <label>Support Email</label>
+                            <input class="form-control" id="setEmail" placeholder="support@company.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Default Trial Days</label>
+                            <input class="form-control" type="number" id="setTrialDays" value="14">
+                        </div>
+                        <div class="form-group">
+                            <label>Default Currency</label>
+                            <select class="form-control" id="setCurrency">
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Razorpay Key ID</label>
+                            <input class="form-control" id="setRazorpayKey" placeholder="rzp_live_...">
+                        </div>
+                        <div class="form-group">
+                            <label>Razorpay Key Secret</label>
+                            <input class="form-control" type="password" id="setRazorpaySecret" placeholder="••••••••••••">
+                        </div>
+                        <div class="form-group full">
+                            <label>Laravel API Base URL</label>
+                            <input class="form-control" id="setApiUrl" placeholder="http://localhost:5001/api">
+                        </div>
+                        <div class="form-group full">
+                            <label>Admin Password (leave blank to keep current)</label>
+                            <input class="form-control" type="password" id="setAdminPass" placeholder="New password...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODULE REQUESTS PANEL ===== -->
+        <div class="panel" id="panel-module-requests">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-inbox"></i> Module Access Requests</div>
+                    <div style="display:flex;gap:8px;align-items:center">
+                        <select class="filter-select" id="reqStatusFilter" onchange="loadModuleRequests()">
+                            <option value="pending">Pending Only</option>
+                            <option value="">All Requests</option>
+                            <option value="approved">Approved</option>
+                            <option value="denied">Denied</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="loadModuleRequests()"><i class="fas fa-sync"></i> Refresh</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr>
+                            <th>School</th>
+                            <th>Module</th>
+                            <th>Category</th>
+                            <th>Reason</th>
+                            <th>Requested On</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr></thead>
+                        <tbody id="requestsTableBody">
+                            <tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== MODULE ACCESS PANEL ===== -->
+        <div class="panel" id="panel-module-access">
+            <div class="card" style="margin-bottom:20px">
+                <div class="card-body" style="padding:16px 20px">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                        <label style="font-size:13px;font-weight:600;color:#475569;white-space:nowrap">Select School:</label>
+                        <select class="form-control" id="moduleAccessSchoolSelect" onchange="loadSchoolModuleAccess()" style="max-width:380px;flex:1">
+                            <option value="">— Choose a school —</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="loadSchoolModuleAccess()"><i class="fas fa-sync"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div id="moduleAccessGrid" style="display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+                    <div>
+                        <h3 style="font-size:16px;font-weight:700;color:#1e293b" id="moduleAccessSchoolName">School</h3>
+                        <p style="font-size:12px;color:#64748b;margin-top:3px">Toggle module access. Changes take effect immediately.</p>
+                    </div>
+                    <div style="display:flex;gap:8px">
+                        <button class="btn btn-success btn-sm" onclick="enableAllModules()"><i class="fas fa-check-double"></i> Enable All</button>
+                        <button class="btn btn-danger btn-sm" onclick="disableAllModules()"><i class="fas fa-times-circle"></i> Disable All</button>
+                    </div>
+                </div>
+                <div class="module-grid" id="moduleCardsContainer"></div>
+            </div>
+            <div id="moduleAccessEmpty" style="text-align:center;padding:60px 20px;color:#94a3b8;display:block">
+                <i class="fas fa-puzzle-piece" style="font-size:40px;margin-bottom:12px;color:#cbd5e1;display:block"></i>
+                <p style="font-size:14px;font-weight:600">Select a school to manage its module access</p>
+                <p style="font-size:12px;margin-top:4px">Google Admin Console-style per-school toggles</p>
+            </div>
+        </div>
+
+    </div><!-- /content-area -->
+</div><!-- /main-wrapper -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- Add/Edit School Modal -->
+<div class="modal-backdrop" id="schoolModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 id="schoolModalTitle"><i class="fas fa-school" style="color:#6366f1;margin-right:8px"></i>Add New School</h3>
+            <button class="modal-close" onclick="closeModal('schoolModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>School Name *</label>
+                    <input class="form-control" id="schoolName" placeholder="Green Valley Academy">
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input class="form-control" id="schoolEmail" placeholder="admin@school.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input class="form-control" id="schoolPhone" placeholder="+91 99999 99999">
+                </div>
+                <div class="form-group">
+                    <label>City</label>
+                    <input class="form-control" id="schoolCity" placeholder="Mumbai">
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input class="form-control" id="schoolState" placeholder="Maharashtra">
+                </div>
+                <div class="form-group">
+                    <label>Subscription Plan *</label>
+                    <select class="form-control" id="schoolPlan"></select>
+                </div>
+                <div class="form-group">
+                    <label>Subscription Status</label>
+                    <select class="form-control" id="schoolStatus">
+                        <option value="trial">Trial</option>
+                        <option value="active">Active</option>
+                        <option value="expired">Expired</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Trial / Subscription Ends</label>
+                    <input class="form-control" type="date" id="schoolEndDate">
+                </div>
+                <div class="form-group">
+                    <label>Admin Name *</label>
+                    <input class="form-control" id="schoolAdminUser" placeholder="School Administrator">
+                </div>
+                <div class="form-group">
+                    <label>Admin Password *</label>
+                    <input class="form-control" type="password" id="schoolAdminPass" placeholder="Min 6 characters">
+                </div>
+                <div class="form-group full">
+                    <label>Address</label>
+                    <textarea class="form-control" id="schoolAddress" placeholder="Full address..."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('schoolModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveSchool()"><i class="fas fa-save"></i> Save School</button>
+        </div>
+    </div>
+</div>
+
+<!-- Module Request Review Modal -->
+<div class="modal-backdrop" id="reviewRequestModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-clipboard-check" style="color:#6366f1;margin-right:8px"></i>Review Module Request</h3>
+            <button class="modal-close" onclick="closeModal('reviewRequestModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:18px">
+                <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:8px">Request Details</div>
+                <div style="font-size:14px;font-weight:700;color:#1e293b" id="reviewReqSchool"></div>
+                <div style="font-size:13px;color:#6366f1;font-weight:600;margin-top:3px" id="reviewReqModule"></div>
+                <div style="font-size:12px;color:#64748b;margin-top:10px;line-height:1.6;background:white;padding:10px;border-radius:8px;border:1px solid #e2e8f0" id="reviewReqReason"></div>
+            </div>
+            <div style="margin-bottom:16px">
+                <label style="font-size:12px;font-weight:700;color:#475569;margin-bottom:10px;display:block">Decision *</label>
+                <div style="display:flex;gap:12px;flex-wrap:wrap">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;flex:1;min-width:100px;transition:all 0.2s" id="lbl-approve">
+                        <input type="radio" name="reviewDecision" value="approved"> <span style="color:#059669;font-weight:600">✓ Approve</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;flex:1;min-width:100px;transition:all 0.2s" id="lbl-trial">
+                        <input type="radio" name="reviewDecision" value="trial"> <span style="color:#2563eb;font-weight:600">⏱ Trial</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:10px 14px;border:2px solid #e2e8f0;border-radius:8px;flex:1;min-width:100px;transition:all 0.2s" id="lbl-deny">
+                        <input type="radio" name="reviewDecision" value="denied"> <span style="color:#dc2626;font-weight:600">✗ Deny</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" id="trialUntilGroup" style="display:none;margin-bottom:16px">
+                <label style="font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;display:block">Trial Access Until</label>
+                <input class="form-control" type="date" id="trialUntilDate">
+            </div>
+            <div class="form-group">
+                <label style="font-size:12px;font-weight:700;color:#475569;margin-bottom:6px;display:block">Review Note <span style="font-weight:400;color:#94a3b8">(shown to school admin)</span></label>
+                <textarea class="form-control" id="reviewNote" placeholder="Optional message for the school admin..." rows="3"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('reviewRequestModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitReview()"><i class="fas fa-check"></i> Submit Decision</button>
+        </div>
+    </div>
+</div>
+
+<!-- School Detail Modal -->
+<div class="modal-backdrop" id="schoolDetailModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3><i class="fas fa-school" style="color:#6366f1;margin-right:8px"></i><span id="detailSchoolName">School Details</span></h3>
+            <button class="modal-close" onclick="closeModal('schoolDetailModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="schoolDetailBody">Loading...</div>
+    </div>
+</div>
+
+<!-- Change Plan Modal -->
+<div class="modal-backdrop" id="changePlanModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-exchange-alt" style="color:#6366f1;margin-right:8px"></i>Change Subscription Plan</h3>
+            <button class="modal-close" onclick="closeModal('changePlanModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px;color:#64748b;margin-bottom:16px">Changing plan for: <strong id="changePlanSchoolName"></strong></p>
+            <div class="form-group">
+                <label>Select New Plan</label>
+                <select class="form-control" id="changePlanSelect"></select>
+            </div>
+            <div class="form-group">
+                <label>New Status</label>
+                <select class="form-control" id="changePlanStatus">
+                    <option value="active">Active</option>
+                    <option value="trial">Trial</option>
+                    <option value="expired">Expired</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>New Expiry Date</label>
+                <input class="form-control" type="date" id="changePlanExpiry">
+            </div>
+            <div class="form-group">
+                <label>Note (optional)</label>
+                <textarea class="form-control" id="changePlanNote" placeholder="Reason for change..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('changePlanModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveChangePlan()"><i class="fas fa-check"></i> Apply Change</button>
+        </div>
+    </div>
+</div>
+
+<!-- Plan Create/Edit Modal -->
+<div class="modal-backdrop" id="planModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="planModalTitle"><i class="fas fa-tags" style="color:#6366f1;margin-right:8px"></i>Create Plan</h3>
+            <button class="modal-close" onclick="closeModal('planModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Plan Name *</label>
+                    <input class="form-control" id="planName" placeholder="Basic / Pro / Enterprise">
+                </div>
+                <div class="form-group">
+                    <label>Slug *</label>
+                    <input class="form-control" id="planSlug" placeholder="basic">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Price (₹) *</label>
+                    <input class="form-control" type="number" id="planPriceMonthly" placeholder="999">
+                </div>
+                <div class="form-group">
+                    <label>Yearly Price (₹) *</label>
+                    <input class="form-control" type="number" id="planPriceYearly" placeholder="9999">
+                </div>
+                <div class="form-group">
+                    <label>Max Students</label>
+                    <input class="form-control" type="number" id="planMaxStudents" placeholder="500">
+                </div>
+                <div class="form-group">
+                    <label>Max Teachers</label>
+                    <input class="form-control" type="number" id="planMaxTeachers" placeholder="50">
+                </div>
+                <div class="form-group">
+                    <label>Max Users</label>
+                    <input class="form-control" type="number" id="planMaxUsers" placeholder="100">
+                </div>
+                <div class="form-group">
+                    <label>Storage (GB)</label>
+                    <input class="form-control" type="number" id="planStorage" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label>Trial Days</label>
+                    <input class="form-control" type="number" id="planTrialDays" placeholder="14">
+                </div>
+                <div class="form-group">
+                    <label>Sort Order</label>
+                    <input class="form-control" type="number" id="planSortOrder" placeholder="1">
+                </div>
+                <div class="form-group full">
+                    <label>Description</label>
+                    <textarea class="form-control" id="planDesc" placeholder="Plan description..."></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Features (one per line)</label>
+                    <textarea class="form-control" id="planFeaturesList" placeholder="Student Management&#10;Teacher Management&#10;Fee Collection&#10;Reports & Analytics" style="min-height:100px"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="planIsActive" checked> Active</label>
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" id="planIsPopular"> Mark as Popular</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('planModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="savePlan()"><i class="fas fa-save"></i> Save Plan</button>
+        </div>
+    </div>
+</div>
+
+<!-- Coupon Modal -->
+<div class="modal-backdrop" id="couponModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-ticket-alt" style="color:#6366f1;margin-right:8px"></i>Create Coupon</h3>
+            <button class="modal-close" onclick="closeModal('couponModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Coupon Code *</label>
+                    <input class="form-control" id="couponCode" placeholder="SAVE50">
+                </div>
+                <div class="form-group">
+                    <label>Discount Type</label>
+                    <select class="form-control" id="couponType">
+                        <option value="percentage">Percentage (%)</option>
+                        <option value="fixed">Fixed Amount (₹)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Discount Value *</label>
+                    <input class="form-control" type="number" id="couponValue" placeholder="20">
+                </div>
+                <div class="form-group">
+                    <label>Max Uses (0 = unlimited)</label>
+                    <input class="form-control" type="number" id="couponMaxUses" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Valid From</label>
+                    <input class="form-control" type="date" id="couponFrom">
+                </div>
+                <div class="form-group">
+                    <label>Valid Until</label>
+                    <input class="form-control" type="date" id="couponUntil">
+                </div>
+                <div class="form-group full">
+                    <label>Description</label>
+                    <input class="form-control" id="couponDesc" placeholder="Coupon description...">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('couponModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveCoupon()"><i class="fas fa-save"></i> Save Coupon</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG — update these values in Platform Settings
+// ============================================================
+const CONFIG = {
+    apiBase: localStorage.getItem('sa_api_base') || 'http://localhost:5001/api',
+    adminUser: localStorage.getItem('sa_admin_user') || 'superadmin',
+    adminPass: localStorage.getItem('sa_admin_pass') || 'superadmin123',
+};
+
+let authToken = localStorage.getItem('sa_token') || '';
+let allSchools = [];
+let allPlans   = [];
+let currentSchoolId = null;
+
+// ============================================================
+// INIT
+// ============================================================
+$(document).ready(function() {
+    // If we have a real stored token, validate it then load app
+    if (authToken) {
+        $.ajax({
+            url: CONFIG.apiBase + '/auth/me',
+            type: 'GET',
+            headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken },
+            success: function(r) {
+                const user = r.data || r.user || r;
+                if (user && (user.role === 'SuperAdmin' || user.role === 'superadmin')) {
+                    $('#adminName').text(user.name || 'Super Admin');
+                    $('#adminInitials').text((user.name || 'SA').substring(0,2).toUpperCase());
+                    $('#loginScreen').hide();
+                    initApp();
+                } else {
+                    // Not a super admin — clear token
+                    localStorage.removeItem('sa_token');
+                    authToken = '';
+                }
+            },
+            error: function() {
+                // Token expired or invalid — clear and show login
+                localStorage.removeItem('sa_token');
+                authToken = '';
+            }
+        });
+    }
+    // Fill API URL in settings
+    $('#setApiUrl').val(CONFIG.apiBase);
+    // Default dates for payments filter
+    const today = new Date().toISOString().split('T')[0];
+    const monthAgo = new Date(Date.now() - 30*24*60*60*1000).toISOString().split('T')[0];
+    $('#payDateFrom').val(monthAgo);
+    $('#payDateTo').val(today);
+});
+
+function initApp() {
+    loadDashboard();
+    loadPlans();
+    loadSchools();
+    loadSubscriptions();
+    loadPayments();
+    loadCoupons();
+    loadSettings();
+    loadModuleRequests();
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+function doLogin() {
+    const user = $('#loginUser').val().trim();
+    const pass = $('#loginPass').val().trim();
+    if (!user || !pass) { showLoginError('Please enter username and password.'); return; }
+
+    // Always call real API for login
+    $.ajax({
+        url: CONFIG.apiBase + '/auth/login',
+        type: 'POST',
+        contentType: 'application/json',
+        headers: { 'Accept': 'application/json' },
+        data: JSON.stringify({ username: user, password: pass }),
+        success: function(r) {
+            const token = r.token || (r.data && r.data.token);
+            if (token) {
+                authToken = token;
+                localStorage.setItem('sa_token', authToken);
+                const userData = r.data?.user || r.user || {};
+                $('#adminName').text(userData.name || user);
+                $('#adminInitials').text((userData.name || user).substring(0,2).toUpperCase());
+                $('#loginScreen').fadeOut(300, () => initApp());
+            } else {
+                showLoginError('Invalid credentials. Please try again.');
+            }
+        },
+        error: function(xhr) {
+            const msg = xhr.responseJSON?.message || 'Wrong username or password.';
+            showLoginError(msg);
+        }
+    });
+}
+$('#loginPass').keypress(function(e){ if(e.which===13) doLogin(); });
+
+function showLoginError(msg) {
+    $('#loginError').text(msg).show();
+    setTimeout(()=>$('#loginError').hide(), 3000);
+}
+
+function logout() {
+    // Call API logout if we have a token
+    if (authToken) {
+        $.ajax({
+            url: CONFIG.apiBase + '/auth/logout',
+            type: 'POST',
+            headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        });
+    }
+    localStorage.removeItem('sa_token');
+    authToken = '';
+    location.reload();
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const pageTitles = {
+    dashboard: ['Dashboard', 'Platform overview & key metrics'],
+    schools: ['All Schools', 'Manage registered schools'],
+    'module-requests': ['Module Requests', 'Review school module access requests'],
+    'module-access': ['Module Access', 'Per-school module toggle control'],
+    subscriptions: ['Subscriptions', 'View and manage school subscriptions'],
+    plans: ['Plans & Pricing', 'Define subscription tiers'],
+    payments: ['Payments', 'Payment and invoice history'],
+    coupons: ['Coupons', 'Manage discount coupons'],
+    settings: ['Platform Settings', 'Configure platform-wide settings'],
+};
+
+function showPanel(name) {
+    $('.panel').removeClass('active');
+    $('#panel-' + name).addClass('active');
+    $('.nav-item').removeClass('active');
+    $(`.nav-item[onclick="showPanel('${name}')"]`).addClass('active');
+    const [title, sub] = pageTitles[name] || [name, ''];
+    $('#pageTitle').text(title);
+    $('#pageSubtitle').text(sub);
+}
+
+function toggleSidebar() {
+    $('#sidebar').toggleClass('collapsed');
+}
+
+// ============================================================
+// API HELPER
+// ============================================================
+function apiCall(method, endpoint, data, onSuccess, onError) {
+    if (!authToken) {
+        showToast('Session expired. Please login again.', 'error');
+        logout();
+        return;
+    }
+    $.ajax({
+        url: CONFIG.apiBase + endpoint,
+        type: method,
+        contentType: 'application/json',
+        data: data ? JSON.stringify(data) : undefined,
+        headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + authToken },
+        success: function(r) {
+            onSuccess && onSuccess(r);
+        },
+        error: function(xhr) {
+            if (xhr.status === 401) {
+                showToast('Session expired. Please login again.', 'error');
+                localStorage.removeItem('sa_token');
+                authToken = '';
+                setTimeout(() => location.reload(), 1500);
+                return;
+            }
+            const msg = xhr.responseJSON?.message || 'Request failed';
+            if (onError) onError(msg);
+            else showToast(msg, 'error');
+        }
+    });
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg, type='info') {
+    clearTimeout(toastTimer);
+    $('#toast').removeClass('success error info').addClass(type).text(msg).show();
+    toastTimer = setTimeout(()=>$('#toast').fadeOut(), 3000);
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function closeModal(id) { $('#'+id).removeClass('show'); }
+function openModal(id)  { $('#'+id).addClass('show'); }
+$('.modal-backdrop').on('click', function(e){
+    if (e.target === this) closeModal(this.id);
+});
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+let revenueChartInst, statusChartInst;
+
+function loadDashboard() {
+    apiCall('GET', '/admin/dashboard', null, function(r) {
+        const d = r.data || r;
+        $('#statTotalSchools').text(fmtNum(d.total_schools || 0));
+        $('#statTotalStudents').text(fmtNum(d.total_students || 0));
+        $('#statTotalTeachers').text(fmtNum(d.total_teachers || 0));
+        $('#statActiveSchools').text(fmtNum(d.active_subscriptions || 0));
+        $('#statExpiredSchools').text(fmtNum((d.expired_schools||0) + (d.cancelled_schools||0)));
+        $('#statTrialCount').text((d.trial_schools||0) + ' on trial');
+        const mrr = d.mrr || d.monthly_revenue || 0;
+        $('#statMRR').text('₹' + fmtNum(mrr));
+        $('#statMRRTrend').text((d.mrr_growth>=0 ? '▲' : '▼') + Math.abs(d.mrr_growth||0) + '% vs last month');
+        $('#schoolsBadge').text(d.total_schools || 0);
+        buildRevenueChart(d.monthly_revenue_data || buildDemoRevenue());
+        buildStatusChart(d);
+        buildRecentSchools(d.recent_schools || []);
+    }, function() {
+        // Demo data when API not available
+        buildRevenueChart(buildDemoRevenue());
+        buildStatusChart({ active_subscriptions:12, trial_schools:5, expired_schools:2, cancelled_schools:1 });
+        $('#statTotalSchools').text('—');
+        $('#statMRR').text('—');
+    });
+}
+
+function buildDemoRevenue() {
+    return [42000,56000,48000,65000,72000,58000,80000,95000,88000,102000,115000,128000];
+}
+
+function buildRevenueChart(data) {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    if (revenueChartInst) revenueChartInst.destroy();
+    const months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
+    revenueChartInst = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: data,
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99,102,241,0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#6366f1',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: '#f1f5f9' }, ticks: { callback: v=>'₹'+fmtNum(v) } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+}
+
+function buildStatusChart(d) {
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    if (statusChartInst) statusChartInst.destroy();
+    statusChartInst = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Active','Trial','Expired','Cancelled'],
+            datasets: [{
+                data: [
+                    d.active_subscriptions||0,
+                    d.trial_schools||0,
+                    d.expired_schools||0,
+                    d.cancelled_schools||0
+                ],
+                backgroundColor: ['#10b981','#3b82f6','#ef4444','#94a3b8'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, font: { size: 12 } } } },
+            cutout: '65%'
+        }
+    });
+}
+
+function buildRecentSchools(schools) {
+    if (!schools.length) {
+        $('#recentSchoolsBody').html('<tr><td colspan="6" class="empty-state" style="padding:30px;text-align:center;color:#94a3b8">No data yet</td></tr>');
+        return;
+    }
+    let html = '';
+    schools.slice(0,8).forEach(s => {
+        html += `<tr>
+            <td><strong>${esc(s.name)}</strong></td>
+            <td>${esc(s.plan_name||'—')}</td>
+            <td>${statusBadge(s.subscription_status)}</td>
+            <td>${fmtNum(s.students_count||0)}</td>
+            <td>${fmtDate(s.created_at)}</td>
+            <td><button class="btn btn-outline btn-sm btn-icon" onclick="viewSchool(${s.id})" title="View"><i class="fas fa-eye"></i></button></td>
+        </tr>`;
+    });
+    $('#recentSchoolsBody').html(html);
+}
+
+// ============================================================
+// SCHOOLS
+// ============================================================
+function loadSchools() {
+    apiCall('GET', '/admin/schools', null, function(r) {
+        allSchools = r.data || r.schools || r || [];
+        populatePlanFilters();
+        renderSchoolsTable(allSchools);
+        $('#schoolsBadge').text(allSchools.length);
+        populateModuleAccessSchoolSelect(allSchools);
+    }, function() {
+        allSchools = getDemoSchools();
+        renderSchoolsTable(allSchools);
+        populateModuleAccessSchoolSelect(allSchools);
+    });
+}
+
+function renderSchoolsTable(schools) {
+    if (!schools.length) {
+        $('#schoolsTableBody').html('<tr><td colspan="8" style="padding:30px;text-align:center;color:#94a3b8">No schools found</td></tr>');
+        $('#schoolsPagination').text('');
+        return;
+    }
+    let html = '';
+    schools.forEach((s, i) => {
+        const endDate = s.subscription_end_date || s.trial_ends_at || '—';
+        html += `<tr>
+            <td style="color:#94a3b8;font-size:12px">${i+1}</td>
+            <td>
+                <div style="font-weight:600;color:#1e293b">${esc(s.name)}</div>
+                <div style="font-size:11px;color:#94a3b8">${esc(s.city||'')} ${s.state?'· '+esc(s.state):''}</div>
+            </td>
+            <td><a href="mailto:${esc(s.email)}" style="color:#6366f1;font-size:12px">${esc(s.email||'—')}</a></td>
+            <td>${esc(s.plan_name||s.plan?.name||'—')}</td>
+            <td>${statusBadge(s.subscription_status)}</td>
+            <td>${fmtNum(s.students_count||0)}</td>
+            <td style="font-size:12px;color:#64748b">${fmtDate(endDate)}</td>
+            <td>
+                <div style="display:flex;gap:4px">
+                    <button class="btn btn-outline btn-sm btn-icon" onclick="viewSchool(${s.id})" title="Details"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-primary btn-sm btn-icon" onclick="changePlan(${s.id},'${esc(s.name)}')" title="Change Plan"><i class="fas fa-exchange-alt"></i></button>
+                    <button class="btn btn-outline btn-sm btn-icon" onclick="openModuleAccess('${esc(s.id)}','${esc(s.name)}')" title="Module Access" style="color:#8b5cf6;border-color:#c4b5fd"><i class="fas fa-puzzle-piece"></i></button>
+                    <button class="btn btn-outline btn-sm btn-icon" onclick="editSchool(${s.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger btn-sm btn-icon" onclick="deleteSchool(${s.id},'${esc(s.name)}')" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        </tr>`;
+    });
+    $('#schoolsTableBody').html(html);
+    $('#schoolsPagination').text(`Showing ${schools.length} school${schools.length!==1?'s':''}`);
+}
+
+function filterSchools() {
+    const q   = $('#schoolSearch').val().toLowerCase();
+    const sta = $('#schoolStatusFilter').val();
+    const pln = $('#schoolPlanFilter').val();
+    const filtered = allSchools.filter(s => {
+        const matchQ   = !q || (s.name||'').toLowerCase().includes(q) || (s.email||'').toLowerCase().includes(q) || (s.city||'').toLowerCase().includes(q);
+        const matchSta = !sta || s.subscription_status === sta;
+        const matchPln = !pln || String(s.plan_id) === pln || (s.plan?.name||'').toLowerCase() === pln.toLowerCase();
+        return matchQ && matchSta && matchPln;
+    });
+    renderSchoolsTable(filtered);
+}
+
+function populatePlanFilters() {
+    const plans = [...new Set(allSchools.map(s=>s.plan_name||s.plan?.name).filter(Boolean))];
+    const $sel = $('#schoolPlanFilter');
+    $sel.find('option:not(:first)').remove();
+    plans.forEach(p => $sel.append(`<option value="${esc(p)}">${esc(p)}</option>`));
+    // Also populate plan dropdowns in modals
+    const $sp = $('#schoolPlan, #changePlanSelect');
+    $sp.find('option:not(:first)').remove();
+    allPlans.forEach(p => $sp.append(`<option value="${p.id}">${esc(p.name)} — ₹${p.price_monthly}/mo</option>`));
+}
+
+function openAddSchoolModal() {
+    $('#schoolModalTitle').html('<i class="fas fa-school" style="color:#6366f1;margin-right:8px"></i>Add New School');
+    currentSchoolId = null;
+    $('#schoolName,#schoolEmail,#schoolPhone,#schoolCity,#schoolState,#schoolAddress,#schoolAdminUser,#schoolAdminPass').val('');
+    $('#schoolStatus').val('trial');
+    const nextMonth = new Date(Date.now() + 14*24*60*60*1000).toISOString().split('T')[0];
+    $('#schoolEndDate').val(nextMonth);
+    // populate plan select
+    const $sp = $('#schoolPlan');
+    $sp.find('option').remove();
+    allPlans.forEach(p => $sp.append(`<option value="${p.id}">${esc(p.name)} — ₹${p.price_monthly}/mo</option>`));
+    openModal('schoolModal');
+}
+
+function editSchool(id) {
+    const s = allSchools.find(x=>x.id==id);
+    if (!s) return;
+    currentSchoolId = id;
+    $('#schoolModalTitle').html('<i class="fas fa-edit" style="color:#6366f1;margin-right:8px"></i>Edit School');
+    $('#schoolName').val(s.name);
+    $('#schoolEmail').val(s.email);
+    $('#schoolPhone').val(s.phone||'');
+    $('#schoolCity').val(s.city||'');
+    $('#schoolState').val(s.state||'');
+    $('#schoolAddress').val(s.address||'');
+    $('#schoolStatus').val(s.subscription_status||'trial');
+    $('#schoolEndDate').val((s.subscription_end_date||'').split(' ')[0]||'');
+    const $sp = $('#schoolPlan');
+    $sp.find('option').remove();
+    allPlans.forEach(p => $sp.append(`<option value="${p.id}"${p.id==s.plan_id?' selected':''}>${esc(p.name)}</option>`));
+    openModal('schoolModal');
+}
+
+function saveSchool() {
+    const payload = {
+        name: $('#schoolName').val().trim(),
+        email: $('#schoolEmail').val().trim(),
+        phone: $('#schoolPhone').val().trim(),
+        city: $('#schoolCity').val().trim(),
+        state: $('#schoolState').val().trim(),
+        address: $('#schoolAddress').val().trim(),
+        plan_id: $('#schoolPlan').val(),
+        subscription_status: $('#schoolStatus').val(),
+        subscription_end_date: $('#schoolEndDate').val(),
+        admin_name: $('#schoolAdminUser').val().trim() || 'School Admin',
+        admin_password: $('#schoolAdminPass').val() || 'admin@123',
+    };
+    if (!payload.name || !payload.email) { showToast('Name and email are required', 'error'); return; }
+    if (!payload.plan_id) { showToast('Please select a subscription plan', 'error'); return; }
+    const method = currentSchoolId ? 'PUT' : 'POST';
+    const endpoint = currentSchoolId ? `/admin/schools/${currentSchoolId}` : '/admin/schools';
+    apiCall(method, endpoint, payload, function() {
+        showToast(currentSchoolId ? 'School updated' : 'School created', 'success');
+        closeModal('schoolModal');
+        loadSchools();
+        loadDashboard();
+    });
+}
+
+function deleteSchool(id, name) {
+    if (!confirm(`Delete school "${name}"? This cannot be undone.`)) return;
+    apiCall('DELETE', `/admin/schools/${id}`, null, function() {
+        showToast('School deleted', 'success');
+        loadSchools();
+        loadDashboard();
+    });
+}
+
+function viewSchool(id) {
+    apiCall('GET', `/admin/schools/${id}`, null, function(r) {
+        const s = r.data || r;
+        renderSchoolDetail(s);
+    }, function() {
+        const s = allSchools.find(x=>x.id==id) || {};
+        renderSchoolDetail(s);
+    });
+}
+
+function renderSchoolDetail(s) {
+    $('#detailSchoolName').text(s.name||'School Details');
+    let usageHtml = '';
+    if (s.usage) {
+        const usage = s.usage;
+        usageHtml = `
+        <div class="card-header"><div class="card-title"><i class="fas fa-chart-bar"></i> Resource Usage</div></div>
+        <div class="card-body">
+            ${usageBar('Students', usage.students_used, usage.students_limit)}
+            ${usageBar('Teachers', usage.teachers_used, usage.teachers_limit)}
+            ${usageBar('Storage', usage.storage_used_gb, usage.storage_limit_gb, 'GB')}
+        </div>`;
+    }
+    $('#schoolDetailBody').html(`
+        <div class="school-info-grid" style="margin-bottom:20px">
+            <div class="info-item"><div class="info-label">School Name</div><div class="info-value">${esc(s.name||'—')}</div></div>
+            <div class="info-item"><div class="info-label">Email</div><div class="info-value">${esc(s.email||'—')}</div></div>
+            <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${esc(s.phone||'—')}</div></div>
+            <div class="info-item"><div class="info-label">City / State</div><div class="info-value">${esc((s.city||'—')+' / '+(s.state||'—'))}</div></div>
+            <div class="info-item"><div class="info-label">Plan</div><div class="info-value">${esc(s.plan_name||s.plan?.name||'—')}</div></div>
+            <div class="info-item"><div class="info-label">Status</div><div class="info-value">${statusBadge(s.subscription_status)}</div></div>
+            <div class="info-item"><div class="info-label">Subscription Start</div><div class="info-value">${fmtDate(s.subscription_start_date)}</div></div>
+            <div class="info-item"><div class="info-label">Subscription End</div><div class="info-value">${fmtDate(s.subscription_end_date)}</div></div>
+            <div class="info-item"><div class="info-label">Students</div><div class="info-value">${fmtNum(s.students_count||0)}</div></div>
+            <div class="info-item"><div class="info-label">Teachers</div><div class="info-value">${fmtNum(s.teachers_count||0)}</div></div>
+            <div class="info-item"><div class="info-label">Registered</div><div class="info-value">${fmtDate(s.created_at)}</div></div>
+            <div class="info-item"><div class="info-label">Address</div><div class="info-value">${esc(s.address||'—')}</div></div>
+        </div>
+        ${usageHtml}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+            <button class="btn btn-primary" onclick="changePlan(${s.id},'${esc(s.name)}');closeModal('schoolDetailModal')">
+                <i class="fas fa-exchange-alt"></i> Change Plan
+            </button>
+            <button class="btn btn-outline" onclick="editSchool(${s.id});closeModal('schoolDetailModal')">
+                <i class="fas fa-edit"></i> Edit School
+            </button>
+            <button class="btn btn-danger" onclick="deleteSchool(${s.id},'${esc(s.name)}');closeModal('schoolDetailModal')">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </div>
+    `);
+    openModal('schoolDetailModal');
+}
+
+function usageBar(label, used, limit, unit='') {
+    const pct = limit ? Math.min(100, Math.round((used/limit)*100)) : 0;
+    const cls = pct > 90 ? 'danger' : pct > 70 ? 'warning' : '';
+    return `<div class="usage-bar">
+        <div class="usage-label"><span>${label}</span><span>${used||0}${unit} / ${limit||'∞'}${unit}</span></div>
+        <div class="progress-track"><div class="progress-fill ${cls}" style="width:${pct}%"></div></div>
+    </div>`;
+}
+
+// ============================================================
+// CHANGE PLAN
+// ============================================================
+function changePlan(schoolId, schoolName) {
+    currentSchoolId = schoolId;
+    $('#changePlanSchoolName').text(schoolName);
+    $('#changePlanSelect').find('option').remove();
+    allPlans.forEach(p => $('#changePlanSelect').append(`<option value="${p.id}">${esc(p.name)} — ₹${p.price_monthly}/mo</option>`));
+    const nextYear = new Date(Date.now() + 365*24*60*60*1000).toISOString().split('T')[0];
+    $('#changePlanExpiry').val(nextYear);
+    openModal('changePlanModal');
+}
+
+function saveChangePlan() {
+    const payload = {
+        plan_id: $('#changePlanSelect').val(),
+        subscription_status: $('#changePlanStatus').val(),
+        subscription_end_date: $('#changePlanExpiry').val(),
+        note: $('#changePlanNote').val(),
+    };
+    apiCall('POST', `/admin/schools/${currentSchoolId}/change-plan`, payload, function() {
+        showToast('Subscription updated successfully', 'success');
+        closeModal('changePlanModal');
+        loadSchools();
+        loadSubscriptions();
+        loadDashboard();
+    });
+}
+
+// ============================================================
+// SUBSCRIPTIONS
+// ============================================================
+let allSubs = [];
+function loadSubscriptions() {
+    apiCall('GET', '/admin/subscriptions', null, function(r) {
+        allSubs = r.data || r || [];
+        renderSubsTable(allSubs);
+    }, function() {
+        allSubs = allSchools.map(s => ({
+            school_name: s.name,
+            plan_name: s.plan_name||'—',
+            subscription_status: s.subscription_status,
+            subscription_start_date: s.subscription_start_date,
+            subscription_end_date: s.subscription_end_date,
+            amount: s.plan_price_monthly||0,
+            id: s.id
+        }));
+        renderSubsTable(allSubs);
+    });
+}
+
+function renderSubsTable(subs) {
+    if (!subs.length) {
+        $('#subsTableBody').html('<tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">No subscriptions found</td></tr>');
+        return;
+    }
+    let html = '';
+    subs.forEach(s => {
+        html += `<tr>
+            <td><strong>${esc(s.school_name||s.name||'—')}</strong></td>
+            <td>${esc(s.plan_name||'—')}</td>
+            <td>${statusBadge(s.subscription_status)}</td>
+            <td style="font-size:12px;color:#64748b">${fmtDate(s.subscription_start_date)}</td>
+            <td style="font-size:12px;color:#64748b">${fmtDate(s.subscription_end_date)}</td>
+            <td>₹${fmtNum(s.amount||0)}</td>
+            <td><button class="btn btn-primary btn-sm" onclick="changePlan(${s.id||s.school_id},'${esc(s.school_name||s.name||'')}')"><i class="fas fa-exchange-alt"></i> Change</button></td>
+        </tr>`;
+    });
+    $('#subsTableBody').html(html);
+}
+
+function filterSubscriptions() {
+    const q   = $('#subSearch').val().toLowerCase();
+    const sta = $('#subStatusFilter').val();
+    const filtered = allSubs.filter(s => {
+        const matchQ = !q || (s.school_name||'').toLowerCase().includes(q);
+        const matchS = !sta || s.subscription_status === sta;
+        return matchQ && matchS;
+    });
+    renderSubsTable(filtered);
+}
+
+// ============================================================
+// PLANS
+// ============================================================
+function loadPlans() {
+    apiCall('GET', '/admin/plans', null, function(r) {
+        allPlans = r.data || r || [];
+        renderPlans(allPlans);
+        populatePlanFilters();
+    }, function() {
+        allPlans = getDemoPlans();
+        renderPlans(allPlans);
+    });
+}
+
+function renderPlans(plans) {
+    if (!plans.length) {
+        $('#plansGrid').html('<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8">No plans yet. Create your first plan.</div>');
+        return;
+    }
+    let html = '';
+    plans.forEach(p => {
+        const feats = (p.features_list || p.features || []);
+        const featItems = Array.isArray(feats) ? feats : (typeof feats === 'string' ? feats.split('\n') : []);
+        html += `<div class="plan-card ${p.is_popular?'popular':''}">
+            ${p.is_popular ? '<div class="plan-popular-badge">MOST POPULAR</div>' : ''}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div class="plan-name">${esc(p.name)}</div>
+                <span class="badge ${p.is_active ? 'badge-active' : 'badge-cancelled'}">${p.is_active?'Active':'Inactive'}</span>
+            </div>
+            <div class="plan-price">₹${fmtNum(p.price_monthly||0)}<span>/month</span></div>
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">₹${fmtNum(p.price_yearly||0)}/year</div>
+            <div class="plan-desc">${esc(p.description||'')}</div>
+            <ul class="plan-features">
+                ${p.max_students?`<li><i class="fas fa-check"></i> Up to ${fmtNum(p.max_students)} students</li>`:''}
+                ${p.max_teachers?`<li><i class="fas fa-check"></i> Up to ${fmtNum(p.max_teachers)} teachers</li>`:''}
+                ${p.max_storage_gb?`<li><i class="fas fa-check"></i> ${p.max_storage_gb} GB storage</li>`:''}
+                ${featItems.slice(0,4).map(f=>`<li><i class="fas fa-check"></i> ${esc(String(f||'').trim())}</li>`).join('')}
+            </ul>
+            <div class="plan-actions">
+                <button class="btn btn-primary btn-sm" onclick="editPlan(${p.id})"><i class="fas fa-edit"></i> Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deletePlan(${p.id},'${esc(p.name)}')"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    });
+    $('#plansGrid').html(html);
+}
+
+function openPlanModal(plan) {
+    if (plan) {
+        $('#planModalTitle').html('<i class="fas fa-edit" style="color:#6366f1;margin-right:8px"></i>Edit Plan');
+        $('#planName').val(plan.name);
+        $('#planSlug').val(plan.slug);
+        $('#planPriceMonthly').val(plan.price_monthly);
+        $('#planPriceYearly').val(plan.price_yearly);
+        $('#planMaxStudents').val(plan.max_students);
+        $('#planMaxTeachers').val(plan.max_teachers);
+        $('#planMaxUsers').val(plan.max_users);
+        $('#planStorage').val(plan.max_storage_gb);
+        $('#planTrialDays').val(plan.trial_days);
+        $('#planSortOrder').val(plan.sort_order);
+        $('#planDesc').val(plan.description);
+        const feats = plan.features_list || plan.features || [];
+        $('#planFeaturesList').val(Array.isArray(feats) ? feats.join('\n') : feats);
+        $('#planIsActive').prop('checked', !!plan.is_active);
+        $('#planIsPopular').prop('checked', !!plan.is_popular);
+        currentSchoolId = plan.id;
+    } else {
+        $('#planModalTitle').html('<i class="fas fa-tags" style="color:#6366f1;margin-right:8px"></i>Create Plan');
+        $('#planName,#planSlug,#planDesc,#planFeaturesList').val('');
+        $('#planPriceMonthly,#planPriceYearly,#planMaxStudents,#planMaxTeachers,#planMaxUsers,#planStorage').val('');
+        $('#planTrialDays').val('14');
+        $('#planSortOrder').val('1');
+        $('#planIsActive').prop('checked', true);
+        $('#planIsPopular').prop('checked', false);
+        currentSchoolId = null;
+    }
+    openModal('planModal');
+}
+
+function editPlan(id) {
+    const p = allPlans.find(x=>x.id==id);
+    if (p) openPlanModal(p);
+    else apiCall('GET', `/admin/plans/${id}`, null, r => openPlanModal(r.data||r));
+}
+
+function savePlan() {
+    const payload = {
+        name: $('#planName').val().trim(),
+        slug: $('#planSlug').val().trim() || $('#planName').val().toLowerCase().replace(/\s+/g,'-'),
+        price_monthly: parseFloat($('#planPriceMonthly').val()),
+        price_yearly: parseFloat($('#planPriceYearly').val()),
+        max_students: parseInt($('#planMaxStudents').val())||null,
+        max_teachers: parseInt($('#planMaxTeachers').val())||null,
+        max_users: parseInt($('#planMaxUsers').val())||null,
+        max_storage_gb: parseInt($('#planStorage').val())||null,
+        trial_days: parseInt($('#planTrialDays').val())||14,
+        sort_order: parseInt($('#planSortOrder').val())||1,
+        description: $('#planDesc').val().trim(),
+        features_list: $('#planFeaturesList').val().split('\n').map(x=>x.trim()).filter(Boolean),
+        is_active: $('#planIsActive').is(':checked'),
+        is_popular: $('#planIsPopular').is(':checked'),
+    };
+    if (!payload.name) { showToast('Plan name is required','error'); return; }
+    const method = currentSchoolId ? 'PUT' : 'POST';
+    const endpoint = currentSchoolId ? `/admin/plans/${currentSchoolId}` : '/admin/plans';
+    apiCall(method, endpoint, payload, function() {
+        showToast(currentSchoolId ? 'Plan updated' : 'Plan created', 'success');
+        closeModal('planModal');
+        loadPlans();
+    });
+}
+
+function deletePlan(id, name) {
+    if (!confirm(`Delete plan "${name}"? Schools on this plan will be affected.`)) return;
+    apiCall('DELETE', `/admin/plans/${id}`, null, function() {
+        showToast('Plan deleted', 'success');
+        loadPlans();
+    });
+}
+
+// ============================================================
+// PAYMENTS
+// ============================================================
+function loadPayments() {
+    const from = $('#payDateFrom').val();
+    const to   = $('#payDateTo').val();
+    apiCall('GET', `/admin/payments?from=${from}&to=${to}`, null, function(r) {
+        renderPayments(r.data || r || []);
+    }, function() {
+        renderPayments(getDemoPayments());
+    });
+}
+
+function renderPayments(payments) {
+    if (!payments.length) {
+        $('#paymentsBody').html('<tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">No payments found</td></tr>');
+        return;
+    }
+    let html = '';
+    payments.forEach(p => {
+        html += `<tr>
+            <td style="font-family:monospace;font-size:12px;color:#6366f1">${esc(p.invoice_number||p.id||'—')}</td>
+            <td><strong>${esc(p.school_name||'—')}</strong></td>
+            <td>${esc(p.plan_name||'—')}</td>
+            <td style="font-weight:600">₹${fmtNum(p.amount||0)}</td>
+            <td><span class="badge ${p.status==='paid'?'badge-paid':'badge-pending'}">${esc(p.status||'—')}</span></td>
+            <td style="font-size:12px;color:#64748b">${fmtDate(p.created_at||p.paid_at)}</td>
+            <td><button class="btn btn-outline btn-sm" onclick="downloadInvoice('${p.id||''}')"><i class="fas fa-download"></i> Invoice</button></td>
+        </tr>`;
+    });
+    $('#paymentsBody').html(html);
+}
+
+function downloadInvoice(id) {
+    if (!id) { showToast('No invoice ID','error'); return; }
+    showToast('Downloading invoice...','info');
+    window.open(CONFIG.apiBase + '/billing/invoices/' + id + '/download', '_blank');
+}
+
+// ============================================================
+// COUPONS
+// ============================================================
+let allCoupons = [];
+function loadCoupons() {
+    apiCall('GET', '/admin/coupons', null, function(r) {
+        allCoupons = r.data || r || [];
+        renderCoupons(allCoupons);
+    }, function() {
+        renderCoupons(getDemoCoupons());
+    });
+}
+
+function renderCoupons(coupons) {
+    if (!coupons.length) {
+        $('#couponsBody').html('<tr><td colspan="7" style="padding:30px;text-align:center;color:#94a3b8">No coupons yet</td></tr>');
+        return;
+    }
+    let html = '';
+    coupons.forEach(c => {
+        const isExpired = c.expires_at && new Date(c.expires_at) < new Date();
+        html += `<tr>
+            <td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px;font-weight:700">${esc(c.code)}</code></td>
+            <td>${c.discount_type==='percentage'?'Percentage':'Fixed'}</td>
+            <td style="font-weight:600">${c.discount_type==='percentage'?c.discount_value+'%':'₹'+fmtNum(c.discount_value)}</td>
+            <td>${fmtNum(c.used_count||0)} / ${c.max_uses||'∞'}</td>
+            <td style="font-size:12px;color:#64748b">${fmtDate(c.expires_at)}</td>
+            <td><span class="badge ${isExpired?'badge-expired':'badge-active'}">${isExpired?'Expired':'Active'}</span></td>
+            <td>
+                <button class="btn btn-outline btn-sm btn-icon" onclick="copyCoupon('${esc(c.code)}')" title="Copy code"><i class="fas fa-copy"></i></button>
+                <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCoupon(${c.id},'${esc(c.code)}')" title="Delete"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    });
+    $('#couponsBody').html(html);
+}
+
+function openCouponModal() {
+    $('#couponCode,#couponDesc').val('');
+    $('#couponValue').val('');
+    $('#couponMaxUses').val('0');
+    const today = new Date().toISOString().split('T')[0];
+    const nextYear = new Date(Date.now()+365*24*60*60*1000).toISOString().split('T')[0];
+    $('#couponFrom').val(today);
+    $('#couponUntil').val(nextYear);
+    openModal('couponModal');
+}
+
+function saveCoupon() {
+    const payload = {
+        code: $('#couponCode').val().trim().toUpperCase(),
+        discount_type: $('#couponType').val(),
+        discount_value: parseFloat($('#couponValue').val()),
+        max_uses: parseInt($('#couponMaxUses').val())||0,
+        valid_from: $('#couponFrom').val(),
+        expires_at: $('#couponUntil').val(),
+        description: $('#couponDesc').val().trim(),
+    };
+    if (!payload.code || !payload.discount_value) { showToast('Code and value required','error'); return; }
+    apiCall('POST', '/admin/coupons', payload, function() {
+        showToast('Coupon created','success');
+        closeModal('couponModal');
+        loadCoupons();
+    });
+}
+
+function deleteCoupon(id, code) {
+    if (!confirm(`Delete coupon "${code}"?`)) return;
+    apiCall('DELETE', `/admin/coupons/${id}`, null, function() {
+        showToast('Coupon deleted','success');
+        loadCoupons();
+    });
+}
+
+function copyCoupon(code) {
+    navigator.clipboard.writeText(code).then(()=>showToast('Code copied: '+code,'info'));
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function loadSettings() {
+    $('#setApiUrl').val(CONFIG.apiBase);
+    apiCall('GET', '/admin/settings', null, function(r) {
+        const s = r.data || r;
+        if (s.platform_name) $('#setPlatformName').val(s.platform_name);
+        if (s.support_email)  $('#setEmail').val(s.support_email);
+        if (s.trial_days)     $('#setTrialDays').val(s.trial_days);
+        if (s.currency)       $('#setCurrency').val(s.currency);
+        if (s.razorpay_key)   $('#setRazorpayKey').val(s.razorpay_key);
+    });
+}
+
+function saveSettings() {
+    // Save API URL locally
+    const apiUrl = $('#setApiUrl').val().trim().replace(/\/$/, '');
+    if (apiUrl) { localStorage.setItem('sa_api_base', apiUrl); CONFIG.apiBase = apiUrl; }
+
+    // Save admin credentials locally if new password set
+    const newPass = $('#setAdminPass').val().trim();
+    if (newPass) { localStorage.setItem('sa_admin_pass', newPass); }
+
+    const payload = {
+        platform_name: $('#setPlatformName').val().trim(),
+        support_email: $('#setEmail').val().trim(),
+        trial_days: parseInt($('#setTrialDays').val()),
+        currency: $('#setCurrency').val(),
+        razorpay_key: $('#setRazorpayKey').val().trim(),
+        razorpay_secret: $('#setRazorpaySecret').val().trim(),
+    };
+    apiCall('POST', '/admin/settings', payload, function() {
+        showToast('Settings saved','success');
+    }, function() {
+        showToast('Settings saved locally','info');
+    });
+}
+
+// ============================================================
+// DEMO DATA (used when API is unavailable)
+// ============================================================
+function getDemoSchools() {
+    return [
+        { id:1, name:'Green Valley Academy', email:'admin@gva.edu', city:'Mumbai', state:'Maharashtra', subscription_status:'active', plan_name:'Pro', plan_id:2, students_count:450, subscription_end_date:'2026-12-31', created_at:'2024-01-15' },
+        { id:2, name:'Sunrise Public School', email:'principal@sunrise.in', city:'Delhi', state:'Delhi', subscription_status:'trial', plan_name:'Basic', plan_id:1, students_count:120, subscription_end_date:'2026-03-14', created_at:'2026-02-28' },
+        { id:3, name:'Holy Cross High School', email:'admin@holycross.org', city:'Bangalore', state:'Karnataka', subscription_status:'active', plan_name:'Enterprise', plan_id:3, students_count:1200, subscription_end_date:'2027-03-01', created_at:'2023-08-10' },
+        { id:4, name:'Modern Kids Academy', email:'mka@gmail.com', city:'Pune', state:'Maharashtra', subscription_status:'expired', plan_name:'Basic', plan_id:1, students_count:89, subscription_end_date:'2026-01-15', created_at:'2024-06-20' },
+        { id:5, name:'St. Mary\'s Convent', email:'stmary@convent.edu', city:'Chennai', state:'Tamil Nadu', subscription_status:'active', plan_name:'Pro', plan_id:2, students_count:670, subscription_end_date:'2026-11-30', created_at:'2024-03-05' },
+    ];
+}
+function getDemoPlans() {
+    return [
+        { id:1, name:'Basic', slug:'basic', price_monthly:999, price_yearly:9990, max_students:300, max_teachers:30, max_storage_gb:5, trial_days:14, is_active:true, is_popular:false, description:'For small schools', features_list:['Student Management','Teacher Management','Fee Collection','Basic Reports'] },
+        { id:2, name:'Pro', slug:'pro', price_monthly:2499, price_yearly:24990, max_students:1000, max_teachers:100, max_storage_gb:20, trial_days:14, is_active:true, is_popular:true, description:'For growing schools', features_list:['Everything in Basic','Payroll','Library','Transport','Hostel','Advanced Reports'] },
+        { id:3, name:'Enterprise', slug:'enterprise', price_monthly:4999, price_yearly:49990, max_students:9999, max_teachers:500, max_storage_gb:100, trial_days:30, is_active:true, is_popular:false, description:'For large institutions', features_list:['Everything in Pro','Unlimited Students','Priority Support','Custom Branding','API Access'] },
+    ];
+}
+function getDemoPayments() {
+    return [
+        { id:'INV-001', invoice_number:'INV-2026-001', school_name:'Green Valley Academy', plan_name:'Pro', amount:2499, status:'paid', created_at:'2026-02-01' },
+        { id:'INV-002', invoice_number:'INV-2026-002', school_name:'Holy Cross High School', plan_name:'Enterprise', amount:4999, status:'paid', created_at:'2026-02-15' },
+        { id:'INV-003', invoice_number:'INV-2026-003', school_name:'St. Mary\'s Convent', plan_name:'Pro', amount:2499, status:'paid', created_at:'2026-02-20' },
+    ];
+}
+function getDemoCoupons() {
+    return [
+        { id:1, code:'LAUNCH50', discount_type:'percentage', discount_value:50, max_uses:100, used_count:23, expires_at:'2026-06-30' },
+        { id:2, code:'FIRST500', discount_type:'fixed', discount_value:500, max_uses:50, used_count:12, expires_at:'2026-12-31' },
+    ];
+}
+
+// ============================================================
+// MODULE REQUESTS
+// ============================================================
+let currentReviewId = null;
+let currentReviewData = null;
+
+function loadModuleRequests() {
+    const status = $('#reqStatusFilter').val();
+    const endpoint = '/admin/module-requests' + (status ? '?status=' + status : '');
+    apiCall('GET', endpoint, null, function(r) {
+        const rows = r.data || [];
+        renderModuleRequests(rows);
+    }, function() {
+        renderModuleRequests(getDemoModuleRequests());
+    });
+}
+
+function getDemoModuleRequests() {
+    return [
+        { id:1, school_id:'sch-1', school:{ name:'Green Valley Academy', code:'SCH-2026-001' }, feature_id:'feat-6', feature:{ name:'Library Management', category:'addon' }, reason:'We need library module for tracking 5000+ books and issuing to students digitally.', status:'pending', created_at:'2026-02-28T10:30:00Z' },
+        { id:2, school_id:'sch-2', school:{ name:'Sunrise Public School', code:'SCH-2026-002' }, feature_id:'feat-9', feature:{ name:'Transport Management', category:'addon' }, reason:'We have 15 school buses and need route & GPS tracking.', status:'pending', created_at:'2026-02-27T14:15:00Z' },
+        { id:3, school_id:'sch-3', school:{ name:'Holy Cross High School', code:'SCH-2026-003' }, feature_id:'feat-12', feature:{ name:'Hostel Management', category:'addon' }, reason:'Our boarding school has 300+ hostel students.', status:'approved', created_at:'2026-02-20T09:00:00Z' },
+        { id:4, school_id:'sch-4', school:{ name:'Modern Kids Academy', code:'SCH-2026-004' }, feature_id:'feat-5', feature:{ name:'AI Assistant', category:'ai' }, reason:'Want to use AI for generating report card remarks automatically.', status:'denied', created_at:'2026-02-18T11:00:00Z' },
+    ];
+}
+
+function renderModuleRequests(rows) {
+    const pending = rows.filter(r => r.status === 'pending').length;
+    if (pending > 0) { $('#requestsBadge').text(pending).show(); }
+    else { $('#requestsBadge').hide(); }
+
+    if (!rows.length) {
+        $('#requestsTableBody').html('<tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8"><i class="fas fa-inbox" style="font-size:28px;margin-bottom:10px;display:block"></i>No requests found</td></tr>');
+        return;
+    }
+    let html = '';
+    rows.forEach(req => {
+        const reqJson = JSON.stringify(req).replace(/"/g, '&quot;');
+        html += `<tr>
+            <td>
+                <div style="font-weight:600;color:#1e293b">${esc(req.school?.name || 'School #' + req.school_id)}</div>
+                <div style="font-size:11px;color:#94a3b8">${esc(req.school?.code || '')}</div>
+            </td>
+            <td><strong>${esc(req.feature?.name || req.feature_id)}</strong></td>
+            <td><span class="badge badge-free" style="font-size:10px">${esc(req.feature?.category || '—')}</span></td>
+            <td><div class="req-reason" title="${esc(req.reason)}">${esc(req.reason || '—')}</div></td>
+            <td style="white-space:nowrap;font-size:12px">${fmtDate(req.created_at)}</td>
+            <td>${statusBadge(req.status)}</td>
+            <td>
+                ${req.status === 'pending'
+                    ? `<button class="btn btn-primary btn-sm" onclick='openReviewModal(${reqJson})'><i class="fas fa-clipboard-check"></i> Review</button>`
+                    : `<span style="font-size:11px;color:#94a3b8;font-style:italic">${esc(req.review_note || 'No note')}</span>`
+                }
+            </td>
+        </tr>`;
+    });
+    $('#requestsTableBody').html(html);
+}
+
+function openReviewModal(req) {
+    currentReviewId = req.id;
+    currentReviewData = req;
+    $('#reviewReqSchool').text(req.school?.name || 'School #' + req.school_id);
+    $('#reviewReqModule').text('Module: ' + (req.feature?.name || req.feature_id));
+    $('#reviewReqReason').text(req.reason || 'No reason provided');
+    $('input[name="reviewDecision"]').prop('checked', false);
+    $('#reviewNote').val('');
+    $('#trialUntilGroup').hide();
+    const d = new Date(); d.setDate(d.getDate() + 30);
+    $('#trialUntilDate').val(d.toISOString().split('T')[0]);
+    openModal('reviewRequestModal');
+}
+
+$(document).on('change', 'input[name="reviewDecision"]', function() {
+    if ($(this).val() === 'trial') { $('#trialUntilGroup').show(); }
+    else { $('#trialUntilGroup').hide(); }
+    // Highlight selected label
+    $('#lbl-approve, #lbl-trial, #lbl-deny').css({'border-color':'#e2e8f0','background':'white'});
+    const val = $(this).val();
+    const colors = { approved:'#10b981', trial:'#3b82f6', denied:'#ef4444' };
+    $(this).closest('label').css({'border-color': colors[val], 'background': colors[val]+'15'});
+});
+
+function submitReview() {
+    const decision = $('input[name="reviewDecision"]:checked').val();
+    if (!decision) { showToast('Please select a decision', 'error'); return; }
+    const payload = {
+        status: decision,
+        review_note: $('#reviewNote').val().trim(),
+    };
+    if (decision === 'trial') {
+        const until = $('#trialUntilDate').val();
+        if (!until) { showToast('Please select trial end date', 'error'); return; }
+        payload.access_until = until;
+    }
+    apiCall('POST', '/admin/module-requests/' + currentReviewId + '/review', payload, function(r) {
+        const decisionLabel = { approved:'Approved', trial:'Trial access granted', denied:'Denied' };
+        showToast(decisionLabel[decision] + ' successfully', 'success');
+        closeModal('reviewRequestModal');
+        loadModuleRequests();
+    }, function() {
+        showToast('Demo mode: Decision recorded locally', 'info');
+        closeModal('reviewRequestModal');
+        loadModuleRequests();
+    });
+}
+
+// ============================================================
+// MODULE ACCESS (per-school toggle grid — Google Admin style)
+// ============================================================
+let moduleAccessSchoolId = null;
+
+function populateModuleAccessSchoolSelect(schools) {
+    let opts = '<option value="">— Choose a school —</option>';
+    schools.forEach(s => {
+        const loc = s.city ? s.city + (s.state ? ', '+s.state : '') : '';
+        opts += `<option value="${esc(s.id)}">${esc(s.name)}${loc ? ' · '+esc(loc) : ''}</option>`;
+    });
+    $('#moduleAccessSchoolSelect').html(opts);
+}
+
+function openModuleAccess(schoolId, schoolName) {
+    showPanel('module-access');
+    $('#moduleAccessSchoolSelect').val(schoolId);
+    loadSchoolModuleAccess();
+}
+
+function loadSchoolModuleAccess() {
+    const schoolId = $('#moduleAccessSchoolSelect').val();
+    if (!schoolId) {
+        $('#moduleAccessGrid').hide();
+        $('#moduleAccessEmpty').show();
+        return;
+    }
+    moduleAccessSchoolId = schoolId;
+    const schoolName = $('#moduleAccessSchoolSelect option:selected').text();
+    $('#moduleAccessSchoolName').text(schoolName);
+    $('#moduleAccessEmpty').hide();
+    $('#moduleCardsContainer').html('<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94a3b8">Loading modules...</div>');
+    $('#moduleAccessGrid').show();
+
+    apiCall('GET', '/admin/schools/' + schoolId + '/modules', null, function(r) {
+        renderModuleGrid(r.data || []);
+    }, function() {
+        renderModuleGrid(getDemoModules());
+    });
+}
+
+function getDemoModules() {
+    return [
+        { id:'m1', name:'Dashboard',           slug:'dashboard',  category:'core',      is_premium:false, is_enabled:true },
+        { id:'m2', name:'Student Management',  slug:'students',   category:'core',      is_premium:false, is_enabled:true },
+        { id:'m3', name:'Teacher Management',  slug:'teachers',   category:'core',      is_premium:false, is_enabled:true },
+        { id:'m4', name:'Attendance',          slug:'attendance', category:'core',      is_premium:false, is_enabled:true },
+        { id:'m5', name:'Academic / Classes',  slug:'academic',   category:'academic',  is_premium:false, is_enabled:false },
+        { id:'m6', name:'Exams & Results',     slug:'exams',      category:'academic',  is_premium:false, is_enabled:true },
+        { id:'m7', name:'Timetable',           slug:'timetable',  category:'academic',  is_premium:false, is_enabled:false },
+        { id:'m8', name:'Syllabus',            slug:'syllabus',   category:'academic',  is_premium:false, is_enabled:false },
+        { id:'m9', name:'Fee Management',      slug:'fees',       category:'billing',   is_premium:false, is_enabled:true },
+        { id:'m10',name:'Payroll',             slug:'payroll',    category:'billing',   is_premium:true,  is_enabled:false },
+        { id:'m11',name:'Library',             slug:'library',    category:'addon',     is_premium:true,  is_enabled:false },
+        { id:'m12',name:'Transport',           slug:'transport',  category:'addon',     is_premium:true,  is_enabled:false },
+        { id:'m13',name:'Hostel',              slug:'hostel',     category:'addon',     is_premium:true,  is_enabled:false },
+        { id:'m14',name:'Events & Calendar',   slug:'events',     category:'addon',     is_premium:false, is_enabled:false },
+        { id:'m15',name:'Reports',             slug:'reports',    category:'reporting', is_premium:false, is_enabled:true },
+        { id:'m16',name:'User & Roles',        slug:'users',      category:'system',    is_premium:false, is_enabled:true },
+        { id:'m17',name:'Settings',            slug:'settings',   category:'system',    is_premium:false, is_enabled:true },
+        { id:'m18',name:'AI Assistant',        slug:'ai',         category:'ai',        is_premium:true,  is_enabled:false },
+    ];
+}
+
+function renderModuleGrid(modules) {
+    const categories = [...new Set(modules.map(m => m.category))];
+    let html = '';
+    categories.forEach(cat => {
+        const catMods = modules.filter(m => m.category === cat);
+        html += `<div class="module-section-label">${cat.toUpperCase()}</div>`;
+        catMods.forEach(mod => {
+            const enabled = mod.is_enabled;
+            html += `<div class="module-card ${enabled ? 'enabled' : ''} ${mod.is_premium ? 'premium-locked' : ''}">
+                <div class="module-card-info">
+                    <div class="module-card-name">${esc(mod.name)}</div>
+                    <div class="module-card-cat">
+                        ${mod.is_premium ? '<span style="color:#d97706;font-weight:700">★ Premium</span>' : ''}
+                        ${enabled ? '<span style="color:#059669;font-weight:700">● Enabled</span>' : '<span style="color:#94a3b8">○ Disabled</span>'}
+                    </div>
+                </div>
+                <label class="module-toggle">
+                    <input type="checkbox" ${enabled ? 'checked' : ''}
+                           onchange="toggleSchoolModule('${esc(mod.id)}', this.checked, this)">
+                    <span class="module-toggle-slider"></span>
+                </label>
+            </div>`;
+        });
+    });
+    $('#moduleCardsContainer').html(html);
+}
+
+function toggleSchoolModule(featureId, enable, checkboxEl) {
+    if (!moduleAccessSchoolId) return;
+    $(checkboxEl).prop('disabled', true);
+    apiCall('POST', '/admin/schools/' + moduleAccessSchoolId + '/modules/toggle',
+        { feature_id: featureId, enabled: enable },
+        function(r) {
+            $(checkboxEl).prop('disabled', false);
+            updateModuleCardState(checkboxEl, enable);
+            showToast('Module ' + (enable ? 'enabled' : 'disabled'), 'success');
+        },
+        function() {
+            $(checkboxEl).prop('disabled', false);
+            updateModuleCardState(checkboxEl, enable);
+            showToast('Demo: Module ' + (enable ? 'enabled' : 'disabled'), 'info');
+        }
+    );
+}
+
+function updateModuleCardState(checkboxEl, enable) {
+    const card = $(checkboxEl).closest('.module-card');
+    if (enable) { card.addClass('enabled'); } else { card.removeClass('enabled'); }
+    const catDiv = card.find('.module-card-cat');
+    const premHtml = catDiv.find('span[style*="d97706"]').prop('outerHTML') || '';
+    catDiv.html(premHtml + (enable
+        ? '<span style="color:#059669;font-weight:700">● Enabled</span>'
+        : '<span style="color:#94a3b8">○ Disabled</span>'));
+}
+
+function enableAllModules() {
+    if (!moduleAccessSchoolId) return;
+    if (!confirm('Enable ALL modules for this school?')) return;
+    apiCall('POST', '/admin/schools/' + moduleAccessSchoolId + '/modules/toggle',
+        { feature_id: 'all', enabled: true },
+        function() { showToast('All modules enabled', 'success'); loadSchoolModuleAccess(); },
+        function() {
+            $('#moduleCardsContainer .module-toggle input').prop('checked', true);
+            $('#moduleCardsContainer .module-card').addClass('enabled');
+            showToast('Demo: All modules enabled', 'info');
+        }
+    );
+}
+
+function disableAllModules() {
+    if (!moduleAccessSchoolId) return;
+    if (!confirm('Disable ALL modules for this school?')) return;
+    apiCall('POST', '/admin/schools/' + moduleAccessSchoolId + '/modules/toggle',
+        { feature_id: 'all', enabled: false },
+        function() { showToast('All modules disabled', 'success'); loadSchoolModuleAccess(); },
+        function() {
+            $('#moduleCardsContainer .module-toggle input').prop('checked', false);
+            $('#moduleCardsContainer .module-card').removeClass('enabled');
+            showToast('Demo: All modules disabled', 'info');
+        }
+    );
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function esc(str) {
+    if (str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtNum(n) {
+    if (n == null || isNaN(n)) return '0';
+    return Number(n).toLocaleString('en-IN');
+}
+function fmtDate(d) {
+    if (!d || d === '—') return '—';
+    try { return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
+    catch(e) { return String(d); }
+}
+function statusBadge(status) {
+    const map = { active:'badge-active', trial:'badge-trial', expired:'badge-expired', cancelled:'badge-cancelled', pending:'badge-pending' };
+    const label = { active:'Active', trial:'Trial', expired:'Expired', cancelled:'Cancelled', pending:'Pending' };
+    const cls = map[status] || 'badge-cancelled';
+    const lbl = label[status] || (status ? status.charAt(0).toUpperCase()+status.slice(1) : '—');
+    return `<span class="badge ${cls}">${lbl}</span>`;
+}
+</script>
+</body>
+</html>

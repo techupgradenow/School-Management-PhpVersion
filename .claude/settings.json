@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netstat -ano)",
+      "Read(//c/Users/admin/Documents/GitHub/School-Management-Laravel/public/**)",
+      "Read(//c/Users/admin/Documents/GitHub/School-Management-Laravel/app/Http/Controllers/Api/Compatibility/**)",
+      "Read(//c/Users/admin/Documents/GitHub/School-Management-Laravel/app/Http/Controllers/Api/Attendance/**)",
+      "Bash(\"C:/php82/php.exe\" artisan migrate --force)",
+      "Bash(\"C:/php82/php.exe\" \"C:/xampp/php/composer\" dump-autoload)",
+      "Bash(\"C:/php82/php.exe\" artisan db:seed --class=PlanSeeder --force)",
+      "Bash(\"C:/php82/php.exe\" -S localhost:4433 server.php)",
+      "Bash(\"C:/php82/php.exe\" test_saas_endpoints.php)",
+      "Bash(\"C:/php82/php.exe\" -r \":*)",
+      "Bash(\"C:/php82/php.exe\" test_admin_endpoints.php)",
+      "Bash(1:*)",
+      "Read(//c/xampp/htdocs/**)",
+      "Read(//c/xampp/htdocs/School-Management-PhpVersion/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\admin\\Documents\\GitHub\\School-Management-Laravel\\app\\Http\\Controllers\\Api\\Settings",
+      "C:\\Users\\admin\\Documents\\GitHub\\School-Management-Laravel\\app\\Http\\Controllers\\Api\\Student",
+      "C:\\Users\\admin\\Documents\\GitHub\\School-Management-Laravel\\app\\Http\\Controllers\\Api\\Compatibility",
+      "C:\\Users\\admin\\Documents\\GitHub\\School-Management-Laravel"
+    ]
+  }
+}

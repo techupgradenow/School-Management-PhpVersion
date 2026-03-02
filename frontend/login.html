@@ -430,11 +430,28 @@
                     <span>staff / staff123</span>
                 </div>
             </div>
+
+            <!-- Company Admin Access -->
+            <div style="margin-top:20px;text-align:center;padding-top:16px;border-top:1px solid #e2e8f0">
+                <a href="super-admin.html" style="
+                    display:inline-flex;align-items:center;gap:8px;
+                    padding:10px 20px;
+                    background:linear-gradient(135deg,#1e293b,#0f172a);
+                    color:white;text-decoration:none;
+                    border-radius:10px;font-size:13px;font-weight:600;
+                    transition:opacity 0.2s;
+                " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                    <i class="fas fa-shield-alt"></i>
+                    Company Admin Panel
+                </a>
+                <div style="font-size:11px;color:#94a3b8;margin-top:6px">Manage schools &amp; subscriptions</div>
+            </div>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = '/School-Management-PhpVersion/backend/api';
+        // Laravel API base — update this to your Laravel server URL
+        const API_BASE_URL = 'http://localhost:5001/api';
 
         function togglePassword() {
             const passwordInput = document.getElementById('password');
@@ -493,14 +510,12 @@
             setLoading(true);
 
             $.ajax({
-                url: API_BASE_URL + '/auth.php',
+                url: API_BASE_URL + '/auth/login',
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    action: 'login',
                     username: username,
-                    password: password,
-                    remember_me: rememberMe
+                    password: password
                 }),
                 success: function(response) {
                     setLoading(false);
@@ -509,16 +524,25 @@
                         showSuccess(response.message);
 
                         // Store user info in localStorage for frontend use
-                        localStorage.setItem('edu_user', JSON.stringify(response.data.user));
+                        const user = response.data.user || response.data;
+                        localStorage.setItem('edu_user', JSON.stringify(user));
                         localStorage.setItem('edu_logged_in', 'true');
+                        localStorage.setItem('edu_token', response.data.token || '');
 
                         // Store user info and permissions for permission enforcement
-                        localStorage.setItem('userInfo', JSON.stringify(response.data.user));
-                        localStorage.setItem('userPermissions', JSON.stringify(response.data.user.permissions || {}));
+                        localStorage.setItem('userInfo', JSON.stringify(user));
+                        localStorage.setItem('userPermissions', JSON.stringify(user.permissions || {}));
 
-                        // Redirect to main app (index.html) after short delay
+                        // 3-Level smart redirect based on role
                         setTimeout(function() {
-                            window.location.href = 'index.html';
+                            const role = (user.role || '').toLowerCase();
+                            if (role === 'superadmin') {
+                                window.location.href = 'super-admin.html';
+                            } else if (role === 'admin') {
+                                window.location.href = 'school-admin.html';
+                            } else {
+                                window.location.href = 'index.html';
+                            }
                         }, 1000);
                     } else {
                         showError(response.message || 'Login failed. Please try again.');
@@ -534,16 +558,45 @@
 
         // Check if already logged in
         $(document).ready(function() {
-            $.ajax({
-                url: API_BASE_URL + '/auth.php?action=check',
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        // Already logged in, redirect to main app
+            const storedUser = localStorage.getItem('edu_user');
+            const loggedIn = localStorage.getItem('edu_logged_in');
+            if (loggedIn === 'true' && storedUser) {
+                try {
+                    const user = JSON.parse(storedUser);
+                    const role = (user.role || '').toLowerCase();
+                    if (role === 'superadmin') {
+                        window.location.href = 'super-admin.html';
+                    } else if (role === 'admin') {
+                        window.location.href = 'school-admin.html';
+                    } else {
                         window.location.href = 'index.html';
                     }
-                }
-            });
+                    return;
+                } catch(e) {}
+            }
+
+            // Verify session via Laravel API
+            const token = localStorage.getItem('edu_token');
+            if (token) {
+                $.ajax({
+                    url: API_BASE_URL + '/auth/me',
+                    type: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    success: function(response) {
+                        if (response.success) {
+                            const user = response.data?.user || response.data || {};
+                            const role = (user.role || '').toLowerCase();
+                            if (role === 'superadmin') {
+                                window.location.href = 'super-admin.html';
+                            } else if (role === 'admin') {
+                                window.location.href = 'school-admin.html';
+                            } else {
+                                window.location.href = 'index.html';
+                            }
+                        }
+                    }
+                });
+            }
         });
     </script>
 	<script src="assets/js/responsive.js"></script>

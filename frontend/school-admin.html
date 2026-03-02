@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Admin Panel — EduManage Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Segoe UI',sans-serif;background:#f5f7fa;display:flex;height:100vh;overflow:hidden;color:#333}
+
+        /* SIDEBAR */
+        .sidebar{width:250px;min-width:250px;background:linear-gradient(180deg,#1e3a5f,#0f2040);height:100vh;display:flex;flex-direction:column;transition:width .3s;overflow:hidden;z-index:100}
+        .sidebar.collapsed{width:64px;min-width:64px}
+        .sidebar-header{padding:18px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1);min-height:64px}
+        .sidebar-header .logo{width:34px;height:34px;min-width:34px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+        .sidebar-header .school-name{color:#fff;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+        .sidebar-header .school-sub{color:rgba(255,255,255,.5);font-size:10px;margin-top:1px}
+        .sidebar.collapsed .school-name,.sidebar.collapsed .school-sub{display:none}
+        .sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+        .nav-section{padding:10px 16px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+        .sidebar.collapsed .nav-section{visibility:hidden;height:16px}
+        .nav-item{display:flex;align-items:center;gap:11px;padding:10px 16px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .2s;position:relative;white-space:nowrap}
+        .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+        .nav-item.active{background:rgba(59,130,246,.2);color:#fff}
+        .nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#3b82f6;border-radius:0 3px 3px 0}
+        .nav-item i:first-child{width:18px;text-align:center;font-size:14px}
+        .sidebar.collapsed .nav-item span{display:none}
+        .nav-lock{font-size:9px;margin-left:auto;color:rgba(255,255,255,.3)}
+        .sidebar.collapsed .nav-lock{display:none}
+        .sidebar-footer{padding:8px 0;border-top:1px solid rgba(255,255,255,.1)}
+
+        /* MAIN */
+        .main-wrapper{flex:1;display:flex;flex-direction:column;overflow:hidden}
+        .topbar{height:62px;min-height:62px;background:#fff;display:flex;align-items:center;padding:0 22px;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.08);z-index:50}
+        .topbar-toggle{width:34px;height:34px;border:none;background:#f1f5f9;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+        .topbar-toggle:hover{background:#e2e8f0}
+        .topbar-title{flex:1}
+        .topbar-title h2{font-size:17px;font-weight:600;color:#1e293b}
+        .topbar-title span{font-size:11px;color:#94a3b8}
+        .topbar-right{display:flex;align-items:center;gap:10px}
+        .sub-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px}
+        .sub-active{background:#d1fae5;color:#065f46}
+        .sub-trial{background:#dbeafe;color:#1e40af}
+        .sub-grace{background:#fef9c3;color:#78350f}
+        .sub-expired{background:#fee2e2;color:#991b1b}
+        .user-info{display:flex;align-items:center;gap:8px;padding:5px 10px;background:#f8fafc;border-radius:9px;cursor:pointer}
+        .user-avatar{width:32px;height:32px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+        .user-name{font-size:12px;font-weight:600;color:#1e293b}
+        .user-role{font-size:10px;color:#3b82f6;font-weight:600}
+        .content-area{flex:1;overflow-y:auto;padding:22px}
+
+        /* PANELS */
+        .panel{display:none}
+        .panel.active{display:block}
+
+        /* STATS */
+        .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+        .stat-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;align-items:center;gap:14px;transition:transform .2s}
+        .stat-card:hover{transform:translateY(-2px)}
+        .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex-shrink:0}
+        .si-blue{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+        .si-green{background:linear-gradient(135deg,#10b981,#059669)}
+        .si-orange{background:linear-gradient(135deg,#f59e0b,#d97706)}
+        .si-purple{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
+        .si-red{background:linear-gradient(135deg,#ef4444,#dc2626)}
+        .stat-info .label{font-size:11px;font-weight:600;color:#64748b;margin-bottom:3px}
+        .stat-info .value{font-size:24px;font-weight:700;color:#1e293b}
+        .stat-info .sub{font-size:11px;color:#94a3b8;margin-top:2px}
+
+        /* CARDS */
+        .card{background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:18px}
+        .card-header{padding:16px 18px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:10px}
+        .card-title{font-size:14px;font-weight:600;color:#1e293b;display:flex;align-items:center;gap:7px}
+        .card-title i{color:#3b82f6}
+        .card-body{padding:18px}
+
+        /* TABLE */
+        .table-wrap{overflow-x:auto}
+        table{width:100%;border-collapse:collapse}
+        thead th{padding:9px 13px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;background:#f8fafc;border-bottom:1px solid #e2e8f0;white-space:nowrap}
+        tbody td{padding:12px 13px;font-size:13px;color:#374151;border-bottom:1px solid #f1f5f9}
+        tbody tr:hover td{background:#f8fafc}
+        tbody tr:last-child td{border-bottom:none}
+
+        /* BADGES */
+        .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700}
+        .badge-active{background:#d1fae5;color:#065f46}
+        .badge-inactive{background:#f3f4f6;color:#4b5563}
+        .badge-pending{background:#fef9c3;color:#78350f}
+        .badge-locked{background:#fee2e2;color:#991b1b}
+
+        /* BUTTONS */
+        .btn{padding:7px 14px;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none}
+        .btn-primary{background:#3b82f6;color:#fff}
+        .btn-primary:hover{background:#1d4ed8}
+        .btn-success{background:#10b981;color:#fff}
+        .btn-danger{background:#ef4444;color:#fff}
+        .btn-outline{background:#fff;border:1px solid #e2e8f0;color:#475569}
+        .btn-outline:hover{background:#f8fafc}
+        .btn-sm{padding:4px 9px;font-size:11px}
+        .btn-icon{padding:5px 7px}
+
+        /* FORM */
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .form-grid.col-1{grid-template-columns:1fr}
+        .form-group{display:flex;flex-direction:column;gap:5px}
+        .form-group.full{grid-column:1/-1}
+        label{font-size:11px;font-weight:700;color:#475569}
+        .form-control{padding:8px 11px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;width:100%;transition:border .2s}
+        .form-control:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+        textarea.form-control{resize:vertical;min-height:70px}
+
+        /* MODAL */
+        .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);z-index:1000;align-items:center;justify-content:center}
+        .modal-bg.show{display:flex}
+        .modal{background:#fff;border-radius:16px;width:540px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;animation:mIn .25s ease}
+        .modal-lg{width:700px}
+        @keyframes mIn{from{opacity:0;transform:scale(.96) translateY(-8px)}to{opacity:1;transform:none}}
+        .modal-header{padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
+        .modal-header h3{font-size:16px;font-weight:700;color:#1e293b}
+        .modal-close{width:32px;height:32px;border:none;background:#f1f5f9;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+        .modal-close:hover{background:#fef2f2;color:#ef4444}
+        .modal-body{padding:22px;overflow-y:auto;flex:1}
+        .modal-footer{padding:14px 22px;border-top:1px solid #f1f5f9;display:flex;justify-content:flex-end;gap:8px}
+
+        /* MODULE CARDS */
+        .modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+        .module-card{background:#fff;border:2px solid #e2e8f0;border-radius:12px;padding:16px;text-align:center;transition:all .2s;position:relative}
+        .module-card.enabled{border-color:#3b82f6}
+        .module-card.locked{background:#f8fafc;opacity:.7}
+        .module-card .mod-icon{width:44px;height:44px;border-radius:12px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px}
+        .module-card.enabled .mod-icon{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8}
+        .module-card.locked .mod-icon{color:#94a3b8}
+        .module-card .mod-name{font-size:12px;font-weight:600;color:#1e293b;margin-bottom:4px}
+        .module-card .mod-status{font-size:10px;font-weight:700}
+        .module-card.enabled .mod-status{color:#10b981}
+        .module-card.locked .mod-status{color:#94a3b8}
+        .module-card .lock-icon{position:absolute;top:8px;right:8px;color:#94a3b8;font-size:11px}
+        .request-btn{margin-top:8px;width:100%;font-size:10px;padding:4px 8px}
+
+        /* SUBSCRIPTION BANNER */
+        .sub-banner{padding:12px 18px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600}
+        .sub-banner.trial{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+        .sub-banner.grace{background:#fffbeb;border:1px solid #fde68a;color:#78350f}
+        .sub-banner.expired{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+        .sub-banner i{font-size:18px}
+
+        /* ROLE BADGES */
+        .role-badge{padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:#ede9fe;color:#5b21b6}
+
+        /* PERMISSION GRID */
+        .perm-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px}
+        .perm-check{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#64748b}
+        .perm-check input{width:14px;height:14px;cursor:pointer}
+
+        /* TOAST */
+        #toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:10px;color:#fff;font-size:13px;font-weight:600;display:none;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+        #toast.success{background:#10b981}
+        #toast.error{background:#ef4444}
+        #toast.info{background:#3b82f6}
+
+        /* SEARCH */
+        .toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+        .search-input{padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;flex:1;min-width:160px}
+        .search-input:focus{border-color:#3b82f6}
+        .filter-select{padding:7px 11px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fff;outline:none;cursor:pointer}
+        .filter-select:focus{border-color:#3b82f6}
+
+        @media(max-width:768px){
+            .sidebar{position:fixed;left:-250px;transition:left .3s}
+            .sidebar.mobile-open{left:0}
+            .form-grid{grid-template-columns:1fr}
+            .stats-row{grid-template-columns:1fr 1fr}
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo"><i class="fas fa-school"></i></div>
+        <div>
+            <div class="school-name" id="sidebarSchoolName">Loading...</div>
+            <div class="school-sub">School Admin Panel</div>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-section">Overview</div>
+        <div class="nav-item active" onclick="showPanel('dashboard')">
+            <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+        </div>
+
+        <div class="nav-section">Academic</div>
+        <div class="nav-item" id="nav-students" onclick="showPanel('students')">
+            <i class="fas fa-user-graduate"></i><span>Students</span>
+        </div>
+        <div class="nav-item" id="nav-teachers" onclick="showPanel('teachers')">
+            <i class="fas fa-chalkboard-teacher"></i><span>Teachers</span>
+        </div>
+        <div class="nav-item" id="nav-attendance" onclick="showPanel('attendance')">
+            <i class="fas fa-clipboard-check"></i><span>Attendance</span>
+        </div>
+        <div class="nav-item" id="nav-exams" onclick="showPanel('exams')">
+            <i class="fas fa-file-alt"></i><span>Exams & Grades</span>
+        </div>
+        <div class="nav-item" id="nav-timetable" onclick="showPanel('timetable')">
+            <i class="fas fa-calendar-alt"></i><span>Timetable</span>
+        </div>
+
+        <div class="nav-section">Finance & Ops</div>
+        <div class="nav-item" id="nav-fees" onclick="showPanel('fees')">
+            <i class="fas fa-money-check-alt"></i><span>Fee Management</span>
+        </div>
+        <div class="nav-item" id="nav-payroll" onclick="showPanel('payroll')">
+            <i class="fas fa-wallet"></i><span>Payroll</span>
+        </div>
+        <div class="nav-item" id="nav-library" onclick="showPanel('library')">
+            <i class="fas fa-book"></i><span>Library</span>
+        </div>
+        <div class="nav-item" id="nav-transport" onclick="showPanel('transport')">
+            <i class="fas fa-bus"></i><span>Transport</span>
+        </div>
+        <div class="nav-item" id="nav-hostel" onclick="showPanel('hostel')">
+            <i class="fas fa-bed"></i><span>Hostel</span>
+        </div>
+
+        <div class="nav-section">Administration</div>
+        <div class="nav-item" onclick="showPanel('staff')">
+            <i class="fas fa-users-cog"></i><span>Staff & Roles</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('modules')">
+            <i class="fas fa-th-large"></i><span>Module Access</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('reports')">
+            <i class="fas fa-chart-bar"></i><span>Reports</span>
+        </div>
+        <div class="nav-item" onclick="showPanel('settings')">
+            <i class="fas fa-cog"></i><span>Settings</span>
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="nav-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrapper">
+    <div class="topbar">
+        <button class="topbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="topbar-title">
+            <h2 id="pageTitle">Dashboard</h2>
+            <span id="pageSubtitle">School overview</span>
+        </div>
+        <div class="topbar-right">
+            <div class="sub-badge sub-active" id="subBadge"><i class="fas fa-circle" style="font-size:7px"></i> Active</div>
+            <div class="user-info">
+                <div class="user-avatar" id="userInitials">SA</div>
+                <div>
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">School Admin</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-area">
+
+        <!-- Subscription Warning Banner (shown when needed) -->
+        <div class="sub-banner trial" id="subBanner" style="display:none">
+            <i class="fas fa-info-circle"></i>
+            <span id="subBannerText">Your trial ends in 7 days. Contact your admin to upgrade.</span>
+        </div>
+
+        <!-- ===== DASHBOARD ===== -->
+        <div class="panel active" id="panel-dashboard">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon si-blue"><i class="fas fa-user-graduate"></i></div>
+                    <div class="stat-info"><div class="label">Total Students</div><div class="value" id="dStudents">—</div><div class="sub" id="dStudentsSub"></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon si-green"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="stat-info"><div class="label">Total Teachers</div><div class="value" id="dTeachers">—</div><div class="sub">Staff members</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon si-orange"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="stat-info"><div class="label">Today's Attendance</div><div class="value" id="dAttendance">—</div><div class="sub">Present today</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon si-purple"><i class="fas fa-money-check-alt"></i></div>
+                    <div class="stat-info"><div class="label">Fee Collection</div><div class="value" id="dFees">—</div><div class="sub">This month</div></div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header"><div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div></div>
+                <div class="card-body" style="display:flex;gap:10px;flex-wrap:wrap">
+                    <button class="btn btn-primary" onclick="showPanel('staff');openAddStaffModal()"><i class="fas fa-user-plus"></i> Add Staff</button>
+                    <button class="btn btn-success" onclick="showPanel('students')"><i class="fas fa-user-graduate"></i> View Students</button>
+                    <button class="btn btn-outline" onclick="showPanel('attendance')"><i class="fas fa-clipboard-check"></i> Mark Attendance</button>
+                    <button class="btn btn-outline" onclick="showPanel('fees')"><i class="fas fa-money-check-alt"></i> Fee Collection</button>
+                    <button class="btn btn-outline" onclick="showPanel('modules')"><i class="fas fa-th-large"></i> Module Access</button>
+                </div>
+            </div>
+
+            <!-- Subscription Info -->
+            <div class="card" id="subscriptionCard">
+                <div class="card-header"><div class="card-title"><i class="fas fa-credit-card"></i> Subscription</div></div>
+                <div class="card-body" id="subscriptionBody">Loading...</div>
+            </div>
+        </div>
+
+        <!-- ===== STAFF & ROLES PANEL ===== -->
+        <div class="panel" id="panel-staff">
+            <!-- Staff List -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-users-cog"></i> Staff Members</div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddStaffModal()"><i class="fas fa-plus"></i> Add Staff</button>
+                </div>
+                <div class="card-body">
+                    <div class="toolbar">
+                        <input type="text" class="search-input" id="staffSearch" placeholder="Search staff..." oninput="filterStaff()">
+                        <select class="filter-select" id="staffRoleFilter" onchange="filterStaff()">
+                            <option value="">All Roles</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" onclick="loadStaff()"><i class="fas fa-sync"></i></button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>Name</th><th>Username</th><th>Role</th><th>Email</th><th>Status</th><th>Actions</th>
+                        </tr></thead>
+                        <tbody id="staffTableBody">
+                            <tr><td colspan="6" style="padding:28px;text-align:center;color:#94a3b8">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Roles Management -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-shield-alt"></i> Roles & Permissions</div>
+                    <button class="btn btn-outline btn-sm" onclick="openRoleModal()"><i class="fas fa-plus"></i> New Role</button>
+                </div>
+                <div class="card-body" id="rolesBody">Loading roles...</div>
+            </div>
+        </div>
+
+        <!-- ===== MODULE ACCESS PANEL ===== -->
+        <div class="panel" id="panel-modules">
+            <div style="margin-bottom:18px">
+                <h2 style="font-size:18px;font-weight:700;color:#1e293b">Module Access</h2>
+                <p style="font-size:13px;color:#64748b;margin-top:4px">
+                    Modules available based on your subscription plan. Request access for locked modules.
+                </p>
+            </div>
+            <div class="modules-grid" id="modulesGrid">
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8">Loading modules...</div>
+            </div>
+        </div>
+
+        <!-- ===== SETTINGS PANEL ===== -->
+        <div class="panel" id="panel-settings">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-school"></i> School Profile</div>
+                    <button class="btn btn-primary btn-sm" onclick="saveSchoolSettings()"><i class="fas fa-save"></i> Save</button>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group"><label>School Name</label><input class="form-control" id="setSchoolName"></div>
+                        <div class="form-group"><label>Email</label><input class="form-control" id="setSchoolEmail"></div>
+                        <div class="form-group"><label>Phone</label><input class="form-control" id="setSchoolPhone"></div>
+                        <div class="form-group"><label>City</label><input class="form-control" id="setSchoolCity"></div>
+                        <div class="form-group"><label>State</label><input class="form-control" id="setSchoolState"></div>
+                        <div class="form-group"><label>Board</label>
+                            <select class="form-control" id="setSchoolBoard">
+                                <option>CBSE</option><option>ICSE</option><option>State Board</option>
+                                <option>IB</option><option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group full"><label>Address</label><textarea class="form-control" id="setSchoolAddress"></textarea></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== OTHER MODULE PANELS (redirect to main app) ===== -->
+        <div class="panel" id="panel-students">
+            <div class="card"><div class="card-body" style="text-align:center;padding:40px">
+                <i class="fas fa-external-link-alt" style="font-size:32px;color:#3b82f6;margin-bottom:14px;display:block"></i>
+                <h3 style="font-size:16px;margin-bottom:8px">Student Management</h3>
+                <p style="color:#64748b;margin-bottom:16px;font-size:13px">Full student management is available in the main panel.</p>
+                <a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a>
+            </div></div>
+        </div>
+        <div class="panel" id="panel-attendance"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><i class="fas fa-external-link-alt" style="font-size:32px;color:#3b82f6;margin-bottom:14px;display:block"></i><h3 style="font-size:16px;margin-bottom:8px">Attendance</h3><p style="color:#64748b;margin-bottom:16px;font-size:13px">Manage attendance in the full panel.</p><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-fees"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><i class="fas fa-external-link-alt" style="font-size:32px;color:#3b82f6;margin-bottom:14px;display:block"></i><h3 style="font-size:16px;margin-bottom:8px">Fee Management</h3><p style="color:#64748b;margin-bottom:16px;font-size:13px">Full fee management is in the main panel.</p><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-exams"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-timetable"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-teachers"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-payroll"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-library"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-transport"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-hostel"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+        <div class="panel" id="panel-reports"><div class="card"><div class="card-body" style="text-align:center;padding:40px"><a href="index.html" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Open Full Panel</a></div></div></div>
+
+    </div>
+</div>
+
+<!-- ADD STAFF MODAL -->
+<div class="modal-bg" id="addStaffModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 id="staffModalTitle"><i class="fas fa-user-plus" style="color:#3b82f6;margin-right:7px"></i>Add Staff Member</h3>
+            <button class="modal-close" onclick="closeModal('addStaffModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group"><label>Full Name *</label><input class="form-control" id="sName" placeholder="Rajesh Kumar"></div>
+                <div class="form-group"><label>Email *</label><input class="form-control" id="sEmail" placeholder="rajesh@school.com"></div>
+                <div class="form-group"><label>Phone</label><input class="form-control" id="sPhone" placeholder="+91 99999 99999"></div>
+                <div class="form-group"><label>Role *</label><select class="form-control" id="sRole"><option value="">Select role...</option></select></div>
+                <div class="form-group"><label>Username *</label><input class="form-control" id="sUsername" placeholder="rajeshkumar"></div>
+                <div class="form-group"><label>Password *</label><input class="form-control" type="password" id="sPassword" placeholder="Min 8 characters"></div>
+                <div class="form-group"><label>Department</label><input class="form-control" id="sDept" placeholder="Science, Maths..."></div>
+                <div class="form-group"><label>Designation</label><input class="form-control" id="sDesig" placeholder="Senior Teacher"></div>
+            </div>
+            <div style="margin-top:16px">
+                <label style="font-size:12px;font-weight:700;color:#1e293b;display:block;margin-bottom:10px">Module Permissions</label>
+                <div id="modulePermissions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('addStaffModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveStaff()"><i class="fas fa-save"></i> Save Staff</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODULE REQUEST MODAL -->
+<div class="modal-bg" id="moduleRequestModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-paper-plane" style="color:#3b82f6;margin-right:7px"></i>Request Module Access</h3>
+            <button class="modal-close" onclick="closeModal('moduleRequestModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:13px;color:#64748b;margin-bottom:14px">
+                Requesting access for: <strong id="reqModuleName"></strong>
+            </p>
+            <div class="form-group">
+                <label>Why do you need this module? *</label>
+                <textarea class="form-control" id="reqReason" placeholder="Explain why your school needs this module (min 10 characters)..." style="min-height:100px"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('moduleRequestModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="submitModuleRequest()"><i class="fas fa-paper-plane"></i> Submit Request</button>
+        </div>
+    </div>
+</div>
+
+<!-- ROLE MODAL -->
+<div class="modal-bg" id="roleModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-shield-alt" style="color:#3b82f6;margin-right:7px"></i>Create Custom Role</h3>
+            <button class="modal-close" onclick="closeModal('roleModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:14px"><label>Role Name *</label><input class="form-control" id="roleName" placeholder="Custom Role Name"></div>
+            <div class="form-group" style="margin-bottom:14px"><label>Description</label><input class="form-control" id="roleDesc" placeholder="What this role can do..."></div>
+            <label style="font-size:12px;font-weight:700;color:#1e293b;display:block;margin-bottom:10px">Module Access for this Role</label>
+            <div id="roleModulePerms" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('roleModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveRole()"><i class="fas fa-save"></i> Save Role</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const API = localStorage.getItem('edu_api_base') || '/api';
+
+let authToken    = localStorage.getItem('edu_token') || '';
+let currentUser  = null;
+let schoolInfo   = null;
+let allModules   = [];
+let allStaff     = [];
+let allRoles     = [];
+let currentStaffId = null;
+let requestingFeatureId = null;
+
+// ============================================================
+// INIT
+// ============================================================
+$(document).ready(function() {
+    if (!authToken) {
+        window.location.href = 'login.html';
+        return;
+    }
+    loadCurrentUser();
+});
+
+function loadCurrentUser() {
+    $.ajax({
+        url: API + '/auth/me',
+        headers: { 'Authorization': 'Bearer ' + authToken },
+        success: function(r) {
+            if (!r.success) { logout(); return; }
+            currentUser = r.data.user;
+
+            // Only school admin or staff can access this panel
+            if (currentUser.role === 'SuperAdmin') {
+                window.location.href = 'super-admin.html';
+                return;
+            }
+
+            $('#userInitials').text(currentUser.name.substring(0,2).toUpperCase());
+            $('#userName').text(currentUser.name);
+            $('#userRole').text(currentUser.role);
+
+            loadDashboard();
+            loadModules();
+            loadStaff();
+            loadRoles();
+            loadSubscriptionInfo();
+        },
+        error: function() { logout(); }
+    });
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+const pageTitles = {
+    dashboard: ['Dashboard', 'School overview'],
+    students:  ['Students', 'Manage students'],
+    teachers:  ['Teachers', 'Manage teachers'],
+    attendance:['Attendance', 'Mark & view attendance'],
+    exams:     ['Exams & Grades', 'Manage exams'],
+    timetable: ['Timetable', 'Class schedule'],
+    fees:      ['Fee Management', 'Fee collection'],
+    payroll:   ['Payroll', 'Staff salary'],
+    library:   ['Library', 'Books & issues'],
+    transport: ['Transport', 'Routes & assignments'],
+    hostel:    ['Hostel', 'Room allocations'],
+    staff:     ['Staff & Roles', 'Manage staff and permissions'],
+    modules:   ['Module Access', 'Your plan modules'],
+    reports:   ['Reports', 'Analytics & reports'],
+    settings:  ['Settings', 'School configuration'],
+};
+
+function showPanel(name) {
+    $('.panel').removeClass('active');
+    $('#panel-' + name).addClass('active');
+    $('.nav-item').removeClass('active');
+    $(`.nav-item[onclick="showPanel('${name}')"]`).addClass('active');
+    const [t, s] = pageTitles[name] || [name, ''];
+    $('#pageTitle').text(t);
+    $('#pageSubtitle').text(s);
+}
+
+function toggleSidebar() { $('#sidebar').toggleClass('collapsed'); }
+
+// ============================================================
+// API CALL
+// ============================================================
+function api(method, path, data, ok, fail) {
+    $.ajax({
+        url: API + path, type: method,
+        contentType: 'application/json',
+        data: data ? JSON.stringify(data) : undefined,
+        headers: { 'Authorization': 'Bearer ' + authToken },
+        success: function(r) { ok && ok(r); },
+        error: function(xhr) {
+            const msg = xhr.responseJSON?.message || 'Request failed';
+            if (fail) fail(msg);
+            else showToast(msg, 'error');
+        }
+    });
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function loadDashboard() {
+    api('GET', '/dashboard/stats', null, function(r) {
+        const d = r.data || r;
+        $('#dStudents').text(fmt(d.students_count || d.total_students || 0));
+        $('#dStudentsSub').text('Limit: ' + (d.student_limit || '∞'));
+        $('#dTeachers').text(fmt(d.teachers_count || d.total_teachers || 0));
+        $('#dAttendance').text((d.today_attendance_percent || 0) + '%');
+        $('#dFees').text('₹' + fmt(d.monthly_fee_collection || 0));
+        if (d.school) {
+            schoolInfo = d.school;
+            $('#sidebarSchoolName').text(d.school.name);
+            document.title = d.school.name + ' — Admin Panel';
+        }
+    });
+}
+
+function loadSubscriptionInfo() {
+    api('GET', '/billing/current-plan', null, function(r) {
+        const d = r.data || r;
+        const school = d.school || {};
+        const plan   = d.plan || {};
+        const status = school.subscription_status || 'active';
+
+        // Update badge
+        const badgeMap = { active:'sub-active', trial:'sub-trial', grace:'sub-grace', expired:'sub-expired' };
+        const badgeLabel = { active:'Active', trial:'Trial', grace:'Grace Period', expired:'Expired' };
+        $('#subBadge').attr('class', 'sub-badge ' + (badgeMap[status] || 'sub-active'))
+            .html('<i class="fas fa-circle" style="font-size:7px"></i> ' + (badgeLabel[status] || status));
+
+        // Show warning banner
+        if (status === 'trial') {
+            const days = Math.ceil((new Date(school.trial_ends_at) - new Date()) / 86400000);
+            if (days <= 7) {
+                $('#subBannerText').text('Trial ends in ' + days + ' day(s). Contact your admin to upgrade.');
+                $('#subBanner').removeClass().addClass('sub-banner trial').show();
+            }
+        } else if (status === 'grace') {
+            $('#subBannerText').text('Subscription expired. You are in grace period. Data is read-only.');
+            $('#subBanner').removeClass().addClass('sub-banner grace').show();
+        } else if (status === 'expired') {
+            $('#subBannerText').text('Subscription expired. Access is limited. Please contact EduManage Pro support.');
+            $('#subBanner').removeClass().addClass('sub-banner expired').show();
+        }
+
+        // Subscription card
+        const endDate = school.subscription_end || school.trial_ends_at || '—';
+        $('#subscriptionBody').html(`
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+                <div><div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:3px">PLAN</div>
+                    <div style="font-size:15px;font-weight:700;color:#1e293b">${esc(plan.name || '—')}</div></div>
+                <div><div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:3px">STATUS</div>
+                    <div>${statusBadge(status)}</div></div>
+                <div><div style="font-size:11px;color:#64748b;font-weight:700;margin-bottom:3px">EXPIRES</div>
+                    <div style="font-size:14px;font-weight:600;color:#1e293b">${fmtDate(endDate)}</div></div>
+            </div>
+            <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+                <button class="btn btn-outline btn-sm" onclick="showPanel('modules')"><i class="fas fa-th-large"></i> View Modules</button>
+            </div>
+        `);
+    });
+}
+
+// ============================================================
+// STAFF MANAGEMENT
+// ============================================================
+function loadStaff() {
+    api('GET', '/users', null, function(r) {
+        allStaff = r.data?.data || r.data || [];
+        renderStaff(allStaff);
+    });
+}
+
+function renderStaff(staff) {
+    if (!staff.length) {
+        $('#staffTableBody').html('<tr><td colspan="6" style="padding:28px;text-align:center;color:#94a3b8">No staff members yet. Add your first staff member.</td></tr>');
+        return;
+    }
+    let html = '';
+    staff.forEach(s => {
+        html += `<tr>
+            <td><strong>${esc(s.name)}</strong></td>
+            <td style="font-family:monospace;font-size:12px">${esc(s.username)}</td>
+            <td><span class="role-badge">${esc(s.role)}</span></td>
+            <td style="font-size:12px;color:#64748b">${esc(s.email)}</td>
+            <td><span class="badge ${s.status==='Active'?'badge-active':'badge-inactive'}">${esc(s.status)}</span></td>
+            <td>
+                <div style="display:flex;gap:4px">
+                    <button class="btn btn-outline btn-sm btn-icon" onclick="editStaff('${s.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-outline btn-sm btn-icon" onclick="resetPassword('${s.id}')" title="Reset Password"><i class="fas fa-key"></i></button>
+                    <button class="btn btn-outline btn-sm btn-icon" onclick="toggleStaffStatus('${s.id}','${s.status}')" title="Toggle Status">
+                        <i class="fas fa-${s.status==='Active'?'ban':'check'}"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    });
+    $('#staffTableBody').html(html);
+}
+
+function filterStaff() {
+    const q   = $('#staffSearch').val().toLowerCase();
+    const role = $('#staffRoleFilter').val();
+    const filtered = allStaff.filter(s =>
+        (!q || (s.name||'').toLowerCase().includes(q) || (s.username||'').toLowerCase().includes(q))
+        && (!role || s.role === role)
+    );
+    renderStaff(filtered);
+}
+
+function openAddStaffModal() {
+    currentStaffId = null;
+    $('#staffModalTitle').html('<i class="fas fa-user-plus" style="color:#3b82f6;margin-right:7px"></i>Add Staff Member');
+    $('#sName,#sEmail,#sPhone,#sUsername,#sDept,#sDesig').val('');
+    $('#sPassword').val('');
+    $('#sRole').val('');
+    buildModulePermissionGrid('#modulePermissions');
+    openModal('addStaffModal');
+}
+
+function editStaff(id) {
+    const s = allStaff.find(x => x.id == id);
+    if (!s) return;
+    currentStaffId = id;
+    $('#staffModalTitle').html('<i class="fas fa-edit" style="color:#3b82f6;margin-right:7px"></i>Edit Staff Member');
+    $('#sName').val(s.name);
+    $('#sEmail').val(s.email);
+    $('#sPhone').val(s.phone || '');
+    $('#sUsername').val(s.username);
+    $('#sDept').val(s.department || '');
+    $('#sDesig').val(s.designation || '');
+    const $role = $('#sRole');
+    $role.find('option').each(function() {
+        if ($(this).text() === s.role) $(this).prop('selected', true);
+    });
+    buildModulePermissionGrid('#modulePermissions', s.permissions || {});
+    openModal('addStaffModal');
+}
+
+function saveStaff() {
+    const payload = {
+        name:        $('#sName').val().trim(),
+        email:       $('#sEmail').val().trim(),
+        phone:       $('#sPhone').val().trim(),
+        username:    $('#sUsername').val().trim(),
+        password:    $('#sPassword').val(),
+        role:        $('#sRole').val(),
+        department:  $('#sDept').val().trim(),
+        designation: $('#sDesig').val().trim(),
+        permissions: collectPermissions('#modulePermissions'),
+        status:      'Active',
+    };
+    if (!payload.name || !payload.email || !payload.username) {
+        showToast('Name, email, and username are required', 'error'); return;
+    }
+    const method = currentStaffId ? 'PUT' : 'POST';
+    const path   = currentStaffId ? '/users/' + currentStaffId : '/users';
+    api(method, path, payload, function() {
+        showToast(currentStaffId ? 'Staff updated' : 'Staff created — credentials ready', 'success');
+        closeModal('addStaffModal');
+        loadStaff();
+    });
+}
+
+function toggleStaffStatus(id, currentStatus) {
+    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+    api('POST', '/users/' + id + '/status', { status: newStatus }, function() {
+        showToast('Status updated', 'success');
+        loadStaff();
+    });
+}
+
+function resetPassword(id) {
+    const np = prompt('Enter new password (min 8 chars):');
+    if (!np || np.length < 8) { showToast('Password too short', 'error'); return; }
+    api('POST', '/users/' + id + '/reset-password', { password: np }, function() {
+        showToast('Password reset successfully', 'success');
+    });
+}
+
+function buildModulePermissionGrid(container, existingPerms = {}) {
+    const modules = ['students','teachers','attendance','exams','fees','library',
+                     'transport','hostel','payroll','timetable','reports','settings'];
+    let html = '';
+    modules.forEach(m => {
+        const p = existingPerms[m] || {};
+        html += `<div style="background:#f8fafc;border-radius:8px;padding:10px">
+            <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px;text-transform:capitalize">${m}</div>
+            <div class="perm-grid">
+                ${['view','create','edit','delete','export'].map(a =>
+                    `<div class="perm-check">
+                        <input type="checkbox" data-mod="${m}" data-action="can_${a}" ${p['can_'+a]?'checked':''}>
+                        <span>${a.substring(0,3)}</span>
+                    </div>`
+                ).join('')}
+            </div>
+        </div>`;
+    });
+    $(container).html(html);
+}
+
+function collectPermissions(container) {
+    const perms = {};
+    $(container).find('[data-mod]').each(function() {
+        const mod = $(this).data('mod');
+        const act = $(this).data('action');
+        if (!perms[mod]) perms[mod] = {};
+        perms[mod][act] = $(this).is(':checked');
+    });
+    return perms;
+}
+
+// ============================================================
+// ROLES
+// ============================================================
+function loadRoles() {
+    api('GET', '/users', null, function() {}); // placeholder
+    // Populate role dropdowns
+    const defaultRoles = ['Admin','Principal','Vice Principal','Teacher',
+                          'Accountant','Librarian','Receptionist','Transport Manager','Hostel Warden'];
+    const $sel = $('#sRole, #staffRoleFilter');
+    $sel.find('option:not(:first)').remove();
+    defaultRoles.forEach(r => $sel.append(`<option value="${r}">${r}</option>`));
+    renderRoles(defaultRoles);
+}
+
+function renderRoles(roles) {
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">';
+    roles.forEach(r => {
+        html += `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px"><i class="fas fa-user-tag"></i></div>
+            <div>
+                <div style="font-size:13px;font-weight:600;color:#1e293b">${r}</div>
+                <div style="font-size:10px;color:#94a3b8">System role</div>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    $('#rolesBody').html(html);
+}
+
+function openRoleModal() {
+    $('#roleName,#roleDesc').val('');
+    buildModulePermissionGrid('#roleModulePerms');
+    openModal('roleModal');
+}
+
+function saveRole() {
+    const name = $('#roleName').val().trim();
+    if (!name) { showToast('Role name required','error'); return; }
+    showToast('Role created: ' + name, 'success');
+    closeModal('roleModal');
+}
+
+// ============================================================
+// MODULE ACCESS
+// ============================================================
+function loadModules() {
+    api('GET', '/module-requests', null, function(r) {
+        allModules = r.data || [];
+        renderModules(allModules);
+    }, function() {
+        // Demo modules when API unavailable
+        allModules = getDemoModules();
+        renderModules(allModules);
+    });
+}
+
+function renderModules(modules) {
+    if (!modules.length) {
+        $('#modulesGrid').html('<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8">No modules found.</div>');
+        return;
+    }
+
+    // Group by category
+    const cats = {};
+    modules.forEach(m => {
+        if (!cats[m.category]) cats[m.category] = [];
+        cats[m.category].push(m);
+    });
+
+    const catIcons = { core:'fa-home', academic:'fa-graduation-cap', finance:'fa-money-bill',
+                       operations:'fa-cogs', admin:'fa-users-cog', ai:'fa-robot' };
+    const moduleIcons = {
+        dashboard:'fa-tachometer-alt', students:'fa-user-graduate', teachers:'fa-chalkboard-teacher',
+        academic:'fa-th-list', attendance:'fa-clipboard-check', exams:'fa-file-alt',
+        timetable:'fa-calendar-alt', syllabus:'fa-book-open', reports:'fa-chart-bar',
+        fees:'fa-money-check-alt', payroll:'fa-wallet', library:'fa-book',
+        transport:'fa-bus', hostel:'fa-bed', events:'fa-calendar-check',
+        users:'fa-users-cog', settings:'fa-cog', ai:'fa-robot',
+    };
+
+    let html = '';
+    Object.entries(cats).forEach(([cat, mods]) => {
+        html += `<div style="grid-column:1/-1;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-top:8px;margin-bottom:2px">
+            <i class="fas ${catIcons[cat]||'fa-th'}" style="margin-right:6px"></i>${cat}
+        </div>`;
+        mods.forEach(m => {
+            const enabled = m.is_enabled;
+            const req     = m.request;
+            let reqBadge  = '';
+            let btn       = '';
+
+            if (!enabled) {
+                if (req && req.status === 'pending') {
+                    reqBadge = '<div style="font-size:9px;color:#f59e0b;font-weight:700;margin-top:3px"><i class="fas fa-clock"></i> Pending Review</div>';
+                    btn = `<button class="btn btn-outline request-btn" disabled style="cursor:default;opacity:.6"><i class="fas fa-hourglass-half"></i> Requested</button>`;
+                } else if (req && req.status === 'denied') {
+                    reqBadge = '<div style="font-size:9px;color:#ef4444;font-weight:700;margin-top:3px" title="' + (req.review_note||'') + '"><i class="fas fa-times"></i> Denied</div>';
+                    btn = `<button class="btn btn-outline request-btn" onclick="openRequestModal('${m.id}','${esc(m.name)}')"><i class="fas fa-redo"></i> Request Again</button>`;
+                } else {
+                    btn = `<button class="btn btn-primary request-btn" onclick="openRequestModal('${m.id}','${esc(m.name)}')"><i class="fas fa-paper-plane"></i> Request Access</button>`;
+                }
+            }
+
+            html += `<div class="module-card ${enabled?'enabled':'locked'}">
+                ${!enabled ? '<i class="fas fa-lock lock-icon"></i>' : ''}
+                <div class="mod-icon"><i class="fas ${moduleIcons[m.slug]||'fa-th'}"></i></div>
+                <div class="mod-name">${esc(m.name)}</div>
+                <div class="mod-status">${enabled ? '✓ Active' : '✗ Locked'}</div>
+                <div style="font-size:10px;color:#94a3b8;margin-top:2px">${enabled ? (m.source==='override'?'Manually enabled':'Plan included') : 'Not in plan'}</div>
+                ${reqBadge}
+                ${btn}
+            </div>`;
+        });
+    });
+
+    $('#modulesGrid').html(html);
+}
+
+function openRequestModal(featureId, featureName) {
+    requestingFeatureId = featureId;
+    $('#reqModuleName').text(featureName);
+    $('#reqReason').val('');
+    openModal('moduleRequestModal');
+}
+
+function submitModuleRequest() {
+    const reason = $('#reqReason').val().trim();
+    if (!reason || reason.length < 10) {
+        showToast('Please provide a detailed reason (min 10 characters)', 'error'); return;
+    }
+    api('POST', '/module-requests', {
+        feature_id: requestingFeatureId,
+        reason: reason,
+    }, function() {
+        showToast('Request submitted! Admin will review and respond.', 'success');
+        closeModal('moduleRequestModal');
+        loadModules();
+    });
+}
+
+// ============================================================
+// LOGOUT
+// ============================================================
+function logout() {
+    localStorage.removeItem('edu_token');
+    localStorage.removeItem('edu_user');
+    window.location.href = 'login.html';
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function closeModal(id) { $('#'+id).removeClass('show'); }
+function openModal(id)  { $('#'+id).addClass('show'); }
+$('.modal-bg').on('click', function(e) { if (e.target===this) closeModal(this.id); });
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg, type='info') {
+    clearTimeout(toastTimer);
+    $('#toast').removeClass('success error info').addClass(type).text(msg).show();
+    toastTimer = setTimeout(() => $('#toast').fadeOut(), 3500);
+}
+
+// ============================================================
+// DEMO DATA
+// ============================================================
+function getDemoModules() {
+    return [
+        { id:'1', name:'Dashboard',       slug:'dashboard',  category:'core',      is_enabled:true,  source:'plan', request:null },
+        { id:'2', name:'Students',         slug:'students',   category:'academic',  is_enabled:true,  source:'plan', request:null },
+        { id:'3', name:'Teachers',         slug:'teachers',   category:'academic',  is_enabled:true,  source:'plan', request:null },
+        { id:'4', name:'Attendance',       slug:'attendance', category:'academic',  is_enabled:true,  source:'plan', request:null },
+        { id:'5', name:'Exams & Grades',   slug:'exams',      category:'academic',  is_enabled:true,  source:'plan', request:null },
+        { id:'6', name:'Timetable',        slug:'timetable',  category:'academic',  is_enabled:true,  source:'plan', request:null },
+        { id:'7', name:'Fee Management',   slug:'fees',       category:'finance',   is_enabled:false, source:'none', request:null },
+        { id:'8', name:'Payroll',          slug:'payroll',    category:'finance',   is_enabled:false, source:'none', request:null },
+        { id:'9', name:'Library',          slug:'library',    category:'operations',is_enabled:false, source:'none', request:null },
+        { id:'10',name:'Transport',        slug:'transport',  category:'operations',is_enabled:false, source:'none', request:null },
+        { id:'11',name:'Hostel',           slug:'hostel',     category:'operations',is_enabled:false, source:'none', request:null },
+        { id:'12',name:'AI Assistant',     slug:'ai',         category:'ai',        is_enabled:false, source:'none', request:null },
+    ];
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmt(n) { return Number(n||0).toLocaleString('en-IN'); }
+function fmtDate(d) {
+    if (!d||d==='—') return '—';
+    try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+    catch(e) { return String(d); }
+}
+function statusBadge(status) {
+    const m = { active:'badge-active', trial:'badge-pending', expired:'badge-locked', grace:'badge-inactive' };
+    const l = { active:'Active', trial:'Trial', expired:'Expired', grace:'Grace Period' };
+    return `<span class="badge ${m[status]||'badge-inactive'}">${l[status]||status}</span>`;
+}
+</script>
+</body>
+</html>
